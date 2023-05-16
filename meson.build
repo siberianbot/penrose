@@ -10,6 +10,7 @@ project(
 deps = [
     subproject('fmt').get_variable('fmt_dep'),
     subproject('glfw').get_variable('glfw_dep'),
+    dependency('vulkan'),
 ]
 
 src = [
@@ -21,6 +22,7 @@ src = [
 
     # Backends
     'src/Backends/GlfwBackend.cpp',
+    'src/Backends/VulkanBackend.cpp',
 
     # Events
     'src/Events/EventQueue.cpp',

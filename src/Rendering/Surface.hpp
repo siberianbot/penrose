@@ -2,6 +2,9 @@
 #define PENROSE_RENDERING_SURFACE_HPP
 
 #include <memory>
+#include <optional>
+
+#include <vulkan/vulkan.hpp>
 
 #include "src/Core/Resource.hpp"
 
@@ -11,12 +14,15 @@ namespace Penrose {
 
     class ResourceSet;
     class EventQueue;
+    class VulkanBackend;
 
     class Surface : public Resource {
     private:
         std::shared_ptr<EventQueue> _eventQueue;
+        std::shared_ptr<VulkanBackend> _vulkanBackend;
 
         GLFWwindow *_handle = nullptr;
+        std::optional<vk::SurfaceKHR> _surface = std::nullopt;
 
         static void closeCallback(GLFWwindow *handle);
 
@@ -28,6 +34,8 @@ namespace Penrose {
         void destroy() override;
 
         void poll();
+
+        [[nodiscard]] vk::SurfaceKHR &getSurface() { return this->_surface.value(); }
     };
 }
 

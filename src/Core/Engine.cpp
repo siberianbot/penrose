@@ -1,6 +1,7 @@
 #include "Engine.hpp"
 
 #include "src/Backends/GlfwBackend.hpp"
+#include "src/Backends/VulkanBackend.hpp"
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/Surface.hpp"
 
@@ -9,6 +10,7 @@ namespace Penrose {
     Engine::Engine() {
         this->_resources.add<EventQueue>();
         this->_resources.add<GlfwBackend>();
+        this->_resources.add<VulkanBackend>();
         this->_resources.add<Surface>();
     }
 

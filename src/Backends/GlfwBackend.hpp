@@ -1,6 +1,8 @@
 #ifndef PENROSE_BACKENDS_GLFW_BACKEND_HPP
 #define PENROSE_BACKENDS_GLFW_BACKEND_HPP
 
+#include <vector>
+
 #include "src/Core/Resource.hpp"
 
 namespace Penrose {
@@ -11,6 +13,8 @@ namespace Penrose {
 
         void init() override;
         void destroy() override;
+
+        [[nodiscard]] std::vector<const char *> getRequiredInstanceExtensions() const;
     };
 }
 

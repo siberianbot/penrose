@@ -15,4 +15,12 @@ namespace Penrose {
     void GlfwBackend::destroy() {
         glfwTerminate();
     }
+
+    std::vector<const char *>
+    GlfwBackend::getRequiredInstanceExtensions() const { // NOLINT(readability-convert-member-functions-to-static)
+        std::uint32_t count = 0;
+        const char **extensions = glfwGetRequiredInstanceExtensions(&count);
+
+        return {extensions, extensions + count};
+    }
 }
