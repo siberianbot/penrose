@@ -22,6 +22,9 @@ src = [
     # Backends
     'src/Backends/GlfwBackend.cpp',
 
+    # Events
+    'src/Events/EventQueue.cpp',
+
     # Rendering
     'src/Rendering/Surface.cpp',
 ]
