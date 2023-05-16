@@ -16,6 +16,8 @@ namespace Penrose {
         this->_resources.initAll();
 
         auto eventQueue = this->_resources.get<EventQueue>()->lock();
+        auto surface = this->_resources.get<Surface>()->lock();
+
         auto alive = true;
 
         eventQueue->addHandler([&alive](const Event &event) {
@@ -26,11 +28,9 @@ namespace Penrose {
             alive = false;
         });
 
-        // TODO: added to eliminate endless loop below (surface event handling is not implemented yet)
-        eventQueue->push(Event{.type = EventType::EngineDestroyRequested});
-
         while (alive) {
             eventQueue->process();
+            surface->poll();
         }
 
         this->_resources.destroyAll();
