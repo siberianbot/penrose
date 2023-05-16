@@ -7,8 +7,16 @@ project(
         'cpp_std=c++20'
     ])
 
-src = [
-  'src/main.cpp'
+deps = [
+    subproject('fmt').get_variable('fmt_dep')
 ]
 
-executable('penrose', src)
+src = [
+    'src/main.cpp',
+
+    # Core
+    'src/Core/Engine.cpp',
+    'src/Core/ResourceSet.cpp',
+]
+
+executable('penrose', src, dependencies: deps)
