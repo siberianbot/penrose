@@ -10,6 +10,8 @@ namespace Penrose {
         ResourceSet _resources;
 
     public:
+        Engine();
+
         void run();
 
         [[nodiscard]] ResourceSet &resources() { return this->_resources; }

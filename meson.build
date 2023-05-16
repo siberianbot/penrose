@@ -8,7 +8,8 @@ project(
     ])
 
 deps = [
-    subproject('fmt').get_variable('fmt_dep')
+    subproject('fmt').get_variable('fmt_dep'),
+    subproject('glfw').get_variable('glfw_dep'),
 ]
 
 src = [
@@ -17,6 +18,12 @@ src = [
     # Core
     'src/Core/Engine.cpp',
     'src/Core/ResourceSet.cpp',
+
+    # Backends
+    'src/Backends/GlfwBackend.cpp',
+
+    # Rendering
+    'src/Rendering/Surface.cpp',
 ]
 
 executable('penrose', src, dependencies: deps)
