@@ -65,4 +65,11 @@ namespace Penrose {
     void Surface::poll() { // NOLINT(readability-convert-member-functions-to-static)
         glfwPollEvents();
     }
+
+    SurfaceSize Surface::getSize() const {
+        int width, height;
+        glfwGetWindowSize(this->_handle, &width, &height);
+
+        return std::make_tuple(width, height);
+    }
 }

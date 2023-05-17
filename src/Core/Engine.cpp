@@ -4,6 +4,7 @@
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
+#include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/Surface.hpp"
 
 namespace Penrose {
@@ -14,6 +15,7 @@ namespace Penrose {
         this->_resources.add<VulkanBackend>();
         this->_resources.add<Surface>();
         this->_resources.add<DeviceContext>();
+        this->_resources.add<PresentContext>();
     }
 
     void Engine::run() {

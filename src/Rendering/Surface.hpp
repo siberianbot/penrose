@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <optional>
+#include <tuple>
 
 #include <vulkan/vulkan.hpp>
 
@@ -16,13 +17,15 @@ namespace Penrose {
     class EventQueue;
     class VulkanBackend;
 
+    using SurfaceSize = std::tuple<std::uint32_t, std::uint32_t>;
+
     class Surface : public Resource {
     private:
         std::shared_ptr<EventQueue> _eventQueue;
         std::shared_ptr<VulkanBackend> _vulkanBackend;
 
         GLFWwindow *_handle = nullptr;
-        std::optional<vk::SurfaceKHR> _surface = std::nullopt;
+        std::optional<vk::SurfaceKHR> _surface;
 
         static void closeCallback(GLFWwindow *handle);
 
@@ -34,6 +37,8 @@ namespace Penrose {
         void destroy() override;
 
         void poll();
+
+        [[nodiscard]] SurfaceSize getSize() const;
 
         [[nodiscard]] vk::SurfaceKHR &getSurface() { return this->_surface.value(); }
     };

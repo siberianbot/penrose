@@ -44,6 +44,10 @@ namespace Penrose {
 
         void init() override;
         void destroy() override;
+
+        [[nodiscard]] vk::PhysicalDevice &getPhysicalDevice() { return this->_physicalDevice.value().handle; }
+
+        [[nodiscard]] vk::Device &getLogicalDevice() { return this->_logicalDevice.value().handle; }
     };
 }
 
