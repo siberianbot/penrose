@@ -28,6 +28,7 @@ src = [
     'src/Events/EventQueue.cpp',
 
     # Rendering
+    'src/Rendering/DeviceContext.cpp',
     'src/Rendering/Surface.cpp',
 ]
 

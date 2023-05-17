@@ -3,6 +3,7 @@
 #include "src/Backends/GlfwBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Events/EventQueue.hpp"
+#include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/Surface.hpp"
 
 namespace Penrose {
@@ -12,6 +13,7 @@ namespace Penrose {
         this->_resources.add<GlfwBackend>();
         this->_resources.add<VulkanBackend>();
         this->_resources.add<Surface>();
+        this->_resources.add<DeviceContext>();
     }
 
     void Engine::run() {
