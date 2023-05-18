@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <optional>
+#include <thread>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
@@ -19,12 +20,14 @@ namespace Penrose {
     private:
         struct SwapchainProxy {
             vk::SwapchainKHR handle;
+            std::vector<vk::Image> images;
             std::vector<vk::ImageView> imageViews;
         };
 
         std::shared_ptr<DeviceContext> _deviceContext;
         std::shared_ptr<Surface> _surface;
 
+        std::mutex _swapchainMutex;
         std::optional<SwapchainProxy> _swapchain;
 
         SwapchainProxy createSwapchain();
@@ -38,6 +41,16 @@ namespace Penrose {
         void destroy() override;
 
         void recreate();
+
+        [[nodiscard]] std::lock_guard<std::mutex> acquireSwapchainLock() {
+            return std::lock_guard<std::mutex>(this->_swapchainMutex);
+        }
+
+        [[nodiscard]] vk::SwapchainKHR &getSwapchain() { return this->_swapchain.value().handle; }
+
+        [[nodiscard]] const std::vector<vk::Image> &getSwapchainImage() const {
+            return this->_swapchain.value().images;
+        }
     };
 }
 

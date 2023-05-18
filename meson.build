@@ -30,6 +30,7 @@ src = [
     # Rendering
     'src/Rendering/DeviceContext.cpp',
     'src/Rendering/PresentContext.cpp',
+    'src/Rendering/RenderThread.cpp',
     'src/Rendering/Surface.cpp',
 ]
 

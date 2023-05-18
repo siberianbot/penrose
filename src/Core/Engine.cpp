@@ -5,6 +5,7 @@
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
+#include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"
 
 namespace Penrose {
@@ -16,6 +17,7 @@ namespace Penrose {
         this->_resources.add<Surface>();
         this->_resources.add<DeviceContext>();
         this->_resources.add<PresentContext>();
+        this->_resources.add<RenderThread>();
     }
 
     void Engine::run() {

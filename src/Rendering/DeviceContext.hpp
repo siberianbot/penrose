@@ -47,7 +47,19 @@ namespace Penrose {
 
         [[nodiscard]] vk::PhysicalDevice &getPhysicalDevice() { return this->_physicalDevice.value().handle; }
 
+        [[nodiscard]] std::uint32_t getGraphicsQueueFamily() {
+            return this->_physicalDevice.value().graphicsQueueFamilyIdx;
+        }
+
+        [[nodiscard]] std::uint32_t getPresentQueueFamily() {
+            return this->_physicalDevice.value().presentQueueFamilyIdx;
+        }
+
         [[nodiscard]] vk::Device &getLogicalDevice() { return this->_logicalDevice.value().handle; }
+
+        [[nodiscard]] vk::Queue &getGraphicsQueue() { return this->_logicalDevice.value().graphicsQueue; }
+
+        [[nodiscard]] vk::Queue &getPresentQueue() { return this->_logicalDevice.value().presentQueue; }
     };
 }
 
