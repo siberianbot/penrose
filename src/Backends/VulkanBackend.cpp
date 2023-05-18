@@ -1,10 +1,24 @@
 #include "VulkanBackend.hpp"
 
+#include <iostream>
+
 #include "src/Backends/GlfwBackend.hpp"
 #include "src/Common/EngineError.hpp"
 #include "src/Core/ResourceSet.hpp"
 
 namespace Penrose {
+
+    VkBool32 VulkanBackend::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                          VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+                                          const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                          void *pUserData) {
+        auto that = reinterpret_cast<VulkanBackend *>(pUserData);
+
+        // TODO: replace with our logging system
+        std::cout << pCallbackData->pMessage << std::endl;
+
+        return false;
+    }
 
     VulkanBackend::VulkanBackend(ResourceSet *resources)
             : _glfwBackend(resources->get<GlfwBackend>()->lock()) {
@@ -19,6 +33,18 @@ namespace Penrose {
                 "VK_LAYER_KHRONOS_validation"
         };
 
+        auto debugMessenger = vk::DebugUtilsMessengerCreateInfoEXT()
+                .setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+                                vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding |
+                                vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+                                vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
+                .setMessageSeverity(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
+                                    vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
+                                    vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+                                    vk::DebugUtilsMessageSeverityFlagBitsEXT::eError)
+                .setPfnUserCallback(debugCallback)
+                .setPUserData(this);
+
         auto applicationInfo = vk::ApplicationInfo()
                 .setApiVersion(VK_VERSION_1_3)
                 .setPEngineName("Penrose")
@@ -27,6 +53,7 @@ namespace Penrose {
                 .setApplicationVersion(VK_MAKE_VERSION(0, 1, 0));
 
         auto createInfo = vk::InstanceCreateInfo()
+                .setPNext(&debugMessenger)
                 .setPApplicationInfo(&applicationInfo)
                 .setPEnabledExtensionNames(requiredExtensions)
                 .setPEnabledLayerNames(requiredLayers);

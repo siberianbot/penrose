@@ -19,6 +19,11 @@ namespace Penrose {
 
         std::optional<vk::Instance> _instance;
 
+        static VkBool32 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                      VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+                                      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                      void *pUserData);
+
     public:
         explicit VulkanBackend(ResourceSet *resources);
         ~VulkanBackend() override = default;
