@@ -147,5 +147,18 @@ namespace Penrose {
 
             this->_thread = std::nullopt;
         }
+
+        auto logicalDevice = this->_deviceContext->getLogicalDevice();
+
+        logicalDevice.waitIdle();
+
+        for (const auto &sync: this->_syncs) {
+            logicalDevice.destroy(sync.fence);
+            logicalDevice.destroy(sync.renderFinished);
+            logicalDevice.destroy(sync.imageAvailable);
+        }
+
+        logicalDevice.freeCommandBuffers(this->_commandPool, this->_commandBuffers);
+        logicalDevice.destroy(this->_commandPool);
     }
 }
