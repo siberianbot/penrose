@@ -1,14 +1,14 @@
 #ifndef PENROSE_RENDERING_PRESENT_CONTEXT_HPP
 #define PENROSE_RENDERING_PRESENT_CONTEXT_HPP
 
-#include <memory>
 #include <optional>
 #include <thread>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Core/Resource.hpp"
+#include "src/Common/Initializable.hpp"
+#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
@@ -16,7 +16,7 @@ namespace Penrose {
     class DeviceContext;
     class Surface;
 
-    class PresentContext : public Resource {
+    class PresentContext : public Resource, public Initializable {
     private:
         struct SwapchainProxy {
             vk::SwapchainKHR handle;
@@ -24,8 +24,8 @@ namespace Penrose {
             std::vector<vk::ImageView> imageViews;
         };
 
-        std::shared_ptr<DeviceContext> _deviceContext;
-        std::shared_ptr<Surface> _surface;
+        DeviceContext *_deviceContext;
+        Surface *_surface;
 
         std::mutex _swapchainMutex;
         std::optional<SwapchainProxy> _swapchain;

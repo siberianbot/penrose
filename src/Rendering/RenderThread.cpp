@@ -1,8 +1,8 @@
 #include "RenderThread.hpp"
 
-#include "src/Core/ResourceSet.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
+#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 
@@ -81,8 +81,8 @@ namespace Penrose {
     }
 
     RenderThread::RenderThread(ResourceSet *resources)
-            : _deviceContext(resources->get<DeviceContext>()->lock()),
-              _presentContext(resources->get<PresentContext>()->lock()) {
+            : _deviceContext(resources->get<DeviceContext>()),
+              _presentContext(resources->get<PresentContext>()) {
         //
     }
 

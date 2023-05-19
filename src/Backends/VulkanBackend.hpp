@@ -1,21 +1,21 @@
 #ifndef PENROSE_BACKENDS_VULKAN_BACKEND_HPP
 #define PENROSE_BACKENDS_VULKAN_BACKEND_HPP
 
-#include <memory>
 #include <optional>
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Core/Resource.hpp"
+#include "src/Common/Initializable.hpp"
+#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
     class ResourceSet;
     class GlfwBackend;
 
-    class VulkanBackend : public Resource {
+    class VulkanBackend : public Resource, public Initializable {
     private:
-        std::shared_ptr<GlfwBackend> _glfwBackend;
+        GlfwBackend *_glfwBackend;
 
         std::optional<vk::Instance> _instance;
 

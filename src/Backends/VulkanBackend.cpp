@@ -4,7 +4,7 @@
 
 #include "src/Backends/GlfwBackend.hpp"
 #include "src/Common/EngineError.hpp"
-#include "src/Core/ResourceSet.hpp"
+#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 
@@ -21,7 +21,7 @@ namespace Penrose {
     }
 
     VulkanBackend::VulkanBackend(ResourceSet *resources)
-            : _glfwBackend(resources->get<GlfwBackend>()->lock()) {
+            : _glfwBackend(resources->get<GlfwBackend>()) {
         //
     }
 

@@ -1,13 +1,13 @@
 #ifndef PENROSE_RENDERING_SURFACE_HPP
 #define PENROSE_RENDERING_SURFACE_HPP
 
-#include <memory>
 #include <optional>
 
 #include <vulkan/vulkan.hpp>
 
+#include "src/Common/Initializable.hpp"
 #include "src/Common/Types.hpp"
-#include "src/Core/Resource.hpp"
+#include "src/Resources/Resource.hpp"
 
 struct GLFWwindow;
 
@@ -17,10 +17,10 @@ namespace Penrose {
     class EventQueue;
     class VulkanBackend;
 
-    class Surface : public Resource {
+    class Surface : public Resource, public Initializable {
     private:
-        std::shared_ptr<EventQueue> _eventQueue;
-        std::shared_ptr<VulkanBackend> _vulkanBackend;
+        EventQueue *_eventQueue;
+        VulkanBackend *_vulkanBackend;
 
         GLFWwindow *_handle = nullptr;
         std::optional<vk::SurfaceKHR> _surface;

@@ -3,9 +3,9 @@
 #include <limits>
 
 #include "src/Common/EngineError.hpp"
-#include "src/Core/ResourceSet.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/Surface.hpp"
+#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 
@@ -122,8 +122,8 @@ namespace Penrose {
     }
 
     PresentContext::PresentContext(ResourceSet *resources)
-            : _deviceContext(resources->get<DeviceContext>()->lock()),
-              _surface(resources->get<Surface>()->lock()) {
+            : _deviceContext(resources->get<DeviceContext>()),
+              _surface(resources->get<Surface>()) {
         //
     }
 

@@ -3,11 +3,12 @@
 
 #include <vector>
 
-#include "src/Core/Resource.hpp"
+#include "src/Common/Initializable.hpp"
+#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
-    class GlfwBackend : public Resource {
+    class GlfwBackend : public Resource, public Initializable {
     public:
         ~GlfwBackend() override = default;
 

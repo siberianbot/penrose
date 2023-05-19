@@ -18,7 +18,6 @@ src = [
 
     # Core
     'src/Core/Engine.cpp',
-    'src/Core/ResourceSet.cpp',
 
     # Backends
     'src/Backends/GlfwBackend.cpp',
@@ -33,6 +32,9 @@ src = [
     'src/Rendering/PresentContext.cpp',
     'src/Rendering/RenderThread.cpp',
     'src/Rendering/Surface.cpp',
+
+    # Resources
+    'src/Resources/ResourceSet.cpp',
 ]
 
 executable('penrose', src, dependencies: deps)

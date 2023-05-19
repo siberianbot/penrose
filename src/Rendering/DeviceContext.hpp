@@ -1,12 +1,12 @@
 #ifndef PENROSE_RENDERING_DEVICE_CONTEXT_HPP
 #define PENROSE_RENDERING_DEVICE_CONTEXT_HPP
 
-#include <memory>
 #include <optional>
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Core/Resource.hpp"
+#include "src/Common/Initializable.hpp"
+#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
@@ -14,7 +14,7 @@ namespace Penrose {
     class VulkanBackend;
     class Surface;
 
-    class DeviceContext : public Resource {
+    class DeviceContext : public Resource, public Initializable {
     private:
         struct PhysicalDeviceProxy {
             vk::PhysicalDevice handle;
@@ -29,8 +29,8 @@ namespace Penrose {
             vk::Queue presentQueue;
         };
 
-        std::shared_ptr<VulkanBackend> _vulkanBackend;
-        std::shared_ptr<Surface> _surface;
+        VulkanBackend *_vulkanBackend;
+        Surface *_surface;
 
         std::optional<PhysicalDeviceProxy> _physicalDevice;
         std::optional<LogicalDeviceProxy> _logicalDevice;

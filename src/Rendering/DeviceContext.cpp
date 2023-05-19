@@ -6,8 +6,8 @@
 
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Common/EngineError.hpp"
-#include "src/Core/ResourceSet.hpp"
 #include "src/Rendering/Surface.hpp"
+#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 
@@ -108,8 +108,8 @@ namespace Penrose {
     }
 
     DeviceContext::DeviceContext(ResourceSet *resources)
-            : _vulkanBackend(resources->get<VulkanBackend>()->lock()),
-              _surface(resources->get<Surface>()->lock()) {
+            : _vulkanBackend(resources->get<VulkanBackend>()),
+              _surface(resources->get<Surface>()) {
         //
     }
 

@@ -23,8 +23,8 @@ namespace Penrose {
     void Engine::run() {
         this->_resources.initAll();
 
-        auto eventQueue = this->_resources.get<EventQueue>()->lock();
-        auto surface = this->_resources.get<Surface>()->lock();
+        auto eventQueue = this->_resources.get<EventQueue>();
+        auto surface = this->_resources.get<Surface>();
 
         auto alive = true;
 

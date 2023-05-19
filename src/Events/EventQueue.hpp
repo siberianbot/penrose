@@ -5,8 +5,8 @@
 #include <unordered_map>
 
 #include "src/Common/DoubleVector.hpp"
-#include "src/Core/Resource.hpp"
 #include "src/Events/Event.hpp"
+#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
@@ -22,10 +22,6 @@ namespace Penrose {
 
     public:
         ~EventQueue() override = default;
-
-        void init() override { /* nothing to do */ }
-
-        void destroy() override { /* nothing to do */ }
 
         void push(Event event);
         void process();

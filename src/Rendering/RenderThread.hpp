@@ -1,13 +1,13 @@
 #ifndef PENROSE_RENDERING_RENDER_THREAD_HPP
 #define PENROSE_RENDERING_RENDER_THREAD_HPP
 
-#include <memory>
 #include <optional>
 #include <thread>
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Core/Resource.hpp"
+#include "src/Common/Initializable.hpp"
+#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
@@ -15,15 +15,15 @@ namespace Penrose {
     class DeviceContext;
     class PresentContext;
 
-    class RenderThread : public Resource {
+    class RenderThread : public Resource, public Initializable {
     private:
         struct InflightFrameSync {
             vk::Fence fence;
             vk::Semaphore imageAvailable, renderFinished;
         };
 
-        std::shared_ptr<DeviceContext> _deviceContext;
-        std::shared_ptr<PresentContext> _presentContext;
+        DeviceContext *_deviceContext;
+        PresentContext *_presentContext;
 
         // TODO: remove, only for rendering stub
         vk::CommandPool _commandPool;

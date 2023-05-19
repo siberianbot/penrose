@@ -4,8 +4,8 @@
 
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Common/EngineError.hpp"
-#include "src/Core/ResourceSet.hpp"
 #include "src/Events/EventQueue.hpp"
+#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 
@@ -22,8 +22,8 @@ namespace Penrose {
     }
 
     Surface::Surface(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()->lock()),
-              _vulkanBackend(resources->get<VulkanBackend>()->lock()) {
+            : _eventQueue(resources->get<EventQueue>()),
+              _vulkanBackend(resources->get<VulkanBackend>()) {
         //
     }
 
