@@ -3,10 +3,10 @@
 
 #include <memory>
 #include <optional>
-#include <tuple>
 
 #include <vulkan/vulkan.hpp>
 
+#include "src/Common/Types.hpp"
 #include "src/Core/Resource.hpp"
 
 struct GLFWwindow;
@@ -17,8 +17,6 @@ namespace Penrose {
     class EventQueue;
     class VulkanBackend;
 
-    using SurfaceSize = std::tuple<std::uint32_t, std::uint32_t>;
-
     class Surface : public Resource {
     private:
         std::shared_ptr<EventQueue> _eventQueue;
@@ -27,7 +25,8 @@ namespace Penrose {
         GLFWwindow *_handle = nullptr;
         std::optional<vk::SurfaceKHR> _surface;
 
-        static void closeCallback(GLFWwindow *handle);
+        static void windowCloseCallback(GLFWwindow *handle);
+        static void framebufferSizeCallback(GLFWwindow *handle, int width, int height);
 
     public:
         explicit Surface(ResourceSet *resources);

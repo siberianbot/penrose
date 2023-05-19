@@ -9,12 +9,16 @@
 
 namespace Penrose {
 
-    void Surface::closeCallback(GLFWwindow *handle) {
+    void Surface::windowCloseCallback(GLFWwindow *handle) {
         auto that = reinterpret_cast<Surface *>(glfwGetWindowUserPointer(handle));
 
-        that->_eventQueue->push(Event{
-                .type = EventType::EngineDestroyRequested
-        });
+        that->_eventQueue->push(makeEvent(EventType::EngineDestroyRequested));
+    }
+
+    void Surface::framebufferSizeCallback(GLFWwindow *handle, int width, int height) {
+        auto that = reinterpret_cast<Surface *>(glfwGetWindowUserPointer(handle));
+
+        that->_eventQueue->push(makeEvent(EventType::SurfaceResized, SurfaceSize(width, height)));
     }
 
     Surface::Surface(ResourceSet *resources)
@@ -33,7 +37,8 @@ namespace Penrose {
         }
 
         glfwSetWindowUserPointer(handle, this);
-        glfwSetWindowCloseCallback(handle, Surface::closeCallback);
+        glfwSetWindowCloseCallback(handle, Surface::windowCloseCallback);
+        glfwSetFramebufferSizeCallback(handle, Surface::framebufferSizeCallback);
 
         this->_handle = handle;
 
@@ -70,6 +75,6 @@ namespace Penrose {
         int width, height;
         glfwGetWindowSize(this->_handle, &width, &height);
 
-        return std::make_tuple(width, height);
+        return {width, height};
     }
 }

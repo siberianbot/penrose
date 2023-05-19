@@ -25,6 +25,7 @@ src = [
     'src/Backends/VulkanBackend.cpp',
 
     # Events
+    'src/Events/Event.cpp',
     'src/Events/EventQueue.cpp',
 
     # Rendering
