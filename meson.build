@@ -29,6 +29,7 @@ src = [
 
     # Rendering
     'src/Rendering/DeviceContext.cpp',
+    'src/Rendering/DeviceMemoryAllocator.cpp',
     'src/Rendering/PresentContext.cpp',
     'src/Rendering/RenderThread.cpp',
     'src/Rendering/Surface.cpp',
