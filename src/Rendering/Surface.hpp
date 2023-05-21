@@ -37,7 +37,7 @@ namespace Penrose {
 
         void poll();
 
-        [[nodiscard]] SurfaceSize getSize() const;
+        [[nodiscard]] Size getSize() const;
 
         [[nodiscard]] vk::SurfaceKHR &getSurface() { return this->_surface.value(); }
     };

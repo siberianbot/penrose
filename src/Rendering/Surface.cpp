@@ -18,7 +18,7 @@ namespace Penrose {
     void Surface::framebufferSizeCallback(GLFWwindow *handle, int width, int height) {
         auto that = reinterpret_cast<Surface *>(glfwGetWindowUserPointer(handle));
 
-        that->_eventQueue->push(makeEvent(EventType::SurfaceResized, SurfaceSize(width, height)));
+        that->_eventQueue->push(makeEvent(EventType::SurfaceResized, Size(width, height)));
     }
 
     Surface::Surface(ResourceSet *resources)
@@ -71,7 +71,7 @@ namespace Penrose {
         glfwPollEvents();
     }
 
-    SurfaceSize Surface::getSize() const {
+    Size Surface::getSize() const {
         int width, height;
         glfwGetWindowSize(this->_handle, &width, &height);
 

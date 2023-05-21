@@ -33,7 +33,7 @@ namespace Penrose {
 
         // TODO: remove stub and draw frame
         auto memoryBarrier = vk::ImageMemoryBarrier()
-                .setImage(this->_presentContext->getSwapchainImage().at(imageIdx))
+                .setImage(this->_presentContext->getSwapchainImages().at(imageIdx))
                 .setOldLayout(vk::ImageLayout::eUndefined)
                 .setNewLayout(vk::ImageLayout::ePresentSrcKHR)
                 .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite)

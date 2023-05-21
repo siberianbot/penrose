@@ -9,7 +9,7 @@
 
 namespace Penrose {
 
-    vk::Extent2D getPreferredExtent(const vk::SurfaceCapabilitiesKHR &capabilities, const SurfaceSize &surfaceSize) {
+    vk::Extent2D getPreferredExtent(const vk::SurfaceCapabilitiesKHR &capabilities, const Size &surfaceSize) {
         std::uint32_t maxValue = std::numeric_limits<std::uint32_t>::max();
 
         if (capabilities.currentExtent.width != maxValue && capabilities.currentExtent.height != maxValue) {
@@ -106,6 +106,8 @@ namespace Penrose {
 
         return {
                 .handle = swapchain,
+                .extent = extent,
+                .format = format,
                 .images = images,
                 .imageViews = imageViews
         };

@@ -20,6 +20,8 @@ namespace Penrose {
     private:
         struct SwapchainProxy {
             vk::SwapchainKHR handle;
+            vk::Extent2D extent;
+            vk::Format format;
             std::vector<vk::Image> images;
             std::vector<vk::ImageView> imageViews;
         };
@@ -48,8 +50,16 @@ namespace Penrose {
 
         [[nodiscard]] vk::SwapchainKHR &getSwapchain() { return this->_swapchain.value().handle; }
 
-        [[nodiscard]] const std::vector<vk::Image> &getSwapchainImage() const {
+        [[nodiscard]] const vk::Extent2D &getSwapchainExtent() const { return this->_swapchain.value().extent; }
+
+        [[nodiscard]] const vk::Format &getSwapchainFormat() const { return this->_swapchain.value().format; }
+
+        [[nodiscard]] const std::vector<vk::Image> &getSwapchainImages() const {
             return this->_swapchain.value().images;
+        }
+
+        [[nodiscard]] const std::vector<vk::ImageView> &getSwapchainImageViews() const {
+            return this->_swapchain.value().imageViews;
         }
     };
 }

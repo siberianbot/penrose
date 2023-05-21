@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    using SurfaceSize = std::tuple<std::uint32_t, std::uint32_t>;
+    using Size = std::tuple<std::uint32_t, std::uint32_t>;
 }
 
 #endif // PENROSE_COMMON_TYPES_HPP
