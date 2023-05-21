@@ -11,7 +11,8 @@ namespace Penrose {
 
     enum class EventType {
         EngineDestroyRequested,
-        SurfaceResized,
+        RenderContextModified,
+        SurfaceResized
     };
 
     using EventValue = std::variant<Size>;

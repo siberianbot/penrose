@@ -6,6 +6,7 @@
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/DeviceMemoryAllocator.hpp"
 #include "src/Rendering/PresentContext.hpp"
+#include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"
 
@@ -19,6 +20,7 @@ namespace Penrose {
         this->_resources.add<DeviceContext>();
         this->_resources.add<DeviceMemoryAllocator>();
         this->_resources.add<PresentContext>();
+        this->_resources.add<RenderContext>();
         this->_resources.add<RenderThread>();
     }
 
