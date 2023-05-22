@@ -1,6 +1,7 @@
 #ifndef PENROSE_RENDERING_DEVICE_CONTEXT_HPP
 #define PENROSE_RENDERING_DEVICE_CONTEXT_HPP
 
+#include <cstdint>
 #include <optional>
 
 #include <vulkan/vulkan.hpp>

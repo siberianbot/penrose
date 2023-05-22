@@ -1,5 +1,7 @@
 #include "GlfwBackend.hpp"
 
+#include <cstdint>
+
 #include <GLFW/glfw3.h>
 
 #include "src/Common/EngineError.hpp"
