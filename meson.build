@@ -30,11 +30,14 @@ src = [
     # Rendering
     'src/Rendering/DeviceContext.cpp',
     'src/Rendering/DeviceMemoryAllocator.cpp',
+    'src/Rendering/Pass.cpp',
     'src/Rendering/PresentContext.cpp',
     'src/Rendering/RenderContext.cpp',
     'src/Rendering/RenderGraph.cpp',
+    'src/Rendering/RenderGraphParser.cpp',
     'src/Rendering/RenderThread.cpp',
     'src/Rendering/Surface.cpp',
+    'src/Rendering/Target.cpp',
 
     # Resources
     'src/Resources/ResourceSet.cpp',

@@ -31,7 +31,7 @@ namespace Penrose {
 
         void destroy() override;
 
-        void allocateFor(const vk::Image &image, const vk::MemoryPropertyFlags &requiredProperties);
+        void allocateDeviceLocalFor(const vk::Image &image);
         void freeFor(const vk::Image &image);
     };
 }

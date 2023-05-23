@@ -23,6 +23,8 @@ namespace Penrose {
         DepthStencil = 1 << 2
     };
 
+    std::uint8_t operator&(const RenderTargetType &lhs, const RenderTargetType &rhs);
+
     enum class RenderTargetFormat {
         R8UNorm,
         RGBA8UNorm,

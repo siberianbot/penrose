@@ -2,6 +2,10 @@
 
 namespace Penrose {
 
+    std::uint8_t operator&(const RenderTargetType &lhs, const RenderTargetType &rhs) {
+        return static_cast<std::uint8_t>(lhs) & static_cast<std::uint8_t>(rhs);
+    }
+
     RenderGraph makeDefaultRenderGraph() {
         return RenderGraph{
                 .targets = {

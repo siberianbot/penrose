@@ -65,7 +65,7 @@ namespace Penrose {
         this->_allocatedMemory.clear();
     }
 
-    void DeviceMemoryAllocator::allocateFor(const vk::Image &image, const vk::MemoryPropertyFlags &requiredProperties) {
+    void DeviceMemoryAllocator::allocateDeviceLocalFor(const vk::Image &image) {
         auto objectHash = std::hash<vk::Image>{}(image);
 
         if (this->_allocatedMemory.contains(objectHash)) {
@@ -76,7 +76,7 @@ namespace Penrose {
 
         vk::DeviceMemory memory;
         try {
-            memory = this->allocate(memoryRequirements, requiredProperties);
+            memory = this->allocate(memoryRequirements, vk::MemoryPropertyFlagBits::eDeviceLocal);
         } catch (...) {
             std::throw_with_nested(EngineError("Failed to allocate memory for image"));
         }
