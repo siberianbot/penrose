@@ -73,24 +73,20 @@ namespace Penrose {
             }
         };
 
-        class Subpass {
-            // TODO
-        };
-
         class Pass {
         private:
             DeviceContext *_deviceContext;
             vk::RenderPass _renderPass;
             std::vector<vk::ClearValue> _clearValues;
             std::vector<std::uint32_t> _targets;
-            std::vector<Subpass> _subpasses;
+            std::vector<std::optional<std::string>> _operators;
 
         public:
             Pass(DeviceContext *deviceContext,
                  vk::RenderPass renderPass,
                  std::vector<vk::ClearValue> clearValues,
                  std::vector<std::uint32_t> targets,
-                 std::vector<Subpass> subpasses);
+                 std::vector<std::optional<std::string>> operators);
             ~Pass();
 
             [[nodiscard]] const vk::RenderPass &getRenderPass() const {
@@ -105,8 +101,8 @@ namespace Penrose {
                 return this->_targets;
             }
 
-            [[nodiscard]] const std::vector<Subpass> &getSubpasses() const {
-                return this->_subpasses;
+            [[nodiscard]] const std::vector<std::optional<std::string>> &getOperators() const {
+                return this->_operators;
             }
         };
 
@@ -135,6 +131,7 @@ namespace Penrose {
             std::vector<std::unique_ptr<Framebuffer>> framebuffers;
         };
 
+        ResourceSet *_resources;
         EventQueue *_eventQueue;
         DeviceContext *_deviceContext;
         DeviceMemoryAllocator *_deviceMemoryAllocator;

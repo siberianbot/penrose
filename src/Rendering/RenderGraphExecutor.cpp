@@ -9,6 +9,7 @@
 #include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphParser.hpp"
 #include "src/Resources/ResourceSet.hpp"
+#include "src/Utils/OptionalUtils.hpp"
 
 namespace Penrose {
 
@@ -49,12 +50,12 @@ namespace Penrose {
                                     vk::RenderPass renderPass,
                                     std::vector<vk::ClearValue> clearValues,
                                     std::vector<std::uint32_t> targets,
-                                    std::vector<Subpass> subpasses)
+                                    std::vector<std::optional<std::string>> operators)
             : _deviceContext(deviceContext),
               _renderPass(renderPass),
               _clearValues(std::move(clearValues)),
               _targets(std::move(targets)),
-              _subpasses(std::move(subpasses)) {
+              _operators(std::move(operators)) {
         //
     }
 
@@ -124,14 +125,16 @@ namespace Penrose {
             targets[idx] = attachment.targetIdx;
         }
 
-        auto subpasses = std::vector<Subpass>(subgraph.passes.size());
-        // TODO
+        auto operators = std::vector<std::optional<std::string>>(subgraph.passes.size());
+        for (std::uint32_t idx = 0; idx < subgraph.passes.size(); idx++) {
+            operators[idx] = subgraph.passes.at(idx).operatorName;
+        }
 
         return std::make_unique<RenderGraphExecutor::Pass>(this->_deviceContext,
                                                            renderPass,
                                                            clearValues,
                                                            targets,
-                                                           subpasses);
+                                                           operators);
     }
 
     std::unique_ptr<RenderGraphExecutor::Framebuffer> RenderGraphExecutor::createFramebuffer(
@@ -223,7 +226,8 @@ namespace Penrose {
     }
 
     RenderGraphExecutor::RenderGraphExecutor(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()),
+            : _resources(resources),
+              _eventQueue(resources->get<EventQueue>()),
               _deviceContext(resources->get<DeviceContext>()),
               _deviceMemoryAllocator(resources->get<DeviceMemoryAllocator>()),
               _presentContext(resources->get<PresentContext>()),
@@ -318,12 +322,23 @@ namespace Penrose {
 
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
-            for (auto it = pass->getSubpasses().begin(); it != pass->getSubpasses().end(); it++) {
-                if (it != pass->getSubpasses().begin()) {
+            for (auto it = pass->getOperators().begin(); it != pass->getOperators().end(); it++) {
+                if (it != pass->getOperators().begin()) {
                     commandBuffer.nextSubpass(vk::SubpassContents::eInline);
                 }
 
-                // TODO
+                if (!it->has_value()) {
+                    continue;
+                }
+
+                auto op = this->_renderContext->tryGetRenderOperator(it->value());
+
+                if (!op.has_value()) {
+                    // TODO: notify
+                    continue;
+                }
+
+                (*op)->execute(commandBuffer);
             }
 
             commandBuffer.endRenderPass();

@@ -3,7 +3,10 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
+#include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 #include "src/Common/Types.hpp"
@@ -76,6 +79,7 @@ namespace Penrose {
         std::vector<std::uint32_t> inputAttachments;
         std::vector<std::uint32_t> colorAttachments;
         std::optional<std::uint32_t> depthStencilAttachment;
+        std::optional<std::string> operatorName;
     };
 
     struct RenderSubgraph {
