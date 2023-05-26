@@ -2,10 +2,7 @@
 #define PENROSE_RENDERING_RENDER_GRAPH_PARSER_HPP
 
 #include <functional>
-#include <typeindex>
 #include <vector>
-
-#include "src/Rendering/RenderGraph.hpp"
 
 namespace Penrose {
 
@@ -17,28 +14,13 @@ namespace Penrose {
     private:
         using FinalizerFunc = std::function<void()>;
 
-        struct Context {
-            Context(DeviceContext *deviceContext,
-                    DeviceMemoryAllocator *deviceMemoryAllocator,
-                    PresentContext *presentContext,
-                    const RenderGraph *graph);
-            ~Context();
+        PresentContext *_presentContext;
 
-            DeviceContext *deviceContext;
-            DeviceMemoryAllocator *deviceMemoryAllocator;
-            PresentContext *presentContext;
-            const RenderGraph *graph;
-
-            std::vector<FinalizerFunc> finalizers;
-        };
-
-        Context _context;
+        std::vector<FinalizerFunc> _finalizers;
 
     public:
-        RenderGraphParser(DeviceContext *deviceContext,
-                          DeviceMemoryAllocator *deviceMemoryAllocator,
-                          PresentContext *presentContext,
-                          const RenderGraph *graph);
+        explicit RenderGraphParser(PresentContext *presentContext);
+        ~RenderGraphParser();
 
         template<typename TIn, typename TOut>
         TOut parse(const TIn &);

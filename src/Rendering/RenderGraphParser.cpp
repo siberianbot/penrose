@@ -1,42 +1,24 @@
 #include "RenderGraphParser.hpp"
 
 #include <algorithm>
-#include <memory>
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/DeviceMemoryAllocator.hpp"
-#include "src/Rendering/Pass.hpp"
 #include "src/Rendering/PresentContext.hpp"
-#include "src/Rendering/Target.hpp"
+#include "src/Rendering/RenderGraph.hpp"
 #include "src/Utils/OptionalUtils.hpp"
 
 namespace Penrose {
 
-    RenderGraphParser::Context::Context(DeviceContext *deviceContext,
-                                        DeviceMemoryAllocator *deviceMemoryAllocator,
-                                        PresentContext *presentContext,
-                                        const RenderGraph *graph)
-            : deviceContext(deviceContext),
-              deviceMemoryAllocator(deviceMemoryAllocator),
-              presentContext(presentContext),
-              graph(graph) {
+    RenderGraphParser::RenderGraphParser(PresentContext *presentContext)
+            : _presentContext(presentContext) {
         //
     }
 
-    RenderGraphParser::Context::~Context() {
-        for (const auto &finalizer: this->finalizers) {
+    RenderGraphParser::~RenderGraphParser() {
+        for (const auto &finalizer: this->_finalizers) {
             finalizer();
         }
-    }
-
-    RenderGraphParser::RenderGraphParser(DeviceContext *deviceContext,
-                                         DeviceMemoryAllocator *deviceMemoryAllocator,
-                                         PresentContext *presentContext,
-                                         const RenderGraph *graph)
-            : _context({deviceContext, deviceMemoryAllocator, presentContext, graph}) {
-        //
     }
 
     template<>
@@ -76,19 +58,19 @@ namespace Penrose {
     }
 
     template<>
-    vk::Format RenderGraphParser::parse<RenderTargetFormat, vk::Format>(
-            const RenderTargetFormat &format) {
+    vk::Format RenderGraphParser::parse<RenderFormat, vk::Format>(
+            const RenderFormat &format) {
         switch (format) {
-            case RenderTargetFormat::R8UNorm:
+            case RenderFormat::R8UNorm:
                 return vk::Format::eR8Unorm;
 
-            case RenderTargetFormat::RGBA8UNorm:
+            case RenderFormat::RGBA8UNorm:
                 return vk::Format::eR8G8B8A8Unorm;
 
-            case RenderTargetFormat::RGBA16Float:
+            case RenderFormat::RGBA16Float:
                 return vk::Format::eR16G16B16A16Sfloat;
 
-            case RenderTargetFormat::D32Float:
+            case RenderFormat::D32Float:
                 return vk::Format::eD32Sfloat;
 
             default:
@@ -97,77 +79,48 @@ namespace Penrose {
     }
 
     template<>
-    std::unique_ptr<SwapchainTarget> RenderGraphParser::parse<RenderTarget, std::unique_ptr<SwapchainTarget>>(
+    vk::ImageCreateInfo RenderGraphParser::parse<RenderTarget, vk::ImageCreateInfo>(
             const RenderTarget &target) {
-        if (target.source != RenderTargetSource::Swapchain) {
-            throw EngineError("Attempt to process render target with non-swapchain source");
-        }
-
-        return std::make_unique<SwapchainTarget>(this->_context.presentContext);
-    }
-
-    template<>
-    std::unique_ptr<ImageTarget> RenderGraphParser::parse<RenderTarget, std::unique_ptr<ImageTarget>>(
-            const RenderTarget &target) {
-        if (target.source != RenderTargetSource::Image) {
-            throw EngineError("Attempt to process render target with non-image source");
-        }
-
-        if (!target.type.has_value()) {
-            throw EngineError("Type is required for image render target");
-        }
-
-        auto type = target.type.value();
+        auto type = orElseThrow(target.type, EngineError("Type is required for image render target"));
         auto usage = this->parse<RenderTargetType, vk::ImageUsageFlags>(type);
-        auto aspect = this->parse<RenderTargetType, vk::ImageAspectFlags>(type);
-        auto format = map(target.format, [&](RenderTargetFormat format) {
-            return this->parse<RenderTargetFormat, vk::Format>(format);
-        }).value_or(this->_context.presentContext->getSwapchainFormat());
+
+        auto format = map(target.format, [&](RenderFormat format) {
+            return this->parse<RenderFormat, vk::Format>(format);
+        }).value_or(this->_presentContext->getSwapchainFormat());
+
         auto extent = map(target.size, [](Size size) {
             auto [w, h] = size;
             return vk::Extent3D(w, h, 1);
-        }).value_or(vk::Extent3D(this->_context.presentContext->getSwapchainExtent(), 1));
+        }).value_or(vk::Extent3D(this->_presentContext->getSwapchainExtent(), 1));
 
-        auto imageCreateInfo = vk::ImageCreateInfo()
+        return vk::ImageCreateInfo()
                 .setUsage(usage)
                 .setFormat(format)
                 .setExtent(extent);
-
-        auto image = this->_context.deviceContext->getLogicalDevice().createImage(imageCreateInfo);
-
-        this->_context.deviceMemoryAllocator->allocateDeviceLocalFor(image);
-
-        auto imageViewCreateInfo = vk::ImageViewCreateInfo()
-                .setImage(image)
-                .setViewType(vk::ImageViewType::e2D)
-                .setFormat(format)
-                .setSubresourceRange(vk::ImageSubresourceRange()
-                                             .setBaseMipLevel(0)
-                                             .setLevelCount(1)
-                                             .setBaseArrayLayer(0)
-                                             .setLayerCount(1)
-                                             .setAspectMask(aspect));
-
-        auto imageView = this->_context.deviceContext->getLogicalDevice().createImageView(imageViewCreateInfo);
-
-        return std::make_unique<ImageTarget>(this->_context.deviceContext,
-                                             this->_context.deviceMemoryAllocator,
-                                             image, imageView);
     }
 
     template<>
-    std::unique_ptr<Target> RenderGraphParser::parse<RenderTarget, std::unique_ptr<Target>>(
+    vk::ImageViewCreateInfo RenderGraphParser::parse<RenderTarget, vk::ImageViewCreateInfo>(
             const RenderTarget &target) {
-        switch (target.source) {
-            case RenderTargetSource::Swapchain:
-                return this->parse<RenderTarget, std::unique_ptr<SwapchainTarget>>(target);
+        auto type = orElseThrow(target.type, EngineError("Type is required for image render target"));
 
-            case RenderTargetSource::Image:
-                return this->parse<RenderTarget, std::unique_ptr<ImageTarget>>(target);
+        auto format = map(target.format, [&](RenderFormat format) {
+            return this->parse<RenderFormat, vk::Format>(format);
+        }).value_or(this->_presentContext->getSwapchainFormat());
 
-            default:
-                throw EngineError("Unknown source of render target");
-        }
+        auto aspect = this->parse<RenderTargetType, vk::ImageAspectFlags>(type);
+
+        auto subresourceRange = vk::ImageSubresourceRange()
+                .setBaseMipLevel(0)
+                .setLevelCount(1)
+                .setBaseArrayLayer(0)
+                .setLayerCount(1)
+                .setAspectMask(aspect);
+
+        return vk::ImageViewCreateInfo()
+                .setViewType(vk::ImageViewType::e2D)
+                .setFormat(format)
+                .setSubresourceRange(subresourceRange);
     }
 
     template<>
@@ -225,12 +178,19 @@ namespace Penrose {
     }
 
     template<>
+    vk::ClearValue RenderGraphParser::parse<RenderAttachmentClearValue, vk::ClearValue>(
+            const RenderAttachmentClearValue &clearValue) {
+        return vk::ClearValue()
+                .setColor(clearValue.color)
+                .setDepthStencil({clearValue.depth, clearValue.stencil});
+    }
+
+    template<>
     vk::AttachmentDescription RenderGraphParser::parse<RenderAttachment, vk::AttachmentDescription>(
             const RenderAttachment &attachment) {
-        auto target = this->_context.graph->targets.at(attachment.targetIdx);
-        auto format = map(target.format, [&](RenderTargetFormat format) {
-            return this->parse<RenderTargetFormat, vk::Format>(format);
-        }).value_or(this->_context.presentContext->getSwapchainFormat());
+        auto format = map(attachment.format, [&](RenderFormat format) {
+            return this->parse<RenderFormat, vk::Format>(format);
+        }).value_or(this->_presentContext->getSwapchainFormat());
 
         return vk::AttachmentDescription()
                 .setFormat(format)
@@ -243,41 +203,40 @@ namespace Penrose {
     template<>
     vk::SubpassDescription RenderGraphParser::parse<RenderPass, vk::SubpassDescription>(
             const RenderPass &pass) {
-        constexpr auto transformFunc = [](vk::ImageLayout layout) {
-            return [layout](const std::uint32_t &attachmentIdx) {
-                return vk::AttachmentReference(attachmentIdx, layout);
-            };
-        };
+        auto inputAttachments = new vk::AttachmentReference[pass.inputAttachments.size()];
+        for (std::uint32_t idx = 0; idx < pass.inputAttachments.size(); idx++) {
+            inputAttachments[idx] = vk::AttachmentReference(pass.inputAttachments[idx],
+                                                            vk::ImageLayout::eShaderReadOnlyOptimal);
+        }
 
-        auto inputAttachments = std::vector<vk::AttachmentReference>(pass.inputAttachments.size());
-        std::transform(pass.inputAttachments.begin(), pass.inputAttachments.end(), inputAttachments.begin(),
-                       transformFunc(vk::ImageLayout::eShaderReadOnlyOptimal));
-
-        auto colorAttachments = std::vector<vk::AttachmentReference>(pass.colorAttachments.size());
-        std::transform(pass.colorAttachments.begin(), pass.colorAttachments.end(), colorAttachments.begin(),
-                       transformFunc(vk::ImageLayout::eColorAttachmentOptimal));
+        auto colorAttachments = new vk::AttachmentReference[pass.colorAttachments.size()];
+        for (std::uint32_t idx = 0; idx < pass.colorAttachments.size(); idx++) {
+            colorAttachments[idx] = vk::AttachmentReference(pass.colorAttachments[idx],
+                                                            vk::ImageLayout::eColorAttachmentOptimal);
+        }
 
         auto depthAttachment = map(pass.depthStencilAttachment,
                                    [&](const std::uint32_t &attachmentIdx) {
-                                       auto reference = new vk::AttachmentReference(
-                                               attachmentIdx,
-                                               vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-                                       this->_context.finalizers.emplace_back([&reference]() {
-                                           delete reference;
-                                       });
-
-                                       return reference;
+                                       return new vk::AttachmentReference(attachmentIdx,
+                                                                          vk::ImageLayout::eDepthStencilAttachmentOptimal);
                                    }).value_or(nullptr);
 
+        this->_finalizers.emplace_back([inputAttachments, colorAttachments, depthAttachment]() {
+            delete[] inputAttachments;
+            delete[] colorAttachments;
+            delete depthAttachment;
+        });
+
         return vk::SubpassDescription()
-                .setInputAttachments(inputAttachments)
-                .setColorAttachments(colorAttachments)
+                .setInputAttachmentCount(pass.inputAttachments.size())
+                .setPInputAttachments(inputAttachments)
+                .setColorAttachmentCount(pass.colorAttachments.size())
+                .setPColorAttachments(colorAttachments)
                 .setPDepthStencilAttachment(depthAttachment);
     }
 
     template<>
-    std::unique_ptr<Pass> RenderGraphParser::parse<RenderSubgraph, std::unique_ptr<Pass>>(
+    vk::RenderPassCreateInfo RenderGraphParser::parse<RenderSubgraph, vk::RenderPassCreateInfo>(
             const RenderSubgraph &subgraph) {
         constexpr auto makeDependency = [](const std::uint32_t &srcIdx, const std::uint32_t &dstIdx) {
             return vk::SubpassDependency()
@@ -291,33 +250,39 @@ namespace Penrose {
                                       vk::AccessFlagBits::eColorAttachmentRead);
         };
 
-        auto attachments = std::vector<vk::AttachmentDescription>(subgraph.attachments.size());
-        std::transform(subgraph.attachments.begin(), subgraph.attachments.end(), attachments.begin(),
-                       [&](const RenderAttachment &attachment) {
-                           return this->parse<RenderAttachment, vk::AttachmentDescription>(attachment);
-                       });
+        auto attachments = new vk::AttachmentDescription[subgraph.attachments.size()];
+        for (std::uint32_t idx = 0; idx < subgraph.attachments.size(); idx++) {
+            attachments[idx] = this->parse<RenderAttachment, vk::AttachmentDescription>(subgraph.attachments.at(idx));
+        }
 
-        auto subpasses = std::vector<vk::SubpassDescription>(subgraph.passes.size());
-        std::vector<vk::SubpassDependency> dependencies;
-
+        auto subpasses = new vk::SubpassDescription[subgraph.passes.size()];
+        auto dependencies = new std::vector<vk::SubpassDependency>();
         for (std::uint32_t idx = 0; idx < subgraph.passes.size(); idx++) {
             const auto pass = subgraph.passes[idx];
 
             subpasses[idx] = this->parse<RenderPass, vk::SubpassDescription>(pass);
 
-            std::for_each(pass.dependsOn.begin(), pass.dependsOn.end(), [&](const std::uint32_t &srcIdx) {
-                dependencies.push_back(makeDependency(srcIdx, idx));
-            });
+            if (!pass.dependsOn.empty()) {
+                std::for_each(pass.dependsOn.begin(), pass.dependsOn.end(), [&](const std::uint32_t &srcIdx) {
+                    dependencies->push_back(makeDependency(srcIdx, idx));
+                });
+            } else {
+                dependencies->push_back(makeDependency(VK_SUBPASS_EXTERNAL, idx));
+            }
         }
 
-        auto renderPassCreateInfo = vk::RenderPassCreateInfo()
-                .setAttachments(attachments)
-                .setSubpasses(subpasses)
-                .setDependencies(dependencies);
+        this->_finalizers.emplace_back([attachments, subpasses, dependencies]() {
+            delete[] attachments;
+            delete[] subpasses;
+            delete dependencies;
+        });
 
-        auto renderPass = this->_context.deviceContext->getLogicalDevice().createRenderPass(renderPassCreateInfo);
-        auto semaphore = this->_context.deviceContext->getLogicalDevice().createSemaphore(vk::SemaphoreCreateInfo());
-
-        return std::make_unique<Pass>(this->_context.deviceContext, renderPass, semaphore);
+        return vk::RenderPassCreateInfo()
+                .setAttachmentCount(subgraph.attachments.size())
+                .setPAttachments(attachments)
+                .setSubpassCount(subgraph.passes.size())
+                .setPSubpasses(subpasses)
+                .setDependencyCount(dependencies->size())
+                .setPDependencies(dependencies->data());
     }
 }

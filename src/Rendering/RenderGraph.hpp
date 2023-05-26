@@ -3,9 +3,7 @@
 
 #include <array>
 #include <cstdint>
-#include <map>
 #include <optional>
-#include <string>
 #include <vector>
 
 #include "src/Common/Types.hpp"
@@ -25,7 +23,7 @@ namespace Penrose {
 
     std::uint8_t operator&(const RenderTargetType &lhs, const RenderTargetType &rhs);
 
-    enum class RenderTargetFormat {
+    enum class RenderFormat {
         R8UNorm,
         RGBA8UNorm,
         RGBA16Float,
@@ -35,7 +33,7 @@ namespace Penrose {
     struct RenderTarget {
         RenderTargetSource source;
         std::optional<RenderTargetType> type;
-        std::optional<RenderTargetFormat> format;
+        std::optional<RenderFormat> format;
         std::optional<Size> size;
     };
 
@@ -57,7 +55,7 @@ namespace Penrose {
         Store
     };
 
-    struct RenderAttachmentClear {
+    struct RenderAttachmentClearValue {
         std::array<float, 4> color;
         float depth;
         std::uint32_t stencil;
@@ -65,7 +63,8 @@ namespace Penrose {
 
     struct RenderAttachment {
         std::uint32_t targetIdx;
-        RenderAttachmentClear clear;
+        std::optional<RenderFormat> format;
+        RenderAttachmentClearValue clearValue;
         RenderAttachmentLoadOp loadOp;
         RenderAttachmentStoreOp storeOp;
         RenderAttachmentLayout initialLayout;

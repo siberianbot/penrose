@@ -19,7 +19,8 @@ namespace Penrose {
                                 .attachments = {
                                         RenderAttachment{
                                                 .targetIdx = 0,
-                                                .clear = {.color = {0, 0, 0, 1}},
+                                                .format = std::nullopt,
+                                                .clearValue = {.color = {0, 0, 0, 1}},
                                                 .loadOp = RenderAttachmentLoadOp::Clear,
                                                 .storeOp = RenderAttachmentStoreOp::Store,
                                                 .initialLayout = RenderAttachmentLayout::Undefined,

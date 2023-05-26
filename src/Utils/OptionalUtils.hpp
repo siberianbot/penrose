@@ -5,6 +5,15 @@
 
 namespace Penrose {
 
+    template<typename T, typename E>
+    constexpr auto orElseThrow(const std::optional<T> &opt, E ex) {
+        if (opt.has_value()) {
+            return *opt;
+        }
+
+        throw ex;
+    }
+
     template<typename T, typename Callable>
     constexpr auto map(const std::optional<T> &opt, Callable callable) {
         using Result = std::invoke_result_t<Callable, T>;
