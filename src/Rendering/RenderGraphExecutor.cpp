@@ -50,7 +50,7 @@ namespace Penrose {
                                     vk::RenderPass renderPass,
                                     std::vector<vk::ClearValue> clearValues,
                                     std::vector<std::uint32_t> targets,
-                                    std::vector<std::optional<std::string>> operators)
+                                    std::vector<std::optional<std::unique_ptr<RenderOperator>>> operators)
             : _deviceContext(deviceContext),
               _renderPass(renderPass),
               _clearValues(std::move(clearValues)),
@@ -125,16 +125,35 @@ namespace Penrose {
             targets[idx] = attachment.targetIdx;
         }
 
-        auto operators = std::vector<std::optional<std::string>>(subgraph.passes.size());
+        auto operators = std::vector<std::optional<std::unique_ptr<RenderOperator>>>(subgraph.passes.size());
         for (std::uint32_t idx = 0; idx < subgraph.passes.size(); idx++) {
-            operators[idx] = subgraph.passes.at(idx).operatorName;
+            if (!subgraph.passes.at(idx).operatorName.has_value()) {
+                operators[idx] = std::nullopt;
+                continue;
+            }
+
+            auto producer = this->_renderContext->tryGetRenderOperatorProducer(*subgraph.passes.at(idx).operatorName);
+
+            if (!producer.has_value()) {
+                // TODO: notify
+                operators[idx] = std::nullopt;
+                continue;
+            }
+
+            auto context = RenderOperatorProduceContext{
+                    .resources = this->_resources,
+                    .renderPass = renderPass,
+                    .subpassIdx = idx
+            };
+
+            operators[idx] = (*producer)->produce(context);
         }
 
         return std::make_unique<RenderGraphExecutor::Pass>(this->_deviceContext,
                                                            renderPass,
                                                            clearValues,
                                                            targets,
-                                                           operators);
+                                                           std::move(operators));
     }
 
     std::unique_ptr<RenderGraphExecutor::Framebuffer> RenderGraphExecutor::createFramebuffer(
@@ -322,14 +341,7 @@ namespace Penrose {
                     continue;
                 }
 
-                auto op = this->_renderContext->tryGetRenderOperator(it->value());
-
-                if (!op.has_value()) {
-                    // TODO: notify
-                    continue;
-                }
-
-                (*op)->execute(commandBuffer);
+                (**it)->execute(commandBuffer);
             }
 
             commandBuffer.endRenderPass();

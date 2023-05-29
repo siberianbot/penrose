@@ -3,14 +3,9 @@
 
 namespace Penrose {
 
-    template<IsDefaultConstructableRenderOperator T>
-    void RenderContext::addRenderOperator(const std::string_view &name) {
-        this->addRenderOperator(name, std::make_unique<T>());
-    }
-
-    template<IsConstructableWithResourceSetRenderOperator T>
-    void RenderContext::addRenderOperator(const std::string_view &name) {
-        this->addRenderOperator(name, std::make_unique<T>(this->_resources));
+    template<IsRenderOperatorProducer T>
+    void RenderContext::addRenderOperatorProducer(const std::string_view &name) {
+        this->addRenderOperatorProducer(name, std::make_unique<T>());
     }
 }
 

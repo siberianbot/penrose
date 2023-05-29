@@ -13,6 +13,7 @@
 #include "src/Common/Initializable.hpp"
 #include "src/Events/Event.hpp"
 #include "src/Rendering/RenderGraph.hpp"
+#include "src/Rendering/Operators/RenderOperator.hpp"
 #include "src/Resources/Resource.hpp"
 
 namespace Penrose {
@@ -79,14 +80,14 @@ namespace Penrose {
             vk::RenderPass _renderPass;
             std::vector<vk::ClearValue> _clearValues;
             std::vector<std::uint32_t> _targets;
-            std::vector<std::optional<std::string>> _operators;
+            std::vector<std::optional<std::unique_ptr<RenderOperator>>> _operators;
 
         public:
             Pass(DeviceContext *deviceContext,
                  vk::RenderPass renderPass,
                  std::vector<vk::ClearValue> clearValues,
                  std::vector<std::uint32_t> targets,
-                 std::vector<std::optional<std::string>> operators);
+                 std::vector<std::optional<std::unique_ptr<RenderOperator>>> operators);
             ~Pass();
 
             [[nodiscard]] const vk::RenderPass &getRenderPass() const {
@@ -101,7 +102,7 @@ namespace Penrose {
                 return this->_targets;
             }
 
-            [[nodiscard]] const std::vector<std::optional<std::string>> &getOperators() const {
+            [[nodiscard]] const std::vector<std::optional<std::unique_ptr<RenderOperator>>> &getOperators() const {
                 return this->_operators;
             }
         };

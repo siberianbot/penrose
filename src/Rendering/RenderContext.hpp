@@ -14,27 +14,18 @@
 
 namespace Penrose {
 
-    class ResourceSet;
     class EventQueue;
 
     template<typename T>
-    concept IsRenderOperator = std::is_base_of<RenderOperator, T>::value;
-
-    template<typename T>
-    concept IsDefaultConstructableRenderOperator = IsRenderOperator<T> && std::is_default_constructible<T>::value;
-
-    template<typename T>
-    concept IsConstructableWithResourceSetRenderOperator = IsRenderOperator<T> && requires(ResourceSet *resources) {
-        T(resources);
-    };
+    concept IsRenderOperatorProducer = std::is_base_of<RenderOperatorProducer, T>::value &&
+                                       std::is_default_constructible<T>::value;
 
     class RenderContext : public Resource {
     private:
-        ResourceSet *_resources;
         EventQueue *_eventQueue;
 
         std::optional<RenderGraph> _graph;
-        std::map<std::string, std::unique_ptr<RenderOperator>> _operators;
+        std::map<std::string, std::unique_ptr<RenderOperatorProducer>> _operatorProducers;
 
     public:
         explicit RenderContext(ResourceSet *resources);
@@ -44,15 +35,14 @@ namespace Penrose {
 
         [[nodiscard]] const std::optional<RenderGraph> &getRenderGraph() { return this->_graph; }
 
-        void addRenderOperator(const std::string_view &name, std::unique_ptr<RenderOperator> &&instance);
+        void addRenderOperatorProducer(const std::string_view &name,
+                                       std::unique_ptr<RenderOperatorProducer> &&instance);
 
-        template<IsDefaultConstructableRenderOperator T>
-        void addRenderOperator(const std::string_view &name);
+        template<IsRenderOperatorProducer T>
+        void addRenderOperatorProducer(const std::string_view &name);
 
-        template<IsConstructableWithResourceSetRenderOperator T>
-        void addRenderOperator(const std::string_view &name);
-
-        [[nodiscard]] std::optional<RenderOperator *> tryGetRenderOperator(const std::string &name) const;
+        [[nodiscard]] std::optional<RenderOperatorProducer *> tryGetRenderOperatorProducer(
+                const std::string &name) const;
     };
 }
 
