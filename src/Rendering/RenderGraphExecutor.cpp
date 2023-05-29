@@ -64,9 +64,11 @@ namespace Penrose {
     }
 
     RenderGraphExecutor::Framebuffer::Framebuffer(DeviceContext *deviceContext,
-                                                  std::vector<vk::Framebuffer> framebuffers)
+                                                  std::vector<vk::Framebuffer> framebuffers,
+                                                  vk::Extent2D renderArea)
             : _deviceContext(deviceContext),
-              _framebuffers(std::move(framebuffers)) {
+              _framebuffers(std::move(framebuffers)),
+              _renderArea(renderArea) {
         //
     }
 
@@ -159,21 +161,30 @@ namespace Penrose {
     std::unique_ptr<RenderGraphExecutor::Framebuffer> RenderGraphExecutor::createFramebuffer(
             const GraphState &graphState,
             const std::unique_ptr<Pass> &pass) {
+        std::optional<vk::Extent2D> renderArea;
+
+        for (std::uint32_t attachmentIdx: pass->getTargets()) {
+            auto &target = graphState.targets.at(attachmentIdx);
+
+            if (renderArea.has_value() && target->getExtent() != *renderArea) {
+                throw EngineError("Pass contains attachment of different size");
+            } else if (!renderArea.has_value()) {
+                renderArea = target->getExtent();
+            }
+        }
+
+        if (!renderArea.has_value()) {
+            throw EngineError("Failed to determine render area for pass");
+        }
+
         auto imageCount = this->_presentContext->getSwapchainImageViews().size();
         auto framebuffers = std::vector<vk::Framebuffer>(imageCount);
 
         for (std::uint32_t imageIdx = 0; imageIdx < imageCount; imageIdx++) {
             auto attachments = std::vector<vk::ImageView>(pass->getTargets().size());
-            std::optional<vk::Extent2D> extent;
 
             for (std::uint32_t attachmentIdx = 0; attachmentIdx < pass->getTargets().size(); attachmentIdx++) {
                 auto &target = graphState.targets.at(pass->getTargets().at(attachmentIdx));
-
-                if (extent.has_value() && target->getExtent() != *extent) {
-                    throw EngineError("Pass contains attachment of different size");
-                } else if (!extent.has_value()) {
-                    extent = target->getExtent();
-                }
 
                 attachments[attachmentIdx] = target->getView(imageIdx);
             }
@@ -181,12 +192,12 @@ namespace Penrose {
             auto createInfo = vk::FramebufferCreateInfo()
                     .setRenderPass(pass->getRenderPass());
 
-            if (!extent.has_value()) {
+            if (!renderArea.has_value()) {
                 createInfo.setFlags(vk::FramebufferCreateFlagBits::eImageless);
             } else {
                 createInfo
-                        .setWidth(extent->width)
-                        .setHeight(extent->height)
+                        .setWidth(renderArea->width)
+                        .setHeight(renderArea->height)
                         .setAttachments(attachments)
                         .setLayers(1);
             }
@@ -194,7 +205,8 @@ namespace Penrose {
             framebuffers[imageIdx] = this->_deviceContext->getLogicalDevice().createFramebuffer(createInfo);
         }
 
-        return std::make_unique<RenderGraphExecutor::Framebuffer>(this->_deviceContext, framebuffers);
+        return std::make_unique<RenderGraphExecutor::Framebuffer>(this->_deviceContext, framebuffers,
+                                                                  renderArea.value());
     }
 
     RenderGraphExecutor::GraphState RenderGraphExecutor::createGraphState(const RenderGraph &graph) {
@@ -323,12 +335,17 @@ namespace Penrose {
 
         for (std::uint32_t passIdx = 0; passIdx < this->_graphState.value().passes.size(); passIdx++) {
             auto &pass = currentGraphState.passes.at(passIdx);
-            auto framebuffer = currentFramebufferState.framebuffers.at(passIdx)->getFramebuffer(imageIdx);
+            auto &framebuffer = currentFramebufferState.framebuffers.at(passIdx);
+
+            auto renderArea = vk::Rect2D()
+                    .setOffset(vk::Offset2D())
+                    .setExtent(framebuffer->getRenderArea());
 
             auto renderPassBeginInfo = vk::RenderPassBeginInfo()
                     .setRenderPass(pass->getRenderPass())
-                    .setFramebuffer(framebuffer)
-                    .setClearValues(pass->getClearValues());
+                    .setFramebuffer(framebuffer->getFramebuffer(imageIdx))
+                    .setClearValues(pass->getClearValues())
+                    .setRenderArea(renderArea);
 
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 

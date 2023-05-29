@@ -111,14 +111,20 @@ namespace Penrose {
         private:
             DeviceContext *_deviceContext;
             std::vector<vk::Framebuffer> _framebuffers;
+            vk::Extent2D _renderArea;
 
         public:
             Framebuffer(DeviceContext *deviceContext,
-                        std::vector<vk::Framebuffer> framebuffers);
+                        std::vector<vk::Framebuffer> framebuffers,
+                        vk::Extent2D renderArea);
             ~Framebuffer();
 
             [[nodiscard]] const vk::Framebuffer &getFramebuffer(const std::uint32_t &imageIdx) const {
                 return this->_framebuffers.at(imageIdx);
+            }
+
+            [[nodiscard]] const vk::Extent2D &getRenderArea() const {
+                return this->_renderArea;
             }
         };
 
