@@ -11,6 +11,7 @@ deps = [
     subproject('fmt').get_variable('fmt_dep'),
     subproject('glfw').get_variable('glfw_dep'),
     dependency('vulkan'),
+    subproject('imgui', default_options: ['default_library=static']).get_variable('imgui_dep'),
 ]
 
 src = [
@@ -21,6 +22,7 @@ src = [
 
     # Backends
     'src/Backends/GlfwBackend.cpp',
+    'src/Backends/ImGuiBackend.cpp',
     'src/Backends/VulkanBackend.cpp',
 
     # Events
@@ -37,6 +39,9 @@ src = [
     'src/Rendering/RenderGraphParser.cpp',
     'src/Rendering/RenderThread.cpp',
     'src/Rendering/Surface.cpp',
+
+    # Rendering / Operators
+    'src/Rendering/Operators/ImGuiDrawRenderOperator.cpp',
 
     # Resources
     'src/Resources/ResourceSet.cpp',

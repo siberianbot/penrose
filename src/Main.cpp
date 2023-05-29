@@ -4,6 +4,7 @@
 
 #include "src/Core/Engine.hpp"
 #include "src/Rendering/RenderContext.hpp"
+#include "src/Rendering/Operators/ImGuiDrawRenderOperator.hpp"
 
 void printError(const std::exception &error, int level) {
     if (level > 1) {
@@ -49,6 +50,8 @@ int main() {
     Penrose::Engine engine;
 
     auto graph = Penrose::makeDefaultRenderGraph();
+    graph.subgraphs.at(0).passes.at(0).operatorName = Penrose::IMGUI_DRAW_RENDER_OPERATOR_NAME;
+
     engine.resources().get<Penrose::RenderContext>()->setRenderGraph(graph);
 
     engine.run();

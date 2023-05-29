@@ -1,6 +1,7 @@
 #include "Engine.hpp"
 
 #include "src/Backends/GlfwBackend.hpp"
+#include "src/Backends/ImGuiBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
@@ -10,12 +11,14 @@
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"
+#include "src/Rendering/Operators/ImGuiDrawRenderOperator.hpp"
 
 namespace Penrose {
 
     Engine::Engine() {
         this->_resources.add<EventQueue>();
         this->_resources.add<GlfwBackend>();
+        this->_resources.add<ImGuiBackend>();
         this->_resources.add<VulkanBackend>();
         this->_resources.add<Surface>();
         this->_resources.add<DeviceContext>();
@@ -24,6 +27,9 @@ namespace Penrose {
         this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutor>();
         this->_resources.add<RenderThread>();
+
+        auto renderContext = this->_resources.get<RenderContext>();
+        renderContext->addRenderOperatorProducer<ImGuiDrawRenderOperatorProducer>(IMGUI_DRAW_RENDER_OPERATOR_NAME);
     }
 
     void Engine::run() {

@@ -1,6 +1,7 @@
 #include "Surface.hpp"
 
 #include <GLFW/glfw3.h>
+#include <imgui_impl_glfw.h>
 
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Common/EngineError.hpp"
@@ -41,6 +42,8 @@ namespace Penrose {
         glfwSetFramebufferSizeCallback(handle, Surface::framebufferSizeCallback);
 
         this->_handle = handle;
+
+        ImGui_ImplGlfw_InitForVulkan(this->_handle, true);
 
         VkSurfaceKHR surface;
         auto result = glfwCreateWindowSurface(this->_vulkanBackend->getInstance(),
