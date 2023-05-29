@@ -107,6 +107,14 @@ namespace Penrose {
         };
     }
 
+    vk::CommandPool DeviceContext::createCommandPool() {
+        auto createInfo = vk::CommandPoolCreateInfo()
+                .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
+                .setQueueFamilyIndex(this->_physicalDevice->graphicsQueueFamilyIdx);
+
+        return this->_logicalDevice.value().handle.createCommandPool(createInfo);
+    }
+
     DeviceContext::DeviceContext(ResourceSet *resources)
             : _vulkanBackend(resources->get<VulkanBackend>()),
               _surface(resources->get<Surface>()) {
@@ -125,9 +133,20 @@ namespace Penrose {
         } catch (const std::exception &error) {
             std::throw_with_nested(EngineError("Failed to create logical device"));
         }
+
+        try {
+            this->_commandPool = this->createCommandPool();
+        } catch (const std::exception &error) {
+            std::throw_with_nested(EngineError("Failed to create command pool"));
+        }
     }
 
     void DeviceContext::destroy() {
+        if (this->_commandPool.has_value()) {
+            this->_logicalDevice.value().handle.destroy(*this->_commandPool);
+            this->_commandPool = std::nullopt;
+        }
+
         if (this->_logicalDevice.has_value()) {
             this->_logicalDevice.value().handle.destroy();
             this->_logicalDevice = std::nullopt;

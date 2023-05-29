@@ -237,14 +237,10 @@ namespace Penrose {
 
     void RenderGraphExecutor::init() {
         auto logicalDevice = this->_deviceContext->getLogicalDevice();
-
-        auto commandPoolCreateInfo = vk::CommandPoolCreateInfo()
-                .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
-                .setQueueFamilyIndex(this->_deviceContext->getGraphicsQueueFamily());
-        this->_commandPool = logicalDevice.createCommandPool(commandPoolCreateInfo);
+        auto commandPool = this->_deviceContext->getCommandPool();
 
         auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandPool(this->_commandPool.value())
+                .setCommandPool(commandPool)
                 .setCommandBufferCount(INFLIGHT_FRAME_COUNT);
         auto commandBuffers = logicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
         std::move(commandBuffers.begin(), commandBuffers.end(), this->_commandBuffers.begin());
@@ -278,11 +274,6 @@ namespace Penrose {
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
             logicalDevice.destroy(this->_imageReadySemaphores[idx]);
             logicalDevice.destroy(this->_graphExecutedSemaphores[idx]);
-        }
-
-        if (this->_commandPool.has_value()) {
-            logicalDevice.freeCommandBuffers(this->_commandPool.value(), this->_commandBuffers);
-            logicalDevice.destroy(this->_commandPool.value());
         }
     }
 

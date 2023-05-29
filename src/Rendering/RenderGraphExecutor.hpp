@@ -138,7 +138,6 @@ namespace Penrose {
         PresentContext *_presentContext;
         RenderContext *_renderContext;
 
-        std::optional<vk::CommandPool> _commandPool;
         std::array<vk::CommandBuffer, INFLIGHT_FRAME_COUNT> _commandBuffers;
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _imageReadySemaphores;
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _graphExecutedSemaphores;
