@@ -14,7 +14,7 @@ deps = [
 ]
 
 src = [
-    'src/main.cpp',
+    'src/Main.cpp',
 
     # Core
     'src/Core/Engine.cpp',
