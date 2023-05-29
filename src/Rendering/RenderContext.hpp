@@ -5,6 +5,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 #include "src/Rendering/RenderGraph.hpp"
@@ -43,13 +44,13 @@ namespace Penrose {
 
         [[nodiscard]] const std::optional<RenderGraph> &getRenderGraph() { return this->_graph; }
 
-        void addRenderOperator(const std::string &name, std::unique_ptr<RenderOperator> &&instance);
+        void addRenderOperator(const std::string_view &name, std::unique_ptr<RenderOperator> &&instance);
 
         template<IsDefaultConstructableRenderOperator T>
-        void addRenderOperator(const std::string &name);
+        void addRenderOperator(const std::string_view &name);
 
         template<IsConstructableWithResourceSetRenderOperator T>
-        void addRenderOperator(const std::string &name);
+        void addRenderOperator(const std::string_view &name);
 
         [[nodiscard]] std::optional<RenderOperator *> tryGetRenderOperator(const std::string &name) const;
     };

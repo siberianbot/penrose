@@ -16,7 +16,7 @@ namespace Penrose {
         this->_eventQueue->push(makeEvent(EventType::RenderContextModified));
     }
 
-    void RenderContext::addRenderOperator(const std::string &name, std::unique_ptr<RenderOperator> &&instance) {
+    void RenderContext::addRenderOperator(const std::string_view &name, std::unique_ptr<RenderOperator> &&instance) {
         this->_operators.emplace(name, std::move(instance));
         this->_eventQueue->push(makeEvent(EventType::RenderContextModified));
     }
