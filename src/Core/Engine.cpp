@@ -4,6 +4,7 @@
 #include "src/Backends/ImGuiBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Events/EventQueue.hpp"
+#include "src/ECS/EntityComponentManager.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/DeviceMemoryAllocator.hpp"
 #include "src/Rendering/PresentContext.hpp"
@@ -16,10 +17,16 @@
 namespace Penrose {
 
     Engine::Engine() {
+        // core
         this->_resources.add<EventQueue>();
+        this->_resources.add<EntityComponentManager>();
+
+        // backends
         this->_resources.add<GlfwBackend>();
         this->_resources.add<ImGuiBackend>();
         this->_resources.add<VulkanBackend>();
+
+        // rendering
         this->_resources.add<Surface>();
         this->_resources.add<DeviceContext>();
         this->_resources.add<DeviceMemoryAllocator>();

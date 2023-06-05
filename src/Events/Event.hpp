@@ -6,16 +6,37 @@
 #include <variant>
 
 #include "src/Common/Types.hpp"
+#include "src/ECS/ECSBase.hpp"
 
 namespace Penrose {
 
     enum class EventType {
         EngineDestroyRequested,
+
+        EntityCreated,
+        EntityDestroyed,
+        ComponentCreated,
+        ComponentDestroyed,
+
         RenderContextModified,
         SurfaceResized
     };
 
-    using EventValue = std::variant<Size>;
+    struct EntityEventValue {
+        Entity entity;
+    };
+
+    struct ComponentEventValue {
+        Entity entity;
+        ComponentType componentType;
+        ComponentId componentId;
+    };
+
+    using EventValue = std::variant<
+            Size,
+            EntityEventValue,
+            ComponentEventValue
+    >;
 
     struct Event {
         EventType type;

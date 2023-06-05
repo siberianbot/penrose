@@ -25,6 +25,10 @@ src = [
     'src/Backends/ImGuiBackend.cpp',
     'src/Backends/VulkanBackend.cpp',
 
+    # ECS
+    'src/ECS/ECSBase.cpp',
+    'src/ECS/EntityComponentManager.cpp',
+
     # Events
     'src/Events/Event.cpp',
     'src/Events/EventQueue.cpp',
