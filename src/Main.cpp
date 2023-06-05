@@ -52,7 +52,10 @@ int main() {
     auto graph = Penrose::makeDefaultRenderGraph();
     graph.subgraphs.at(0).passes.at(0).operatorName = Penrose::IMGUI_DRAW_RENDER_OPERATOR_NAME;
 
-    engine.resources().get<Penrose::RenderContext>()->setRenderGraph(graph);
+    auto renderContext = engine.resources().get<Penrose::RenderContext>();
+    renderContext->addRenderOperatorProducer<Penrose::ImGuiDrawRenderOperatorProducer>(
+            Penrose::IMGUI_DRAW_RENDER_OPERATOR_NAME);
+    renderContext->setRenderGraph(graph);
 
     engine.run();
 

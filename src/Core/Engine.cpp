@@ -12,7 +12,6 @@
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"
-#include "src/Rendering/Operators/ImGuiDrawRenderOperator.hpp"
 
 namespace Penrose {
 
@@ -34,9 +33,6 @@ namespace Penrose {
         this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutor>();
         this->_resources.add<RenderThread>();
-
-        auto renderContext = this->_resources.get<RenderContext>();
-        renderContext->addRenderOperatorProducer<ImGuiDrawRenderOperatorProducer>(IMGUI_DRAW_RENDER_OPERATOR_NAME);
     }
 
     void Engine::run() {
@@ -46,8 +42,7 @@ namespace Penrose {
         auto surface = this->_resources.get<Surface>();
 
         auto alive = true;
-
-        eventQueue->addHandler([&alive](const Event &event) {
+        auto handlerIdx = eventQueue->addHandler([&alive](const Event &event) {
             if (event.type != EventType::EngineDestroyRequested) {
                 return;
             }
@@ -59,6 +54,8 @@ namespace Penrose {
             eventQueue->process();
             surface->poll();
         }
+
+        eventQueue->removeHandler(handlerIdx);
 
         this->_resources.destroyAll();
     }
