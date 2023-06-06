@@ -1,5 +1,6 @@
 #include "Engine.hpp"
 
+#include "src/Assets/AssetDictionary.hpp"
 #include "src/Backends/GlfwBackend.hpp"
 #include "src/Backends/ImGuiBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"
@@ -18,6 +19,7 @@ namespace Penrose {
     Engine::Engine() {
         // core
         this->_resources.add<EventQueue>();
+        this->_resources.add<AssetDictionary>();
         this->_resources.add<EntityComponentManager>();
 
         // backends

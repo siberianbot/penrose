@@ -17,6 +17,9 @@ deps = [
 src = [
     'src/Main.cpp',
 
+    # Assets
+    'src/Assets/AssetDictionary.cpp',
+
     # Core
     'src/Core/Engine.cpp',
 

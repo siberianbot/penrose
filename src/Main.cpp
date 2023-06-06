@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 
+#include "src/Assets/AssetDictionary.hpp"
 #include "src/Core/Engine.hpp"
 #include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/Operators/ImGuiDrawRenderOperator.hpp"
@@ -48,6 +49,9 @@ int main() {
     });
 
     Penrose::Engine engine;
+
+    auto assetDictionary = engine.resources().get<Penrose::AssetDictionary>();
+    assetDictionary->addDir("data");
 
     auto graph = Penrose::makeDefaultRenderGraph();
     graph.subgraphs.at(0).passes.at(0).operatorName = Penrose::IMGUI_DRAW_RENDER_OPERATOR_NAME;
