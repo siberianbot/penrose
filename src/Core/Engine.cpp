@@ -13,6 +13,7 @@
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"
+#include "src/Scene/SceneManager.hpp"
 
 namespace Penrose {
 
@@ -21,6 +22,7 @@ namespace Penrose {
         this->_resources.add<EventQueue>();
         this->_resources.add<AssetDictionary>();
         this->_resources.add<ECSManager>();
+        this->_resources.add<SceneManager>();
 
         // backends
         this->_resources.add<GlfwBackend>();

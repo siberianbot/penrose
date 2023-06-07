@@ -52,6 +52,10 @@ src = [
 
     # Resources
     'src/Resources/ResourceSet.cpp',
+
+    # Scene
+    'src/Scene/Scene.cpp',
+    'src/Scene/SceneManager.cpp',
 ]
 
 executable('penrose', src, dependencies: deps)
