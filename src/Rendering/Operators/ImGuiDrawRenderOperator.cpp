@@ -24,7 +24,7 @@ namespace Penrose {
         this->_logicalDevice.destroy(this->_descriptorPool);
     }
 
-    void ImGuiDrawRenderOperator::execute(const vk::CommandBuffer &commandBuffer) {
+    void ImGuiDrawRenderOperator::execute(const RenderOperatorExecutionContext &context) {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -34,7 +34,7 @@ namespace Penrose {
 
         ImGui::Render();
         ImDrawData *drawData = ImGui::GetDrawData();
-        ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
+        ImGui_ImplVulkan_RenderDrawData(drawData, context.commandBuffer);
     }
 
     std::unique_ptr<RenderOperator> ImGuiDrawRenderOperatorProducer::produce(

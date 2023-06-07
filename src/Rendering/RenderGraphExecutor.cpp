@@ -347,6 +347,12 @@ namespace Penrose {
                     .setClearValues(pass->getClearValues())
                     .setRenderArea(renderArea);
 
+            auto executionContext = RenderOperatorExecutionContext{
+                    .renderPass = pass->getRenderPass(),
+                    .renderArea = renderArea,
+                    .commandBuffer = commandBuffer
+            };
+
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
             for (auto it = pass->getOperators().begin(); it != pass->getOperators().end(); it++) {
@@ -358,7 +364,7 @@ namespace Penrose {
                     continue;
                 }
 
-                (**it)->execute(commandBuffer);
+                (**it)->execute(executionContext);
             }
 
             commandBuffer.endRenderPass();

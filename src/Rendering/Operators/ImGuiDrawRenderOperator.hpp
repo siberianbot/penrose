@@ -19,7 +19,7 @@ namespace Penrose {
                                 const vk::DescriptorPool &descriptorPool);
         ~ImGuiDrawRenderOperator() override;
 
-        void execute(const vk::CommandBuffer &commandBuffer) override;
+        void execute(const RenderOperatorExecutionContext &context) override;
     };
 
     class ImGuiDrawRenderOperatorProducer : public RenderOperatorProducer {

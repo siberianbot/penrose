@@ -10,11 +10,17 @@ namespace Penrose {
 
     class ResourceSet;
 
+    struct RenderOperatorExecutionContext {
+        vk::RenderPass renderPass;
+        vk::Rect2D renderArea;
+        vk::CommandBuffer commandBuffer;
+    };
+
     class RenderOperator {
     public:
         virtual ~RenderOperator() = default;
 
-        virtual void execute(const vk::CommandBuffer &commandBuffer) = 0;
+        virtual void execute(const RenderOperatorExecutionContext &context) = 0;
     };
 
     struct RenderOperatorProduceContext {
