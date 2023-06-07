@@ -4,13 +4,14 @@
 namespace Penrose {
 
     template<IsDefaultConstructableResource T>
-    void ResourceSet::add() {
-        this->add(std::type_index(typeid(T)), std::make_unique<T>(), isInitializable<T>());
+    T *ResourceSet::add() {
+        return dynamic_cast<T *>(this->add(std::type_index(typeid(T)), std::make_unique<T>(), isInitializable<T>()));
     }
 
     template<IsConstructableWithResourceSetResource T>
-    void ResourceSet::add() {
-        this->add(std::type_index(typeid(T)), std::make_unique<T>(this), isInitializable<T>());
+    T *ResourceSet::add() {
+        return dynamic_cast<T *>(this->add(std::type_index(typeid(T)), std::make_unique<T>(this),
+                                           isInitializable<T>()));
     }
 
     template<typename T>

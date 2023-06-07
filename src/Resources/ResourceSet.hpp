@@ -42,17 +42,17 @@ namespace Penrose {
         std::map<std::type_index, ResourceList::pointer> _types;
         std::vector<ResourceList::pointer> _initializables;
 
-        void add(const std::type_index &type, ResourceSet::ResourcePtr &&resource, bool isInitializable);
+        Resource *add(const std::type_index &type, ResourceSet::ResourcePtr &&resource, bool isInitializable);
 
         [[nodiscard]] std::optional<Resource *> tryGet(const std::type_index &type) const noexcept;
         [[nodiscard]] Resource *get(const std::type_index &type) const;
 
     public:
         template<IsDefaultConstructableResource T>
-        void add();
+        T *add();
 
         template<IsConstructableWithResourceSetResource T>
-        void add();
+        T *add();
 
         template<typename T>
         [[nodiscard]] std::optional<T *> tryGet() const noexcept;

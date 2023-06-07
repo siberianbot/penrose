@@ -8,7 +8,7 @@
 
 namespace Penrose {
 
-    void ResourceSet::add(const std::type_index &type, ResourceSet::ResourcePtr &&resource, bool isInitializable) {
+    Resource *ResourceSet::add(const std::type_index &type, ResourceSet::ResourcePtr &&resource, bool isInitializable) {
         auto it = this->_types.find(type);
 
         if (it != this->_types.end()) {
@@ -24,6 +24,8 @@ namespace Penrose {
         if (isInitializable) {
             this->_initializables.push_back(ptr);
         }
+
+        return ptr->get();
     }
 
     std::optional<Resource *> ResourceSet::tryGet(const std::type_index &type) const noexcept {
