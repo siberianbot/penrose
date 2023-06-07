@@ -30,7 +30,7 @@ src = [
 
     # ECS
     'src/ECS/ECSBase.cpp',
-    'src/ECS/EntityComponentManager.cpp',
+    'src/ECS/ECSManager.cpp',
 
     # Events
     'src/Events/Event.cpp',

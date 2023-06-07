@@ -5,7 +5,7 @@
 #include "src/Backends/ImGuiBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Events/EventQueue.hpp"
-#include "src/ECS/EntityComponentManager.hpp"
+#include "src/ECS/ECSManager.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/DeviceMemoryAllocator.hpp"
 #include "src/Rendering/PresentContext.hpp"
@@ -20,7 +20,7 @@ namespace Penrose {
         // core
         this->_resources.add<EventQueue>();
         this->_resources.add<AssetDictionary>();
-        this->_resources.add<EntityComponentManager>();
+        this->_resources.add<ECSManager>();
 
         // backends
         this->_resources.add<GlfwBackend>();

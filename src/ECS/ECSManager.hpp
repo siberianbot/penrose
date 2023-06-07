@@ -1,5 +1,5 @@
-#ifndef PENROSE_ECS_ENTITY_COMPONENT_MANAGER_HPP
-#define PENROSE_ECS_ENTITY_COMPONENT_MANAGER_HPP
+#ifndef PENROSE_ECS_ECS_MANAGER_HPP
+#define PENROSE_ECS_ECS_MANAGER_HPP
 
 #include <functional>
 #include <list>
@@ -30,7 +30,7 @@ namespace Penrose {
         std::unordered_set<ComponentType> componentTypes;
     };
 
-    class EntityComponentManager : public Resource, public Initializable {
+    class ECSManager : public Resource, public Initializable {
     private:
         EventQueue *_eventQueue;
 
@@ -41,8 +41,8 @@ namespace Penrose {
         std::unordered_map<ComponentId, std::shared_ptr<Component>> _components;
 
     public:
-        explicit EntityComponentManager(ResourceSet *resources);
-        ~EntityComponentManager() override = default;
+        explicit ECSManager(ResourceSet *resources);
+        ~ECSManager() override = default;
 
         void init() override { /* nothing to do */ }
 
@@ -62,4 +62,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_ECS_ENTITY_COMPONENT_MANAGER_HPP
+#endif // PENROSE_ECS_ECS_MANAGER_HPP

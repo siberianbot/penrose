@@ -1,4 +1,4 @@
-#include "EntityComponentManager.hpp"
+#include "ECSManager.hpp"
 
 #include <fmt/core.h>
 
@@ -8,17 +8,17 @@
 
 namespace Penrose {
 
-    EntityComponentManager::EntityComponentManager(ResourceSet *resources)
+    ECSManager::ECSManager(ResourceSet *resources)
             : _eventQueue(resources->get<EventQueue>()) {
         //
     }
 
-    void EntityComponentManager::destroy() {
+    void ECSManager::destroy() {
         this->_components.clear();
         this->_entities.clear();
     }
 
-    ComponentType EntityComponentManager::createComponentType(std::string_view &&name, ComponentFactory &&factory) {
+    ComponentType ECSManager::createComponentType(std::string_view &&name, ComponentFactory &&factory) {
         auto componentType = this->_nextComponentType++;
 
         this->_componentTypes[componentType] = ComponentTypeDescription{
@@ -29,7 +29,7 @@ namespace Penrose {
         return componentType;
     }
 
-    Entity EntityComponentManager::createEntity() {
+    Entity ECSManager::createEntity() {
         auto entity = this->_nextEntity++;
         this->_entities.emplace(entity, EntityDescription{});
 
@@ -41,7 +41,7 @@ namespace Penrose {
         return entity;
     }
 
-    void EntityComponentManager::destroyEntity(const Entity &entity) {
+    void ECSManager::destroyEntity(const Entity &entity) {
         auto it = this->_entities.find(entity);
 
         if (it == this->_entities.end()) {
@@ -63,7 +63,7 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
-    ComponentId EntityComponentManager::createComponent(const Entity &entity, const ComponentType &componentType) {
+    ComponentId ECSManager::createComponent(const Entity &entity, const ComponentType &componentType) {
         auto componentTypeIt = this->_componentTypes.find(componentType);
         if (componentTypeIt == this->_componentTypes.end()) {
             throw EngineError(fmt::format("Unknown component type {}", componentType));
@@ -93,7 +93,7 @@ namespace Penrose {
         return componentId;
     }
 
-    void EntityComponentManager::destroyComponent(const ComponentId &componentId) {
+    void ECSManager::destroyComponent(const ComponentId &componentId) {
         auto [entity, componentType] = deconstructComponentId(componentId);
 
         auto entityIt = this->_entities.find(entity);
@@ -113,12 +113,12 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
-    std::optional<std::weak_ptr<Component>> EntityComponentManager::tryGetComponent(const Entity &entity,
-                                                                                    const ComponentType &componentType) {
+    std::optional<std::weak_ptr<Component>> ECSManager::tryGetComponent(const Entity &entity,
+                                                                        const ComponentType &componentType) {
         return this->tryGetComponent(makeComponentId(entity, componentType));
     }
 
-    std::optional<std::weak_ptr<Component>> EntityComponentManager::tryGetComponent(const ComponentId &componentId) {
+    std::optional<std::weak_ptr<Component>> ECSManager::tryGetComponent(const ComponentId &componentId) {
         auto componentIt = this->_components.find(componentId);
 
         if (componentIt == this->_components.end()) {
