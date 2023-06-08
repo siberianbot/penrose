@@ -86,6 +86,8 @@ namespace Penrose {
         } catch (...) {
             std::throw_with_nested(EngineError("Failed to bind memory to image"));
         }
+
+        this->_allocatedMemory.emplace(objectHash, memory);
     }
 
     void DeviceMemoryAllocator::freeFor(const vk::Image &image) {

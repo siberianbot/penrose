@@ -27,15 +27,15 @@ namespace Penrose {
         auto usage = vk::ImageUsageFlags();
 
         if (type & RenderTargetType::Input) {
-            usage &= vk::ImageUsageFlagBits::eInputAttachment;
+            usage |= vk::ImageUsageFlagBits::eInputAttachment;
         }
 
         if (type & RenderTargetType::Color) {
-            usage &= vk::ImageUsageFlagBits::eInputAttachment;
+            usage |= vk::ImageUsageFlagBits::eInputAttachment;
         }
 
         if (type & RenderTargetType::DepthStencil) {
-            usage &= vk::ImageUsageFlagBits::eDepthStencilAttachment;
+            usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
         }
 
         return usage;
@@ -47,11 +47,11 @@ namespace Penrose {
         auto aspect = vk::ImageAspectFlags();
 
         if (type & RenderTargetType::Color) {
-            aspect &= vk::ImageAspectFlagBits::eColor;
+            aspect |= vk::ImageAspectFlagBits::eColor;
         }
 
         if (type & RenderTargetType::DepthStencil) {
-            aspect &= vk::ImageAspectFlagBits::eDepth;
+            aspect |= vk::ImageAspectFlagBits::eDepth;
         }
 
         return aspect;
@@ -94,6 +94,9 @@ namespace Penrose {
         }).value_or(vk::Extent3D(this->_presentContext->getSwapchainExtent(), 1));
 
         return vk::ImageCreateInfo()
+                .setImageType(vk::ImageType::e2D)
+                .setMipLevels(1)
+                .setArrayLayers(1)
                 .setUsage(usage)
                 .setFormat(format)
                 .setExtent(extent);

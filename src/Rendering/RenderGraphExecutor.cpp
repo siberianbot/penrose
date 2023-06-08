@@ -42,7 +42,7 @@ namespace Penrose {
     RenderGraphExecutor::ImageTarget::~ImageTarget() {
         this->_deviceContext->getLogicalDevice().destroy(this->_imageView);
 
-        this->_deviceMemoryAllocator->allocateDeviceLocalFor(this->_image);
+        this->_deviceMemoryAllocator->freeFor(this->_image);
         this->_deviceContext->getLogicalDevice().destroy(this->_image);
     }
 
@@ -50,12 +50,14 @@ namespace Penrose {
                                     vk::RenderPass renderPass,
                                     std::vector<vk::ClearValue> clearValues,
                                     std::vector<std::uint32_t> targets,
-                                    std::vector<std::optional<std::unique_ptr<RenderOperator>>> operators)
+                                    std::vector<std::optional<std::unique_ptr<RenderOperator>>> operators,
+                                    std::optional<vk::Extent2D> renderArea)
             : _deviceContext(deviceContext),
               _renderPass(renderPass),
               _clearValues(std::move(clearValues)),
               _targets(std::move(targets)),
-              _operators(std::move(operators)) {
+              _operators(std::move(operators)),
+              _renderArea(renderArea) {
         //
     }
 
@@ -151,31 +153,26 @@ namespace Penrose {
             operators[idx] = (*producer)->produce(context);
         }
 
+        auto renderArea = map(subgraph.renderArea, [](Size size) {
+            auto [w, h] = size;
+
+            return vk::Extent2D()
+                    .setWidth(w)
+                    .setHeight(h);
+        });
+
         return std::make_unique<RenderGraphExecutor::Pass>(this->_deviceContext,
                                                            renderPass,
                                                            clearValues,
                                                            targets,
-                                                           std::move(operators));
+                                                           std::move(operators),
+                                                           renderArea);
     }
 
     std::unique_ptr<RenderGraphExecutor::Framebuffer> RenderGraphExecutor::createFramebuffer(
-            const GraphState &graphState,
+            const FramebufferState &framebufferState,
             const std::unique_ptr<Pass> &pass) {
-        std::optional<vk::Extent2D> renderArea;
-
-        for (std::uint32_t attachmentIdx: pass->getTargets()) {
-            auto &target = graphState.targets.at(attachmentIdx);
-
-            if (renderArea.has_value() && target->getExtent() != *renderArea) {
-                throw EngineError("Pass contains attachment of different size");
-            } else if (!renderArea.has_value()) {
-                renderArea = target->getExtent();
-            }
-        }
-
-        if (!renderArea.has_value()) {
-            throw EngineError("Failed to determine render area for pass");
-        }
+        vk::Extent2D renderArea = pass->getRenderArea().value_or(this->_presentContext->getSwapchainExtent());
 
         auto imageCount = this->_presentContext->getSwapchainImageViews().size();
         auto framebuffers = std::vector<vk::Framebuffer>(imageCount);
@@ -184,41 +181,29 @@ namespace Penrose {
             auto attachments = std::vector<vk::ImageView>(pass->getTargets().size());
 
             for (std::uint32_t attachmentIdx = 0; attachmentIdx < pass->getTargets().size(); attachmentIdx++) {
-                auto &target = graphState.targets.at(pass->getTargets().at(attachmentIdx));
+                auto &target = framebufferState.targets.at(pass->getTargets().at(attachmentIdx));
 
                 attachments[attachmentIdx] = target->getView(imageIdx);
             }
 
             auto createInfo = vk::FramebufferCreateInfo()
-                    .setRenderPass(pass->getRenderPass());
-
-            if (!renderArea.has_value()) {
-                createInfo.setFlags(vk::FramebufferCreateFlagBits::eImageless);
-            } else {
-                createInfo
-                        .setWidth(renderArea->width)
-                        .setHeight(renderArea->height)
-                        .setAttachments(attachments)
-                        .setLayers(1);
-            }
+                    .setRenderPass(pass->getRenderPass())
+                    .setWidth(renderArea.width)
+                    .setHeight(renderArea.height)
+                    .setAttachments(attachments)
+                    .setLayers(1);
 
             framebuffers[imageIdx] = this->_deviceContext->getLogicalDevice().createFramebuffer(createInfo);
         }
 
-        return std::make_unique<RenderGraphExecutor::Framebuffer>(this->_deviceContext, framebuffers,
-                                                                  renderArea.value());
+        return std::make_unique<RenderGraphExecutor::Framebuffer>(this->_deviceContext, framebuffers, renderArea);
     }
 
     RenderGraphExecutor::GraphState RenderGraphExecutor::createGraphState(const RenderGraph &graph) {
         auto state = RenderGraphExecutor::GraphState{
                 .graph = graph,
-                .targets = std::vector<std::unique_ptr<Target>>(graph.targets.size()),
                 .passes = std::vector<std::unique_ptr<Pass>>(graph.subgraphs.size())
         };
-
-        for (std::uint32_t idx = 0; idx < graph.targets.size(); idx++) {
-            state.targets[idx] = this->createTarget(graph.targets.at(idx));
-        }
 
         for (std::uint32_t idx = 0; idx < graph.subgraphs.size(); idx++) {
             state.passes[idx] = this->createPass(graph.subgraphs.at(idx));
@@ -230,11 +215,16 @@ namespace Penrose {
     RenderGraphExecutor::FramebufferState RenderGraphExecutor::createFramebufferState(
             const RenderGraphExecutor::GraphState &graphState) {
         auto state = RenderGraphExecutor::FramebufferState{
+                .targets = std::vector<std::unique_ptr<Target>>(graphState.graph.targets.size()),
                 .framebuffers = std::vector<std::unique_ptr<Framebuffer>>(graphState.passes.size())
         };
 
+        for (std::uint32_t idx = 0; idx < graphState.graph.targets.size(); idx++) {
+            state.targets[idx] = this->createTarget(graphState.graph.targets.at(idx));
+        }
+
         for (std::uint32_t idx = 0; idx < graphState.passes.size(); idx++) {
-            state.framebuffers[idx] = this->createFramebuffer(graphState, graphState.passes.at(idx));
+            state.framebuffers[idx] = this->createFramebuffer(state, graphState.passes.at(idx));
         }
 
         return state;

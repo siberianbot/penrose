@@ -81,13 +81,15 @@ namespace Penrose {
             std::vector<vk::ClearValue> _clearValues;
             std::vector<std::uint32_t> _targets;
             std::vector<std::optional<std::unique_ptr<RenderOperator>>> _operators;
+            std::optional<vk::Extent2D> _renderArea;
 
         public:
             Pass(DeviceContext *deviceContext,
                  vk::RenderPass renderPass,
                  std::vector<vk::ClearValue> clearValues,
                  std::vector<std::uint32_t> targets,
-                 std::vector<std::optional<std::unique_ptr<RenderOperator>>> operators);
+                 std::vector<std::optional<std::unique_ptr<RenderOperator>>> operators,
+                 std::optional<vk::Extent2D> renderArea);
             ~Pass();
 
             [[nodiscard]] const vk::RenderPass &getRenderPass() const {
@@ -104,6 +106,10 @@ namespace Penrose {
 
             [[nodiscard]] const std::vector<std::optional<std::unique_ptr<RenderOperator>>> &getOperators() const {
                 return this->_operators;
+            }
+
+            [[nodiscard]] const std::optional<vk::Extent2D> &getRenderArea() const {
+                return this->_renderArea;
             }
         };
 
@@ -130,11 +136,11 @@ namespace Penrose {
 
         struct GraphState {
             RenderGraph graph;
-            std::vector<std::unique_ptr<Target>> targets;
             std::vector<std::unique_ptr<Pass>> passes;
         };
 
         struct FramebufferState {
+            std::vector<std::unique_ptr<Target>> targets;
             std::vector<std::unique_ptr<Framebuffer>> framebuffers;
         };
 
@@ -156,7 +162,7 @@ namespace Penrose {
 
         std::unique_ptr<Target> createTarget(const RenderTarget &target);
         std::unique_ptr<Pass> createPass(const RenderSubgraph &subgraph);
-        std::unique_ptr<Framebuffer> createFramebuffer(const GraphState &graphState,
+        std::unique_ptr<Framebuffer> createFramebuffer(const FramebufferState &framebufferState,
                                                        const std::unique_ptr<Pass> &pass);
 
         GraphState createGraphState(const RenderGraph &graph);

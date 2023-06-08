@@ -86,6 +86,7 @@ namespace Penrose {
         std::vector<std::uint32_t> dependsOn;
         std::vector<RenderAttachment> attachments;
         std::vector<RenderPass> passes;
+        std::optional<Size> renderArea;
     };
 
     struct RenderGraph {
