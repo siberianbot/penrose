@@ -28,7 +28,7 @@ namespace Penrose {
 
     struct ComponentEventValue {
         Entity entity;
-        ComponentType componentType;
+        ComponentName componentName;
         ComponentId componentId;
     };
 

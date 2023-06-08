@@ -29,8 +29,10 @@ src = [
     'src/Backends/VulkanBackend.cpp',
 
     # ECS
-    'src/ECS/ECSBase.cpp',
     'src/ECS/ECSManager.cpp',
+
+    # ECS / Components
+    'src/ECS/Components/MeshRendererComponent.cpp',
 
     # Events
     'src/Events/Event.cpp',
