@@ -36,10 +36,12 @@ namespace Penrose {
         std::optional<PhysicalDeviceProxy> _physicalDevice;
         std::optional<LogicalDeviceProxy> _logicalDevice;
         std::optional<vk::CommandPool> _commandPool;
+        std::optional<vk::DescriptorPool> _descriptorPool;
 
         PhysicalDeviceProxy selectPhysicalDevice();
         LogicalDeviceProxy createLogicalDevice();
         vk::CommandPool createCommandPool();
+        vk::DescriptorPool createDescriptorPool();
 
     public:
         explicit DeviceContext(ResourceSet *resources);
@@ -65,6 +67,8 @@ namespace Penrose {
         [[nodiscard]] vk::Queue &getPresentQueue() { return this->_logicalDevice.value().presentQueue; }
 
         [[nodiscard]] vk::CommandPool &getCommandPool() { return this->_commandPool.value(); }
+
+        [[nodiscard]] vk::DescriptorPool &getDescriptorPool() { return this->_descriptorPool.value(); }
     };
 }
 

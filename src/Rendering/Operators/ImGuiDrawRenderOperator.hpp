@@ -10,13 +10,7 @@ namespace Penrose {
     static constexpr const std::string_view IMGUI_DRAW_RENDER_OPERATOR_NAME = "ImGuiDraw";
 
     class ImGuiDrawRenderOperator : public RenderOperator {
-    private:
-        vk::Device _logicalDevice;
-        vk::DescriptorPool _descriptorPool;
-
     public:
-        ImGuiDrawRenderOperator(const vk::Device &logicalDevice,
-                                const vk::DescriptorPool &descriptorPool);
         ~ImGuiDrawRenderOperator() override;
 
         void execute(const RenderOperatorExecutionContext &context) override;

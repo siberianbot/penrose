@@ -11,17 +11,8 @@
 
 namespace Penrose {
 
-    ImGuiDrawRenderOperator::ImGuiDrawRenderOperator(const vk::Device &logicalDevice,
-                                                     const vk::DescriptorPool &descriptorPool)
-            : _logicalDevice(logicalDevice),
-              _descriptorPool(descriptorPool) {
-        //
-    }
-
     ImGuiDrawRenderOperator::~ImGuiDrawRenderOperator() {
         ImGui_ImplVulkan_Shutdown();
-
-        this->_logicalDevice.destroy(this->_descriptorPool);
     }
 
     void ImGuiDrawRenderOperator::execute(const RenderOperatorExecutionContext &context) {
@@ -43,26 +34,7 @@ namespace Penrose {
         auto deviceContext = context.resources->get<DeviceContext>();
         auto presentContext = context.resources->get<PresentContext>();
 
-        auto descriptorPoolSizes = {
-                vk::DescriptorPoolSize(vk::DescriptorType::eSampler, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eSampledImage, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eStorageImage, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eUniformTexelBuffer, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eStorageTexelBuffer, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eStorageBuffer, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eUniformBufferDynamic, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eStorageBufferDynamic, 1024),
-                vk::DescriptorPoolSize(vk::DescriptorType::eInputAttachment, 1024),
-        };
-
-        auto descriptorPoolCreateInfo = vk::DescriptorPoolCreateInfo()
-                .setMaxSets(1024)
-                .setPoolSizes(descriptorPoolSizes);
-
         auto logicalDevice = deviceContext->getLogicalDevice();
-        auto descriptorPool = logicalDevice.createDescriptorPool(descriptorPoolCreateInfo);
         auto imageCount = static_cast<uint32_t>(presentContext->getSwapchainImages().size());
 
         auto initInfo = ImGui_ImplVulkan_InitInfo{
@@ -72,7 +44,7 @@ namespace Penrose {
                 .QueueFamily = deviceContext->getGraphicsQueueFamily(),
                 .Queue = deviceContext->getGraphicsQueue(),
                 .PipelineCache = nullptr,
-                .DescriptorPool = descriptorPool,
+                .DescriptorPool = deviceContext->getDescriptorPool(),
                 .Subpass = context.subpassIdx,
                 .MinImageCount = imageCount,
                 .ImageCount = imageCount,
@@ -106,6 +78,6 @@ namespace Penrose {
 
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        return std::make_unique<ImGuiDrawRenderOperator>(logicalDevice, descriptorPool);
+        return std::make_unique<ImGuiDrawRenderOperator>();
     }
 }
