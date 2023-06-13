@@ -7,6 +7,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <unordered_map>
+#include <variant>
 #include <vector>
 
 #include "src/Common/Types.hpp"
@@ -74,12 +76,17 @@ namespace Penrose {
         RenderAttachmentLayout finalLayout;
     };
 
+    using RenderOperatorParamName = std::string;
+    using RenderOperatorParamValue = std::variant<std::string>;
+    using RenderOperatorParams = std::unordered_map<RenderOperatorParamName, RenderOperatorParamValue>;
+
     struct RenderPass {
         std::vector<std::uint32_t> dependsOn;
         std::vector<std::uint32_t> inputAttachments;
         std::vector<std::uint32_t> colorAttachments;
         std::optional<std::uint32_t> depthStencilAttachment;
         std::optional<std::string> operatorName;
+        std::optional<RenderOperatorParams> operatorParams;
     };
 
     struct RenderSubgraph {

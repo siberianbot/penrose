@@ -28,8 +28,7 @@ namespace Penrose {
         ImGui_ImplVulkan_RenderDrawData(drawData, context.commandBuffer);
     }
 
-    std::unique_ptr<RenderOperator> ImGuiDrawRenderOperatorProducer::produce(
-            const RenderOperatorProduceContext &context) const {
+    std::unique_ptr<RenderOperator> ImGuiDrawRenderOperator::make(const RenderOperatorFactoryContext &context) {
         auto vulkanBackend = context.resources->get<VulkanBackend>();
         auto deviceContext = context.resources->get<DeviceContext>();
         auto presentContext = context.resources->get<PresentContext>();

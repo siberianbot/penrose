@@ -9,23 +9,20 @@
 #include <type_traits>
 
 #include "src/Rendering/RenderGraph.hpp"
-#include "src/Rendering/Operators/RenderOperator.hpp"
+#include "src/Rendering/Operators/RenderOperatorFactory.hpp"
 #include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
+    class ResourceSet;
     class EventQueue;
-
-    template<typename T>
-    concept IsRenderOperatorProducer = std::is_base_of<RenderOperatorProducer, T>::value &&
-                                       std::is_default_constructible<T>::value;
 
     class RenderContext : public Resource {
     private:
         EventQueue *_eventQueue;
 
         std::optional<RenderGraph> _graph;
-        std::map<std::string, std::unique_ptr<RenderOperatorProducer>> _operatorProducers;
+        std::map<std::string, RenderOperatorFactory> _operatorFactories;
 
     public:
         explicit RenderContext(ResourceSet *resources);
@@ -35,17 +32,10 @@ namespace Penrose {
 
         [[nodiscard]] const std::optional<RenderGraph> &getRenderGraph() { return this->_graph; }
 
-        void addRenderOperatorProducer(const std::string_view &name,
-                                       std::unique_ptr<RenderOperatorProducer> &&instance);
+        void addRenderOperatorFactory(const std::string_view &name, RenderOperatorFactory factory);
 
-        template<IsRenderOperatorProducer T>
-        void addRenderOperatorProducer(const std::string_view &name);
-
-        [[nodiscard]] std::optional<RenderOperatorProducer *> tryGetRenderOperatorProducer(
-                const std::string &name) const;
+        [[nodiscard]] std::optional<RenderOperatorFactory> tryGetRenderOperatorFactory(const std::string &name) const;
     };
 }
-
-#include "RenderContext.inl"
 
 #endif // PENROSE_RENDERING_RENDER_CONTEXT_HPP

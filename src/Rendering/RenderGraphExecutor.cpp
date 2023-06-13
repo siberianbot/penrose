@@ -136,21 +136,22 @@ namespace Penrose {
                 continue;
             }
 
-            auto producer = this->_renderContext->tryGetRenderOperatorProducer(*subgraph.passes.at(idx).operatorName);
+            auto factory = this->_renderContext->tryGetRenderOperatorFactory(*subgraph.passes.at(idx).operatorName);
 
-            if (!producer.has_value()) {
+            if (!factory.has_value()) {
                 // TODO: notify
                 operators[idx] = std::nullopt;
                 continue;
             }
 
-            auto context = RenderOperatorProduceContext{
+            auto context = RenderOperatorFactoryContext{
                     .resources = this->_resources,
+                    .params = subgraph.passes.at(idx).operatorParams,
                     .renderPass = renderPass,
-                    .subpassIdx = idx
+                    .subpassIdx = idx,
             };
 
-            operators[idx] = (*producer)->produce(context);
+            operators[idx] = (*factory)(context);
         }
 
         auto renderArea = map(subgraph.renderArea, [](Size size) {

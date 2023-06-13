@@ -15,18 +15,16 @@ namespace Penrose {
         this->_eventQueue->push(makeEvent(EventType::RenderContextModified));
     }
 
-    void RenderContext::addRenderOperatorProducer(const std::string_view &name,
-                                                  std::unique_ptr<RenderOperatorProducer> &&instance) {
-        this->_operatorProducers.emplace(name, std::move(instance));
+    void RenderContext::addRenderOperatorFactory(const std::string_view &name, RenderOperatorFactory factory) {
+        this->_operatorFactories.emplace(name, factory);
         this->_eventQueue->push(makeEvent(EventType::RenderContextModified));
     }
 
-    std::optional<RenderOperatorProducer *> RenderContext::tryGetRenderOperatorProducer(
-            const std::string &name) const {
-        auto it = this->_operatorProducers.find(name);
+    std::optional<RenderOperatorFactory> RenderContext::tryGetRenderOperatorFactory(const std::string &name) const {
+        auto it = this->_operatorFactories.find(name);
 
-        if (it != this->_operatorProducers.end()) {
-            return it->second.get();
+        if (it != this->_operatorFactories.end()) {
+            return it->second;
         }
 
         return std::nullopt;
