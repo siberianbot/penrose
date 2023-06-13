@@ -5,25 +5,28 @@
 #include <optional>
 #include <unordered_map>
 
-#include "src/Assets/Asset.hpp"
+#include "src/Assets/AssetId.hpp"
+#include "src/Assets/AssetInstance.hpp"
 #include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
     class AssetDictionary : public Resource {
     private:
-        std::unordered_map<Asset, std::filesystem::path> _assets;
+        std::unordered_map<AssetId, std::filesystem::path> _assets;
 
         void addDir(const std::filesystem::path &currentPath, const std::filesystem::path &root);
 
     public:
         ~AssetDictionary() override = default;
 
-        void addFile(const Asset &asset, const std::filesystem::path &path);
+        void addFile(const AssetId &asset, const std::filesystem::path &path);
         void addDir(const std::filesystem::path &path);
 
-        [[nodiscard]] std::optional<std::filesystem::path> tryGetPath(const Asset &asset) const;
-        [[nodiscard]] std::filesystem::path getPath(const Asset &asset) const;
+        [[nodiscard]] std::optional<std::filesystem::path> tryGetPath(const AssetId &asset) const;
+        [[nodiscard]] std::filesystem::path getPath(const AssetId &asset) const;
+
+        [[nodiscard]] AssetInstance openAsset(const AssetId &asset) const;
     };
 }
 

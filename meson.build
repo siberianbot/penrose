@@ -19,6 +19,8 @@ src = [
 
     # Assets
     'src/Assets/AssetDictionary.cpp',
+    'src/Assets/AssetInstance.cpp',
+    'src/Assets/AssetManager.cpp',
 
     # Core
     'src/Core/Engine.cpp',
@@ -48,6 +50,7 @@ src = [
     'src/Rendering/RenderGraphParser.cpp',
     'src/Rendering/RenderThread.cpp',
     'src/Rendering/Surface.cpp',
+    'src/Rendering/Utils.cpp',
 
     # Rendering / Operators
     'src/Rendering/Operators/ImGuiDrawRenderOperator.cpp',

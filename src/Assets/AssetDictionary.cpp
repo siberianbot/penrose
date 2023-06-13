@@ -19,7 +19,7 @@ namespace Penrose {
         }
     }
 
-    void AssetDictionary::addFile(const Asset &asset, const std::filesystem::path &path) {
+    void AssetDictionary::addFile(const AssetId &asset, const std::filesystem::path &path) {
         if (std::filesystem::is_directory(path)) {
             throw EngineError(fmt::format("Path {} is a directory", path.string()));
         }
@@ -35,7 +35,7 @@ namespace Penrose {
         this->addDir(path, path);
     }
 
-    std::optional<std::filesystem::path> AssetDictionary::tryGetPath(const Asset &asset) const {
+    std::optional<std::filesystem::path> AssetDictionary::tryGetPath(const AssetId &asset) const {
         auto it = this->_assets.find(asset);
 
         if (it == this->_assets.end()) {
@@ -45,7 +45,14 @@ namespace Penrose {
         return it->second;
     }
 
-    std::filesystem::path AssetDictionary::getPath(const Asset &asset) const {
+    std::filesystem::path AssetDictionary::getPath(const AssetId &asset) const {
         return orElseThrow(this->tryGetPath(asset), EngineError(fmt::format("Asset {} not found", asset)));
+    }
+
+    AssetInstance AssetDictionary::openAsset(const AssetId &asset) const {
+        auto instance = AssetInstance(asset, this->getPath(asset));
+        instance.read();
+
+        return instance;
     }
 }

@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include "src/Assets/Asset.hpp"
+#include "src/Assets/AssetId.hpp"
 #include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {
@@ -11,16 +11,16 @@ namespace Penrose {
     class MeshRendererComponent : public Component {
     private:
         bool _dirty;
-        std::optional<Asset> _mesh;
+        std::optional<AssetId> _mesh;
 
     public:
         ~MeshRendererComponent() override = default;
 
         [[nodiscard]] bool isDirty() const { return this->_dirty; }
 
-        [[nodiscard]] const std::optional<Asset> &getMesh() const { return this->_mesh; }
+        [[nodiscard]] const std::optional<AssetId> &getMesh() const { return this->_mesh; }
 
-        void setMesh(const std::optional<Asset> &mesh);
+        void setMesh(const std::optional<AssetId> &mesh);
         void resetDirty();
 
         static ComponentName name() { return "MeshRenderer"; }
