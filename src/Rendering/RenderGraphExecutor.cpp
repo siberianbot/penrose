@@ -4,7 +4,6 @@
 
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/DeviceMemoryAllocator.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphParser.hpp"
@@ -22,28 +21,13 @@ namespace Penrose {
         return this->_presentContext->getSwapchainImageViews().at(imageIdx);
     }
 
-    const vk::Extent2D &RenderGraphExecutor::SwapchainTarget::getExtent() const {
-        return this->_presentContext->getSwapchainExtent();
-    }
-
-    RenderGraphExecutor::ImageTarget::ImageTarget(DeviceContext *deviceContext,
-                                                  DeviceMemoryAllocator *deviceMemoryAllocator,
-                                                  vk::Image image,
-                                                  vk::ImageView imageView,
-                                                  vk::Extent2D extent)
-            : _deviceContext(deviceContext),
-              _deviceMemoryAllocator(deviceMemoryAllocator),
-              _image(image),
-              _imageView(imageView),
-              _extent(extent) {
+    RenderGraphExecutor::ImageTarget::ImageTarget(Image &&image,
+                                                  DeviceMemory &&deviceMemory,
+                                                  ImageView &&imageView)
+            : _image(std::move(image)),
+              _deviceMemory(std::move(deviceMemory)),
+              _imageView(std::move(imageView)) {
         //
-    }
-
-    RenderGraphExecutor::ImageTarget::~ImageTarget() {
-        this->_deviceContext->getLogicalDevice().destroy(this->_imageView);
-
-        this->_deviceMemoryAllocator->freeFor(this->_image);
-        this->_deviceContext->getLogicalDevice().destroy(this->_image);
     }
 
     RenderGraphExecutor::Pass::Pass(DeviceContext *deviceContext,
@@ -85,21 +69,17 @@ namespace Penrose {
             auto parser = RenderGraphParser(this->_presentContext);
 
             auto imageCreateInfo = parser.parse<RenderTarget, vk::ImageCreateInfo>(target);
-            auto image = this->_deviceContext->getLogicalDevice().createImage(imageCreateInfo);
 
-            this->_deviceMemoryAllocator->allocateDeviceLocalFor(image);
+            auto image = makeImage(this->_deviceContext, imageCreateInfo);
+            auto deviceMemory = makeDeviceMemory(this->_deviceContext, image);
 
             auto imageViewCreateInfo = parser.parse<RenderTarget, vk::ImageViewCreateInfo>(target)
-                    .setImage(image);
-            auto imageView = this->_deviceContext->getLogicalDevice().createImageView(imageViewCreateInfo);
+                    .setImage(image.getInstance());
+            auto imageView = makeImageView(this->_deviceContext, imageViewCreateInfo);
 
-            auto extent = vk::Extent2D(imageCreateInfo.extent.width, imageCreateInfo.extent.height);
-
-            return std::make_unique<RenderGraphExecutor::ImageTarget>(this->_deviceContext,
-                                                                      this->_deviceMemoryAllocator,
-                                                                      image,
-                                                                      imageView,
-                                                                      extent);
+            return std::make_unique<RenderGraphExecutor::ImageTarget>(std::move(image),
+                                                                      std::move(deviceMemory),
+                                                                      std::move(imageView));
         };
 
         switch (target.source) {
@@ -251,7 +231,6 @@ namespace Penrose {
             : _resources(resources),
               _eventQueue(resources->get<EventQueue>()),
               _deviceContext(resources->get<DeviceContext>()),
-              _deviceMemoryAllocator(resources->get<DeviceMemoryAllocator>()),
               _presentContext(resources->get<PresentContext>()),
               _renderContext(resources->get<RenderContext>()) {
         //

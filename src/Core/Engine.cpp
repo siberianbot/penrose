@@ -7,7 +7,6 @@
 #include "src/Events/EventQueue.hpp"
 #include "src/ECS/ECSManager.hpp"
 #include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/DeviceMemoryAllocator.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
@@ -32,7 +31,6 @@ namespace Penrose {
         // rendering
         this->_resources.add<Surface>();
         this->_resources.add<DeviceContext>();
-        this->_resources.add<DeviceMemoryAllocator>();
         this->_resources.add<PresentContext>();
         this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutor>();

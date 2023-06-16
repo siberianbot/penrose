@@ -13,6 +13,7 @@
 #include "src/Common/Initializable.hpp"
 #include "src/Events/Event.hpp"
 #include "src/Rendering/RenderGraph.hpp"
+#include "src/Rendering/Utils.hpp"
 #include "src/Rendering/Operators/RenderOperator.hpp"
 #include "src/Resources/Resource.hpp"
 
@@ -21,7 +22,6 @@ namespace Penrose {
     class ResourceSet;
     class EventQueue;
     class DeviceContext;
-    class DeviceMemoryAllocator;
     class PresentContext;
     class RenderContext;
 
@@ -32,8 +32,6 @@ namespace Penrose {
             virtual ~Target() = default;
 
             [[nodiscard]] virtual const vk::ImageView &getView(const std::uint32_t &imageIdx) const = 0;
-
-            [[nodiscard]] virtual const vk::Extent2D &getExtent() const = 0;
         };
 
         class SwapchainTarget : public Target {
@@ -45,32 +43,22 @@ namespace Penrose {
             ~SwapchainTarget() override = default;
 
             [[nodiscard]] const vk::ImageView &getView(const std::uint32_t &imageIdx) const override;
-
-            [[nodiscard]] const vk::Extent2D &getExtent() const override;
         };
 
         class ImageTarget : public Target {
         private:
-            DeviceContext *_deviceContext;
-            DeviceMemoryAllocator *_deviceMemoryAllocator;
-            vk::Image _image;
-            vk::ImageView _imageView;
-            vk::Extent2D _extent;
+            Image _image;
+            DeviceMemory _deviceMemory;
+            ImageView _imageView;
 
         public:
-            ImageTarget(DeviceContext *deviceContext,
-                        DeviceMemoryAllocator *deviceMemoryAllocator,
-                        vk::Image image,
-                        vk::ImageView imageView,
-                        vk::Extent2D extent);
-            ~ImageTarget() override;
+            ImageTarget(Image &&image,
+                        DeviceMemory &&deviceMemory,
+                        ImageView &&imageView);
+            ~ImageTarget() override = default;
 
             [[nodiscard]] const vk::ImageView &getView(const std::uint32_t &) const override {
-                return this->_imageView;
-            }
-
-            [[nodiscard]] const vk::Extent2D &getExtent() const override {
-                return this->_extent;
+                return this->_imageView.getInstance();
             }
         };
 
@@ -147,7 +135,6 @@ namespace Penrose {
         ResourceSet *_resources;
         EventQueue *_eventQueue;
         DeviceContext *_deviceContext;
-        DeviceMemoryAllocator *_deviceMemoryAllocator;
         PresentContext *_presentContext;
         RenderContext *_renderContext;
 

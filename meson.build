@@ -42,7 +42,6 @@ src = [
 
     # Rendering
     'src/Rendering/DeviceContext.cpp',
-    'src/Rendering/DeviceMemoryAllocator.cpp',
     'src/Rendering/PresentContext.cpp',
     'src/Rendering/RenderContext.cpp',
     'src/Rendering/RenderGraph.cpp',

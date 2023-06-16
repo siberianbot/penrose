@@ -1,8 +1,22 @@
 #include "Utils.hpp"
 
+#include <optional>
+
+#include "src/Common/EngineError.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 
 namespace Penrose {
+
+    Buffer makeBuffer(DeviceContext *deviceContext, vk::BufferCreateInfo createInfo) {
+        auto buffer = deviceContext->getLogicalDevice().createBuffer(createInfo);
+
+        return {
+                buffer,
+                [deviceContext](vk::Buffer &instance) {
+                    deviceContext->getLogicalDevice().destroy(instance);
+                }
+        };
+    }
 
     DescriptorSetLayout makeDescriptorSetLayout(DeviceContext *deviceContext,
                                                 vk::DescriptorSetLayoutCreateInfo createInfo) {
@@ -11,6 +25,28 @@ namespace Penrose {
         return {
                 descriptorSetLayout,
                 [deviceContext](vk::DescriptorSetLayout &instance) {
+                    deviceContext->getLogicalDevice().destroy(instance);
+                }
+        };
+    }
+
+    Image makeImage(DeviceContext *deviceContext, vk::ImageCreateInfo createInfo) {
+        auto image = deviceContext->getLogicalDevice().createImage(createInfo);
+
+        return {
+                image,
+                [deviceContext](vk::Image &instance) {
+                    deviceContext->getLogicalDevice().destroy(instance);
+                }
+        };
+    }
+
+    ImageView makeImageView(DeviceContext *deviceContext, vk::ImageViewCreateInfo createInfo) {
+        auto imageView = deviceContext->getLogicalDevice().createImageView(createInfo);
+
+        return {
+                imageView,
+                [deviceContext](vk::ImageView &instance) {
                     deviceContext->getLogicalDevice().destroy(instance);
                 }
         };
@@ -47,6 +83,49 @@ namespace Penrose {
                 shaderModule,
                 [deviceContext](vk::ShaderModule &instance) {
                     deviceContext->getLogicalDevice().destroy(instance);
+                }
+        };
+    }
+
+    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Image &image, bool local) {
+        vk::MemoryPropertyFlags flags = local
+                                        ? vk::MemoryPropertyFlagBits::eDeviceLocal
+                                        : vk::MemoryPropertyFlagBits::eHostVisible |
+                                          vk::MemoryPropertyFlagBits::eHostCoherent;
+
+        auto requirements = deviceContext->getLogicalDevice().getImageMemoryRequirements(image.getInstance());
+        auto properties = deviceContext->getPhysicalDevice().getMemoryProperties();
+
+        std::optional<uint32_t> memTypeIdx;
+
+        for (uint32_t idx = 0; idx < properties.memoryTypeCount; idx++) {
+            bool typeMatches = requirements.memoryTypeBits & (1 << idx);
+            bool propertiesMatches = (properties.memoryTypes[idx].propertyFlags & flags) == flags;
+
+            if (!typeMatches || !propertiesMatches) {
+                continue;
+            }
+
+            memTypeIdx = idx;
+            break;
+        }
+
+        if (!memTypeIdx.has_value()) {
+            throw EngineError("No memory type available for required allocation");
+        }
+
+        auto allocateInfo = vk::MemoryAllocateInfo()
+                .setAllocationSize(requirements.size)
+                .setMemoryTypeIndex(memTypeIdx.value());
+
+        auto memory = deviceContext->getLogicalDevice().allocateMemory(allocateInfo);
+
+        deviceContext->getLogicalDevice().bindImageMemory(image.getInstance(), memory, 0);
+
+        return {
+                memory,
+                [deviceContext](vk::DeviceMemory &instance) {
+                    deviceContext->getLogicalDevice().free(instance);
                 }
         };
     }
