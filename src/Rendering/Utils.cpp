@@ -87,15 +87,13 @@ namespace Penrose {
         };
     }
 
-    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Image &image, bool local) {
+    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::MemoryRequirements requirements, bool local) {
         vk::MemoryPropertyFlags flags = local
                                         ? vk::MemoryPropertyFlagBits::eDeviceLocal
                                         : vk::MemoryPropertyFlagBits::eHostVisible |
                                           vk::MemoryPropertyFlagBits::eHostCoherent;
 
-        auto requirements = deviceContext->getLogicalDevice().getImageMemoryRequirements(image.getInstance());
         auto properties = deviceContext->getPhysicalDevice().getMemoryProperties();
-
         std::optional<uint32_t> memTypeIdx;
 
         for (uint32_t idx = 0; idx < properties.memoryTypeCount; idx++) {
@@ -120,13 +118,29 @@ namespace Penrose {
 
         auto memory = deviceContext->getLogicalDevice().allocateMemory(allocateInfo);
 
-        deviceContext->getLogicalDevice().bindImageMemory(image.getInstance(), memory, 0);
-
         return {
                 memory,
                 [deviceContext](vk::DeviceMemory &instance) {
                     deviceContext->getLogicalDevice().free(instance);
                 }
         };
+    }
+
+    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Image &image, bool local) {
+        auto requirements = deviceContext->getLogicalDevice().getImageMemoryRequirements(image.getInstance());
+        auto memory = makeDeviceMemory(deviceContext, requirements, local);
+
+        deviceContext->getLogicalDevice().bindImageMemory(image.getInstance(), memory.getInstance(), 0);
+
+        return memory;
+    }
+
+    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Buffer &buffer, bool local) {
+        auto requirements = deviceContext->getLogicalDevice().getBufferMemoryRequirements(buffer.getInstance());
+        auto memory = makeDeviceMemory(deviceContext, requirements, local);
+
+        deviceContext->getLogicalDevice().bindBufferMemory(buffer.getInstance(), memory.getInstance(), 0);
+
+        return memory;
     }
 }

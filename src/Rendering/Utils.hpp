@@ -40,6 +40,7 @@ namespace Penrose {
                                                 vk::ShaderModuleCreateInfo createInfo);
 
     [[nodiscard]] DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Image &image, bool local = true);
+    [[nodiscard]] DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Buffer &buffer, bool local = true);
 }
 
 #endif // PENROSE_RENDERING_UTILS_HPP

@@ -7,11 +7,15 @@ project(
         'cpp_std=c++20'
     ])
 
+cmake = import('cmake')
+
 deps = [
     subproject('fmt').get_variable('fmt_dep'),
     subproject('glfw').get_variable('glfw_dep'),
     dependency('vulkan'),
     subproject('imgui', default_options: ['default_library=static']).get_variable('imgui_dep'),
+    subproject('glm').get_variable('glm_dep'),
+    cmake.subproject('tinyobjloader').dependency('tinyobjloader'),
 ]
 
 src = [
@@ -62,4 +66,8 @@ src = [
     'src/Scene/SceneManager.cpp',
 ]
 
-executable('penrose', src, dependencies: deps)
+cpp_args = [
+    '-DTINYOBJLOADER_IMPLEMENTATION'
+]
+
+executable('penrose', src, dependencies: deps, cpp_args: cpp_args)

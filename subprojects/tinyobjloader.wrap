@@ -1,0 +1,4 @@
+[wrap-git]
+url = https://github.com/tinyobjloader/tinyobjloader.git
+revision = release
+depth = 1

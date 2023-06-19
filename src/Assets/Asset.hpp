@@ -1,6 +1,8 @@
 #ifndef PENROSE_ASSETS_ASSET_HPP
 #define PENROSE_ASSETS_ASSET_HPP
 
+#include <cstdint>
+
 #include "src/Rendering/Utils.hpp"
 
 namespace Penrose {
@@ -11,6 +13,14 @@ namespace Penrose {
 
     struct ShaderAsset : public Asset {
         ShaderModule shaderModule;
+    };
+
+    struct MeshAsset : public Asset {
+        Buffer vertexBuffer;
+        DeviceMemory vertexBufferMemory;
+        Buffer indexBuffer;
+        DeviceMemory indexBufferMemory;
+        std::uint32_t indexCount;
     };
 }
 

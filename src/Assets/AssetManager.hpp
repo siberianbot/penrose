@@ -22,6 +22,7 @@ namespace Penrose {
         ~AssetManager() override = default;
 
         [[nodiscard]] ShaderAsset loadShader(const AssetId &asset) const;
+        [[nodiscard]] MeshAsset loadMesh(const AssetId &asset) const;
     };
 }
 
