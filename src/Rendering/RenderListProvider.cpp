@@ -39,8 +39,10 @@ namespace Penrose {
         auto modelMatrix = modelPos * modelRot * modelScale;
 
         // TODO: fetch aspect ratio
-        auto camProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.0001f, 100.0f);
-        auto camView = glm::lookAt(glm::vec3(4, 4, 4), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        auto camProjection = glm::perspective(glm::radians(45.0f), 1.0f, 0.0001f, 100.0f);
+        camProjection[1][1] *= -1;
+        auto camView = glm::lookAt(glm::vec3(4), glm::vec3(0), glm::vec3(0, 1, 0));
+
         auto matrix = camProjection * camView * modelMatrix;
 
         auto item = RenderListItem{

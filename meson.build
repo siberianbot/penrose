@@ -57,6 +57,7 @@ src = [
     'src/Rendering/Utils.cpp',
 
     # Rendering / Operators
+    'src/Rendering/Operators/ForwardSceneDrawRenderOperator.cpp',
     'src/Rendering/Operators/ImGuiDrawRenderOperator.cpp',
 
     # Resources
@@ -68,7 +69,19 @@ src = [
 ]
 
 cpp_args = [
-    '-DTINYOBJLOADER_IMPLEMENTATION'
+    '-DTINYOBJLOADER_IMPLEMENTATION',
+    '-DGLM_FORCE_DEPTH_ZERO_TO_ONE'
 ]
 
 executable('penrose', src, dependencies: deps, cpp_args: cpp_args)
+
+# shaders compilation
+shaders = [
+    'data/shaders/default-forward-rendering.vert',
+    'data/shaders/default-forward-rendering.frag',
+]
+
+foreach shader : shaders
+    message('processing shader ' + shader)
+    run_command('glslangValidator', '-gVS', '-V', shader, '-o', shader + '.spv', check: true)
+endforeach

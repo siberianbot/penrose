@@ -9,9 +9,9 @@ namespace Penrose {
 
     class TransformComponent : public Component {
     private:
-        glm::vec3 _pos;
-        glm::vec3 _rot;
-        glm::vec3 _scale;
+        glm::vec3 _pos = glm::vec3(0);
+        glm::vec3 _rot = glm::vec3(0);
+        glm::vec3 _scale = glm::vec3(1);
 
     public:
         ~TransformComponent() override = default;

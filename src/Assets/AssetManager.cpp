@@ -87,6 +87,8 @@ namespace Penrose {
                             attrib.colors.at(3 * index.vertex_index + 2)
                     };
                 }
+
+                vertices.push_back(vertex);
             }
         }
 
@@ -94,7 +96,7 @@ namespace Penrose {
             auto buffer = makeBuffer(this->_deviceContext, vk::BufferCreateInfo()
                     .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
                     .setSize(size));
-            auto memory = makeDeviceMemory(this->_deviceContext, buffer);
+            auto memory = makeDeviceMemory(this->_deviceContext, buffer, false);
 
             void *bufferData;
             auto result = this->_deviceContext->getLogicalDevice().mapMemory(memory.getInstance(), 0, size,
