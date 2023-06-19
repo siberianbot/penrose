@@ -7,6 +7,7 @@
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphParser.hpp"
+#include "src/Rendering/RenderListProvider.hpp"
 #include "src/Resources/ResourceSet.hpp"
 #include "src/Utils/OptionalUtils.hpp"
 
@@ -232,7 +233,8 @@ namespace Penrose {
               _eventQueue(resources->get<EventQueue>()),
               _deviceContext(resources->get<DeviceContext>()),
               _presentContext(resources->get<PresentContext>()),
-              _renderContext(resources->get<RenderContext>()) {
+              _renderContext(resources->get<RenderContext>()),
+              _renderListProvider(resources->get<RenderListProvider>()) {
         //
     }
 
@@ -296,6 +298,7 @@ namespace Penrose {
         }
 
         auto &currentFramebufferState = *this->_framebufferState;
+        auto renderList = this->_renderListProvider->buildRenderList();
 
         auto commandBuffer = this->_commandBuffers.at(frameIdx);
         commandBuffer.reset();
@@ -320,7 +323,8 @@ namespace Penrose {
             auto executionContext = RenderOperatorExecutionContext{
                     .renderPass = pass->getRenderPass(),
                     .renderArea = renderArea,
-                    .commandBuffer = commandBuffer
+                    .commandBuffer = commandBuffer,
+                    .renderList = renderList
             };
 
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);

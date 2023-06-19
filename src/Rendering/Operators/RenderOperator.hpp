@@ -2,8 +2,11 @@
 #define PENROSE_RENDERING_OPERATORS_RENDER_OPERATOR_HPP
 
 #include <cstdint>
+#include <optional>
 
 #include <vulkan/vulkan.hpp>
+
+#include "src/Rendering/RenderData.hpp"
 
 namespace Penrose {
 
@@ -11,6 +14,7 @@ namespace Penrose {
         vk::RenderPass renderPass;
         vk::Rect2D renderArea;
         vk::CommandBuffer commandBuffer;
+        std::optional<RenderList> renderList;
     };
 
     class RenderOperator {

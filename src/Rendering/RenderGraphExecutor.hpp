@@ -24,6 +24,7 @@ namespace Penrose {
     class DeviceContext;
     class PresentContext;
     class RenderContext;
+    class RenderListProvider;
 
     class RenderGraphExecutor : public Resource, public Initializable {
     private:
@@ -137,6 +138,7 @@ namespace Penrose {
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
         RenderContext *_renderContext;
+        RenderListProvider *_renderListProvider;
 
         std::array<vk::CommandBuffer, INFLIGHT_FRAME_COUNT> _commandBuffers;
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _imageReadySemaphores;

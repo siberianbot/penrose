@@ -9,20 +9,22 @@
 
 namespace Penrose {
 
-    struct SceneNode {
+    struct SceneTreeNode {
         std::optional<Entity> entity;
-        std::list<std::shared_ptr<SceneNode>> descendants;
+        std::list<std::shared_ptr<SceneTreeNode>> descendants;
     };
 
     class Scene {
     private:
-        std::shared_ptr<SceneNode> _root;
+        std::shared_ptr<SceneTreeNode> _root;
 
     public:
         Scene();
-        explicit Scene(const std::shared_ptr<SceneNode> &root);
+        explicit Scene(const std::shared_ptr<SceneTreeNode> &root);
 
-        [[nodiscard]] std::shared_ptr<SceneNode> &getRoot() { return this->_root; }
+        [[nodiscard]] std::shared_ptr<SceneTreeNode> &getRoot() { return this->_root; }
+
+        [[nodiscard]] const std::shared_ptr<SceneTreeNode> &getRoot() const { return this->_root; }
     };
 }
 
