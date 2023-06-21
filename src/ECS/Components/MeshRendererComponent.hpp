@@ -23,7 +23,7 @@ namespace Penrose {
         void setMesh(const std::optional<AssetId> &mesh);
         void resetDirty();
 
-        static ComponentName name() { return "MeshRenderer"; }
+        [[nodiscard]] static ComponentName name() { return "MeshRenderer"; }
     };
 }
 

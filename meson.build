@@ -59,6 +59,7 @@ src = [
     # Rendering / Operators
     'src/Rendering/Operators/ForwardSceneDrawRenderOperator.cpp',
     'src/Rendering/Operators/ImGuiDrawRenderOperator.cpp',
+    'src/Rendering/Operators/RenderOperatorParams.cpp',
 
     # Resources
     'src/Resources/ResourceSet.cpp',

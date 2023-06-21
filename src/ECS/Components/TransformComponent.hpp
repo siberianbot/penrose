@@ -22,7 +22,7 @@ namespace Penrose {
 
         [[nodiscard]] glm::vec3 &getScale() { return this->_scale; }
 
-        static ComponentName name() { return "Transform"; }
+        [[nodiscard]] static ComponentName name() { return "Transform"; }
     };
 }
 

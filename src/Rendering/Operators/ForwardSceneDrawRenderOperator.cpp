@@ -3,7 +3,6 @@
 #include "src/Assets/AssetManager.hpp"
 #include "src/Common/Vertex.hpp"
 #include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/RenderData.hpp"
 #include "src/Resources/ResourceSet.hpp"
 #include "src/Utils/OptionalUtils.hpp"
 
@@ -22,11 +21,9 @@ namespace Penrose {
     }
 
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
-                                                                   DeviceContext *deviceContext,
                                                                    PipelineLayout &&pipelineLayout,
                                                                    Pipeline &&pipeline)
             : _assetManager(assetManager),
-              _deviceContext(deviceContext),
               _pipelineLayout(std::move(pipelineLayout)),
               _pipeline(std::move(pipeline)) {
         //
@@ -40,8 +37,8 @@ namespace Penrose {
         auto viewport = vk::Viewport()
                 .setX(0)
                 .setY(0)
-                .setWidth(context.renderArea.extent.width)
-                .setHeight(context.renderArea.extent.height)
+                .setWidth(static_cast<float>(context.renderArea.extent.width))
+                .setHeight(static_cast<float>(context.renderArea.extent.height))
                 .setMinDepth(0)
                 .setMaxDepth(1);
 
@@ -63,36 +60,20 @@ namespace Penrose {
         }
     }
 
-    std::unique_ptr<RenderOperator> ForwardSceneDrawRenderOperator::make(const RenderOperatorFactoryContext &context) {
+    RenderOperatorParams ForwardSceneDrawRenderOperator::defaults() {
+        RenderOperatorParams params;
+        params.setString(VERTEX_SHADER_PARAM, "shaders/default-forward-rendering.vert.spv");
+        params.setString(FRAGMENT_SHADER_PARAM, "shaders/default-forward-rendering.frag.spv");
+
+        return params;
+    }
+
+    std::unique_ptr<RenderOperator> ForwardSceneDrawRenderOperator::create(const RenderOperatorCreateContext &context) {
         auto assetManager = context.resources->get<AssetManager>();
         auto deviceContext = context.resources->get<DeviceContext>();
 
-        auto getParam = [&context](const std::string_view &param) -> std::optional<RenderOperatorParamValue> {
-            if (!context.params.has_value()) {
-                return std::nullopt;
-            }
-
-            auto it = context.params->find(std::string(param));
-
-            if (it == context.params->end()) {
-                return std::nullopt;
-            }
-
-            return it->second;
-        };
-
-        auto vertexShaderAsset = map(
-                getParam(ForwardSceneDrawRenderOperator::PARAM_DEFAULT_VERTEX_SHADER),
-                [](auto value) { return std::get<std::string>(value); }
-        ).value_or(std::string(ForwardSceneDrawRenderOperator::PARAM_DEFAULT_VERTEX_SHADER_VALUE));
-
-        auto fragmentShaderAsset = map(
-                getParam(ForwardSceneDrawRenderOperator::PARAM_DEFAULT_FRAGMENT_SHADER),
-                [](auto value) { return std::get<std::string>(value); }
-        ).value_or(std::string(ForwardSceneDrawRenderOperator::PARAM_DEFAULT_FRAGMENT_SHADER_VALUE));
-
-        auto vertexShader = assetManager->loadShader(vertexShaderAsset);
-        auto fragmentShader = assetManager->loadShader(fragmentShaderAsset);
+        auto vertexShader = assetManager->loadShader(context.params.getString(VERTEX_SHADER_PARAM));
+        auto fragmentShader = assetManager->loadShader(context.params.getString(FRAGMENT_SHADER_PARAM));
 
         auto stages = {
                 vk::PipelineShaderStageCreateInfo()
@@ -216,7 +197,6 @@ namespace Penrose {
         auto pipeline = makeGraphicsPipeline(deviceContext, pipelineCreateInfo);
 
         return std::make_unique<ForwardSceneDrawRenderOperator>(context.resources->get<AssetManager>(),
-                                                                deviceContext,
                                                                 std::move(pipelineLayout),
                                                                 std::move(pipeline));
     }

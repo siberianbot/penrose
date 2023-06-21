@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "src/Common/Types.hpp"
+#include "src/Rendering/Operators/RenderOperatorParams.hpp"
 
 namespace Penrose {
 
@@ -75,10 +76,6 @@ namespace Penrose {
         RenderAttachmentLayout initialLayout;
         RenderAttachmentLayout finalLayout;
     };
-
-    using RenderOperatorParamName = std::string;
-    using RenderOperatorParamValue = std::variant<std::string>;
-    using RenderOperatorParams = std::unordered_map<RenderOperatorParamName, RenderOperatorParamValue>;
 
     struct RenderPass {
         std::vector<std::uint32_t> dependsOn;

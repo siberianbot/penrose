@@ -117,22 +117,20 @@ namespace Penrose {
                 continue;
             }
 
-            auto factory = this->_renderContext->tryGetRenderOperatorFactory(*subgraph.passes.at(idx).operatorName);
+            auto operatorName = *subgraph.passes.at(idx).operatorName;
+            auto operatorParams = RenderOperatorParams::merge(
+                    this->_renderContext->tryGetRenderOperatorDefaults(operatorName)
+                            .value_or(RenderOperatorParams::empty()),
+                    subgraph.passes.at(idx).operatorParams.value_or(RenderOperatorParams::empty()));
 
-            if (!factory.has_value()) {
-                // TODO: notify
-                operators[idx] = std::nullopt;
-                continue;
-            }
-
-            auto context = RenderOperatorFactoryContext{
+            auto context = RenderOperatorCreateContext{
                     .resources = this->_resources,
-                    .params = subgraph.passes.at(idx).operatorParams,
+                    .params = operatorParams,
                     .renderPass = renderPass,
                     .subpassIdx = idx,
             };
 
-            operators[idx] = (*factory)(context);
+            operators[idx] = this->_renderContext->tryCreateRenderOperator(operatorName, context);
         }
 
         auto renderArea = map(subgraph.renderArea, [](Size size) {
@@ -321,7 +319,6 @@ namespace Penrose {
                     .setRenderArea(renderArea);
 
             auto executionContext = RenderOperatorExecutionContext{
-                    .renderPass = pass->getRenderPass(),
                     .renderArea = renderArea,
                     .commandBuffer = commandBuffer,
                     .renderList = renderList
