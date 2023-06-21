@@ -63,11 +63,28 @@ namespace Penrose {
     }
 
     ECSManager::ECSManager(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()) {
+            : _resources(resources),
+              _eventQueue(resources->get<EventQueue>()) {
         //
     }
 
+    void ECSManager::init() {
+        for (const auto &[_, system]: this->_systems) {
+            system->init();
+        }
+    }
+
+    void ECSManager::update() {
+        for (const auto &[_, system]: this->_systems) {
+            system->update();
+        }
+    }
+
     void ECSManager::destroy() {
+        for (const auto &[_, system]: this->_systems) {
+            system->destroy();
+        }
+
         this->_components.clear();
         this->_entities.clear();
     }

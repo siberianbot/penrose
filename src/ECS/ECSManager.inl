@@ -27,6 +27,17 @@ namespace Penrose {
         this->_componentTypes.push_back(description);
     }
 
+    template<IsSystem T>
+    void ECSManager::registerSystem() {
+        auto type = std::type_index(typeid(T));
+
+        if (this->_systems.find(type) != this->_systems.end()) {
+            throw EngineError(fmt::format("System {} already registered", type.name()));
+        }
+
+        this->_systems[type] = std::make_unique<T>(this->_resources);
+    }
+
     template<IsComponent T>
     std::optional<std::weak_ptr<T>> ECSManager::tryGetComponent(const Entity &entity) {
         auto name = T::name();

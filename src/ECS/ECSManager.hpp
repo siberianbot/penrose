@@ -5,6 +5,8 @@
 #include <memory>
 #include <optional>
 #include <tuple>
+#include <typeindex>
+#include <type_traits>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -12,12 +14,23 @@
 #include "src/Common/Initializable.hpp"
 #include "src/ECS/ECSBase.hpp"
 #include "src/ECS/Components/Component.hpp"
+#include "src/ECS/Systems/System.hpp"
 #include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 
     class ResourceSet;
     class EventQueue;
+
+    template<typename T>
+    concept IsComponent = std::is_base_of<Component, T>::value &&
+                          std::is_default_constructible<T>::value &&
+                          requires(T) {{ T::name() } -> std::same_as<ComponentName>; };
+
+    template<typename T>
+    concept IsSystem = std::is_base_of<System, T>::value && requires(ResourceSet *resources, T) {
+        { T(resources) };
+    };
 
     class ECSManager : public Resource, public Initializable {
     private:
@@ -34,11 +47,13 @@ namespace Penrose {
             std::unordered_set<ComponentType> componentTypes;
         };
 
+        ResourceSet *_resources;
         EventQueue *_eventQueue;
 
         Entity _nextEntity = 0;
         ComponentType _nextComponentType = 0;
         std::vector<ComponentTypeDescription> _componentTypes;
+        std::unordered_map<std::type_index, std::unique_ptr<System>> _systems;
         std::unordered_map<Entity, EntityDescription> _entities;
         std::unordered_map<ComponentId, std::shared_ptr<Component>> _components;
 
@@ -54,12 +69,15 @@ namespace Penrose {
         explicit ECSManager(ResourceSet *resources);
         ~ECSManager() override = default;
 
-        void init() override { /* nothing to do */ }
-
+        void init() override;
+        void update();
         void destroy() override;
 
         template<IsComponent T>
         void registerComponent();
+
+        template<IsSystem T>
+        void registerSystem();
 
         [[nodiscard]] Entity createEntity();
         void destroyEntity(const Entity &entity);
