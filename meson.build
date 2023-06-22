@@ -37,9 +37,6 @@ src = [
     # ECS
     'src/ECS/ECSManager.cpp',
 
-    # ECS / Components
-    'src/ECS/Components/MeshRendererComponent.cpp',
-
     # Events
     'src/Events/Event.cpp',
     'src/Events/EventQueue.cpp',

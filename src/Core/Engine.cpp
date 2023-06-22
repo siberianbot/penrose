@@ -6,6 +6,7 @@
 #include "src/Backends/ImGuiBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/ECS/ECSManager.hpp"
+#include "src/ECS/Components/CameraComponent.hpp"
 #include "src/ECS/Components/MeshRendererComponent.hpp"
 #include "src/ECS/Components/TransformComponent.hpp"
 #include "src/Events/EventQueue.hpp"
@@ -48,6 +49,7 @@ namespace Penrose {
         this->_resources.add<RenderThread>();
 
         // components
+        ecsManager->registerComponent<CameraComponent>();
         ecsManager->registerComponent<MeshRendererComponent>();
         ecsManager->registerComponent<TransformComponent>();
 

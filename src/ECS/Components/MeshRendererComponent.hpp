@@ -10,18 +10,17 @@ namespace Penrose {
 
     class MeshRendererComponent : public Component {
     private:
-        bool _dirty;
-        std::optional<AssetId> _mesh;
+        std::optional<AssetId> _mesh = std::nullopt;
 
     public:
         ~MeshRendererComponent() override = default;
 
-        [[nodiscard]] bool isDirty() const { return this->_dirty; }
-
         [[nodiscard]] const std::optional<AssetId> &getMesh() const { return this->_mesh; }
 
-        void setMesh(const std::optional<AssetId> &mesh);
-        void resetDirty();
+        void setMesh(const std::optional<AssetId> &mesh) {
+            this->_mesh = mesh;
+            this->_dirty = true;
+        }
 
         [[nodiscard]] static ComponentName name() { return "MeshRenderer"; }
     };
