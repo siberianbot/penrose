@@ -37,6 +37,9 @@ src = [
     # ECS
     'src/ECS/ECSManager.cpp',
 
+    # ECS / Systems
+    'src/ECS/Systems/RenderListBuilderSystem.cpp',
+
     # Events
     'src/Events/Event.cpp',
     'src/Events/EventQueue.cpp',
@@ -48,7 +51,6 @@ src = [
     'src/Rendering/RenderGraph.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
     'src/Rendering/RenderGraphParser.cpp',
-    'src/Rendering/RenderListProvider.cpp',
     'src/Rendering/RenderThread.cpp',
     'src/Rendering/Surface.cpp',
     'src/Rendering/Utils.cpp',

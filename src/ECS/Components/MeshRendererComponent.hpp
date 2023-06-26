@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "src/Assets/AssetId.hpp"
+#include "src/ECS/ECSBase.hpp"
 #include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {
@@ -22,7 +23,7 @@ namespace Penrose {
             this->_dirty = true;
         }
 
-        [[nodiscard]] static ComponentName name() { return "MeshRenderer"; }
+        [[nodiscard]] static constexpr ComponentName name() { return "MeshRenderer"; }
     };
 }
 

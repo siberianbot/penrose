@@ -1,10 +1,14 @@
 #include "ForwardSceneDrawRenderOperator.hpp"
 
+#include <utility>
+
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "src/Assets/AssetManager.hpp"
 #include "src/Common/Vertex.hpp"
 #include "src/Rendering/DeviceContext.hpp"
+#include "src/Rendering/RenderContext.hpp"
 #include "src/Resources/ResourceSet.hpp"
-#include "src/Utils/OptionalUtils.hpp"
 
 namespace Penrose {
 
@@ -21,17 +25,37 @@ namespace Penrose {
     }
 
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
+                                                                   RenderContext *renderContext,
                                                                    PipelineLayout &&pipelineLayout,
-                                                                   Pipeline &&pipeline)
+                                                                   Pipeline &&pipeline,
+                                                                   std::string &&renderList)
             : _assetManager(assetManager),
+              _renderContext(renderContext),
               _pipelineLayout(std::move(pipelineLayout)),
-              _pipeline(std::move(pipeline)) {
+              _pipeline(std::move(pipeline)),
+              _renderList(std::move(renderList)) {
         //
     }
 
     void ForwardSceneDrawRenderOperator::execute(const RenderOperatorExecutionContext &context) {
-        if (!context.renderList.has_value()) {
+        auto lock = this->_renderContext->acquireContextLock();
+        auto renderList = this->_renderContext->tryGetRenderList(this->_renderList);
+
+        if (!renderList.has_value()) {
             return;
+        }
+
+        auto projection = glm::mat4(1);
+        if (renderList->projection.has_value()) {
+            if (auto perspective = std::get_if<Perspective>(&renderList->projection.value())) {
+                projection = glm::perspective(perspective->fov,
+                                              static_cast<float>(context.renderArea.extent.width) /
+                                              static_cast<float>(context.renderArea.extent.height),
+                                              renderList->near,
+                                              renderList->far);
+
+                projection[1][1] *= -1;
+            }
         }
 
         auto viewport = vk::Viewport()
@@ -47,12 +71,17 @@ namespace Penrose {
 
         context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline.getInstance());
 
-        auto &renderList = *context.renderList;
-        for (const auto &item: renderList.items) {
+        for (const auto &[_, item]: renderList->items) {
             auto mesh = this->getMesh(item.mesh);
 
+            auto renderData = RenderData{
+                    .matrix = projection * renderList->view * item.model,
+                    .model = item.model,
+                    .modelRot = item.modelRot
+            };
+
             context.commandBuffer.pushConstants(this->_pipelineLayout.getInstance(), vk::ShaderStageFlagBits::eVertex,
-                                                0, sizeof(RenderData), &item.data);
+                                                0, sizeof(RenderData), &renderData);
             context.commandBuffer.bindVertexBuffers(0, mesh->vertexBuffer.getInstance(), {0});
             context.commandBuffer.bindIndexBuffer(mesh->indexBuffer.getInstance(), 0, vk::IndexType::eUint32);
 
@@ -62,6 +91,7 @@ namespace Penrose {
 
     RenderOperatorParams ForwardSceneDrawRenderOperator::defaults() {
         RenderOperatorParams params;
+        params.setString(RENDER_LIST_PARAM, "Default");
         params.setString(VERTEX_SHADER_PARAM, "shaders/default-forward-rendering.vert.spv");
         params.setString(FRAGMENT_SHADER_PARAM, "shaders/default-forward-rendering.frag.spv");
 
@@ -197,7 +227,9 @@ namespace Penrose {
         auto pipeline = makeGraphicsPipeline(deviceContext, pipelineCreateInfo);
 
         return std::make_unique<ForwardSceneDrawRenderOperator>(context.resources->get<AssetManager>(),
+                                                                context.resources->get<RenderContext>(),
                                                                 std::move(pipelineLayout),
-                                                                std::move(pipeline));
+                                                                std::move(pipeline),
+                                                                context.params.getString(RENDER_LIST_PARAM));
     }
 }

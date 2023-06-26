@@ -26,7 +26,6 @@ namespace Penrose {
     struct RenderOperatorExecutionContext {
         vk::Rect2D renderArea;
         vk::CommandBuffer commandBuffer;
-        std::optional<RenderList> renderList; // TODO: remove, shouldn't be a part of execution context
     };
 
     class RenderOperator {

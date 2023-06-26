@@ -8,13 +8,14 @@
 #include "src/ECS/ECSManager.hpp"
 #include "src/ECS/Components/CameraComponent.hpp"
 #include "src/ECS/Components/MeshRendererComponent.hpp"
+#include "src/ECS/Components/RenderListProviderComponent.hpp"
 #include "src/ECS/Components/TransformComponent.hpp"
+#include "src/ECS/Systems/RenderListBuilderSystem.hpp"
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
-#include "src/Rendering/RenderListProvider.hpp"
 #include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"
 #include "src/Rendering/Operators/ForwardSceneDrawRenderOperator.hpp"
@@ -38,7 +39,6 @@ namespace Penrose {
         this->_resources.add<Surface>();
         this->_resources.add<DeviceContext>();
         this->_resources.add<PresentContext>();
-        this->_resources.add<RenderListProvider>();
 
         // asset
         this->_resources.add<AssetManager>();
@@ -51,10 +51,14 @@ namespace Penrose {
         // components
         ecsManager->registerComponent<CameraComponent>();
         ecsManager->registerComponent<MeshRendererComponent>();
+        ecsManager->registerComponent<RenderListProviderComponent>();
         ecsManager->registerComponent<TransformComponent>();
 
         // rendering operators
-        renderContext->registerRenderOperator<Penrose::ForwardSceneDrawRenderOperator>();
+        renderContext->registerRenderOperator<ForwardSceneDrawRenderOperator>();
+
+        // ECS systems
+        ecsManager->registerSystem<RenderListBuilderSystem>();
     }
 
     void Engine::run() {

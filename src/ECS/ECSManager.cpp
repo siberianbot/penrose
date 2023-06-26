@@ -14,7 +14,7 @@ namespace Penrose {
     constexpr inline int UINT32_DIGITS = std::numeric_limits<std::uint32_t>::digits;
 
     std::optional<ECSManager::ComponentTypeDescription *> ECSManager::tryGetComponentTypeDescription(
-            const ComponentName &name) {
+            const ComponentName &name) const {
         auto it = std::find_if(this->_componentTypes.begin(), this->_componentTypes.end(),
                                [&name](const ComponentTypeDescription &description) {
                                    return description.name == name;
@@ -24,16 +24,16 @@ namespace Penrose {
             return std::nullopt;
         }
 
-        return &(*it);
+        return const_cast<ECSManager::ComponentTypeDescription *>(&(*it));
     }
 
-    ECSManager::ComponentTypeDescription *ECSManager::getComponentTypeDescription(const ComponentName &name) {
+    ECSManager::ComponentTypeDescription *ECSManager::getComponentTypeDescription(const ComponentName &name) const {
         return orElseThrow(this->tryGetComponentTypeDescription(name),
                            EngineError(fmt::format("No component {} registered", name)));
     }
 
     ECSManager::ComponentTypeDescription *ECSManager::getComponentTypeDescription(
-            const ECSManager::ComponentType &type) {
+            const ECSManager::ComponentType &type) const {
         auto it = std::find_if(this->_componentTypes.begin(), this->_componentTypes.end(),
                                [&type](const ComponentTypeDescription &description) {
                                    return description.type == type;
@@ -43,7 +43,7 @@ namespace Penrose {
             throw EngineError(fmt::format("Unknown component type {}", type));
         }
 
-        return &(*it);
+        return const_cast<ECSManager::ComponentTypeDescription *>(&(*it));
     }
 
     ComponentId ECSManager::constructComponentId(const Entity &entity, const ECSManager::ComponentType &type) {
@@ -172,14 +172,14 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
-    std::optional<std::weak_ptr<Component>> ECSManager::tryGetComponent(const Entity &entity,
-                                                                        const ComponentName &name) {
+    std::optional<std::shared_ptr<Component>> ECSManager::tryGetComponent(const Entity &entity,
+                                                                          const ComponentName &name) const {
         auto description = this->getComponentTypeDescription(name);
 
         return this->tryGetComponent(constructComponentId(entity, description->type));
     }
 
-    std::optional<std::weak_ptr<Component>> ECSManager::tryGetComponent(const ComponentId &componentId) {
+    std::optional<std::shared_ptr<Component>> ECSManager::tryGetComponent(const ComponentId &componentId) const {
         auto componentIt = this->_components.find(componentId);
 
         if (componentIt == this->_components.end()) {

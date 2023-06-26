@@ -58,9 +58,9 @@ namespace Penrose {
         std::unordered_map<ComponentId, std::shared_ptr<Component>> _components;
 
         [[nodiscard]] std::optional<ComponentTypeDescription *> tryGetComponentTypeDescription(
-                const ComponentName &name);
-        [[nodiscard]] ComponentTypeDescription *getComponentTypeDescription(const ComponentName &name);
-        [[nodiscard]] ComponentTypeDescription *getComponentTypeDescription(const ComponentType &type);
+                const ComponentName &name) const;
+        [[nodiscard]] ComponentTypeDescription *getComponentTypeDescription(const ComponentName &name) const;
+        [[nodiscard]] ComponentTypeDescription *getComponentTypeDescription(const ComponentType &type) const;
 
         [[nodiscard]] static ComponentId constructComponentId(const Entity &entity, const ComponentType &type);
         [[nodiscard]] static std::tuple<Entity, ComponentType> deconstructComponentId(const ComponentId &componentId);
@@ -85,12 +85,15 @@ namespace Penrose {
         [[nodiscard]] ComponentId createComponent(const Entity &entity, const ComponentName &name);
         void destroyComponent(const ComponentId &componentId);
 
-        [[nodiscard]] std::optional<std::weak_ptr<Component>> tryGetComponent(const Entity &entity,
-                                                                              const ComponentName &name);
-        [[nodiscard]] std::optional<std::weak_ptr<Component>> tryGetComponent(const ComponentId &componentId);
+        [[nodiscard]] std::optional<std::shared_ptr<Component>> tryGetComponent(const Entity &entity,
+                                                                                const ComponentName &name) const;
+        [[nodiscard]] std::optional<std::shared_ptr<Component>> tryGetComponent(const ComponentId &componentId) const;
 
         template<IsComponent T>
-        [[nodiscard]] std::optional<std::weak_ptr<T>> tryGetComponent(const Entity &entity);
+        [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetComponent(const Entity &entity) const;
+
+        template<IsComponent T>
+        [[nodiscard]] std::shared_ptr<T> getComponent(const Entity &entity) const;
     };
 }
 

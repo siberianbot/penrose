@@ -3,6 +3,7 @@
 
 #include <glm/trigonometric.hpp>
 
+#include "src/ECS/ECSBase.hpp"
 #include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {
@@ -16,13 +17,13 @@ namespace Penrose {
     public:
         ~CameraComponent() override = default;
 
-        [[nodiscard]] float &fov() { return this->_fov; }
+        [[nodiscard]] float &getFov() { return this->_fov; }
 
-        [[nodiscard]] float &near() { return this->_near; }
+        [[nodiscard]] float &getNear() { return this->_near; }
 
-        [[nodiscard]] float &far() { return this->_far; }
+        [[nodiscard]] float &getFar() { return this->_far; }
 
-        [[nodiscard]] static ComponentName name() { return "CameraComponent"; }
+        [[nodiscard]] static constexpr ComponentName name() { return "Camera"; }
     };
 }
 

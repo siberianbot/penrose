@@ -3,6 +3,7 @@
 
 #include <glm/vec3.hpp>
 
+#include "src/ECS/ECSBase.hpp"
 #include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {
@@ -22,7 +23,7 @@ namespace Penrose {
 
         [[nodiscard]] glm::vec3 &getScale() { return this->_scale; }
 
-        [[nodiscard]] static ComponentName name() { return "Transform"; }
+        [[nodiscard]] static constexpr ComponentName name() { return "Transform"; }
     };
 }
 

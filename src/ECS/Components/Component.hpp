@@ -5,7 +5,7 @@ namespace Penrose {
 
     class Component {
     protected:
-        bool _dirty = false;
+        bool _dirty = true;
 
     public:
         virtual ~Component() = default;

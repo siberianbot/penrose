@@ -39,7 +39,7 @@ namespace Penrose {
     }
 
     template<IsComponent T>
-    std::optional<std::weak_ptr<T>> ECSManager::tryGetComponent(const Entity &entity) {
+    std::optional<std::shared_ptr<T>> ECSManager::tryGetComponent(const Entity &entity) const {
         auto name = T::name();
         auto component = this->tryGetComponent(entity, name);
 
@@ -47,7 +47,13 @@ namespace Penrose {
             return std::nullopt;
         }
 
-        return std::dynamic_pointer_cast<T>(component.value().lock());
+        return std::dynamic_pointer_cast<T>(component.value());
+    }
+
+    template<IsComponent T>
+    std::shared_ptr<T> ECSManager::getComponent(const Entity &entity) const {
+        return orElseThrow(this->tryGetComponent<T>(entity),
+                           EngineError(fmt::format("No component {} found for entity {}", T::name(), entity)));
     }
 }
 
