@@ -18,8 +18,10 @@ deps = [
     cmake.subproject('tinyobjloader').dependency('tinyobjloader'),
 ]
 
+incdir = include_directories('include')
+
 src = [
-    'src/Main.cpp',
+    # 'src/Main.cpp', TODO: remove
 
     # Assets
     'src/Assets/AssetDictionary.cpp',
@@ -73,7 +75,7 @@ cpp_args = [
     '-DGLM_FORCE_DEPTH_ZERO_TO_ONE'
 ]
 
-executable('penrose', src, dependencies: deps, cpp_args: cpp_args)
+executable('penrose', src, dependencies: deps, cpp_args: cpp_args, include_directories: incdir)
 
 # shaders compilation
 shaders = [

@@ -8,10 +8,11 @@
 #include <string>
 #include <thread>
 
+#include <Penrose/Resources/Resource.hpp>
+
 #include "src/Rendering/RenderList.hpp"
 #include "src/Rendering/RenderGraph.hpp"
 #include "src/Rendering/Operators/RenderOperator.hpp"
-#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 

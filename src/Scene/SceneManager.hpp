@@ -3,8 +3,9 @@
 
 #include <optional>
 
-#include "src/Common/Initializable.hpp"
-#include "src/Resources/Resource.hpp"
+#include <Penrose/Common/Initializable.hpp>
+#include <Penrose/Resources/Resource.hpp>
+
 #include "src/Scene/Scene.hpp"
 
 namespace Penrose {

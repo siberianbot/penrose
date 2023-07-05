@@ -2,8 +2,9 @@
 #include <iostream>
 #include <string>
 
+#include <Penrose/Core/Engine.hpp>
+
 #include "src/Assets/AssetDictionary.hpp"
-#include "src/Core/Engine.hpp"
 #include "src/ECS/ECSManager.hpp"
 #include "src/ECS/Components/CameraComponent.hpp"
 #include "src/ECS/Components/MeshRendererComponent.hpp"

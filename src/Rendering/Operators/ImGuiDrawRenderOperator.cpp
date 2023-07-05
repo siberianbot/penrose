@@ -4,10 +4,11 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Backends/VulkanBackend.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 

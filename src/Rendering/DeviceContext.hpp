@@ -6,8 +6,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Common/Initializable.hpp"
-#include "src/Resources/Resource.hpp"
+#include <Penrose/Common/Initializable.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 

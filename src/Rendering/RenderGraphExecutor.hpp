@@ -9,13 +9,14 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Common/Initializable.hpp>
+#include <Penrose/Resources/Resource.hpp>
+
 #include "src/Constants.hpp"
-#include "src/Common/Initializable.hpp"
 #include "src/Events/Event.hpp"
 #include "src/Rendering/RenderGraph.hpp"
 #include "src/Rendering/Utils.hpp"
 #include "src/Rendering/Operators/RenderOperator.hpp"
-#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 

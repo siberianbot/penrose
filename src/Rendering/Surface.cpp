@@ -3,10 +3,11 @@
 #include <GLFW/glfw3.h>
 #include <imgui_impl_glfw.h>
 
+#include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Backends/VulkanBackend.hpp"
-#include "src/Common/EngineError.hpp"
 #include "src/Events/EventQueue.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 

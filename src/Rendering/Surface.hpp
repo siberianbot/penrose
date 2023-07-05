@@ -5,9 +5,10 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Common/Initializable.hpp"
+#include <Penrose/Common/Initializable.hpp>
+#include <Penrose/Resources/Resource.hpp>
+
 #include "src/Common/Types.hpp"
-#include "src/Resources/Resource.hpp"
 
 struct GLFWwindow;
 

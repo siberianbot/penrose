@@ -1,10 +1,10 @@
-#include "ResourceSet.hpp"
+#include "include/Penrose/Resources/ResourceSet.hpp"
 
 #include <ranges>
 
 #include <fmt/core.h>
 
-#include "src/Common/EngineError.hpp"
+#include <Penrose/Common/EngineError.hpp>
 
 namespace Penrose {
 

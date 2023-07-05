@@ -1,7 +1,7 @@
 #ifndef PENROSE_CORE_ENGINE_HPP
 #define PENROSE_CORE_ENGINE_HPP
 
-#include "src/Resources/ResourceSet.hpp"
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 

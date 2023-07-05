@@ -9,9 +9,9 @@
 #include <type_traits>
 #include <vector>
 
-#include "src/Common/Initializable.hpp"
-#include "src/Common/Lazy.hpp"
-#include "src/Resources/Resource.hpp"
+#include <Penrose/Common/Initializable.hpp>
+#include <Penrose/Common/Lazy.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 

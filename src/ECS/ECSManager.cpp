@@ -5,9 +5,10 @@
 
 #include <fmt/core.h>
 
-#include "src/Common/EngineError.hpp"
+#include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Events/EventQueue.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 

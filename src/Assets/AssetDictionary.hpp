@@ -5,9 +5,10 @@
 #include <optional>
 #include <unordered_map>
 
+#include <Penrose/Resources/Resource.hpp>
+
 #include "src/Assets/AssetId.hpp"
 #include "src/Assets/AssetInstance.hpp"
-#include "src/Resources/Resource.hpp"
 
 namespace Penrose {
 

@@ -1,7 +1,8 @@
 #include "RenderContext.hpp"
 
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Events/EventQueue.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 

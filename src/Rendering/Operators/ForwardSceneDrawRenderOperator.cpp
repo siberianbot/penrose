@@ -4,11 +4,12 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Assets/AssetManager.hpp"
 #include "src/Common/Vertex.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/RenderContext.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 

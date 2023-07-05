@@ -1,4 +1,4 @@
-#include "Engine.hpp"
+#include <Penrose/Core/Engine.hpp>
 
 #include "src/Assets/AssetDictionary.hpp"
 #include "src/Assets/AssetManager.hpp"

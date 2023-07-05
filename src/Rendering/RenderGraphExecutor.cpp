@@ -2,12 +2,13 @@
 
 #include <utility>
 
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphParser.hpp"
-#include "src/Resources/ResourceSet.hpp"
 #include "src/Utils/OptionalUtils.hpp"
 
 namespace Penrose {

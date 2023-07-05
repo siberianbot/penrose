@@ -2,10 +2,11 @@
 
 #include <limits>
 
-#include "src/Common/EngineError.hpp"
+#include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/Surface.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 
