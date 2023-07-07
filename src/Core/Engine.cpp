@@ -1,5 +1,7 @@
 #include <Penrose/Core/Engine.hpp>
 
+#include <Penrose/Rendering/RenderContext.hpp>
+
 #include "src/Assets/AssetDictionary.hpp"
 #include "src/Assets/AssetManager.hpp"
 #include "src/Backends/GlfwBackend.hpp"
@@ -14,7 +16,6 @@
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
-#include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"

@@ -11,8 +11,8 @@
 #include <variant>
 #include <vector>
 
-#include "src/Common/Types.hpp"
-#include "src/Rendering/Operators/RenderOperatorParams.hpp"
+#include <Penrose/Common/ParamsCollection.hpp>
+#include <Penrose/Common/Size.hpp>
 
 namespace Penrose {
 
@@ -83,7 +83,7 @@ namespace Penrose {
         std::vector<std::uint32_t> colorAttachments;
         std::optional<std::uint32_t> depthStencilAttachment;
         std::optional<std::string> operatorName;
-        std::optional<RenderOperatorParams> operatorParams;
+        std::optional<ParamsCollection> operatorParams;
     };
 
     struct RenderSubgraph {

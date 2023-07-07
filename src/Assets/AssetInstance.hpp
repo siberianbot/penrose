@@ -5,7 +5,7 @@
 #include <optional>
 #include <vector>
 
-#include "src/Assets/AssetId.hpp"
+#include <Penrose/Assets/AssetId.hpp>
 
 namespace Penrose {
 

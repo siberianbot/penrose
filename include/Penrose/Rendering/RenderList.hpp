@@ -7,8 +7,8 @@
 
 #include <glm/mat4x4.hpp>
 
-#include "src/Assets/AssetId.hpp"
-#include "src/ECS/ECSBase.hpp"
+#include <Penrose/Assets/AssetId.hpp>
+#include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {
 

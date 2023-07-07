@@ -5,10 +5,11 @@
 #include <optional>
 #include <set>
 
-#include "src/ECS/ECSBase.hpp"
+#include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/Rendering/RenderList.hpp>
+
 #include "src/ECS/Systems/System.hpp"
 #include "src/Events/Event.hpp"
-#include "src/Rendering/RenderList.hpp"
 
 namespace Penrose {
 

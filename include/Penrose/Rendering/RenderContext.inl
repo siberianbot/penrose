@@ -5,7 +5,7 @@ namespace Penrose {
 
     template<IsRenderOperator T>
     void RenderContext::registerRenderOperator() {
-        this->registerRenderOperator(T::name(), []() { return RenderOperatorParams::empty(); }, T::create);
+        this->registerRenderOperator(T::name(), []() { return ParamsCollection::empty(); }, T::create);
     }
 
     template<IsRenderOperatorWithDefaults T>

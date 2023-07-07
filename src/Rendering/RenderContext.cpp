@@ -1,4 +1,4 @@
-#include "RenderContext.hpp"
+#include <Penrose/Rendering/RenderContext.hpp>
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -45,7 +45,7 @@ namespace Penrose {
         return result;
     }
 
-    std::optional<RenderOperatorParams> RenderContext::tryGetRenderOperatorDefaults(const std::string &name) const {
+    std::optional<ParamsCollection> RenderContext::tryGetRenderOperatorDefaults(const std::string &name) const {
         auto it = this->_operatorDefaultsFuncs.find(name);
 
         if (it == this->_operatorDefaultsFuncs.end()) {

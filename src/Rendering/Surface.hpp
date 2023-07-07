@@ -6,9 +6,8 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/Initializable.hpp>
+#include <Penrose/Common/Size.hpp>
 #include <Penrose/Resources/Resource.hpp>
-
-#include "src/Common/Types.hpp"
 
 struct GLFWwindow;
 

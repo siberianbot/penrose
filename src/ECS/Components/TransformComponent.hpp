@@ -3,7 +3,8 @@
 
 #include <glm/vec3.hpp>
 
-#include "src/ECS/ECSBase.hpp"
+#include <Penrose/ECS/ECSBase.hpp>
+
 #include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {

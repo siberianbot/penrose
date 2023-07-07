@@ -1,5 +1,5 @@
-#ifndef PENROSE_RENDERING_OPERATORS_RENDER_OPERATOR_HPP
-#define PENROSE_RENDERING_OPERATORS_RENDER_OPERATOR_HPP
+#ifndef PENROSE_RENDERING_RENDER_OPERATOR_HPP
+#define PENROSE_RENDERING_RENDER_OPERATOR_HPP
 
 #include <cstdint>
 #include <memory>
@@ -9,8 +9,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Rendering/RenderData.hpp"
-#include "src/Rendering/Operators/RenderOperatorParams.hpp"
+#include <Penrose/Common/ParamsCollection.hpp>
 
 namespace Penrose {
 
@@ -18,7 +17,7 @@ namespace Penrose {
 
     struct RenderOperatorCreateContext {
         ResourceSet *resources;
-        RenderOperatorParams params;
+        ParamsCollection params;
         vk::RenderPass renderPass;
         std::uint32_t subpassIdx;
     };
@@ -44,8 +43,8 @@ namespace Penrose {
 
     template<typename T>
     concept IsRenderOperatorWithDefaults = IsRenderOperator<T> && requires(T) {
-        { T::defaults() } -> std::same_as<RenderOperatorParams>;
+        { T::defaults() } -> std::same_as<ParamsCollection>;
     };
 }
 
-#endif // PENROSE_RENDERING_OPERATORS_RENDER_OPERATOR_HPP
+#endif // PENROSE_RENDERING_RENDER_OPERATOR_HPP

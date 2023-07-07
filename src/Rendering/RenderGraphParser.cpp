@@ -4,9 +4,10 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Utils/OptionalUtils.hpp>
+
 #include "src/Rendering/PresentContext.hpp"
-#include "src/Rendering/RenderGraph.hpp"
-#include "src/Utils/OptionalUtils.hpp"
+#include "include/Penrose/Rendering/RenderGraph.hpp"
 
 namespace Penrose {
 

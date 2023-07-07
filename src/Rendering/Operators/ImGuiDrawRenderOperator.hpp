@@ -1,7 +1,7 @@
 #ifndef PENROSE_RENDERING_OPERATORS_IMGUI_DRAW_RENDER_OPERATOR_HPP
 #define PENROSE_RENDERING_OPERATORS_IMGUI_DRAW_RENDER_OPERATOR_HPP
 
-#include "src/Rendering/Operators/RenderOperator.hpp"
+#include <Penrose/Rendering/RenderOperator.hpp>
 
 namespace Penrose {
 

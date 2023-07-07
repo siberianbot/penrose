@@ -8,6 +8,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/ECS/ECSManager.hpp"
@@ -16,7 +17,6 @@
 #include "src/ECS/Components/RenderListProviderComponent.hpp"
 #include "src/ECS/Components/TransformComponent.hpp"
 #include "src/Events/EventQueue.hpp"
-#include "src/Rendering/RenderContext.hpp"
 #include "src/Scene/SceneManager.hpp"
 
 namespace Penrose {

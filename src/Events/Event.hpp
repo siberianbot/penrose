@@ -5,8 +5,9 @@
 #include <optional>
 #include <variant>
 
-#include "src/Common/Types.hpp"
-#include "src/ECS/ECSBase.hpp"
+#include <Penrose/Common/Size.hpp>
+
+#include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {
 

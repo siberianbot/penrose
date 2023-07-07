@@ -8,18 +8,17 @@
 #include <string>
 #include <thread>
 
+#include <Penrose/Rendering/RenderGraph.hpp>
+#include <Penrose/Rendering/RenderList.hpp>
+#include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Resources/Resource.hpp>
-
-#include "src/Rendering/RenderList.hpp"
-#include "src/Rendering/RenderGraph.hpp"
-#include "src/Rendering/Operators/RenderOperator.hpp"
 
 namespace Penrose {
 
     class ResourceSet;
     class EventQueue;
 
-    using RenderOperatorDefaults = std::function<RenderOperatorParams()>;
+    using RenderOperatorDefaults = std::function<ParamsCollection()>;
     using RenderOperatorCreate = std::function<std::unique_ptr<RenderOperator>(const RenderOperatorCreateContext &)>;
 
     class RenderContext : public Resource {
@@ -58,7 +57,7 @@ namespace Penrose {
         template<IsRenderOperatorWithDefaults T>
         void registerRenderOperator();
 
-        [[nodiscard]] std::optional<RenderOperatorParams> tryGetRenderOperatorDefaults(const std::string &name) const;
+        [[nodiscard]] std::optional<ParamsCollection> tryGetRenderOperatorDefaults(const std::string &name) const;
 
         [[nodiscard]] std::optional<std::unique_ptr<RenderOperator>> tryCreateRenderOperator(
                 const std::string &name,

@@ -4,12 +4,13 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Assets/AssetManager.hpp"
 #include "src/Common/Vertex.hpp"
 #include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/RenderContext.hpp"
+#include "src/Rendering/RenderData.hpp"
 
 namespace Penrose {
 
@@ -90,8 +91,8 @@ namespace Penrose {
         }
     }
 
-    RenderOperatorParams ForwardSceneDrawRenderOperator::defaults() {
-        RenderOperatorParams params;
+    ParamsCollection ForwardSceneDrawRenderOperator::defaults() {
+        ParamsCollection params;
         params.setString(RENDER_LIST_PARAM, "Default");
         params.setString(VERTEX_SHADER_PARAM, "shaders/default-forward-rendering.vert.spv");
         params.setString(FRAGMENT_SHADER_PARAM, "shaders/default-forward-rendering.frag.spv");

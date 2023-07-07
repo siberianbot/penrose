@@ -28,6 +28,9 @@ src = [
     'src/Assets/AssetInstance.cpp',
     'src/Assets/AssetManager.cpp',
 
+    # Common
+    'src/Common/ParamsCollection.cpp',
+
     # Core
     'src/Core/Engine.cpp',
 
@@ -60,7 +63,6 @@ src = [
     # Rendering / Operators
     'src/Rendering/Operators/ForwardSceneDrawRenderOperator.cpp',
     'src/Rendering/Operators/ImGuiDrawRenderOperator.cpp',
-    'src/Rendering/Operators/RenderOperatorParams.cpp',
 
     # Resources
     'src/Resources/ResourceSet.cpp',

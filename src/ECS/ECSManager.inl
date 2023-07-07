@@ -4,8 +4,7 @@
 #include <fmt/core.h>
 
 #include <Penrose/Common/EngineError.hpp>
-
-#include "src/Utils/OptionalUtils.hpp"
+#include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 

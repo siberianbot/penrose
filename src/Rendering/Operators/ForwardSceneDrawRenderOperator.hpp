@@ -6,10 +6,11 @@
 #include <string_view>
 #include <unordered_map>
 
+#include <Penrose/Assets/AssetId.hpp>
+#include <Penrose/Rendering/RenderOperator.hpp>
+
 #include "src/Assets/Asset.hpp"
-#include "src/Assets/AssetId.hpp"
 #include "src/Rendering/Utils.hpp"
-#include "src/Rendering/Operators/RenderOperator.hpp"
 
 namespace Penrose {
 
@@ -46,7 +47,7 @@ namespace Penrose {
 
         [[nodiscard]] static std::string name() { return "ForwardSceneDraw"; }
 
-        [[nodiscard]] static RenderOperatorParams defaults();
+        [[nodiscard]] static ParamsCollection defaults();
 
         [[nodiscard]] static std::unique_ptr<RenderOperator> create(const RenderOperatorCreateContext &context);
     };

@@ -3,8 +3,9 @@
 
 #include <optional>
 
-#include "src/Assets/AssetId.hpp"
-#include "src/ECS/ECSBase.hpp"
+#include <Penrose/Assets/AssetId.hpp>
+#include <Penrose/ECS/ECSBase.hpp>
+
 #include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {
