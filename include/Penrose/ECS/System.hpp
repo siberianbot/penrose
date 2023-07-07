@@ -1,5 +1,5 @@
-#ifndef PENROSE_ECS_SYSTEMS_SYSTEM_HPP
-#define PENROSE_ECS_SYSTEMS_SYSTEM_HPP
+#ifndef PENROSE_ECS_SYSTEM_HPP
+#define PENROSE_ECS_SYSTEM_HPP
 
 #include <type_traits>
 
@@ -17,4 +17,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_ECS_SYSTEMS_SYSTEM_HPP
+#endif // PENROSE_ECS_SYSTEM_HPP

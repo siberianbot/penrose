@@ -6,9 +6,9 @@
 #include <set>
 
 #include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/ECS/System.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
 
-#include "src/ECS/Systems/System.hpp"
 #include "src/Events/Event.hpp"
 
 namespace Penrose {

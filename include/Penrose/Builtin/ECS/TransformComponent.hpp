@@ -1,11 +1,10 @@
-#ifndef PENROSE_ECS_COMPONENTS_TRANSFORM_COMPONENT_HPP
-#define PENROSE_ECS_COMPONENTS_TRANSFORM_COMPONENT_HPP
+#ifndef PENROSE_BUILTIN_ECS_TRANSFORM_COMPONENT_HPP
+#define PENROSE_BUILTIN_ECS_TRANSFORM_COMPONENT_HPP
 
 #include <glm/vec3.hpp>
 
+#include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ECSBase.hpp>
-
-#include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {
 
@@ -28,4 +27,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_ECS_COMPONENTS_TRANSFORM_COMPONENT_HPP
+#endif // PENROSE_BUILTIN_ECS_TRANSFORM_COMPONENT_HPP

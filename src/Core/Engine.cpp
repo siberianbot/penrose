@@ -1,17 +1,18 @@
 #include <Penrose/Core/Engine.hpp>
 
+#include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
+
+#include <Penrose/Builtin/ECS/CameraComponent.hpp>
+#include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
+#include <Penrose/Builtin/ECS/RenderListProviderComponent.hpp>
+#include <Penrose/Builtin/ECS/TransformComponent.hpp>
 
 #include "src/Assets/AssetDictionary.hpp"
 #include "src/Assets/AssetManager.hpp"
 #include "src/Backends/GlfwBackend.hpp"
 #include "src/Backends/ImGuiBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"
-#include "src/ECS/ECSManager.hpp"
-#include "src/ECS/Components/CameraComponent.hpp"
-#include "src/ECS/Components/MeshRendererComponent.hpp"
-#include "src/ECS/Components/RenderListProviderComponent.hpp"
-#include "src/ECS/Components/TransformComponent.hpp"
 #include "src/ECS/Systems/RenderListBuilderSystem.hpp"
 #include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"

@@ -12,11 +12,11 @@
 #include <unordered_set>
 
 #include <Penrose/Common/Initializable.hpp>
+#include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/ECS/System.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/ECS/Components/Component.hpp"
-#include "src/ECS/Systems/System.hpp"
 
 namespace Penrose {
 

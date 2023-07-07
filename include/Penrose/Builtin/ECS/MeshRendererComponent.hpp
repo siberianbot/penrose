@@ -1,12 +1,11 @@
-#ifndef PENROSE_ECS_COMPONENTS_MESH_RENDERER_COMPONENT_HPP
-#define PENROSE_ECS_COMPONENTS_MESH_RENDERER_COMPONENT_HPP
+#ifndef PENROSE_BUILTIN_ECS_MESH_RENDERER_COMPONENT_HPP
+#define PENROSE_BUILTIN_ECS_MESH_RENDERER_COMPONENT_HPP
 
 #include <optional>
 
 #include <Penrose/Assets/AssetId.hpp>
+#include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ECSBase.hpp>
-
-#include "src/ECS/Components/Component.hpp"
 
 namespace Penrose {
 
@@ -28,4 +27,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_ECS_COMPONENTS_MESH_RENDERER_COMPONENT_HPP
+#endif // PENROSE_BUILTIN_ECS_MESH_RENDERER_COMPONENT_HPP

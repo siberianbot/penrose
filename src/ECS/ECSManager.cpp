@@ -1,4 +1,4 @@
-#include "ECSManager.hpp"
+#include <Penrose/ECS/ECSManager.hpp>
 
 #include <algorithm>
 #include <limits>
