@@ -5,8 +5,7 @@
 
 #include <Penrose/Common/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
-
-#include "src/Scene/Scene.hpp"
+#include <Penrose/Scene/Scene.hpp>
 
 namespace Penrose {
 

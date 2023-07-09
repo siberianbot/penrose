@@ -3,10 +3,9 @@
 
 #include <unordered_map>
 
+#include <Penrose/Common/DoubleVector.hpp>
+#include <Penrose/Events/Event.hpp>
 #include <Penrose/Resources/Resource.hpp>
-
-#include "src/Common/DoubleVector.hpp"
-#include "src/Events/Event.hpp"
 
 namespace Penrose {
 

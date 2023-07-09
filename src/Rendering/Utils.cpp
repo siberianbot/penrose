@@ -1,4 +1,4 @@
-#include "Utils.hpp"
+#include <Penrose/Rendering/Utils.hpp>
 
 #include <optional>
 

@@ -1,16 +1,15 @@
-#ifndef PENROSE_RENDERING_OPERATORS_FORWARD_SCENE_DRAW_RENDER_OPERATOR_HPP
-#define PENROSE_RENDERING_OPERATORS_FORWARD_SCENE_DRAW_RENDER_OPERATOR_HPP
+#ifndef PENROSE_BUILTIN_RENDERING_FORWARD_SCENE_DRAW_RENDER_OPERATOR_HPP
+#define PENROSE_BUILTIN_RENDERING_FORWARD_SCENE_DRAW_RENDER_OPERATOR_HPP
 
 #include <map>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 
+#include <Penrose/Assets/Asset.hpp>
 #include <Penrose/Assets/AssetId.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
-
-#include "src/Assets/Asset.hpp"
-#include "src/Rendering/Utils.hpp"
+#include <Penrose/Rendering/Utils.hpp>
 
 namespace Penrose {
 
@@ -53,4 +52,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_RENDERING_OPERATORS_FORWARD_SCENE_DRAW_RENDER_OPERATOR_HPP
+#endif // PENROSE_BUILTIN_RENDERING_FORWARD_SCENE_DRAW_RENDER_OPERATOR_HPP

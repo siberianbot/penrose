@@ -6,9 +6,8 @@
 #include <unordered_map>
 
 #include <Penrose/Assets/AssetId.hpp>
+#include <Penrose/Assets/AssetInstance.hpp>
 #include <Penrose/Resources/Resource.hpp>
-
-#include "src/Assets/AssetInstance.hpp"
 
 namespace Penrose {
 

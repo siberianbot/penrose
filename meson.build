@@ -42,9 +42,6 @@ src = [
     # ECS
     'src/ECS/ECSManager.cpp',
 
-    # ECS / Systems
-    'src/ECS/Systems/RenderListBuilderSystem.cpp',
-
     # Events
     'src/Events/Event.cpp',
     'src/Events/EventQueue.cpp',
@@ -60,16 +57,21 @@ src = [
     'src/Rendering/Surface.cpp',
     'src/Rendering/Utils.cpp',
 
-    # Rendering / Operators
-    'src/Rendering/Operators/ForwardSceneDrawRenderOperator.cpp',
-    'src/Rendering/Operators/ImGuiDrawRenderOperator.cpp',
-
     # Resources
     'src/Resources/ResourceSet.cpp',
 
     # Scene
     'src/Scene/Scene.cpp',
     'src/Scene/SceneManager.cpp',
+
+    # Builtin
+
+    # ECS / Systems
+    'src/Builtin/ECS/RenderListBuilderSystem.cpp',
+
+    # Rendering / Operators
+    'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
+    'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
 ]
 
 cpp_args = [

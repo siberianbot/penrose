@@ -1,4 +1,4 @@
-#include "include/Penrose/Resources/ResourceSet.hpp"
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include <ranges>
 

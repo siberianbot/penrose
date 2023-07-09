@@ -2,11 +2,11 @@
 
 #include <utility>
 
+#include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
-#include "src/Events/EventQueue.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderGraphParser.hpp"

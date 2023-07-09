@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "src/Utils/DestructibleObject.hpp"
+#include <Penrose/Utils/DestructibleObject.hpp>
 
 namespace Penrose {
 

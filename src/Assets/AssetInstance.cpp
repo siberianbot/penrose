@@ -1,4 +1,4 @@
-#include "AssetInstance.hpp"
+#include <Penrose/Assets/AssetInstance.hpp>
 
 #include <fstream>
 #include <utility>

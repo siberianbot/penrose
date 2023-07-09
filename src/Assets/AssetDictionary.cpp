@@ -1,4 +1,4 @@
-#include "AssetDictionary.hpp"
+#include <Penrose/Assets/AssetDictionary.hpp>
 
 #include <fmt/core.h>
 

@@ -17,7 +17,6 @@
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-
 namespace Penrose {
 
     class ResourceSet;

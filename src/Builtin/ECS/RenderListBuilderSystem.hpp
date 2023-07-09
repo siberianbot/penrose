@@ -1,5 +1,5 @@
-#ifndef PENROSE_ECS_SYSTEMS_RENDER_LIST_BUILDER_SYSTEM_HPP
-#define PENROSE_ECS_SYSTEMS_RENDER_LIST_BUILDER_SYSTEM_HPP
+#ifndef PENROSE_BUILTIN_ECS_RENDER_LIST_BUILDER_SYSTEM_HPP
+#define PENROSE_BUILTIN_ECS_RENDER_LIST_BUILDER_SYSTEM_HPP
 
 #include <memory>
 #include <optional>
@@ -7,9 +7,8 @@
 
 #include <Penrose/ECS/ECSBase.hpp>
 #include <Penrose/ECS/System.hpp>
+#include <Penrose/Events/Event.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
-
-#include "src/Events/Event.hpp"
 
 namespace Penrose {
 
@@ -43,4 +42,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_ECS_SYSTEMS_RENDER_LIST_BUILDER_SYSTEM_HPP
+#endif // PENROSE_BUILTIN_ECS_RENDER_LIST_BUILDER_SYSTEM_HPP

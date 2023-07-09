@@ -9,16 +9,15 @@
 
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/Scene/SceneManager.hpp>
 
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>
 #include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
 #include <Penrose/Builtin/ECS/RenderListProviderComponent.hpp>
 #include <Penrose/Builtin/ECS/TransformComponent.hpp>
-
-#include "src/Events/EventQueue.hpp"
-#include "src/Scene/SceneManager.hpp"
 
 namespace Penrose {
 

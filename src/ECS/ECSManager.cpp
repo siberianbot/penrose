@@ -6,9 +6,8 @@
 #include <fmt/core.h>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
-
-#include "src/Events/EventQueue.hpp"
 
 namespace Penrose {
 

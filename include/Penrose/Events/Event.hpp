@@ -6,7 +6,6 @@
 #include <variant>
 
 #include <Penrose/Common/Size.hpp>
-
 #include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {

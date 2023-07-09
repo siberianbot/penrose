@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "src/Rendering/Utils.hpp"
+#include <Penrose/Rendering/Utils.hpp>
 
 namespace Penrose {
 

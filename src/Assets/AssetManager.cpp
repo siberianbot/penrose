@@ -8,10 +8,10 @@
 #include <vulkan/vulkan.hpp>
 #include <tiny_obj_loader.h>
 
+#include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Assets/AssetDictionary.hpp"
 #include "src/Common/Vertex.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 
