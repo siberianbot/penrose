@@ -40,12 +40,15 @@ namespace Penrose {
     std::optional<RenderListItem> RenderListBuilderSystem::toRenderListItem(const Entity &entity) {
         auto maybeMeshRenderer = this->_ecsManager->tryGetComponent<MeshRendererComponent>(entity);
 
-        if (!maybeMeshRenderer.has_value() || !(*maybeMeshRenderer)->getMesh().has_value()) {
+        if (!maybeMeshRenderer.has_value() ||
+            !(*maybeMeshRenderer)->getMesh().has_value() ||
+            !(*maybeMeshRenderer)->getAlbedo().has_value()) {
             return std::nullopt;
         }
 
         auto item = RenderListItem{
-                .mesh = *(*maybeMeshRenderer)->getMesh()
+                .mesh = *(*maybeMeshRenderer)->getMesh(),
+                .albedo = *(*maybeMeshRenderer)->getAlbedo()
         };
 
         if (auto transform = this->_ecsManager->tryGetComponent<TransformComponent>(entity)) {

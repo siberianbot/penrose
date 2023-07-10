@@ -88,6 +88,17 @@ namespace Penrose {
         };
     }
 
+    Sampler makeSampler(DeviceContext *deviceContext, vk::SamplerCreateInfo createInfo) {
+        auto sampler = deviceContext->getLogicalDevice().createSampler(createInfo);
+
+        return {
+                sampler,
+                [deviceContext](vk::Sampler &instance) {
+                    deviceContext->getLogicalDevice().destroy(instance);
+                }
+        };
+    }
+
     DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::MemoryRequirements requirements, bool local) {
         vk::MemoryPropertyFlags flags = local
                                         ? vk::MemoryPropertyFlagBits::eDeviceLocal

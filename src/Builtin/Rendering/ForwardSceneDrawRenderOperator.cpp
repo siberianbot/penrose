@@ -7,6 +7,7 @@
 #include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
+#include "src/Constants.hpp"
 #include "src/Assets/AssetManager.hpp"
 #include "src/Common/Vertex.hpp"
 #include "src/Rendering/DeviceContext.hpp"
@@ -26,15 +27,77 @@ namespace Penrose {
         return &it->second;
     }
 
+    ImageAsset *ForwardSceneDrawRenderOperator::getImage(const AssetId &asset) {
+        auto imageIt = this->_images.find(asset);
+
+        if (imageIt != this->_images.end()) {
+            return &imageIt->second;
+        }
+
+        auto [it, _] = this->_images.emplace(asset, this->_assetManager->loadImage(asset));
+
+        return &it->second;
+    }
+
+    vk::DescriptorSet ForwardSceneDrawRenderOperator::getDescriptorSet(const Entity &entity,
+                                                                       const uint32_t &frameIdx,
+                                                                       const AssetId &assetId) {
+        auto descriptorsIt = this->_descriptors.find(entity);
+
+        if (descriptorsIt != this->_descriptors.end()) {
+            return descriptorsIt->second.at(frameIdx);
+        }
+
+        auto image = this->getImage(assetId);
+
+        auto layouts = std::vector<vk::DescriptorSetLayout>(INFLIGHT_FRAME_COUNT);
+        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
+            layouts[idx] = this->_descriptorSetLayout.getInstance();
+        }
+
+        auto allocateInfo = vk::DescriptorSetAllocateInfo()
+                .setSetLayouts(layouts)
+                .setDescriptorPool(this->_deviceContext->getDescriptorPool());
+
+        auto descriptorSets = this->_deviceContext->getLogicalDevice().allocateDescriptorSets(allocateInfo);
+        auto writes = std::vector<vk::WriteDescriptorSet>(descriptorSets.size());
+
+        auto imageInfo = vk::DescriptorImageInfo()
+                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                .setImageView(image->imageView.getInstance())
+                .setSampler(this->_sampler.getInstance());
+
+        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
+            writes[idx] = vk::WriteDescriptorSet()
+                    .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+                    .setImageInfo(imageInfo)
+                    .setDescriptorCount(1)
+                    .setDstBinding(0)
+                    .setDstSet(descriptorSets.at(idx));
+        }
+
+        this->_deviceContext->getLogicalDevice().updateDescriptorSets(writes, {});
+
+        this->_descriptors[entity] = descriptorSets;
+
+        return descriptorSets.at(frameIdx);
+    }
+
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
+                                                                   DeviceContext *deviceContext,
                                                                    RenderContext *renderContext,
-                                                                   PipelineLayout &&pipelineLayout,
-                                                                   Pipeline &&pipeline,
-                                                                   std::string &&renderList)
+                                                                   DescriptorSetLayout descriptorSetLayout,
+                                                                   PipelineLayout pipelineLayout,
+                                                                   Pipeline pipeline,
+                                                                   Sampler sampler,
+                                                                   std::string renderList)
             : _assetManager(assetManager),
+              _deviceContext(deviceContext),
               _renderContext(renderContext),
+              _descriptorSetLayout(std::move(descriptorSetLayout)),
               _pipelineLayout(std::move(pipelineLayout)),
               _pipeline(std::move(pipeline)),
+              _sampler(std::move(sampler)),
               _renderList(std::move(renderList)) {
         //
     }
@@ -73,8 +136,9 @@ namespace Penrose {
 
         context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline.getInstance());
 
-        for (const auto &[_, item]: renderList->items) {
+        for (const auto &[entity, item]: renderList->items) {
             auto mesh = this->getMesh(item.mesh);
+            auto descriptorSet = this->getDescriptorSet(entity, context.frameIdx, item.albedo);
 
             auto renderData = RenderData{
                     .matrix = projection * renderList->view * item.model,
@@ -86,6 +150,9 @@ namespace Penrose {
                                                 0, sizeof(RenderData), &renderData);
             context.commandBuffer.bindVertexBuffers(0, mesh->vertexBuffer.getInstance(), {0});
             context.commandBuffer.bindIndexBuffer(mesh->indexBuffer.getInstance(), 0, vk::IndexType::eUint32);
+            context.commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                                     this->_pipelineLayout.getInstance(),
+                                                     0, {descriptorSet}, {});
 
             context.commandBuffer.drawIndexed(mesh->indexCount, 1, 0, 0, 0);
         }
@@ -125,8 +192,22 @@ namespace Penrose {
                         .setSize(sizeof(RenderData))
         };
 
+        auto descriptorSetBindings = {
+                vk::DescriptorSetLayoutBinding()
+                        .setBinding(0)
+                        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+                        .setDescriptorCount(1)
+                        .setStageFlags(vk::ShaderStageFlagBits::eFragment)
+        };
+
+        auto descriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo()
+                .setBindings(descriptorSetBindings);
+
+        auto descriptorSetLayout = makeDescriptorSetLayout(deviceContext, descriptorSetLayoutCreateInfo);
+
         auto pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
-                .setPushConstantRanges(pushConstants);
+                .setPushConstantRanges(pushConstants)
+                .setSetLayouts(descriptorSetLayout.getInstance());
 
         auto pipelineLayout = makePipelineLayout(deviceContext, pipelineLayoutCreateInfo);
 
@@ -135,10 +216,10 @@ namespace Penrose {
         };
 
         auto attributes = {
-                vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat),
-                vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat),
-                vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32B32Sfloat),
-                vk::VertexInputAttributeDescription(3, 0, vk::Format::eR32G32Sfloat)
+                vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, pos)),
+                vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal)),
+                vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)),
+                vk::VertexInputAttributeDescription(3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv))
         };
 
         auto vertexInputState = vk::PipelineVertexInputStateCreateInfo()
@@ -228,10 +309,30 @@ namespace Penrose {
 
         auto pipeline = makeGraphicsPipeline(deviceContext, pipelineCreateInfo);
 
+        auto samplerCreateInfo = vk::SamplerCreateInfo()
+                .setAddressModeU(vk::SamplerAddressMode::eRepeat)
+                .setAddressModeV(vk::SamplerAddressMode::eRepeat)
+                .setAddressModeW(vk::SamplerAddressMode::eRepeat)
+                .setAnisotropyEnable(false)
+                .setMaxAnisotropy(1)
+                .setBorderColor(vk::BorderColor::eFloatOpaqueBlack)
+                .setCompareEnable(false)
+                .setMinFilter(vk::Filter::eLinear)
+                .setMagFilter(vk::Filter::eLinear)
+                .setMinLod(0)
+                .setMaxLod(1)
+                .setUnnormalizedCoordinates(false)
+                .setMipmapMode(vk::SamplerMipmapMode::eLinear);
+
+        auto sampler = makeSampler(deviceContext, samplerCreateInfo);
+
         return std::make_unique<ForwardSceneDrawRenderOperator>(context.resources->get<AssetManager>(),
+                                                                deviceContext,
                                                                 context.resources->get<RenderContext>(),
+                                                                std::move(descriptorSetLayout),
                                                                 std::move(pipelineLayout),
                                                                 std::move(pipeline),
+                                                                std::move(sampler),
                                                                 context.params.getString(RENDER_LIST_PARAM));
     }
 }

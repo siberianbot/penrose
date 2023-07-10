@@ -23,6 +23,7 @@ namespace Penrose {
     };
 
     struct RenderOperatorExecutionContext {
+        std::uint32_t frameIdx;
         vk::Rect2D renderArea;
         vk::CommandBuffer commandBuffer;
     };

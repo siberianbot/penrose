@@ -5,8 +5,9 @@
 #include <tuple>
 
 #include <fmt/core.h>
-#include <vulkan/vulkan.hpp>
+#include <stb/stb_image.h>
 #include <tiny_obj_loader.h>
+#include <vulkan/vulkan.hpp>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Common/EngineError.hpp>
@@ -159,6 +160,128 @@ namespace Penrose {
                 .indexBuffer = std::move(targetIndexBuffer),
                 .indexBufferMemory = std::move(targetIndexBufferMemory),
                 .indexCount = static_cast<std::uint32_t>(indices.size())
+        };
+    }
+
+    ImageAsset AssetManager::loadImage(const AssetId &asset) const {
+        auto openedAsset = this->_assetDictionary->openAsset(asset);
+
+        int width, height, channels;
+        auto data = stbi_load_from_memory(reinterpret_cast<const stbi_uc *>(openedAsset.data()),
+                                          static_cast<int>(openedAsset.size()),
+                                          &width, &height, &channels, STBI_rgb_alpha);
+
+        auto bufferSize = width * height * 4;
+        auto bufferCreateInfo = vk::BufferCreateInfo()
+                .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
+                .setSize(bufferSize);
+        auto buffer = makeBuffer(this->_deviceContext, bufferCreateInfo);
+        auto bufferMemory = makeDeviceMemory(this->_deviceContext, buffer, false);
+
+        void *bufferData;
+        auto result = this->_deviceContext->getLogicalDevice().mapMemory(bufferMemory.getInstance(), 0, bufferSize,
+                                                                         vk::MemoryMapFlags(), &bufferData);
+
+        if (result != vk::Result::eSuccess) {
+            throw EngineError("Failed to map buffer's memory");
+        }
+
+        std::memcpy(bufferData, data, bufferSize);
+        this->_deviceContext->getLogicalDevice().unmapMemory(bufferMemory.getInstance());
+
+        stbi_image_free(data);
+
+        auto imageCreateInfo = vk::ImageCreateInfo()
+                .setUsage(vk::ImageUsageFlagBits::eTransferSrc |
+                          vk::ImageUsageFlagBits::eTransferDst |
+                          vk::ImageUsageFlagBits::eSampled)
+                .setImageType(vk::ImageType::e2D)
+                .setExtent(vk::Extent3D(width, height, 1))
+                .setFormat(vk::Format::eR8G8B8A8Srgb)
+                .setSamples(vk::SampleCountFlagBits::e1)
+                .setArrayLayers(1)
+                .setMipLevels(1)
+                .setSharingMode(vk::SharingMode::eExclusive)
+                .setTiling(vk::ImageTiling::eOptimal);
+        auto image = makeImage(this->_deviceContext, imageCreateInfo);
+        auto imageMemory = makeDeviceMemory(this->_deviceContext, image);
+
+        auto range = vk::ImageSubresourceRange()
+                .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                .setLayerCount(1)
+                .setBaseArrayLayer(0)
+                .setLevelCount(1)
+                .setBaseMipLevel(0);
+
+        auto imageViewCreateInfo = vk::ImageViewCreateInfo()
+                .setViewType(vk::ImageViewType::e2D)
+                .setImage(image.getInstance())
+                .setFormat(vk::Format::eR8G8B8A8Srgb)
+                .setSubresourceRange(range)
+                .setComponents(vk::ComponentMapping());
+        auto imageView = makeImageView(this->_deviceContext, imageViewCreateInfo);
+
+        auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
+                .setCommandBufferCount(1)
+                .setCommandPool(this->_deviceContext->getCommandPool());
+        auto commandBuffers = this->_deviceContext->getLogicalDevice()
+                .allocateCommandBuffers(commandBufferAllocateInfo);
+
+        auto beginInfo = vk::CommandBufferBeginInfo()
+                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+        commandBuffers.at(0).begin(beginInfo);
+
+        vk::ImageMemoryBarrier memoryBarrier;
+
+        memoryBarrier = vk::ImageMemoryBarrier()
+                .setImage(image.getInstance())
+                .setSrcAccessMask(vk::AccessFlagBits::eNone)
+                .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
+                .setOldLayout(vk::ImageLayout::eUndefined)
+                .setNewLayout(vk::ImageLayout::eTransferDstOptimal)
+                .setSubresourceRange(range);
+        commandBuffers.at(0).pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+                                             vk::PipelineStageFlagBits::eTransfer,
+                                             vk::DependencyFlagBits(0),
+                                             {}, {}, memoryBarrier);
+
+        auto region = vk::BufferImageCopy()
+                .setBufferOffset(0)
+                .setBufferRowLength(width)
+                .setBufferImageHeight(height)
+                .setImageExtent(vk::Extent3D(width, height, 1))
+                .setImageOffset(vk::Offset3D(0, 0, 0))
+                .setImageSubresource(vk::ImageSubresourceLayers()
+                                             .setLayerCount(1)
+                                             .setBaseArrayLayer(0)
+                                             .setMipLevel(0)
+                                             .setAspectMask(vk::ImageAspectFlagBits::eColor));
+        commandBuffers.at(0).copyBufferToImage(buffer.getInstance(), image.getInstance(),
+                                               vk::ImageLayout::eTransferDstOptimal, region);
+
+        memoryBarrier = vk::ImageMemoryBarrier()
+                .setImage(image.getInstance())
+                .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+                .setDstAccessMask(vk::AccessFlagBits::eShaderRead)
+                .setOldLayout(vk::ImageLayout::eTransferDstOptimal)
+                .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                .setSubresourceRange(range);
+        commandBuffers.at(0).pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+                                             vk::PipelineStageFlagBits::eFragmentShader,
+                                             vk::DependencyFlagBits(0),
+                                             {}, {}, memoryBarrier);
+
+        commandBuffers.at(0).end();
+
+        this->_deviceContext->getGraphicsQueue().submit(vk::SubmitInfo().setCommandBuffers(commandBuffers));
+        this->_deviceContext->getGraphicsQueue().waitIdle();
+
+        this->_deviceContext->getLogicalDevice().free(this->_deviceContext->getCommandPool(), commandBuffers);
+
+        return ImageAsset{
+                .image = std::move(image),
+                .memory = std::move(imageMemory),
+                .imageView = std::move(imageView)
         };
     }
 }

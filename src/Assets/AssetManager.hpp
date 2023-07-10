@@ -23,6 +23,7 @@ namespace Penrose {
 
         [[nodiscard]] ShaderAsset loadShader(const AssetId &asset) const;
         [[nodiscard]] MeshAsset loadMesh(const AssetId &asset) const;
+        [[nodiscard]] ImageAsset loadImage(const AssetId &asset) const;
     };
 }
 

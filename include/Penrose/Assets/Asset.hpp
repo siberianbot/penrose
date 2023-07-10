@@ -22,6 +22,12 @@ namespace Penrose {
         DeviceMemory indexBufferMemory;
         std::uint32_t indexCount;
     };
+
+    struct ImageAsset : public Asset {
+        Image image;
+        DeviceMemory memory;
+        ImageView imageView;
+    };
 }
 
 #endif // PENROSE_ASSETS_ASSET_HPP

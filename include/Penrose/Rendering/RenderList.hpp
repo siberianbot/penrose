@@ -22,6 +22,7 @@ namespace Penrose {
 
     struct RenderListItem {
         AssetId mesh;
+        AssetId albedo;
         glm::mat4 model;
         glm::mat4 modelRot;
     };

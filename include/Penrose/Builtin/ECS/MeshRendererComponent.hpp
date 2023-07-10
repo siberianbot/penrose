@@ -12,6 +12,7 @@ namespace Penrose {
     class MeshRendererComponent : public Component {
     private:
         std::optional<AssetId> _mesh = std::nullopt;
+        std::optional<AssetId> _albedo = std::nullopt;
 
     public:
         ~MeshRendererComponent() override = default;
@@ -20,6 +21,13 @@ namespace Penrose {
 
         void setMesh(const std::optional<AssetId> &mesh) {
             this->_mesh = mesh;
+            this->_dirty = true;
+        }
+
+        [[nodiscard]] const std::optional<AssetId> &getAlbedo() const { return this->_albedo; }
+
+        void setAlbedo(const std::optional<AssetId> &albedo) {
+            this->_albedo = albedo;
             this->_dirty = true;
         }
 

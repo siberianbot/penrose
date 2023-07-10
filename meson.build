@@ -18,6 +18,7 @@ deps = [
     subproject('imgui', default_options: ['default_library=static']).get_variable('imgui_dep'),
     subproject('glm').get_variable('glm_dep'),
     cmake.subproject('tinyobjloader', options: cmake_opts).dependency('tinyobjloader'),
+    # TODO: https://github.com/nothings/stb
 ]
 
 incdir = include_directories('include')
@@ -75,6 +76,7 @@ src = [
 ]
 
 cpp_args = [
+    '-DSTB_IMAGE_IMPLEMENTATION',
     '-DTINYOBJLOADER_IMPLEMENTATION',
     '-DGLM_FORCE_DEPTH_ZERO_TO_ONE'
 ]

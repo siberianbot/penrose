@@ -16,6 +16,7 @@ namespace Penrose {
     using ImageView = DestructibleObject<vk::ImageView>;
     using Pipeline = DestructibleObject<vk::Pipeline>;
     using PipelineLayout = DestructibleObject<vk::PipelineLayout>;
+    using Sampler = DestructibleObject<vk::Sampler>;
     using ShaderModule = DestructibleObject<vk::ShaderModule>;
 
     [[nodiscard]] Buffer makeBuffer(DeviceContext *deviceContext,
@@ -35,6 +36,9 @@ namespace Penrose {
 
     [[nodiscard]] PipelineLayout makePipelineLayout(DeviceContext *deviceContext,
                                                     vk::PipelineLayoutCreateInfo createInfo);
+
+    [[nodiscard]] Sampler makeSampler(DeviceContext *deviceContext,
+                                      vk::SamplerCreateInfo createInfo);
 
     [[nodiscard]] ShaderModule makeShaderModule(DeviceContext *deviceContext,
                                                 vk::ShaderModuleCreateInfo createInfo);

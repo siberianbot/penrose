@@ -5,9 +5,11 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 #include <Penrose/Assets/Asset.hpp>
 #include <Penrose/Assets/AssetId.hpp>
+#include <Penrose/ECS/ECSBase.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/Utils.hpp>
 
@@ -15,6 +17,7 @@ namespace Penrose {
 
     class ResourceSet;
     class AssetManager;
+    class DeviceContext;
     class RenderContext;
 
     class ForwardSceneDrawRenderOperator : public RenderOperator {
@@ -25,21 +28,33 @@ namespace Penrose {
 
     private:
         AssetManager *_assetManager;
+        DeviceContext *_deviceContext;
         RenderContext *_renderContext;
+        DescriptorSetLayout _descriptorSetLayout;
         PipelineLayout _pipelineLayout;
         Pipeline _pipeline;
+        Sampler _sampler;
         std::string _renderList;
 
         std::unordered_map<AssetId, MeshAsset> _meshes;
+        std::unordered_map<AssetId, ImageAsset> _images;
+        std::unordered_map<Entity, std::vector<vk::DescriptorSet>> _descriptors;
 
         [[nodiscard]] MeshAsset *getMesh(const AssetId &asset);
+        [[nodiscard]] ImageAsset *getImage(const AssetId &asset);
+        [[nodiscard]] vk::DescriptorSet getDescriptorSet(const Entity &entity,
+                                                         const std::uint32_t &frameIdx,
+                                                         const AssetId &assetId);
 
     public:
         ForwardSceneDrawRenderOperator(AssetManager *assetManager,
+                                       DeviceContext *deviceContext,
                                        RenderContext *renderContext,
-                                       PipelineLayout &&pipelineLayout,
-                                       Pipeline &&pipeline,
-                                       std::string &&renderList);
+                                       DescriptorSetLayout descriptorSetLayout,
+                                       PipelineLayout pipelineLayout,
+                                       Pipeline pipeline,
+                                       Sampler sampler,
+                                       std::string renderList);
         ~ForwardSceneDrawRenderOperator() override = default;
 
         void execute(const RenderOperatorExecutionContext &context) override;

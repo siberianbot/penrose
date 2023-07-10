@@ -317,6 +317,7 @@ namespace Penrose {
                     .setRenderArea(renderArea);
 
             auto executionContext = RenderOperatorExecutionContext{
+                    .frameIdx = frameIdx,
                     .renderArea = renderArea,
                     .commandBuffer = commandBuffer
             };
