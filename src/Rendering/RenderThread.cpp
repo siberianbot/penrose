@@ -1,9 +1,10 @@
 #include "RenderThread.hpp"
 
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 

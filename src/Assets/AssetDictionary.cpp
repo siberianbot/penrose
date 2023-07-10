@@ -1,9 +1,9 @@
-#include "AssetDictionary.hpp"
+#include <Penrose/Assets/AssetDictionary.hpp>
 
 #include <fmt/core.h>
 
-#include "src/Common/EngineError.hpp"
-#include "src/Utils/OptionalUtils.hpp"
+#include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 

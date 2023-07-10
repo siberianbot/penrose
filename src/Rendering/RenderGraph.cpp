@@ -1,4 +1,4 @@
-#include "RenderGraph.hpp"
+#include <Penrose/Rendering/RenderGraph.hpp>
 
 namespace Penrose {
 

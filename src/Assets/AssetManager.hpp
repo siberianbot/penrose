@@ -1,10 +1,10 @@
 #ifndef PENROSE_ASSETS_ASSET_MANAGER_HPP
 #define PENROSE_ASSETS_ASSET_MANAGER_HPP
 
-#include "src/Assets/Asset.hpp"
-#include "src/Assets/AssetId.hpp"
-#include "src/Common/Initializable.hpp"
-#include "src/Resources/Resource.hpp"
+#include <Penrose/Assets/Asset.hpp>
+#include <Penrose/Assets/AssetId.hpp>
+#include <Penrose/Common/Initializable.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 

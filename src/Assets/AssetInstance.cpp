@@ -1,11 +1,11 @@
-#include "AssetInstance.hpp"
+#include <Penrose/Assets/AssetInstance.hpp>
 
 #include <fstream>
 #include <utility>
 
 #include <fmt/core.h>
 
-#include "src/Common/EngineError.hpp"
+#include <Penrose/Common/EngineError.hpp>
 
 namespace Penrose {
 

@@ -8,6 +8,8 @@ project(
     ])
 
 cmake = import('cmake')
+cmake_opts = cmake.subproject_options()
+cmake_opts.add_cmake_defines({'CMAKE_POSITION_INDEPENDENT_CODE': true})
 
 deps = [
     subproject('fmt').get_variable('fmt_dep'),
@@ -15,16 +17,19 @@ deps = [
     dependency('vulkan'),
     subproject('imgui', default_options: ['default_library=static']).get_variable('imgui_dep'),
     subproject('glm').get_variable('glm_dep'),
-    cmake.subproject('tinyobjloader').dependency('tinyobjloader'),
+    cmake.subproject('tinyobjloader', options: cmake_opts).dependency('tinyobjloader'),
 ]
 
-src = [
-    'src/Main.cpp',
+incdir = include_directories('include')
 
+src = [
     # Assets
     'src/Assets/AssetDictionary.cpp',
     'src/Assets/AssetInstance.cpp',
     'src/Assets/AssetManager.cpp',
+
+    # Common
+    'src/Common/ParamsCollection.cpp',
 
     # Core
     'src/Core/Engine.cpp',
@@ -36,9 +41,6 @@ src = [
 
     # ECS
     'src/ECS/ECSManager.cpp',
-
-    # ECS / Systems
-    'src/ECS/Systems/RenderListBuilderSystem.cpp',
 
     # Events
     'src/Events/Event.cpp',
@@ -55,17 +57,21 @@ src = [
     'src/Rendering/Surface.cpp',
     'src/Rendering/Utils.cpp',
 
-    # Rendering / Operators
-    'src/Rendering/Operators/ForwardSceneDrawRenderOperator.cpp',
-    'src/Rendering/Operators/ImGuiDrawRenderOperator.cpp',
-    'src/Rendering/Operators/RenderOperatorParams.cpp',
-
     # Resources
     'src/Resources/ResourceSet.cpp',
 
     # Scene
     'src/Scene/Scene.cpp',
     'src/Scene/SceneManager.cpp',
+
+    # Builtin
+
+    # ECS / Systems
+    'src/Builtin/ECS/RenderListBuilderSystem.cpp',
+
+    # Rendering / Operators
+    'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
+    'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
 ]
 
 cpp_args = [
@@ -73,15 +79,5 @@ cpp_args = [
     '-DGLM_FORCE_DEPTH_ZERO_TO_ONE'
 ]
 
-executable('penrose', src, dependencies: deps, cpp_args: cpp_args)
-
-# shaders compilation
-shaders = [
-    'data/shaders/default-forward-rendering.vert',
-    'data/shaders/default-forward-rendering.frag',
-]
-
-foreach shader : shaders
-    message('processing shader ' + shader)
-    run_command('glslangValidator', '-gVS', '-V', shader, '-o', shader + '.spv', check: true)
-endforeach
+penrose = library('penrose', src, dependencies: deps, cpp_args: cpp_args, include_directories: incdir)
+penrose_dep = declare_dependency(include_directories: incdir, link_with: penrose)

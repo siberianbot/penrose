@@ -1,8 +1,9 @@
-#include "Utils.hpp"
+#include <Penrose/Rendering/Utils.hpp>
 
 #include <optional>
 
-#include "src/Common/EngineError.hpp"
+#include <Penrose/Common/EngineError.hpp>
+
 #include "src/Rendering/DeviceContext.hpp"
 
 namespace Penrose {

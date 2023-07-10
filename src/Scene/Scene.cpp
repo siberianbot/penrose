@@ -1,4 +1,4 @@
-#include "Scene.hpp"
+#include <Penrose/Scene/Scene.hpp>
 
 #include <queue>
 #include <ranges>

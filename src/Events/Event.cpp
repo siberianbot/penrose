@@ -1,4 +1,4 @@
-#include "Event.hpp"
+#include <Penrose/Events/Event.hpp>
 
 namespace Penrose {
 

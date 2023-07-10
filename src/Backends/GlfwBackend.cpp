@@ -4,7 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "src/Common/EngineError.hpp"
+#include <Penrose/Common/EngineError.hpp>
 
 namespace Penrose {
 

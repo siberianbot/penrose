@@ -4,10 +4,11 @@
 #include <set>
 #include <string_view>
 
+#include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
+
 #include "src/Backends/VulkanBackend.hpp"
-#include "src/Common/EngineError.hpp"
 #include "src/Rendering/Surface.hpp"
-#include "src/Resources/ResourceSet.hpp"
 
 namespace Penrose {
 

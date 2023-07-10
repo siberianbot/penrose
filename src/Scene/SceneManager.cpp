@@ -1,4 +1,4 @@
-#include "SceneManager.hpp"
+#include <Penrose/Scene/SceneManager.hpp>
 
 namespace Penrose {
 

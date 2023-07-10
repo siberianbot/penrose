@@ -2,13 +2,14 @@
 
 #include <utility>
 
-#include "src/Events/EventQueue.hpp"
+#include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Rendering/RenderContext.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/Utils/OptionalUtils.hpp>
+
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
-#include "src/Rendering/RenderContext.hpp"
 #include "src/Rendering/RenderGraphParser.hpp"
-#include "src/Resources/ResourceSet.hpp"
-#include "src/Utils/OptionalUtils.hpp"
 
 namespace Penrose {
 
@@ -117,10 +118,10 @@ namespace Penrose {
             }
 
             auto operatorName = *subgraph.passes.at(idx).operatorName;
-            auto operatorParams = RenderOperatorParams::merge(
+            auto operatorParams = ParamsCollection::merge(
                     this->_renderContext->tryGetRenderOperatorDefaults(operatorName)
-                            .value_or(RenderOperatorParams::empty()),
-                    subgraph.passes.at(idx).operatorParams.value_or(RenderOperatorParams::empty()));
+                            .value_or(ParamsCollection::empty()),
+                    subgraph.passes.at(idx).operatorParams.value_or(ParamsCollection::empty()));
 
             auto context = RenderOperatorCreateContext{
                     .resources = this->_resources,
