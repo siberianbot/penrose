@@ -4,51 +4,33 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <Penrose/Assets/AssetManager.hpp>
+#include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Constants.hpp"
-#include "src/Assets/AssetManager.hpp"
-#include "src/Common/Vertex.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/RenderData.hpp"
 
+#include "src/Builtin/Assets/VkImageAsset.hpp"
+#include "src/Builtin/Assets/VkMeshAsset.hpp"
+#include "src/Builtin/Assets/VkShaderAsset.hpp"
+
 namespace Penrose {
 
-    MeshAsset *ForwardSceneDrawRenderOperator::getMesh(const AssetId &asset) {
-        auto meshIt = this->_meshes.find(asset);
-
-        if (meshIt != this->_meshes.end()) {
-            return &meshIt->second;
-        }
-
-        auto [it, _] = this->_meshes.emplace(asset, this->_assetManager->loadMesh(asset));
-
-        return &it->second;
-    }
-
-    ImageAsset *ForwardSceneDrawRenderOperator::getImage(const AssetId &asset) {
-        auto imageIt = this->_images.find(asset);
-
-        if (imageIt != this->_images.end()) {
-            return &imageIt->second;
-        }
-
-        auto [it, _] = this->_images.emplace(asset, this->_assetManager->loadImage(asset));
-
-        return &it->second;
-    }
-
-    vk::DescriptorSet ForwardSceneDrawRenderOperator::getDescriptorSet(const Entity &entity,
-                                                                       const uint32_t &frameIdx,
-                                                                       const AssetId &assetId) {
+    std::optional<vk::DescriptorSet> ForwardSceneDrawRenderOperator::tryGetDescriptorSet(const Entity &entity,
+                                                                                         const uint32_t &frameIdx,
+                                                                                         const std::string &asset) {
         auto descriptorsIt = this->_descriptors.find(entity);
-
         if (descriptorsIt != this->_descriptors.end()) {
             return descriptorsIt->second.at(frameIdx);
         }
 
-        auto image = this->getImage(assetId);
+        auto maybeImage = this->_assetManager->tryGetAsset<VkImageAsset>(asset);
+        if (!maybeImage.has_value()) {
+            return std::nullopt;
+        }
 
         auto layouts = std::vector<vk::DescriptorSetLayout>(INFLIGHT_FRAME_COUNT);
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
@@ -64,7 +46,7 @@ namespace Penrose {
 
         auto imageInfo = vk::DescriptorImageInfo()
                 .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                .setImageView(image->imageView.getInstance())
+                .setImageView(maybeImage->get()->getImageView())
                 .setSampler(this->_sampler.getInstance());
 
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
@@ -137,8 +119,15 @@ namespace Penrose {
         context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline.getInstance());
 
         for (const auto &[entity, item]: renderList->items) {
-            auto mesh = this->getMesh(item.mesh);
-            auto descriptorSet = this->getDescriptorSet(entity, context.frameIdx, item.albedo);
+            auto maybeMesh = this->_assetManager->tryGetAsset<VkMeshAsset>(item.mesh);
+            if (!maybeMesh.has_value()) {
+                continue;
+            }
+
+            auto maybeDescriptorSet = this->tryGetDescriptorSet(entity, context.frameIdx, item.albedo);
+            if (!maybeDescriptorSet.has_value()) {
+                continue;
+            }
 
             auto renderData = RenderData{
                     .matrix = projection * renderList->view * item.model,
@@ -148,13 +137,13 @@ namespace Penrose {
 
             context.commandBuffer.pushConstants(this->_pipelineLayout.getInstance(), vk::ShaderStageFlagBits::eVertex,
                                                 0, sizeof(RenderData), &renderData);
-            context.commandBuffer.bindVertexBuffers(0, mesh->vertexBuffer.getInstance(), {0});
-            context.commandBuffer.bindIndexBuffer(mesh->indexBuffer.getInstance(), 0, vk::IndexType::eUint32);
+            context.commandBuffer.bindVertexBuffers(0, maybeMesh->get()->getVertexBuffer(), {0});
+            context.commandBuffer.bindIndexBuffer(maybeMesh->get()->getIndexBuffer(), 0, vk::IndexType::eUint32);
             context.commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                                                      this->_pipelineLayout.getInstance(),
-                                                     0, {descriptorSet}, {});
+                                                     0, {*maybeDescriptorSet}, {});
 
-            context.commandBuffer.drawIndexed(mesh->indexCount, 1, 0, 0, 0);
+            context.commandBuffer.drawIndexed(maybeMesh->get()->getIndexCount(), 1, 0, 0, 0);
         }
     }
 
@@ -171,17 +160,17 @@ namespace Penrose {
         auto assetManager = context.resources->get<AssetManager>();
         auto deviceContext = context.resources->get<DeviceContext>();
 
-        auto vertexShader = assetManager->loadShader(context.params.getString(VERTEX_SHADER_PARAM));
-        auto fragmentShader = assetManager->loadShader(context.params.getString(FRAGMENT_SHADER_PARAM));
+        auto vertexShader = assetManager->getAsset<VkShaderAsset>(context.params.getString(VERTEX_SHADER_PARAM));
+        auto fragmentShader = assetManager->getAsset<VkShaderAsset>(context.params.getString(FRAGMENT_SHADER_PARAM));
 
         auto stages = {
                 vk::PipelineShaderStageCreateInfo()
                         .setStage(vk::ShaderStageFlagBits::eVertex)
-                        .setModule(vertexShader.shaderModule.getInstance())
+                        .setModule(vertexShader->getShaderModule())
                         .setPName("main"),
                 vk::PipelineShaderStageCreateInfo()
                         .setStage(vk::ShaderStageFlagBits::eFragment)
-                        .setModule(fragmentShader.shaderModule.getInstance())
+                        .setModule(fragmentShader->getShaderModule())
                         .setPName("main")
         };
 

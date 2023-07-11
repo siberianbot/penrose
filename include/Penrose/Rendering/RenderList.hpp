@@ -3,11 +3,11 @@
 
 #include <map>
 #include <set>
+#include <string>
 #include <variant>
 
 #include <glm/mat4x4.hpp>
 
-#include <Penrose/Assets/AssetId.hpp>
 #include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {
@@ -21,8 +21,8 @@ namespace Penrose {
     };
 
     struct RenderListItem {
-        AssetId mesh;
-        AssetId albedo;
+        std::string mesh;
+        std::string albedo;
         glm::mat4 model;
         glm::mat4 modelRot;
     };

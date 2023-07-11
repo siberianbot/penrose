@@ -2,13 +2,12 @@
 #define PENROSE_BUILTIN_RENDERING_FORWARD_SCENE_DRAW_RENDER_OPERATOR_HPP
 
 #include <map>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
 
-#include <Penrose/Assets/Asset.hpp>
-#include <Penrose/Assets/AssetId.hpp>
 #include <Penrose/ECS/ECSBase.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/Utils.hpp>
@@ -36,15 +35,10 @@ namespace Penrose {
         Sampler _sampler;
         std::string _renderList;
 
-        std::unordered_map<AssetId, MeshAsset> _meshes;
-        std::unordered_map<AssetId, ImageAsset> _images;
         std::unordered_map<Entity, std::vector<vk::DescriptorSet>> _descriptors;
-
-        [[nodiscard]] MeshAsset *getMesh(const AssetId &asset);
-        [[nodiscard]] ImageAsset *getImage(const AssetId &asset);
-        [[nodiscard]] vk::DescriptorSet getDescriptorSet(const Entity &entity,
-                                                         const std::uint32_t &frameIdx,
-                                                         const AssetId &assetId);
+        [[nodiscard]] std::optional<vk::DescriptorSet> tryGetDescriptorSet(const Entity &entity,
+                                                                           const std::uint32_t &frameIdx,
+                                                                           const std::string &asset);
 
     public:
         ForwardSceneDrawRenderOperator(AssetManager *assetManager,

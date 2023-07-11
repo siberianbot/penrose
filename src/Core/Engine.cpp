@@ -1,6 +1,7 @@
 #include <Penrose/Core/Engine.hpp>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
+#include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
@@ -12,7 +13,6 @@
 #include <Penrose/Builtin/ECS/TransformComponent.hpp>
 #include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
-#include "src/Assets/AssetManager.hpp"
 #include "src/Backends/GlfwBackend.hpp"
 #include "src/Backends/ImGuiBackend.hpp"
 #include "src/Backends/VulkanBackend.hpp"

@@ -26,7 +26,7 @@ incdir = include_directories('include')
 src = [
     # Assets
     'src/Assets/AssetDictionary.cpp',
-    'src/Assets/AssetInstance.cpp',
+    'src/Assets/AssetReader.cpp',
     'src/Assets/AssetManager.cpp',
 
     # Common
@@ -66,6 +66,11 @@ src = [
     'src/Scene/SceneManager.cpp',
 
     # Builtin
+
+    # Assets
+    'src/Builtin/Assets/VkImageAsset.cpp',
+    'src/Builtin/Assets/VkMeshAsset.cpp',
+    'src/Builtin/Assets/VkShaderAsset.cpp',
 
     # ECS / Systems
     'src/Builtin/ECS/RenderListBuilderSystem.cpp',

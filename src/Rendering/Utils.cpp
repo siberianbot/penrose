@@ -99,7 +99,8 @@ namespace Penrose {
         };
     }
 
-    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::MemoryRequirements requirements, bool local) {
+    vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::MemoryRequirements requirements,
+                                      bool local) {
         vk::MemoryPropertyFlags flags = local
                                         ? vk::MemoryPropertyFlagBits::eDeviceLocal
                                         : vk::MemoryPropertyFlagBits::eHostVisible |
@@ -128,7 +129,14 @@ namespace Penrose {
                 .setAllocationSize(requirements.size)
                 .setMemoryTypeIndex(memTypeIdx.value());
 
-        auto memory = deviceContext->getLogicalDevice().allocateMemory(allocateInfo);
+        return deviceContext->getLogicalDevice().allocateMemory(allocateInfo);
+    }
+
+    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Image &image, bool local) {
+        auto requirements = deviceContext->getLogicalDevice().getImageMemoryRequirements(image.getInstance());
+        auto memory = makeDeviceMemory(deviceContext, requirements, local);
+
+        deviceContext->getLogicalDevice().bindImageMemory(image.getInstance(), memory, 0);
 
         return {
                 memory,
@@ -138,20 +146,34 @@ namespace Penrose {
         };
     }
 
-    DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Image &image, bool local) {
-        auto requirements = deviceContext->getLogicalDevice().getImageMemoryRequirements(image.getInstance());
-        auto memory = makeDeviceMemory(deviceContext, requirements, local);
-
-        deviceContext->getLogicalDevice().bindImageMemory(image.getInstance(), memory.getInstance(), 0);
-
-        return memory;
-    }
-
     DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Buffer &buffer, bool local) {
         auto requirements = deviceContext->getLogicalDevice().getBufferMemoryRequirements(buffer.getInstance());
         auto memory = makeDeviceMemory(deviceContext, requirements, local);
 
-        deviceContext->getLogicalDevice().bindBufferMemory(buffer.getInstance(), memory.getInstance(), 0);
+        deviceContext->getLogicalDevice().bindBufferMemory(buffer.getInstance(), memory, 0);
+
+        return {
+                memory,
+                [deviceContext](vk::DeviceMemory &instance) {
+                    deviceContext->getLogicalDevice().free(instance);
+                }
+        };
+    }
+
+    vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Buffer &buffer, bool local) {
+        auto requirements = deviceContext->getLogicalDevice().getBufferMemoryRequirements(buffer);
+        auto memory = makeDeviceMemory(deviceContext, requirements, local);
+
+        deviceContext->getLogicalDevice().bindBufferMemory(buffer, memory, 0);
+
+        return memory;
+    }
+
+    vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Image &image, bool local) {
+        auto requirements = deviceContext->getLogicalDevice().getImageMemoryRequirements(image);
+        auto memory = makeDeviceMemory(deviceContext, requirements, local);
+
+        deviceContext->getLogicalDevice().bindImageMemory(image, memory, 0);
 
         return memory;
     }

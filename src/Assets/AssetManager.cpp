@@ -1,20 +1,21 @@
-#include "AssetManager.hpp"
-
-#include <vector>
-#include <string>
-#include <tuple>
+#include <Penrose/Assets/AssetManager.hpp>
 
 #include <fmt/core.h>
 #include <stb/stb_image.h>
 #include <tiny_obj_loader.h>
-#include <vulkan/vulkan.hpp>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/Utils/DestructibleObject.hpp>
+#include <Penrose/Utils/OptionalUtils.hpp>
 
-#include "src/Common/Vertex.hpp"
+#include "src/Assets/AssetReader.hpp"
 #include "src/Rendering/DeviceContext.hpp"
+#include "src/Builtin/Assets/VkImageAsset.hpp"
+#include "src/Builtin/Assets/VkMeshAsset.hpp"
+#include "src/Builtin/Assets/VkShaderAsset.hpp"
 
 namespace Penrose {
 
@@ -24,34 +25,159 @@ namespace Penrose {
         //
     }
 
-    ShaderAsset AssetManager::loadShader(const AssetId &asset) const {
-        auto openedAsset = this->_assetDictionary->openAsset(asset);
-        auto createInfo = vk::ShaderModuleCreateInfo()
-                .setPCode(reinterpret_cast<const std::uint32_t *>(openedAsset.data()))
-                .setCodeSize(openedAsset.size());
+    void AssetManager::init() {
+        this->_loadingThread = std::jthread([this](const std::stop_token &stopToken) {
+            while (!stopToken.stop_requested()) {
+                auto lock = std::lock_guard<std::mutex>(this->_loadingMutex);
 
-        try {
-            return ShaderAsset{
-                    .shaderModule = makeShaderModule(this->_deviceContext, createInfo)
-            };
-        } catch (...) {
-            std::throw_with_nested(EngineError(fmt::format("Failed to create shader module from asset {}", asset)));
+                while (!this->_loadingQueue.empty()) {
+                    auto asset = this->_loadingQueue.front();
+                    this->_loadingQueue.pop();
+
+                    this->tryLoadAsset(asset);
+                }
+            }
+        });
+    }
+
+    void AssetManager::destroy() {
+        if (this->_loadingThread.has_value()) {
+            auto &thread = this->_loadingThread.value();
+
+            thread.request_stop();
+
+            if (thread.joinable()) {
+                thread.join();
+            }
+
+            this->_loadingThread = std::nullopt;
+        }
+
+        this->_assets.clear();
+
+        while (!this->_loadingQueue.empty()) {
+            this->_loadingQueue.pop();
         }
     }
 
-    MeshAsset AssetManager::loadMesh(const AssetId &asset) const {
-        auto openedAsset = this->_assetDictionary->openAsset(asset);
-        auto assetText = std::string(reinterpret_cast<const char *>(openedAsset.data()), openedAsset.size());
+    void AssetManager::queueImageLoading(const std::string &asset) {
+        auto lock = std::lock_guard<std::mutex>(this->_loadingMutex);
 
-        auto reader = tinyobj::ObjReader();
-        if (!reader.ParseFromString(assetText, "") || !reader.Valid()) {
-            throw EngineError(fmt::format("Failed to read mesh from asset {}: {}", asset, reader.Error()));
+        auto entry = AssetManager::Entry{
+                .type = AssetType::Image,
+                .state = LoadingState::Pending,
+                .ptr = nullptr
+        };
+
+        this->_assets.emplace(asset, entry);
+        this->_loadingQueue.push(asset);
+    }
+
+    void AssetManager::queueMeshLoading(const std::string &asset) {
+        auto lock = std::lock_guard<std::mutex>(this->_loadingMutex);
+
+        auto entry = AssetManager::Entry{
+                .type = AssetType::Mesh,
+                .state = LoadingState::Pending,
+                .ptr = nullptr
+        };
+
+        this->_assets.emplace(asset, entry);
+        this->_loadingQueue.push(asset);
+    }
+
+    void AssetManager::queueShaderLoading(const std::string &asset) {
+        auto lock = std::lock_guard<std::mutex>(this->_loadingMutex);
+
+        auto entry = AssetManager::Entry{
+                .type = AssetType::Shader,
+                .state = LoadingState::Pending,
+                .ptr = nullptr
+        };
+
+        this->_assets.emplace(asset, entry);
+        this->_loadingQueue.push(asset);
+    }
+
+    bool AssetManager::isLoaded(const std::string &asset) const {
+        auto it = this->_assets.find(asset);
+
+        if (it == this->_assets.end()) {
+            return false;
+        }
+
+        return it->second.state == LoadingState::Loaded;
+    }
+
+    void AssetManager::unload(const std::string &asset) {
+        this->_assets.erase(asset);
+    }
+
+    void AssetManager::tryLoadAsset(const std::string &asset) {
+        if (this->isLoaded(asset)) {
+            return;
+        }
+
+        auto maybePath = this->_assetDictionary->tryGetPath(asset);
+        if (!maybePath.has_value()) {
+            // TODO: log
+            return;
+        }
+
+        const auto &it = this->_assets.find(asset);
+        if (it == this->_assets.end()) {
+            // TODO: log
+            return;
+        }
+
+        try {
+            switch (it->second.type) {
+                case AssetType::Shader:
+                    it->second.ptr = this->loadShaderByPath(std::move(*maybePath));
+                    break;
+
+                case AssetType::Mesh:
+                    it->second.ptr = this->loadMeshByPath(std::move(*maybePath));
+                    break;
+
+                case AssetType::Image:
+                    it->second.ptr = this->loadImageByPath(std::move(*maybePath));
+                    break;
+
+                default:
+                    throw EngineError("Not supported type");
+            }
+
+            it->second.state = LoadingState::Loaded;
+        } catch (const std::exception &error) {
+            it->second.state = LoadingState::Failed;
+
+            // TODO: log
+            return;
+        }
+    }
+
+    std::shared_ptr<ShaderAsset> AssetManager::loadShaderByPath(std::filesystem::path &&path) {
+        auto assetReader = AssetReader::read(std::move(path));
+
+        return std::shared_ptr<ShaderAsset>(makeVkShaderAsset(this->_deviceContext,
+                                                              reinterpret_cast<const std::uint32_t *>(assetReader.data()),
+                                                              assetReader.size()));
+    }
+
+    std::shared_ptr<MeshAsset> AssetManager::loadMeshByPath(std::filesystem::path &&path) {
+        auto assetReader = AssetReader::read(std::move(path));
+        auto assetText = std::string(reinterpret_cast<const char *>(assetReader.data()), assetReader.size());
+
+        auto objReader = tinyobj::ObjReader();
+        if (!objReader.ParseFromString(assetText, "") || !objReader.Valid()) {
+            throw EngineError(fmt::format("Failed to read mesh: {}", objReader.Error()));
         }
 
         // TODO: pass warning
 
-        auto &attrib = reader.GetAttrib();
-        auto &shapes = reader.GetShapes();
+        auto &attrib = objReader.GetAttrib();
+        auto &shapes = objReader.GetShapes();
         std::vector<Vertex> vertices;
         std::vector<std::uint32_t> indices;
 
@@ -64,7 +190,10 @@ namespace Penrose {
                                 attrib.vertices.at(3 * index.vertex_index + 0),
                                 attrib.vertices.at(3 * index.vertex_index + 1),
                                 attrib.vertices.at(3 * index.vertex_index + 2)
-                        }
+                        },
+                        .normal = glm::vec3(0),
+                        .color = glm::vec3(1),
+                        .uv = glm::vec2(0)
                 };
 
                 if (index.normal_index >= 0) {
@@ -94,194 +223,48 @@ namespace Penrose {
             }
         }
 
-        auto makeStaging = [this](vk::DeviceSize size, void *data) {
-            auto buffer = makeBuffer(this->_deviceContext, vk::BufferCreateInfo()
-                    .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
-                    .setSize(size));
-            auto memory = makeDeviceMemory(this->_deviceContext, buffer, false);
-
-            void *bufferData;
-            auto result = this->_deviceContext->getLogicalDevice().mapMemory(memory.getInstance(), 0, size,
-                                                                             vk::MemoryMapFlags(), &bufferData);
-
-            if (result != vk::Result::eSuccess) {
-                throw EngineError("Failed to map buffer's memory");
-            }
-
-            std::memcpy(bufferData, data, size);
-            this->_deviceContext->getLogicalDevice().unmapMemory(memory.getInstance());
-
-            return std::make_tuple(std::move(buffer), std::move(memory));
-        };
-
-        auto makeTarget = [this](vk::DeviceSize size, vk::BufferUsageFlags additionalUsage) {
-            auto buffer = makeBuffer(this->_deviceContext, vk::BufferCreateInfo()
-                    .setUsage(vk::BufferUsageFlagBits::eTransferDst | additionalUsage)
-                    .setSize(size));
-            auto memory = makeDeviceMemory(this->_deviceContext, buffer);
-
-            return std::make_tuple(std::move(buffer), std::move(memory));
-        };
-
-        auto vertexBufferSize = sizeof(Vertex) * vertices.size();
-        auto indexBufferSize = sizeof(std::uint32_t) * indices.size();
-        auto [stagingVertexBuffer, stagingVertexBufferMemory] = makeStaging(vertexBufferSize, vertices.data());
-        auto [stagingIndexBuffer, stagingIndexBufferMemory] = makeStaging(indexBufferSize, indices.data());
-        auto [targetVertexBuffer, targetVertexBufferMemory] = makeTarget(vertexBufferSize,
-                                                                         vk::BufferUsageFlagBits::eVertexBuffer);
-        auto [targetIndexBuffer, targetIndexBufferMemory] = makeTarget(vertexBufferSize,
-                                                                       vk::BufferUsageFlagBits::eIndexBuffer);
-
-        auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandBufferCount(1)
-                .setCommandPool(this->_deviceContext->getCommandPool());
-        auto commandBuffers = this->_deviceContext->getLogicalDevice()
-                .allocateCommandBuffers(commandBufferAllocateInfo);
-
-        auto beginInfo = vk::CommandBufferBeginInfo()
-                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-        commandBuffers.at(0).begin(beginInfo);
-        commandBuffers.at(0).copyBuffer(stagingVertexBuffer.getInstance(),
-                                        targetVertexBuffer.getInstance(),
-                                        vk::BufferCopy(0, 0, vertexBufferSize));
-        commandBuffers.at(0).copyBuffer(stagingIndexBuffer.getInstance(),
-                                        targetIndexBuffer.getInstance(),
-                                        vk::BufferCopy(0, 0, indexBufferSize));
-        commandBuffers.at(0).end();
-
-        this->_deviceContext->getGraphicsQueue().submit(vk::SubmitInfo().setCommandBuffers(commandBuffers));
-        this->_deviceContext->getGraphicsQueue().waitIdle();
-
-        this->_deviceContext->getLogicalDevice().free(this->_deviceContext->getCommandPool(), commandBuffers);
-
-        return MeshAsset{
-                .vertexBuffer = std::move(targetVertexBuffer),
-                .vertexBufferMemory = std::move(targetVertexBufferMemory),
-                .indexBuffer = std::move(targetIndexBuffer),
-                .indexBufferMemory = std::move(targetIndexBufferMemory),
-                .indexCount = static_cast<std::uint32_t>(indices.size())
-        };
+        return std::shared_ptr<MeshAsset>(makeVkMeshAsset(this->_deviceContext,
+                                                          std::move(vertices),
+                                                          std::move(indices)));
     }
 
-    ImageAsset AssetManager::loadImage(const AssetId &asset) const {
-        auto openedAsset = this->_assetDictionary->openAsset(asset);
+    std::shared_ptr<ImageAsset> AssetManager::loadImageByPath(std::filesystem::path &&path) {
+        auto assetReader = AssetReader::read(std::move(path));
 
         int width, height, channels;
-        auto data = stbi_load_from_memory(reinterpret_cast<const stbi_uc *>(openedAsset.data()),
-                                          static_cast<int>(openedAsset.size()),
+        auto data = stbi_load_from_memory(reinterpret_cast<const stbi_uc *>(assetReader.data()),
+                                          static_cast<int>(assetReader.size()),
                                           &width, &height, &channels, STBI_rgb_alpha);
 
-        auto bufferSize = width * height * 4;
-        auto bufferCreateInfo = vk::BufferCreateInfo()
-                .setUsage(vk::BufferUsageFlagBits::eTransferSrc)
-                .setSize(bufferSize);
-        auto buffer = makeBuffer(this->_deviceContext, bufferCreateInfo);
-        auto bufferMemory = makeDeviceMemory(this->_deviceContext, buffer, false);
-
-        void *bufferData;
-        auto result = this->_deviceContext->getLogicalDevice().mapMemory(bufferMemory.getInstance(), 0, bufferSize,
-                                                                         vk::MemoryMapFlags(), &bufferData);
-
-        if (result != vk::Result::eSuccess) {
-            throw EngineError("Failed to map buffer's memory");
+        if (data == nullptr) {
+            throw EngineError("Image file is invalid");
         }
 
-        std::memcpy(bufferData, data, bufferSize);
-        this->_deviceContext->getLogicalDevice().unmapMemory(bufferMemory.getInstance());
+        auto destructibleData = DestructibleObject<stbi_uc *>(data, [](stbi_uc *instance) {
+            stbi_image_free(instance);
+        });
 
-        stbi_image_free(data);
+        return std::shared_ptr<ImageAsset>(makeVkImageAsset(this->_deviceContext, width, height, 4, data));
+    }
 
-        auto imageCreateInfo = vk::ImageCreateInfo()
-                .setUsage(vk::ImageUsageFlagBits::eTransferSrc |
-                          vk::ImageUsageFlagBits::eTransferDst |
-                          vk::ImageUsageFlagBits::eSampled)
-                .setImageType(vk::ImageType::e2D)
-                .setExtent(vk::Extent3D(width, height, 1))
-                .setFormat(vk::Format::eR8G8B8A8Srgb)
-                .setSamples(vk::SampleCountFlagBits::e1)
-                .setArrayLayers(1)
-                .setMipLevels(1)
-                .setSharingMode(vk::SharingMode::eExclusive)
-                .setTiling(vk::ImageTiling::eOptimal);
-        auto image = makeImage(this->_deviceContext, imageCreateInfo);
-        auto imageMemory = makeDeviceMemory(this->_deviceContext, image);
+    template<>
+    std::optional<std::shared_ptr<Asset>> AssetManager::tryGetAsset<Asset>(const std::string &asset) const {
+        auto it = this->_assets.find(asset);
 
-        auto range = vk::ImageSubresourceRange()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setLayerCount(1)
-                .setBaseArrayLayer(0)
-                .setLevelCount(1)
-                .setBaseMipLevel(0);
+        if (it == this->_assets.end()) {
+            return std::nullopt;
+        }
 
-        auto imageViewCreateInfo = vk::ImageViewCreateInfo()
-                .setViewType(vk::ImageViewType::e2D)
-                .setImage(image.getInstance())
-                .setFormat(vk::Format::eR8G8B8A8Srgb)
-                .setSubresourceRange(range)
-                .setComponents(vk::ComponentMapping());
-        auto imageView = makeImageView(this->_deviceContext, imageViewCreateInfo);
+        if (it->second.state != LoadingState::Loaded && it->second.state != LoadingState::Failed) {
+            while (it->second.state != LoadingState::Loaded && it->second.state != LoadingState::Failed) {
+                // wait
+            }
+        }
 
-        auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandBufferCount(1)
-                .setCommandPool(this->_deviceContext->getCommandPool());
-        auto commandBuffers = this->_deviceContext->getLogicalDevice()
-                .allocateCommandBuffers(commandBufferAllocateInfo);
+        if (it->second.state == LoadingState::Failed) {
+            return std::nullopt;
+        }
 
-        auto beginInfo = vk::CommandBufferBeginInfo()
-                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-        commandBuffers.at(0).begin(beginInfo);
-
-        vk::ImageMemoryBarrier memoryBarrier;
-
-        memoryBarrier = vk::ImageMemoryBarrier()
-                .setImage(image.getInstance())
-                .setSrcAccessMask(vk::AccessFlagBits::eNone)
-                .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
-                .setOldLayout(vk::ImageLayout::eUndefined)
-                .setNewLayout(vk::ImageLayout::eTransferDstOptimal)
-                .setSubresourceRange(range);
-        commandBuffers.at(0).pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
-                                             vk::PipelineStageFlagBits::eTransfer,
-                                             vk::DependencyFlagBits(0),
-                                             {}, {}, memoryBarrier);
-
-        auto region = vk::BufferImageCopy()
-                .setBufferOffset(0)
-                .setBufferRowLength(width)
-                .setBufferImageHeight(height)
-                .setImageExtent(vk::Extent3D(width, height, 1))
-                .setImageOffset(vk::Offset3D(0, 0, 0))
-                .setImageSubresource(vk::ImageSubresourceLayers()
-                                             .setLayerCount(1)
-                                             .setBaseArrayLayer(0)
-                                             .setMipLevel(0)
-                                             .setAspectMask(vk::ImageAspectFlagBits::eColor));
-        commandBuffers.at(0).copyBufferToImage(buffer.getInstance(), image.getInstance(),
-                                               vk::ImageLayout::eTransferDstOptimal, region);
-
-        memoryBarrier = vk::ImageMemoryBarrier()
-                .setImage(image.getInstance())
-                .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-                .setDstAccessMask(vk::AccessFlagBits::eShaderRead)
-                .setOldLayout(vk::ImageLayout::eTransferDstOptimal)
-                .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                .setSubresourceRange(range);
-        commandBuffers.at(0).pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
-                                             vk::PipelineStageFlagBits::eFragmentShader,
-                                             vk::DependencyFlagBits(0),
-                                             {}, {}, memoryBarrier);
-
-        commandBuffers.at(0).end();
-
-        this->_deviceContext->getGraphicsQueue().submit(vk::SubmitInfo().setCommandBuffers(commandBuffers));
-        this->_deviceContext->getGraphicsQueue().waitIdle();
-
-        this->_deviceContext->getLogicalDevice().free(this->_deviceContext->getCommandPool(), commandBuffers);
-
-        return ImageAsset{
-                .image = std::move(image),
-                .memory = std::move(imageMemory),
-                .imageView = std::move(imageView)
-        };
+        return it->second.ptr;
     }
 }

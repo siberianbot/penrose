@@ -1,32 +1,41 @@
 #ifndef PENROSE_ASSETS_ASSET_HPP
 #define PENROSE_ASSETS_ASSET_HPP
 
-#include <cstdint>
-
-#include <Penrose/Rendering/Utils.hpp>
-
 namespace Penrose {
 
-    struct Asset {
-        //
+    enum class AssetType {
+        Common,
+        Shader,
+        Mesh,
+        Image
     };
 
-    struct ShaderAsset : public Asset {
-        ShaderModule shaderModule;
+    class Asset {
+    public:
+        virtual ~Asset() = default;
+
+        [[nodiscard]] virtual AssetType getType() const { return AssetType::Common; }
     };
 
-    struct MeshAsset : public Asset {
-        Buffer vertexBuffer;
-        DeviceMemory vertexBufferMemory;
-        Buffer indexBuffer;
-        DeviceMemory indexBufferMemory;
-        std::uint32_t indexCount;
+    class ShaderAsset : public Asset {
+    public:
+        ~ShaderAsset() override = default;
+
+        [[nodiscard]] AssetType getType() const override { return AssetType::Shader; }
     };
 
-    struct ImageAsset : public Asset {
-        Image image;
-        DeviceMemory memory;
-        ImageView imageView;
+    class MeshAsset : public Asset {
+    public:
+        ~MeshAsset() override = default;
+
+        [[nodiscard]] AssetType getType() const override { return AssetType::Mesh; }
+    };
+
+    class ImageAsset : public Asset {
+    public:
+        ~ImageAsset() override = default;
+
+        [[nodiscard]] AssetType getType() const override { return AssetType::Image; }
     };
 }
 
