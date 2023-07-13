@@ -4,16 +4,10 @@
 #include <glm/vec3.hpp>
 
 #include <Penrose/ECS/Component.hpp>
-#include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {
 
     class TransformComponent : public Component {
-    private:
-        glm::vec3 _pos = glm::vec3(0);
-        glm::vec3 _rot = glm::vec3(0);
-        glm::vec3 _scale = glm::vec3(1);
-
     public:
         ~TransformComponent() override = default;
 
@@ -23,7 +17,12 @@ namespace Penrose {
 
         [[nodiscard]] glm::vec3 &getScale() { return this->_scale; }
 
-        [[nodiscard]] static constexpr ComponentName name() { return "Transform"; }
+        [[nodiscard]] static constexpr std::string_view name() { return "Transform"; }
+
+    private:
+        glm::vec3 _pos = glm::vec3(0);
+        glm::vec3 _rot = glm::vec3(0);
+        glm::vec3 _scale = glm::vec3(1);
     };
 }
 

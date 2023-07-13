@@ -51,7 +51,8 @@ namespace Penrose {
         this->_resources.add<RenderGraphExecutor>();
         this->_resources.add<RenderThread>();
 
-        // components
+        // builtin / ECS
+        ecsManager->registerSystem<RenderListBuilderSystem>();
         ecsManager->registerComponent<CameraComponent>();
         ecsManager->registerComponent<MeshRendererComponent>();
         ecsManager->registerComponent<RenderListProviderComponent>();
@@ -59,9 +60,6 @@ namespace Penrose {
 
         // rendering operators
         renderContext->registerRenderOperator<ForwardSceneDrawRenderOperator>();
-
-        // ECS systems
-        ecsManager->registerSystem<RenderListBuilderSystem>();
     }
 
     void Engine::run() {
@@ -70,6 +68,8 @@ namespace Penrose {
         auto eventQueue = this->_resources.get<EventQueue>();
         auto ecsManager = this->_resources.get<ECSManager>();
         auto surface = this->_resources.get<Surface>();
+
+        ecsManager->enableSystem<RenderListBuilderSystem>();
 
         auto alive = true;
         auto handlerIdx = eventQueue->addHandler([&alive](const Event &event) {
@@ -82,7 +82,7 @@ namespace Penrose {
 
         while (alive) {
             eventQueue->process();
-            ecsManager->update();
+            ecsManager->updateSystems();
             surface->poll();
         }
 

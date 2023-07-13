@@ -75,6 +75,8 @@ namespace Penrose {
     }
 
     void RenderListBuilderSystem::init() {
+        this->_renderListProviders = this->_ecsManager->queryEntities<RenderListProviderComponent>();
+
         this->_eventHandlerIdx = this->_eventQueue->addHandler([this](const Event &event) {
             if (!event.value.has_value()) {
                 return;

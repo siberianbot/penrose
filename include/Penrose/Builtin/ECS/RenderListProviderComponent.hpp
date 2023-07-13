@@ -4,20 +4,19 @@
 #include <string>
 
 #include <Penrose/ECS/Component.hpp>
-#include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {
 
     class RenderListProviderComponent : public Component {
-    private:
-        std::string _renderList = "Default";
-
     public:
         ~RenderListProviderComponent() override = default;
 
         [[nodiscard]] std::string &getRenderList() { return this->_renderList; }
 
-        [[nodiscard]] static constexpr ComponentName name() { return "RenderListProvider"; }
+        [[nodiscard]] static constexpr std::string_view name() { return "RenderListProvider"; }
+
+    private:
+        std::string _renderList = "Default";
     };
 }
 

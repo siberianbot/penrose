@@ -8,7 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/ECS/Entity.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/Utils.hpp>
 

@@ -4,16 +4,10 @@
 #include <glm/trigonometric.hpp>
 
 #include <Penrose/ECS/Component.hpp>
-#include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {
 
     class CameraComponent : public Component {
-    private:
-        float _fov = glm::radians(90.0f);
-        float _near = 0.0001f;
-        float _far = 100.0f;
-
     public:
         ~CameraComponent() override = default;
 
@@ -23,7 +17,12 @@ namespace Penrose {
 
         [[nodiscard]] float &getFar() { return this->_far; }
 
-        [[nodiscard]] static constexpr ComponentName name() { return "Camera"; }
+        [[nodiscard]] static constexpr std::string_view name() { return "Camera"; }
+
+    private:
+        float _fov = glm::radians(90.0f);
+        float _near = 0.0001f;
+        float _far = 100.0f;
     };
 }
 

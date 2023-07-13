@@ -5,15 +5,10 @@
 #include <string>
 
 #include <Penrose/ECS/Component.hpp>
-#include <Penrose/ECS/ECSBase.hpp>
 
 namespace Penrose {
 
     class MeshRendererComponent : public Component {
-    private:
-        std::optional<std::string> _mesh = std::nullopt;
-        std::optional<std::string> _albedo = std::nullopt;
-
     public:
         ~MeshRendererComponent() override = default;
 
@@ -31,7 +26,11 @@ namespace Penrose {
             this->_dirty = true;
         }
 
-        [[nodiscard]] static constexpr ComponentName name() { return "MeshRenderer"; }
+        [[nodiscard]] static constexpr std::string_view name() { return "MeshRenderer"; }
+
+    private:
+        std::optional<std::string> _mesh = std::nullopt;
+        std::optional<std::string> _albedo = std::nullopt;
     };
 }
 

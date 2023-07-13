@@ -5,7 +5,7 @@
 #include <memory>
 #include <optional>
 
-#include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/ECS/Entity.hpp>
 
 namespace Penrose {
 

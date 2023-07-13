@@ -3,10 +3,11 @@
 
 #include <functional>
 #include <optional>
+#include <string>
 #include <variant>
 
 #include <Penrose/Common/Size.hpp>
-#include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/ECS/Entity.hpp>
 
 namespace Penrose {
 
@@ -30,8 +31,7 @@ namespace Penrose {
 
     struct ComponentEventValue {
         Entity entity;
-        ComponentName componentName;
-        ComponentId componentId;
+        std::string componentName;
     };
 
     using EventValue = std::variant<

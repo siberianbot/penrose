@@ -5,7 +5,7 @@
 #include <optional>
 #include <set>
 
-#include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/ECS/Entity.hpp>
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Events/Event.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
@@ -39,6 +39,8 @@ namespace Penrose {
         void init() override;
         void update() override;
         void destroy() override;
+
+        [[nodiscard]] constexpr static std::string_view name() { return "RenderListBuilder"; }
     };
 }
 

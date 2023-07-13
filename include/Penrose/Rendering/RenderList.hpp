@@ -8,7 +8,7 @@
 
 #include <glm/mat4x4.hpp>
 
-#include <Penrose/ECS/ECSBase.hpp>
+#include <Penrose/ECS/Entity.hpp>
 
 namespace Penrose {
 
