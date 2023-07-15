@@ -4,10 +4,11 @@
 #include <glm/trigonometric.hpp>
 
 #include <Penrose/ECS/Component.hpp>
+#include <Penrose/Rendering/RenderList.hpp>
 
 namespace Penrose {
 
-    class CameraComponent : public Component {
+    class CameraComponent : public Component, public ViewVisitor {
     public:
         ~CameraComponent() override = default;
 
@@ -16,6 +17,14 @@ namespace Penrose {
         [[nodiscard]] float &getNear() { return this->_near; }
 
         [[nodiscard]] float &getFar() { return this->_far; }
+
+        void visit(View *view) const override {
+            view->projection = Perspective{
+                    .fov = this->_fov,
+                    .near = this->_near,
+                    .far = this->_far
+            };
+        }
 
         [[nodiscard]] static constexpr std::string_view name() { return "Camera"; }
 

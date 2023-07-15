@@ -24,7 +24,7 @@ namespace Penrose {
         explicit ECSManager(ResourceSet *resources);
         ~ECSManager() override = default;
 
-        void init() override { /* nothing to do */ };
+        void init() override;
         void destroy() override;
 
         [[nodiscard]] Entity createEntity();
@@ -40,16 +40,21 @@ namespace Penrose {
         void removeComponent(const Entity &entity);
 
         template<IsComponent T>
+        [[nodiscard]] bool hasComponent(const Entity &entity) const;
+
+        template<IsComponent T>
         [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetComponent(const Entity &entity) const;
 
         template<IsComponent T>
         [[nodiscard]] std::shared_ptr<T> getComponent(const Entity &entity) const;
 
         template<IsComponent T>
-        [[nodiscard]] std::vector<Entity> queryEntities() const;
+        [[nodiscard]] std::vector<Entity> queryComponents() const;
+
+        [[nodiscard]] std::vector<std::shared_ptr<Component>> queryEntity(const Entity &entity) const;
 
         template<IsSystem T>
-        void registerSystem();
+        void registerSystem(bool activateImmediately = true);
 
         template<IsSystem T>
         void enableSystem();
@@ -57,14 +62,15 @@ namespace Penrose {
         template<IsSystem T>
         void disableSystem();
 
-        void updateSystems();
+        void updateSystems(float delta);
 
     private:
         using ComponentFactory = std::function<std::shared_ptr<Component>()>;
 
         struct SystemEntry {
+            bool activateImmediately;
             bool enabled;
-            std::unique_ptr<System> instance;
+            System *instance;
         };
 
         struct EntityEntry {
@@ -86,7 +92,7 @@ namespace Penrose {
 
         [[nodiscard]] std::optional<std::shared_ptr<Component>> tryGetComponent(const Entity &entity,
                                                                                 const std::string &name) const;
-        [[nodiscard]] std::vector<Entity> queryEntitiesWithComponent(const std::string &name) const;
+        [[nodiscard]] std::vector<Entity> queryComponents(const std::string &name) const;
 
         void enableSystem(std::string &&name);
         void disableSystem(std::string &&name);

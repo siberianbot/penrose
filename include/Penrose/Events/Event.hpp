@@ -43,6 +43,8 @@ namespace Penrose {
     struct Event {
         EventType type;
         std::optional<EventValue> value;
+
+        [[nodiscard]] std::optional<const ComponentEventValue *> tryGetComponentEvent() const;
     };
 
     [[nodiscard]] Event makeEvent(const EventType &type);

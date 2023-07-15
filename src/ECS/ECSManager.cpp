@@ -14,6 +14,17 @@ namespace Penrose {
         //
     }
 
+    void ECSManager::init() {
+        for (auto &[_, entry]: this->_systems) {
+            if (!entry.activateImmediately || entry.enabled) {
+                continue;
+            }
+
+            entry.instance->init();
+            entry.enabled = true;
+        }
+    }
+
     void ECSManager::destroy() {
         for (auto &[_, entry]: this->_systems) {
             if (!entry.enabled) {
@@ -55,13 +66,29 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
-    void ECSManager::updateSystems() {
+    std::vector<std::shared_ptr<Component>> ECSManager::queryEntity(const Entity &entity) const {
+        auto entityIt = this->_entities.find(entity);
+        if (entityIt == this->_entities.end()) {
+            throw EngineError(fmt::format("Entity {} not found", entity));
+        }
+
+        auto result = std::vector<std::shared_ptr<Component>>(entityIt->second.components.size());
+        auto idx = 0;
+
+        for (const auto &[name, component]: entityIt->second.components) {
+            result[idx++] = component;
+        }
+
+        return result;
+    }
+
+    void ECSManager::updateSystems(float delta) {
         for (const auto &[_, entry]: this->_systems) {
             if (!entry.enabled) {
                 continue;
             }
 
-            entry.instance->update();
+            entry.instance->update(delta);
         }
     }
 
@@ -88,6 +115,12 @@ namespace Penrose {
         }
 
         it->second.components[name] = instance;
+
+        auto event = makeEvent(EventType::ComponentCreated, ComponentEventValue{
+                .entity = entity,
+                .componentName = name
+        });
+        this->_eventQueue->push(event);
     }
 
     void ECSManager::removeComponent(const Entity &entity, std::string &&name) {
@@ -102,6 +135,12 @@ namespace Penrose {
         }
 
         entityIt->second.components.erase(componentIt);
+
+        auto event = makeEvent(EventType::ComponentDestroyed, ComponentEventValue{
+                .entity = entity,
+                .componentName = name
+        });
+        this->_eventQueue->push(event);
     }
 
     std::optional<std::shared_ptr<Component>> ECSManager::tryGetComponent(const Entity &entity,
@@ -119,7 +158,7 @@ namespace Penrose {
         return componentIt->second;
     }
 
-    std::vector<Entity> ECSManager::queryEntitiesWithComponent(const std::string &name) const {
+    std::vector<Entity> ECSManager::queryComponents(const std::string &name) const {
         std::vector<Entity> result;
 
         for (const auto &[entity, entry]: this->_entities) {

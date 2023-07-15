@@ -9,15 +9,6 @@ namespace Penrose {
     class Component {
     public:
         virtual ~Component() = default;
-
-        [[nodiscard]] bool isDirty() const { return this->_dirty; }
-
-        void setDirty(bool dirty) {
-            this->_dirty = dirty;
-        }
-
-    protected:
-        bool _dirty = true;
     };
 
     template<typename T>

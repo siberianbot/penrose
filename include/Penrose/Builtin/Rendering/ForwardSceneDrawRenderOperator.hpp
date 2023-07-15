@@ -8,7 +8,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include <glm/mat4x4.hpp>
+
 #include <Penrose/ECS/Entity.hpp>
+#include <Penrose/Rendering/RenderList.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/Utils.hpp>
 
@@ -39,6 +42,8 @@ namespace Penrose {
         [[nodiscard]] std::optional<vk::DescriptorSet> tryGetDescriptorSet(const Entity &entity,
                                                                            const std::uint32_t &frameIdx,
                                                                            const std::string &asset);
+
+        [[nodiscard]] static glm::mat4 getProjection(const RenderOperatorExecutionContext &context, View *view);
 
     public:
         ForwardSceneDrawRenderOperator(AssetManager *assetManager,

@@ -37,6 +37,11 @@ namespace Penrose {
     }
 
     template<IsComponent T>
+    bool ECSManager::hasComponent(const Entity &entity) const {
+        return this->tryGetComponent<T>(entity).has_value();
+    }
+
+    template<IsComponent T>
     std::optional<std::shared_ptr<T>> ECSManager::tryGetComponent(const Entity &entity) const {
         auto name = std::string(T::name());
         auto component = this->tryGetComponent(entity, name);
@@ -55,13 +60,13 @@ namespace Penrose {
     }
 
     template<IsComponent T>
-    std::vector<Entity> ECSManager::queryEntities() const {
+    std::vector<Entity> ECSManager::queryComponents() const {
         auto name = std::string(T::name());
-        return this->queryEntitiesWithComponent(name);
+        return this->queryComponents(name);
     }
 
     template<IsSystem T>
-    void ECSManager::registerSystem() {
+    void ECSManager::registerSystem(bool activateImmediately) {
         auto name = std::string(T::name());
 
         if (this->_systems.find(name) != this->_systems.end()) {
@@ -69,8 +74,9 @@ namespace Penrose {
         }
 
         this->_systems[name] = SystemEntry{
+                .activateImmediately = activateImmediately,
                 .enabled = false,
-                .instance = std::make_unique<T>(this->_resources)
+                .instance = new T(this->_resources)
         };
     }
 

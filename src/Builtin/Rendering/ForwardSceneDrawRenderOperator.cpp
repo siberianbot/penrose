@@ -8,6 +8,7 @@
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/Utils/OptionalUtils.hpp>
 
 #include "src/Constants.hpp"
 #include "src/Rendering/DeviceContext.hpp"
@@ -65,6 +66,19 @@ namespace Penrose {
         return descriptorSets.at(frameIdx);
     }
 
+    glm::mat4 ForwardSceneDrawRenderOperator::getProjection(const RenderOperatorExecutionContext &context,
+                                                            View *view) {
+        if (auto perspective = std::get_if<Perspective>(&*view->projection)) {
+            return glm::perspective(perspective->fov,
+                                    static_cast<float>(context.renderArea.extent.width) /
+                                    static_cast<float>(context.renderArea.extent.height),
+                                    perspective->near,
+                                    perspective->far);
+        }
+
+        return glm::mat4(1);
+    }
+
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                                                    DeviceContext *deviceContext,
                                                                    RenderContext *renderContext,
@@ -92,18 +106,8 @@ namespace Penrose {
             return;
         }
 
-        auto projection = glm::mat4(1);
-        if (renderList->projection.has_value()) {
-            if (auto perspective = std::get_if<Perspective>(&renderList->projection.value())) {
-                projection = glm::perspective(perspective->fov,
-                                              static_cast<float>(context.renderArea.extent.width) /
-                                              static_cast<float>(context.renderArea.extent.height),
-                                              renderList->near,
-                                              renderList->far);
-
-                projection[1][1] *= -1;
-            }
-        }
+        auto projection = this->getProjection(context, &renderList->view);
+        projection[1][1] *= -1;
 
         auto viewport = vk::Viewport()
                 .setX(0)
@@ -118,21 +122,28 @@ namespace Penrose {
 
         context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline.getInstance());
 
-        for (const auto &[entity, item]: renderList->items) {
-            auto maybeMesh = this->_assetManager->tryGetAsset<VkMeshAsset>(item.mesh);
+        for (const auto &[entity, drawable]: renderList->drawables) {
+            auto maybeMesh = flatMap(drawable.meshAsset, [this](const std::string &asset) {
+                return this->_assetManager->tryGetAsset<VkMeshAsset>(asset);
+            });
+
             if (!maybeMesh.has_value()) {
                 continue;
             }
 
-            auto maybeDescriptorSet = this->tryGetDescriptorSet(entity, context.frameIdx, item.albedo);
+            auto maybeDescriptorSet = flatMap(drawable.albedoTextureAsset,
+                                              [this, &entity, &context](const std::string &asset) {
+                                                  return this->tryGetDescriptorSet(entity, context.frameIdx, asset);
+                                              });
+
             if (!maybeDescriptorSet.has_value()) {
                 continue;
             }
 
             auto renderData = RenderData{
-                    .matrix = projection * renderList->view * item.model,
-                    .model = item.model,
-                    .modelRot = item.modelRot
+                    .matrix = projection * renderList->view.view * drawable.model,
+                    .model = drawable.model,
+                    .modelRot = drawable.modelRot
             };
 
             context.commandBuffer.pushConstants(this->_pipelineLayout.getInstance(), vk::ShaderStageFlagBits::eVertex,
@@ -324,4 +335,5 @@ namespace Penrose {
                                                                 std::move(sampler),
                                                                 context.params.getString(RENDER_LIST_PARAM));
     }
+
 }

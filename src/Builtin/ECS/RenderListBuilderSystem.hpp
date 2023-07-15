@@ -1,9 +1,8 @@
 #ifndef PENROSE_BUILTIN_ECS_RENDER_LIST_BUILDER_SYSTEM_HPP
 #define PENROSE_BUILTIN_ECS_RENDER_LIST_BUILDER_SYSTEM_HPP
 
-#include <memory>
 #include <optional>
-#include <set>
+#include <unordered_set>
 
 #include <Penrose/ECS/Entity.hpp>
 #include <Penrose/ECS/System.hpp>
@@ -19,6 +18,17 @@ namespace Penrose {
     class SceneManager;
 
     class RenderListBuilderSystem : public System {
+    public:
+        explicit RenderListBuilderSystem(ResourceSet *resources);
+        ~RenderListBuilderSystem() override = default;
+
+        void init() override;
+        void destroy() override;
+
+        void update(float) override;
+
+        [[nodiscard]] constexpr static std::string_view name() { return "RenderListBuilder"; }
+
     private:
         ECSManager *_ecsManager;
         EventQueue *_eventQueue;
@@ -26,21 +36,16 @@ namespace Penrose {
         SceneManager *_sceneManager;
 
         EventHandlerIndex _eventHandlerIdx = -1;
-        std::vector<Entity> _renderListProviders;
+        std::unordered_set<Entity> _sources;
+        std::unordered_set<Entity> _drawables;
 
         void handleComponentCreation(const ComponentEventValue *value);
         void handleComponentDestruction(const ComponentEventValue *value);
-        std::optional<RenderListItem> toRenderListItem(const Entity &entity);
 
-    public:
-        explicit RenderListBuilderSystem(ResourceSet *resources);
-        ~RenderListBuilderSystem() override = default;
+        [[nodiscard]] std::optional<std::set<Entity>> discoverDrawables(Entity sourceEntity) const;
 
-        void init() override;
-        void update() override;
-        void destroy() override;
-
-        [[nodiscard]] constexpr static std::string_view name() { return "RenderListBuilder"; }
+        void processSource(Entity entity, View *view) const;
+        void processDrawable(Entity entity, Drawable *drawable) const;
     };
 }
 

@@ -14,9 +14,9 @@ namespace Penrose {
 
         virtual void init() { /* nothing to do */ }
 
-        virtual void update() { /* nothing to do */ }
-
         virtual void destroy() { /* nothing to do */ }
+
+        virtual void update(float) { /* nothing to do */ }
     };
 
     template<typename T>

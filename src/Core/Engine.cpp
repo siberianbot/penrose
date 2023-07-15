@@ -1,5 +1,7 @@
 #include <Penrose/Core/Engine.hpp>
 
+#include <chrono>
+
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
@@ -9,7 +11,7 @@
 
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>
 #include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
-#include <Penrose/Builtin/ECS/RenderListProviderComponent.hpp>
+#include <Penrose/Builtin/ECS/RenderSourceComponent.hpp>
 #include <Penrose/Builtin/ECS/TransformComponent.hpp>
 #include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
@@ -55,7 +57,7 @@ namespace Penrose {
         ecsManager->registerSystem<RenderListBuilderSystem>();
         ecsManager->registerComponent<CameraComponent>();
         ecsManager->registerComponent<MeshRendererComponent>();
-        ecsManager->registerComponent<RenderListProviderComponent>();
+        ecsManager->registerComponent<RenderSourceComponent>();
         ecsManager->registerComponent<TransformComponent>();
 
         // rendering operators
@@ -69,8 +71,6 @@ namespace Penrose {
         auto ecsManager = this->_resources.get<ECSManager>();
         auto surface = this->_resources.get<Surface>();
 
-        ecsManager->enableSystem<RenderListBuilderSystem>();
-
         auto alive = true;
         auto handlerIdx = eventQueue->addHandler([&alive](const Event &event) {
             if (event.type != EventType::EngineDestroyRequested) {
@@ -80,10 +80,17 @@ namespace Penrose {
             alive = false;
         });
 
+        std::chrono::high_resolution_clock::time_point start;
+        float delta = 0;
+
         while (alive) {
+            start = std::chrono::high_resolution_clock::now();
+
             eventQueue->process();
-            ecsManager->updateSystems();
+            ecsManager->updateSystems(delta);
             surface->poll();
+
+            delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
         }
 
         eventQueue->removeHandler(handlerIdx);
