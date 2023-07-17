@@ -62,8 +62,8 @@ src = [
     'src/Resources/ResourceSet.cpp',
 
     # Scene
-    'src/Scene/Scene.cpp',
     'src/Scene/SceneManager.cpp',
+    'src/Scene/SceneNode.cpp',
 
     # Builtin
 

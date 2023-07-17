@@ -118,51 +118,24 @@ namespace Penrose {
     }
 
     std::optional<std::set<Entity>> RenderListBuilderSystem::discoverDrawables(Entity sourceEntity) const {
-        auto maybeScene = this->_sceneManager->getCurrentScene();
-        if (!maybeScene.has_value()) {
-            return std::nullopt;
-        }
-
-        auto maybeSceneNode = maybeScene->findEntityNode(sourceEntity);
-        if (!maybeSceneNode.has_value()) {
-            return std::nullopt;
-        }
-
-        auto root = maybeSceneNode.value();
-        while (root != nullptr) {
-            if (!root->parent.has_value()) {
-                break;
-            }
-
-            if (root->parent->expired()) {
-                break;
-            }
-
-            root = root->parent->lock();
-        }
+        auto node = this->_sceneManager->findEntityNode(sourceEntity);
+        auto root = this->_sceneManager->getRoot(node);
 
         std::set<Entity> entities;
-        std::set<std::shared_ptr<SceneTreeNode>> discovered;
-        std::queue<std::shared_ptr<SceneTreeNode>> queue;
+        std::queue<SceneNodePtr> queue;
         queue.push(root);
 
         while (!queue.empty()) {
             auto current = queue.front();
             queue.pop();
 
-            for (const auto &descendant: current->descendants) {
-                if (discovered.contains(descendant)) {
-                    continue;
-                }
-
+            for (const auto &descendant: current->getDescendants()) {
                 queue.push(descendant);
             }
 
-            if (current->entity.has_value() && this->_drawables.contains(*current->entity)) {
-                entities.insert(*current->entity);
+            if (current->getEntity().has_value() && this->_drawables.contains(*current->getEntity())) {
+                entities.insert(*current->getEntity());
             }
-
-            discovered.insert(current);
         }
 
         return entities;

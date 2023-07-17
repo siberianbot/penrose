@@ -1,18 +1,19 @@
 #ifndef PENROSE_SCENE_SCENE_MANAGER_HPP
 #define PENROSE_SCENE_SCENE_MANAGER_HPP
 
+#include <map>
+#include <memory>
 #include <optional>
+#include <string>
 
 #include <Penrose/Common/Initializable.hpp>
+#include <Penrose/ECS/Entity.hpp>
 #include <Penrose/Resources/Resource.hpp>
-#include <Penrose/Scene/Scene.hpp>
+#include <Penrose/Scene/SceneNode.hpp>
 
 namespace Penrose {
 
     class SceneManager : public Resource, public Initializable {
-    private:
-        std::optional<Scene> _currentScene;
-
     public:
         ~SceneManager() override = default;
 
@@ -20,9 +21,32 @@ namespace Penrose {
 
         void destroy() override;
 
-        void setCurrentScene(const std::optional<Scene> &scene);
+        [[nodiscard]] SceneNodePtr addRoot(std::string &&name);
+        void removeRoot(std::string &&name);
 
-        [[nodiscard]] const std::optional<Scene> &getCurrentScene() const { return this->_currentScene; }
+        [[nodiscard]] std::optional<SceneNodePtr> tryGetRoot(const std::string &name) const;
+        [[nodiscard]] std::optional<SceneNodePtr> tryGetRoot(const SceneNodePtr &node) const;
+        [[nodiscard]] SceneNodePtr getRoot(const std::string &name) const;
+        [[nodiscard]] SceneNodePtr getRoot(const SceneNodePtr &node) const;
+
+        [[nodiscard]] std::optional<std::string> tryGetRootNameOf(const SceneNodePtr &node) const;
+        [[nodiscard]] std::string getRootNameOf(const SceneNodePtr &node) const;
+
+        [[nodiscard]] std::optional<SceneNodePtr> tryFindEntityNode(const Entity &entity) const;
+        [[nodiscard]] SceneNodePtr findEntityNode(const Entity &entity) const;
+
+        SceneNodePtr insertEmptyNode(const SceneNodePtr &parent);
+        SceneNodePtr insertEntityNode(const SceneNodePtr &parent, const Entity &entity);
+
+        void moveNode(const SceneNodePtr &newParent, const SceneNodePtr &node);
+
+        void removeNode(SceneNodePtr &&node, bool reparentDescendants);
+
+    private:
+        std::map<std::string, SceneNodePtr> _roots;
+
+        [[nodiscard]] static std::optional<SceneNodePtr> tryFindEntityNode(const SceneNodePtr &root,
+                                                                           const Entity &entity);
     };
 }
 
