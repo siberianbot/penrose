@@ -5,7 +5,7 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Backends/GlfwBackend.hpp"
+#include "src/Builtin/Backends/GlfwBackend.hpp"
 
 namespace Penrose {
 

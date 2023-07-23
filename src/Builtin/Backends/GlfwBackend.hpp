@@ -1,14 +1,13 @@
-#ifndef PENROSE_BACKENDS_GLFW_BACKEND_HPP
-#define PENROSE_BACKENDS_GLFW_BACKEND_HPP
+#ifndef PENROSE_BUILTIN_BACKENDS_GLFW_BACKEND_HPP
+#define PENROSE_BUILTIN_BACKENDS_GLFW_BACKEND_HPP
 
 #include <vector>
 
-#include <Penrose/Common/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class GlfwBackend : public Resource, public Initializable {
+    class GlfwBackend : public InitializableResource {
     public:
         ~GlfwBackend() override = default;
 
@@ -19,4 +18,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_BACKENDS_GLFW_BACKEND_HPP
+#endif // PENROSE_BUILTIN_BACKENDS_GLFW_BACKEND_HPP

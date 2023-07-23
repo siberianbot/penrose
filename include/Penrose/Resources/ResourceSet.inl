@@ -3,39 +3,34 @@
 
 namespace Penrose {
 
-    template<IsDefaultConstructableResource T>
-    T *ResourceSet::add() {
-        return dynamic_cast<T *>(this->add(std::type_index(typeid(T)), std::make_unique<T>(), isInitializable<T>()));
+    template<IsResource TBase, IsResource TImpl>
+    requires std::is_base_of<TBase, TImpl>::value
+    TBase *ResourceSet::add(std::optional<ResourceList::iterator> before) {
+        auto idx = std::type_index(typeid(TBase));
+        auto resource = this->construct<TImpl>();
+
+        this->add(idx, resource, before);
+
+        return resource;
     }
 
-    template<IsConstructableWithResourceSetResource T>
-    T *ResourceSet::add() {
-        return dynamic_cast<T *>(this->add(std::type_index(typeid(T)), std::make_unique<T>(this),
-                                           isInitializable<T>()));
-    }
-
-    template<typename T>
-    std::optional<T *> ResourceSet::tryGet() const noexcept {
-        auto type = std::type_index(typeid(T));
-        auto resource = this->tryGet(type);
-
-        if (!resource.has_value()) {
-            return std::nullopt;
-        }
-
-        return dynamic_cast<T *>(resource.value());
-    }
-
-    template<typename T>
+    template<IsResource T>
     T *ResourceSet::get() const {
-        auto type = std::type_index(typeid(T));
+        auto idx = std::type_index(typeid(T));
 
-        return dynamic_cast<T *>(this->get(type));
+        return dynamic_cast<T *>(this->get(idx));
     }
 
-    template<typename T>
-    Lazy<T> ResourceSet::getLazy() const noexcept {
-        return Lazy<T>([this]() { return this->get<T>(); });
+    template<IsResource T>
+    constexpr T *ResourceSet::construct() {
+        static_assert(IsDefaultConstructableResource<T> || IsConstructableWithResourceSetResource<T>,
+                      "Resource is not constructable");
+
+        if constexpr (IsConstructableWithResourceSetResource<T>) {
+            return new T(this);
+        } else {
+            return new T();
+        }
     }
 }
 

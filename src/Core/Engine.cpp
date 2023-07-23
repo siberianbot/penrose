@@ -15,30 +15,30 @@
 #include <Penrose/Builtin/ECS/TransformComponent.hpp>
 #include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
-#include "src/Backends/GlfwBackend.hpp"
-#include "src/Backends/ImGuiBackend.hpp"
-#include "src/Backends/VulkanBackend.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderThread.hpp"
 #include "src/Rendering/Surface.hpp"
 
+#include "src/Builtin/Backends/GlfwBackend.hpp"
+#include "src/Builtin/Backends/ImGuiBackend.hpp"
+#include "src/Builtin/Backends/VulkanBackend.hpp"
 #include "src/Builtin/ECS/RenderListBuilderSystem.hpp"
 
 namespace Penrose {
 
     Engine::Engine() {
+        // backends
+        this->_resources.add<GlfwBackend>();
+        this->_resources.add<ImGuiBackend>();
+        this->_resources.add<VulkanBackend>();
+
         // core
         this->_resources.add<EventQueue>();
         this->_resources.add<AssetDictionary>();
         auto ecsManager = this->_resources.add<ECSManager>();
         this->_resources.add<SceneManager>();
-
-        // backends
-        this->_resources.add<GlfwBackend>();
-        this->_resources.add<ImGuiBackend>();
-        this->_resources.add<VulkanBackend>();
 
         // rendering / core
         this->_resources.add<Surface>();

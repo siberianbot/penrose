@@ -7,7 +7,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Common/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -16,7 +15,7 @@ namespace Penrose {
     class DeviceContext;
     class Surface;
 
-    class PresentContext : public Resource, public Initializable {
+    class PresentContext : public InitializableResource {
     private:
         struct SwapchainProxy {
             vk::SwapchainKHR handle;

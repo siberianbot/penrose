@@ -8,7 +8,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <Penrose/Common/Initializable.hpp>
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/Entity.hpp>
 #include <Penrose/ECS/System.hpp>
@@ -19,7 +18,7 @@ namespace Penrose {
     class ResourceSet;
     class EventQueue;
 
-    class ECSManager : public Resource, public Initializable {
+    class ECSManager : public InitializableResource {
     public:
         explicit ECSManager(ResourceSet *resources);
         ~ECSManager() override = default;

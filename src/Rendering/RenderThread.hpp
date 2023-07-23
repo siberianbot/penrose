@@ -7,7 +7,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Common/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 #include "src/Constants.hpp"
@@ -19,7 +18,7 @@ namespace Penrose {
     class PresentContext;
     class RenderGraphExecutor;
 
-    class RenderThread : public Resource, public Initializable {
+    class RenderThread : public InitializableResource {
     private:
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;

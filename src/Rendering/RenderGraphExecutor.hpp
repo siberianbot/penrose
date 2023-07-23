@@ -9,7 +9,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Common/Initializable.hpp>
 #include <Penrose/Events/Event.hpp>
 #include <Penrose/Rendering/RenderGraph.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
@@ -26,7 +25,7 @@ namespace Penrose {
     class PresentContext;
     class RenderContext;
 
-    class RenderGraphExecutor : public Resource, public Initializable {
+    class RenderGraphExecutor : public InitializableResource {
     private:
         class Target {
         public:

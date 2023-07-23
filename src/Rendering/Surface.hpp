@@ -5,7 +5,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Common/Initializable.hpp>
 #include <Penrose/Common/Size.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
@@ -17,7 +16,7 @@ namespace Penrose {
     class EventQueue;
     class VulkanBackend;
 
-    class Surface : public Resource, public Initializable {
+    class Surface : public InitializableResource {
     private:
         EventQueue *_eventQueue;
         VulkanBackend *_vulkanBackend;

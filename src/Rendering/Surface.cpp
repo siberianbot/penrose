@@ -7,7 +7,7 @@
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Backends/VulkanBackend.hpp"
+#include "src/Builtin/Backends/VulkanBackend.hpp"
 
 namespace Penrose {
 

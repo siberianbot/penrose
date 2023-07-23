@@ -35,11 +35,6 @@ src = [
     # Core
     'src/Core/Engine.cpp',
 
-    # Backends
-    'src/Backends/GlfwBackend.cpp',
-    'src/Backends/ImGuiBackend.cpp',
-    'src/Backends/VulkanBackend.cpp',
-
     # ECS
     'src/ECS/ECSManager.cpp',
 
@@ -65,17 +60,20 @@ src = [
     'src/Scene/SceneManager.cpp',
     'src/Scene/SceneNode.cpp',
 
-    # Builtin
-
-    # Assets
+    # Builtin / Assets
     'src/Builtin/Assets/VkImageAsset.cpp',
     'src/Builtin/Assets/VkMeshAsset.cpp',
     'src/Builtin/Assets/VkShaderAsset.cpp',
 
-    # ECS / Systems
+    # Builtin / Backends
+    'src/Builtin/Backends/GlfwBackend.cpp',
+    'src/Builtin/Backends/ImGuiBackend.cpp',
+    'src/Builtin/Backends/VulkanBackend.cpp',
+
+    # Builtin / ECS
     'src/Builtin/ECS/RenderListBuilderSystem.cpp',
 
-    # Rendering / Operators
+    # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
 ]

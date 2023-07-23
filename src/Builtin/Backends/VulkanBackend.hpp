@@ -1,11 +1,10 @@
-#ifndef PENROSE_BACKENDS_VULKAN_BACKEND_HPP
-#define PENROSE_BACKENDS_VULKAN_BACKEND_HPP
+#ifndef PENROSE_BUILTIN_BACKENDS_VULKAN_BACKEND_HPP
+#define PENROSE_BUILTIN_BACKENDS_VULKAN_BACKEND_HPP
 
 #include <optional>
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Common/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -13,7 +12,7 @@ namespace Penrose {
     class ResourceSet;
     class GlfwBackend;
 
-    class VulkanBackend : public Resource, public Initializable {
+    class VulkanBackend : public InitializableResource {
     private:
         GlfwBackend *_glfwBackend;
 
@@ -35,4 +34,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_BACKENDS_VULKAN_BACKEND_HPP
+#endif // PENROSE_BUILTIN_BACKENDS_VULKAN_BACKEND_HPP
