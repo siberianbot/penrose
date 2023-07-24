@@ -7,6 +7,7 @@
 #include <optional>
 #include <typeindex>
 #include <type_traits>
+#include <vector>
 
 #include <Penrose/Resources/Resource.hpp>
 
@@ -38,9 +39,12 @@ namespace Penrose {
         template<IsResource T>
         [[nodiscard]] T *get() const;
 
+        template<IsResource T>
+        [[nodiscard]] std::vector<T *> getAll() const;
+
     private:
         ResourceList _resources;
-        std::map<std::type_index, ResourceList::iterator> _resourceMap;
+        std::multimap<std::type_index, ResourceList::iterator> _resourceMap;
 
         template<IsResource T>
         [[nodiscard]] constexpr T *construct();

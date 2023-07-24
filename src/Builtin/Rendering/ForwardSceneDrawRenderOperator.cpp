@@ -20,65 +20,6 @@
 
 namespace Penrose {
 
-    std::optional<vk::DescriptorSet> ForwardSceneDrawRenderOperator::tryGetDescriptorSet(const Entity &entity,
-                                                                                         const uint32_t &frameIdx,
-                                                                                         const std::string &asset) {
-        auto descriptorsIt = this->_descriptors.find(entity);
-        if (descriptorsIt != this->_descriptors.end()) {
-            return descriptorsIt->second.at(frameIdx);
-        }
-
-        auto maybeImage = this->_assetManager->tryGetAsset<VkImageAsset>(asset);
-        if (!maybeImage.has_value()) {
-            return std::nullopt;
-        }
-
-        auto layouts = std::vector<vk::DescriptorSetLayout>(INFLIGHT_FRAME_COUNT);
-        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            layouts[idx] = this->_descriptorSetLayout.getInstance();
-        }
-
-        auto allocateInfo = vk::DescriptorSetAllocateInfo()
-                .setSetLayouts(layouts)
-                .setDescriptorPool(this->_deviceContext->getDescriptorPool());
-
-        auto descriptorSets = this->_deviceContext->getLogicalDevice().allocateDescriptorSets(allocateInfo);
-        auto writes = std::vector<vk::WriteDescriptorSet>(descriptorSets.size());
-
-        auto imageInfo = vk::DescriptorImageInfo()
-                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                .setImageView(maybeImage->get()->getImageView())
-                .setSampler(this->_sampler.getInstance());
-
-        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            writes[idx] = vk::WriteDescriptorSet()
-                    .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-                    .setImageInfo(imageInfo)
-                    .setDescriptorCount(1)
-                    .setDstBinding(0)
-                    .setDstSet(descriptorSets.at(idx));
-        }
-
-        this->_deviceContext->getLogicalDevice().updateDescriptorSets(writes, {});
-
-        this->_descriptors[entity] = descriptorSets;
-
-        return descriptorSets.at(frameIdx);
-    }
-
-    glm::mat4 ForwardSceneDrawRenderOperator::getProjection(const RenderOperatorExecutionContext &context,
-                                                            View *view) {
-        if (auto perspective = std::get_if<Perspective>(&*view->projection)) {
-            return glm::perspective(perspective->fov,
-                                    static_cast<float>(context.renderArea.extent.width) /
-                                    static_cast<float>(context.renderArea.extent.height),
-                                    perspective->near,
-                                    perspective->far);
-        }
-
-        return glm::mat4(1);
-    }
-
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                                                    DeviceContext *deviceContext,
                                                                    RenderContext *renderContext,
@@ -98,7 +39,7 @@ namespace Penrose {
         //
     }
 
-    void ForwardSceneDrawRenderOperator::execute(const RenderOperatorExecutionContext &context) {
+    void ForwardSceneDrawRenderOperator::execute(const RenderOperator::Context &context) {
         auto lock = this->_renderContext->acquireContextLock();
         auto renderList = this->_renderContext->tryGetRenderList(this->_renderList);
 
@@ -106,7 +47,7 @@ namespace Penrose {
             return;
         }
 
-        auto projection = this->getProjection(context, &renderList->view);
+        auto projection = Penrose::ForwardSceneDrawRenderOperator::getProjection(context, &renderList->view);
         projection[1][1] *= -1;
 
         auto viewport = vk::Viewport()
@@ -158,30 +99,99 @@ namespace Penrose {
         }
     }
 
-    ParamsCollection ForwardSceneDrawRenderOperator::defaults() {
+    std::optional<vk::DescriptorSet> ForwardSceneDrawRenderOperator::tryGetDescriptorSet(const Entity &entity,
+                                                                                         const uint32_t &frameIdx,
+                                                                                         const std::string &asset) {
+        auto descriptorsIt = this->_descriptors.find(entity);
+        if (descriptorsIt != this->_descriptors.end()) {
+            return descriptorsIt->second.at(frameIdx);
+        }
+
+        auto maybeImage = this->_assetManager->tryGetAsset<VkImageAsset>(asset);
+        if (!maybeImage.has_value()) {
+            return std::nullopt;
+        }
+
+        auto layouts = std::vector<vk::DescriptorSetLayout>(INFLIGHT_FRAME_COUNT);
+        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
+            layouts[idx] = this->_descriptorSetLayout.getInstance();
+        }
+
+        auto allocateInfo = vk::DescriptorSetAllocateInfo()
+                .setSetLayouts(layouts)
+                .setDescriptorPool(this->_deviceContext->getDescriptorPool());
+
+        auto descriptorSets = this->_deviceContext->getLogicalDevice().allocateDescriptorSets(allocateInfo);
+        auto writes = std::vector<vk::WriteDescriptorSet>(descriptorSets.size());
+
+        auto imageInfo = vk::DescriptorImageInfo()
+                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                .setImageView(maybeImage->get()->getImageView())
+                .setSampler(this->_sampler.getInstance());
+
+        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
+            writes[idx] = vk::WriteDescriptorSet()
+                    .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+                    .setImageInfo(imageInfo)
+                    .setDescriptorCount(1)
+                    .setDstBinding(0)
+                    .setDstSet(descriptorSets.at(idx));
+        }
+
+        this->_deviceContext->getLogicalDevice().updateDescriptorSets(writes, {});
+
+        this->_descriptors[entity] = descriptorSets;
+
+        return descriptorSets.at(frameIdx);
+    }
+
+    glm::mat4 ForwardSceneDrawRenderOperator::getProjection(const RenderOperator::Context &context, View *view) {
+        if (auto perspective = std::get_if<Perspective>(&*view->projection)) {
+            return glm::perspective(perspective->fov,
+                                    static_cast<float>(context.renderArea.extent.width) /
+                                    static_cast<float>(context.renderArea.extent.height),
+                                    perspective->near,
+                                    perspective->far);
+        }
+
+        return glm::mat4(1);
+    }
+
+    ForwardSceneDrawRenderOperatorFactory::ForwardSceneDrawRenderOperatorFactory(ResourceSet *resources)
+            : _assetManager(resources->get<AssetManager>()),
+              _deviceContext(resources->get<DeviceContext>()),
+              _renderContext(resources->get<RenderContext>()) {
+        //
+    }
+
+    ParamsCollection ForwardSceneDrawRenderOperatorFactory::defaults() const {
         ParamsCollection params;
-        params.setString(RENDER_LIST_PARAM, "Default");
-        params.setString(VERTEX_SHADER_PARAM, "shaders/default-forward-rendering.vert.spv");
-        params.setString(FRAGMENT_SHADER_PARAM, "shaders/default-forward-rendering.frag.spv");
+        params.setString(ForwardSceneDrawRenderOperator::RENDER_LIST_PARAM,
+                         "Default");
+        params.setString(ForwardSceneDrawRenderOperator::VERTEX_SHADER_PARAM,
+                         "shaders/default-forward-rendering.vert.spv");
+        params.setString(ForwardSceneDrawRenderOperator::FRAGMENT_SHADER_PARAM,
+                         "shaders/default-forward-rendering.frag.spv");
 
         return params;
     }
 
-    std::unique_ptr<RenderOperator> ForwardSceneDrawRenderOperator::create(const RenderOperatorCreateContext &context) {
-        auto assetManager = context.resources->get<AssetManager>();
-        auto deviceContext = context.resources->get<DeviceContext>();
+    RenderOperator *ForwardSceneDrawRenderOperatorFactory::create(const RenderOperatorFactory::Context &context) const {
+        auto vertexShader = context.params.getString(ForwardSceneDrawRenderOperator::VERTEX_SHADER_PARAM);
+        auto fragmentShader = context.params.getString(ForwardSceneDrawRenderOperator::FRAGMENT_SHADER_PARAM);
+        auto renderList = context.params.getString(ForwardSceneDrawRenderOperator::RENDER_LIST_PARAM);
 
-        auto vertexShader = assetManager->getAsset<VkShaderAsset>(context.params.getString(VERTEX_SHADER_PARAM));
-        auto fragmentShader = assetManager->getAsset<VkShaderAsset>(context.params.getString(FRAGMENT_SHADER_PARAM));
+        auto vertexShaderAsset = this->_assetManager->getAsset<VkShaderAsset>(vertexShader);
+        auto fragmentShaderAsset = this->_assetManager->getAsset<VkShaderAsset>(fragmentShader);
 
         auto stages = {
                 vk::PipelineShaderStageCreateInfo()
                         .setStage(vk::ShaderStageFlagBits::eVertex)
-                        .setModule(vertexShader->getShaderModule())
+                        .setModule(vertexShaderAsset->getShaderModule())
                         .setPName("main"),
                 vk::PipelineShaderStageCreateInfo()
                         .setStage(vk::ShaderStageFlagBits::eFragment)
-                        .setModule(fragmentShader->getShaderModule())
+                        .setModule(fragmentShaderAsset->getShaderModule())
                         .setPName("main")
         };
 
@@ -203,13 +213,13 @@ namespace Penrose {
         auto descriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo()
                 .setBindings(descriptorSetBindings);
 
-        auto descriptorSetLayout = makeDescriptorSetLayout(deviceContext, descriptorSetLayoutCreateInfo);
+        auto descriptorSetLayout = makeDescriptorSetLayout(this->_deviceContext, descriptorSetLayoutCreateInfo);
 
         auto pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
                 .setPushConstantRanges(pushConstants)
                 .setSetLayouts(descriptorSetLayout.getInstance());
 
-        auto pipelineLayout = makePipelineLayout(deviceContext, pipelineLayoutCreateInfo);
+        auto pipelineLayout = makePipelineLayout(this->_deviceContext, pipelineLayoutCreateInfo);
 
         auto bindings = {
                 vk::VertexInputBindingDescription(0, sizeof(Vertex), vk::VertexInputRate::eVertex)
@@ -307,7 +317,7 @@ namespace Penrose {
                 .setPColorBlendState(&colorBlendState)
                 .setPDynamicState(&dynamicState);
 
-        auto pipeline = makeGraphicsPipeline(deviceContext, pipelineCreateInfo);
+        auto pipeline = makeGraphicsPipeline(this->_deviceContext, pipelineCreateInfo);
 
         auto samplerCreateInfo = vk::SamplerCreateInfo()
                 .setAddressModeU(vk::SamplerAddressMode::eRepeat)
@@ -324,16 +334,15 @@ namespace Penrose {
                 .setUnnormalizedCoordinates(false)
                 .setMipmapMode(vk::SamplerMipmapMode::eLinear);
 
-        auto sampler = makeSampler(deviceContext, samplerCreateInfo);
+        auto sampler = makeSampler(this->_deviceContext, samplerCreateInfo);
 
-        return std::make_unique<ForwardSceneDrawRenderOperator>(context.resources->get<AssetManager>(),
-                                                                deviceContext,
-                                                                context.resources->get<RenderContext>(),
-                                                                std::move(descriptorSetLayout),
-                                                                std::move(pipelineLayout),
-                                                                std::move(pipeline),
-                                                                std::move(sampler),
-                                                                context.params.getString(RENDER_LIST_PARAM));
+        return new ForwardSceneDrawRenderOperator(this->_assetManager,
+                                                  this->_deviceContext,
+                                                  this->_renderContext,
+                                                  std::move(descriptorSetLayout),
+                                                  std::move(pipelineLayout),
+                                                  std::move(pipeline),
+                                                  std::move(sampler),
+                                                  renderList);
     }
-
 }

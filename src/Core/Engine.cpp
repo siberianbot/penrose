@@ -60,8 +60,8 @@ namespace Penrose {
         ecsManager->registerComponent<RenderSourceComponent>();
         ecsManager->registerComponent<TransformComponent>();
 
-        // rendering operators
-        renderContext->registerRenderOperator<ForwardSceneDrawRenderOperator>();
+        // builtin / rendering operators
+        this->_resources.add<RenderOperatorFactory, ForwardSceneDrawRenderOperatorFactory>();
     }
 
     void Engine::run() {

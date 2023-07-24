@@ -4,6 +4,7 @@
 
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
+#include <Penrose/Rendering/RenderOperatorFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
@@ -110,6 +111,7 @@ namespace Penrose {
             targets[idx] = attachment.targetIdx;
         }
 
+        auto factories = this->_resources->getAll<RenderOperatorFactory>();
         auto operators = std::vector<std::optional<std::unique_ptr<RenderOperator>>>(subgraph.passes.size());
         for (std::uint32_t idx = 0; idx < subgraph.passes.size(); idx++) {
             if (!subgraph.passes.at(idx).operatorName.has_value()) {
@@ -118,19 +120,25 @@ namespace Penrose {
             }
 
             auto operatorName = *subgraph.passes.at(idx).operatorName;
+            auto factory = std::find_if(factories.begin(), factories.end(),
+                                        [&operatorName](RenderOperatorFactory *factory) {
+                                            return factory->name() == operatorName;
+                                        });
+            if (factory == factories.end()) {
+                throw EngineError(fmt::format("Render operator {} not found", operatorName));
+            }
+
             auto operatorParams = ParamsCollection::merge(
-                    this->_renderContext->tryGetRenderOperatorDefaults(operatorName)
-                            .value_or(ParamsCollection::empty()),
+                    (*factory)->defaults(),
                     subgraph.passes.at(idx).operatorParams.value_or(ParamsCollection::empty()));
 
-            auto context = RenderOperatorCreateContext{
-                    .resources = this->_resources,
+            auto context = RenderOperatorFactory::Context{
                     .params = operatorParams,
                     .renderPass = renderPass,
                     .subpassIdx = idx,
             };
 
-            operators[idx] = this->_renderContext->tryCreateRenderOperator(operatorName, context);
+            operators[idx] = std::unique_ptr<RenderOperator>((*factory)->create(context));
         }
 
         auto renderArea = map(subgraph.renderArea, [](Size size) {
@@ -316,7 +324,7 @@ namespace Penrose {
                     .setClearValues(pass->getClearValues())
                     .setRenderArea(renderArea);
 
-            auto executionContext = RenderOperatorExecutionContext{
+            auto executionContext = RenderOperator::Context{
                     .frameIdx = frameIdx,
                     .renderArea = renderArea,
                     .commandBuffer = commandBuffer

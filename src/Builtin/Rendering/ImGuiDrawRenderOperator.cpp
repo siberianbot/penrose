@@ -17,7 +17,7 @@ namespace Penrose {
         ImGui_ImplVulkan_Shutdown();
     }
 
-    void ImGuiDrawRenderOperator::execute(const RenderOperatorExecutionContext &context) {
+    void ImGuiDrawRenderOperator::execute(const RenderOperator::Context &context) {
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -30,22 +30,25 @@ namespace Penrose {
         ImGui_ImplVulkan_RenderDrawData(drawData, context.commandBuffer);
     }
 
-    std::unique_ptr<RenderOperator> ImGuiDrawRenderOperator::create(const RenderOperatorCreateContext &context) {
-        auto vulkanBackend = context.resources->get<VulkanBackend>();
-        auto deviceContext = context.resources->get<DeviceContext>();
-        auto presentContext = context.resources->get<PresentContext>();
+    ImGuiDrawRenderOperatorFactory::ImGuiDrawRenderOperatorFactory(ResourceSet *resources)
+            : _vulkanBackend(resources->get<VulkanBackend>()),
+              _deviceContext(resources->get<DeviceContext>()),
+              _presentContext(resources->get<PresentContext>()) {
+        //
+    }
 
-        auto logicalDevice = deviceContext->getLogicalDevice();
-        auto imageCount = static_cast<uint32_t>(presentContext->getSwapchainImages().size());
+    RenderOperator *ImGuiDrawRenderOperatorFactory::create(const RenderOperatorFactory::Context &context) const {
+        auto logicalDevice = this->_deviceContext->getLogicalDevice();
+        auto imageCount = static_cast<uint32_t>(this->_presentContext->getSwapchainImages().size());
 
         auto initInfo = ImGui_ImplVulkan_InitInfo{
-                .Instance = vulkanBackend->getInstance(),
-                .PhysicalDevice = deviceContext->getPhysicalDevice(),
+                .Instance = this->_vulkanBackend->getInstance(),
+                .PhysicalDevice = this->_deviceContext->getPhysicalDevice(),
                 .Device = logicalDevice,
-                .QueueFamily = deviceContext->getGraphicsQueueFamily(),
-                .Queue = deviceContext->getGraphicsQueue(),
+                .QueueFamily = this->_deviceContext->getGraphicsQueueFamily(),
+                .Queue = this->_deviceContext->getGraphicsQueue(),
                 .PipelineCache = nullptr,
-                .DescriptorPool = deviceContext->getDescriptorPool(),
+                .DescriptorPool = this->_deviceContext->getDescriptorPool(),
                 .Subpass = context.subpassIdx,
                 .MinImageCount = imageCount,
                 .ImageCount = imageCount,
@@ -61,7 +64,7 @@ namespace Penrose {
         ImGui_ImplVulkan_Init(&initInfo, context.renderPass);
 
         auto allocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandPool(deviceContext->getCommandPool())
+                .setCommandPool(this->_deviceContext->getCommandPool())
                 .setCommandBufferCount(1);
         auto commandBuffers = logicalDevice.allocateCommandBuffers(allocateInfo);
 
@@ -72,13 +75,13 @@ namespace Penrose {
         auto submit = vk::SubmitInfo()
                 .setCommandBuffers(commandBuffers);
 
-        deviceContext->getGraphicsQueue().submit(submit);
-        deviceContext->getGraphicsQueue().waitIdle();
+        this->_deviceContext->getGraphicsQueue().submit(submit);
+        this->_deviceContext->getGraphicsQueue().waitIdle();
 
-        logicalDevice.freeCommandBuffers(deviceContext->getCommandPool(), commandBuffers);
+        logicalDevice.freeCommandBuffers(this->_deviceContext->getCommandPool(), commandBuffers);
 
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        return std::make_unique<ImGuiDrawRenderOperator>();
+        return new ImGuiDrawRenderOperator();
     }
 }

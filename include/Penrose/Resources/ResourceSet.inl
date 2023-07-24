@@ -22,6 +22,19 @@ namespace Penrose {
     }
 
     template<IsResource T>
+    std::vector<T *> ResourceSet::getAll() const {
+        std::vector<T *> resources;
+        auto idx = std::type_index(typeid(T));
+        auto [begin, end] = this->_resourceMap.equal_range(idx);
+
+        for (auto it = begin; it != end; it++) {
+            resources.push_back(dynamic_cast<T *>(it->second->get()));
+        }
+
+        return resources;
+    }
+
+    template<IsResource T>
     constexpr T *ResourceSet::construct() {
         static_assert(IsDefaultConstructableResource<T> || IsConstructableWithResourceSetResource<T>,
                       "Resource is not constructable");

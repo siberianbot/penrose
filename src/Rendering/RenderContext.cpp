@@ -5,13 +5,6 @@
 
 namespace Penrose {
 
-    void RenderContext::registerRenderOperator(const std::string &name,
-                                               RenderOperatorDefaults defaultsFunc,
-                                               RenderOperatorCreate factoryFunc) {
-        this->_operatorDefaultsFuncs.insert_or_assign(name, defaultsFunc);
-        this->_operatorCreateFuncs.insert_or_assign(name, factoryFunc);
-    }
-
     RenderContext::RenderContext(ResourceSet *resources)
             : _eventQueue(resources->get<EventQueue>()) {
         //
@@ -42,27 +35,5 @@ namespace Penrose {
         auto result = it->second;
 
         return result;
-    }
-
-    std::optional<ParamsCollection> RenderContext::tryGetRenderOperatorDefaults(const std::string &name) const {
-        auto it = this->_operatorDefaultsFuncs.find(name);
-
-        if (it == this->_operatorDefaultsFuncs.end()) {
-            return std::nullopt;
-        }
-
-        return it->second();
-    }
-
-    std::optional<std::unique_ptr<RenderOperator>> RenderContext::tryCreateRenderOperator(
-            const std::string &name,
-            const RenderOperatorCreateContext &createContext) const {
-        auto it = this->_operatorCreateFuncs.find(name);
-
-        if (it == this->_operatorCreateFuncs.end()) {
-            return std::nullopt;
-        }
-
-        return it->second(createContext);
     }
 }
