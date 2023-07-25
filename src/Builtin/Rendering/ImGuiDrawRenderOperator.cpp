@@ -56,7 +56,7 @@ namespace Penrose {
                 .Allocator = nullptr,
                 .CheckVkResultFn = [](VkResult result) {
                     if (result != VK_SUCCESS) {
-                        vk::throwResultException((vk::Result) result, "Vulkan assertion failed");
+                        vk::detail::throwResultException((vk::Result) result, "Vulkan assertion failed");
                     }
                 }
         };

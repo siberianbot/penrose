@@ -12,7 +12,7 @@ cmake_opts = cmake.subproject_options()
 cmake_opts.add_cmake_defines({'CMAKE_POSITION_INDEPENDENT_CODE': true})
 
 deps = [
-    subproject('fmt').get_variable('fmt_dep'),
+    subproject('fmt', default_options: ['default_library=static']).get_variable('fmt_dep'),
     subproject('glfw').get_variable('glfw_dep'),
     dependency('vulkan'),
     subproject('imgui', default_options: ['default_library=static']).get_variable('imgui_dep'),
@@ -48,8 +48,8 @@ src = [
     'src/Rendering/RenderContext.cpp',
     'src/Rendering/RenderGraph.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
-    'src/Rendering/RenderGraphParser.cpp',
-    'src/Rendering/RenderThread.cpp',
+    'src/Rendering/RenderGraphExecutorProvider.cpp',
+    'src/Rendering/RenderManager.cpp',
     'src/Rendering/Surface.cpp',
     'src/Rendering/Utils.cpp',
 
@@ -76,6 +76,10 @@ src = [
     # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
+    'src/Builtin/Rendering/VkFramebuffer.cpp',
+    'src/Builtin/Rendering/VkRenderPass.cpp',
+    'src/Builtin/Rendering/VkRenderTarget.cpp',
+    'src/Builtin/Rendering/VkUtils.cpp',
 ]
 
 cpp_args = [

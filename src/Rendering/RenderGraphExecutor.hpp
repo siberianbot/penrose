@@ -1,186 +1,58 @@
 #ifndef PENROSE_RENDERING_RENDER_GRAPH_EXECUTOR_HPP
 #define PENROSE_RENDERING_RENDER_GRAPH_EXECUTOR_HPP
 
-#include <array>
-#include <memory>
+#include <map>
 #include <optional>
+#include <string>
 #include <thread>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Events/Event.hpp>
 #include <Penrose/Rendering/RenderGraph.hpp>
-#include <Penrose/Rendering/RenderOperator.hpp>
-#include <Penrose/Rendering/Utils.hpp>
-#include <Penrose/Resources/Resource.hpp>
-
-#include "src/Constants.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-    class EventQueue;
     class DeviceContext;
     class PresentContext;
-    class RenderContext;
+    class RenderOperator;
 
-    class RenderGraphExecutor : public InitializableResource {
+    class VkFramebuffer;
+    class VkRenderPass;
+    class VkRenderTarget;
+
+    class RenderGraphExecutor {
+    public:
+        struct SubgraphEntry {
+            RenderSubgraph subgraph;
+            VkRenderPass *renderPass;
+            std::vector<RenderOperator *> renderOperators;
+            VkFramebuffer *framebuffer;
+        };
+
+        RenderGraphExecutor(DeviceContext *deviceContext,
+                            PresentContext *presentContext,
+                            RenderGraph graph,
+                            std::map<std::string, VkRenderTarget *> targets,
+                            std::map<std::string, SubgraphEntry> subgraphs);
+        ~RenderGraphExecutor();
+
+        [[nodiscard]] std::vector<vk::SubmitInfo> execute(const vk::CommandBuffer &commandBuffer,
+                                                          const vk::Semaphore &waitSemaphore,
+                                                          const vk::Semaphore &signalSemaphore,
+                                                          std::uint32_t frameIdx,
+                                                          std::uint32_t imageIdx);
+
+        void createFramebuffers();
+        void destroyFramebuffers();
+
     private:
-        class Target {
-        public:
-            virtual ~Target() = default;
-
-            [[nodiscard]] virtual const vk::ImageView &getView(const std::uint32_t &imageIdx) const = 0;
-        };
-
-        class SwapchainTarget : public Target {
-        private:
-            PresentContext *_presentContext;
-
-        public:
-            explicit SwapchainTarget(PresentContext *presentContext);
-            ~SwapchainTarget() override = default;
-
-            [[nodiscard]] const vk::ImageView &getView(const std::uint32_t &imageIdx) const override;
-        };
-
-        class ImageTarget : public Target {
-        private:
-            Image _image;
-            DeviceMemory _deviceMemory;
-            ImageView _imageView;
-
-        public:
-            ImageTarget(Image &&image,
-                        DeviceMemory &&deviceMemory,
-                        ImageView &&imageView);
-            ~ImageTarget() override = default;
-
-            [[nodiscard]] const vk::ImageView &getView(const std::uint32_t &) const override {
-                return this->_imageView.getInstance();
-            }
-        };
-
-        class Pass {
-        private:
-            DeviceContext *_deviceContext;
-            vk::RenderPass _renderPass;
-            std::vector<vk::ClearValue> _clearValues;
-            std::vector<std::uint32_t> _targets;
-            std::vector<std::optional<std::unique_ptr<RenderOperator>>> _operators;
-            std::optional<vk::Extent2D> _renderArea;
-
-        public:
-            Pass(DeviceContext *deviceContext,
-                 vk::RenderPass renderPass,
-                 std::vector<vk::ClearValue> clearValues,
-                 std::vector<std::uint32_t> targets,
-                 std::vector<std::optional<std::unique_ptr<RenderOperator>>> operators,
-                 std::optional<vk::Extent2D> renderArea);
-            ~Pass();
-
-            [[nodiscard]] const vk::RenderPass &getRenderPass() const {
-                return this->_renderPass;
-            }
-
-            [[nodiscard]] const std::vector<vk::ClearValue> &getClearValues() const {
-                return this->_clearValues;
-            }
-
-            [[nodiscard]] const std::vector<std::uint32_t> &getTargets() const {
-                return this->_targets;
-            }
-
-            [[nodiscard]] const std::vector<std::optional<std::unique_ptr<RenderOperator>>> &getOperators() const {
-                return this->_operators;
-            }
-
-            [[nodiscard]] const std::optional<vk::Extent2D> &getRenderArea() const {
-                return this->_renderArea;
-            }
-        };
-
-        class Framebuffer {
-        private:
-            DeviceContext *_deviceContext;
-            std::vector<vk::Framebuffer> _framebuffers;
-            vk::Extent2D _renderArea;
-
-        public:
-            Framebuffer(DeviceContext *deviceContext,
-                        std::vector<vk::Framebuffer> framebuffers,
-                        vk::Extent2D renderArea);
-            ~Framebuffer();
-
-            [[nodiscard]] const vk::Framebuffer &getFramebuffer(const std::uint32_t &imageIdx) const {
-                return this->_framebuffers.at(imageIdx);
-            }
-
-            [[nodiscard]] const vk::Extent2D &getRenderArea() const {
-                return this->_renderArea;
-            }
-        };
-
-        struct GraphState {
-            RenderGraph graph;
-            std::vector<std::unique_ptr<Pass>> passes;
-        };
-
-        struct FramebufferState {
-            std::vector<std::unique_ptr<Target>> targets;
-            std::vector<std::unique_ptr<Framebuffer>> framebuffers;
-        };
-
-        ResourceSet *_resources;
-        EventQueue *_eventQueue;
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
-        RenderContext *_renderContext;
 
-        std::array<vk::CommandBuffer, INFLIGHT_FRAME_COUNT> _commandBuffers;
-        std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _imageReadySemaphores;
-        std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _graphExecutedSemaphores;
-
-        std::mutex _executorMutex;
-        std::optional<EventHandlerIndex> _eventHandlerIdx;
-        std::optional<GraphState> _graphState;
-        std::optional<FramebufferState> _framebufferState;
-
-        std::unique_ptr<Target> createTarget(const RenderTarget &target);
-        std::unique_ptr<Pass> createPass(const RenderSubgraph &subgraph);
-        std::unique_ptr<Framebuffer> createFramebuffer(const FramebufferState &framebufferState,
-                                                       const std::unique_ptr<Pass> &pass);
-
-        GraphState createGraphState(const RenderGraph &graph);
-        FramebufferState createFramebufferState(const GraphState &graphState);
-
-        void cleanup(bool framebuffersOnly);
-
-    public:
-        explicit RenderGraphExecutor(ResourceSet *resources);
-        ~RenderGraphExecutor() override = default;
-
-        void init() override;
-        void destroy() override;
-
-        void execute(const std::uint32_t &frameIdx,
-                     const std::uint32_t &imageIdx,
-                     const vk::Fence &fence);
-
-        void invalidate();
-
-        [[nodiscard]] std::lock_guard<std::mutex> acquireExecutorLock() {
-            return std::lock_guard<std::mutex>(this->_executorMutex);
-        }
-
-        [[nodiscard]] const std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> &getImageReadySemaphores() const {
-            return this->_imageReadySemaphores;
-        }
-
-        [[nodiscard]] const std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> &getGraphExecutedSemaphores() const {
-            return this->_graphExecutedSemaphores;
-        }
+        RenderGraph _graph;
+        std::map<std::string, VkRenderTarget *> _targets;
+        std::map<std::string, SubgraphEntry> _subgraphs;
     };
 }
 

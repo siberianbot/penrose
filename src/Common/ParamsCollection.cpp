@@ -7,6 +7,10 @@
 
 namespace Penrose {
 
+    void ParamsCollection::set(const ParamsCollection::KeyView &key, const ParamsCollection::Value &value) {
+        this->_data.insert_or_assign(ParamsCollection::Key(key), value);
+    }
+
     std::optional<std::string> ParamsCollection::tryGetString(const ParamsCollection::KeyView &key) const {
         auto it = this->_data.find(std::string(key));
 
@@ -34,6 +38,10 @@ namespace Penrose {
         return this->_data.end();
     }
 
+    ParamsCollection ParamsCollection::merge(const ParamsCollection &rhs) const {
+        return ParamsCollection::merge(*this, rhs);
+    }
+
     ParamsCollection ParamsCollection::merge(const ParamsCollection &lhs, const ParamsCollection &rhs) {
         ParamsCollection result = lhs;
 
@@ -43,9 +51,4 @@ namespace Penrose {
 
         return result;
     }
-
-    void ParamsCollection::set(const ParamsCollection::KeyView &key, const ParamsCollection::Value &value) {
-        this->_data.insert_or_assign(ParamsCollection::Key(key), value);
-    }
-
 }

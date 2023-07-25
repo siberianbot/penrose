@@ -42,14 +42,6 @@ namespace Penrose {
 
     [[nodiscard]] ShaderModule makeShaderModule(DeviceContext *deviceContext,
                                                 vk::ShaderModuleCreateInfo createInfo);
-
-    [[nodiscard]] DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Image &image, bool local = true);
-    [[nodiscard]] DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const Buffer &buffer, bool local = true);
-
-    [[nodiscard]] vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Buffer &buffer,
-                                                    bool local = true);
-    [[nodiscard]] vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Image &image,
-                                                    bool local = true);
 }
 
 #endif // PENROSE_RENDERING_UTILS_HPP

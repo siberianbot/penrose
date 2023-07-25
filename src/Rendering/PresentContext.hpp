@@ -2,7 +2,6 @@
 #define PENROSE_RENDERING_PRESENT_CONTEXT_HPP
 
 #include <optional>
-#include <thread>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
@@ -16,24 +15,6 @@ namespace Penrose {
     class Surface;
 
     class PresentContext : public InitializableResource {
-    private:
-        struct SwapchainProxy {
-            vk::SwapchainKHR handle;
-            vk::Extent2D extent;
-            vk::Format format;
-            std::vector<vk::Image> images;
-            std::vector<vk::ImageView> imageViews;
-        };
-
-        DeviceContext *_deviceContext;
-        Surface *_surface;
-
-        std::mutex _swapchainMutex;
-        std::optional<SwapchainProxy> _swapchain;
-
-        SwapchainProxy createSwapchain();
-        void destroySwapchain(const SwapchainProxy &swapchain);
-
     public:
         explicit PresentContext(ResourceSet *resources);
         ~PresentContext() override = default;
@@ -42,10 +23,6 @@ namespace Penrose {
         void destroy() override;
 
         void recreate();
-
-        [[nodiscard]] std::lock_guard<std::mutex> acquireSwapchainLock() {
-            return std::lock_guard<std::mutex>(this->_swapchainMutex);
-        }
 
         [[nodiscard]] vk::SwapchainKHR &getSwapchain() { return this->_swapchain.value().handle; }
 
@@ -60,6 +37,23 @@ namespace Penrose {
         [[nodiscard]] const std::vector<vk::ImageView> &getSwapchainImageViews() const {
             return this->_swapchain.value().imageViews;
         }
+
+    private:
+        struct SwapchainProxy {
+            vk::SwapchainKHR handle;
+            vk::Extent2D extent;
+            vk::Format format;
+            std::vector<vk::Image> images;
+            std::vector<vk::ImageView> imageViews;
+        };
+
+        DeviceContext *_deviceContext;
+        Surface *_surface;
+
+        std::optional<SwapchainProxy> _swapchain;
+
+        SwapchainProxy createSwapchain();
+        void destroySwapchain(const SwapchainProxy &swapchain);
     };
 }
 

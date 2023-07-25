@@ -1,9 +1,10 @@
 #include "VkMeshAsset.hpp"
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Rendering/Utils.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
+
+#include <src/Builtin/Rendering/VkUtils.hpp>
 
 namespace Penrose {
 

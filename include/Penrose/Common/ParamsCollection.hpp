@@ -18,21 +18,25 @@ namespace Penrose {
 
         void setString(const KeyView &key, const std::string &value) { this->set(key, value); }
 
+        void set(const KeyView &key, const Value &value);
+
         [[nodiscard]] std::optional<std::string> tryGetString(const KeyView &key) const;
         [[nodiscard]] std::string getString(const KeyView &key) const;
 
         [[nodiscard]] ConstIterator begin() const;
         [[nodiscard]] ConstIterator end() const;
 
+        [[nodiscard]] ParamsCollection merge(const ParamsCollection &rhs) const;
+
         [[nodiscard]] static ParamsCollection empty() { return {}; }
 
         [[nodiscard]] static ParamsCollection merge(const ParamsCollection &lhs,
                                                     const ParamsCollection &rhs);
 
+        [[nodiscard]] bool operator==(const ParamsCollection &rhs) const = default;
+
     private:
         Container _data;
-
-        void set(const KeyView &key, const Value &value);
     };
 }
 
