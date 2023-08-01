@@ -3,6 +3,7 @@
 #include <limits>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
@@ -52,6 +53,37 @@ namespace Penrose {
     vk::PresentModeKHR getPreferredPresentMode() {
         // TODO
         return vk::PresentModeKHR::eImmediate;
+    }
+
+    PresentContext::PresentContext(ResourceSet *resources)
+            : _deviceContext(resources->get<DeviceContext>()),
+              _surface(resources->get<Surface>()) {
+        //
+    }
+
+    void PresentContext::init() {
+        try {
+            this->_swapchain = this->createSwapchain();
+        } catch (...) {
+            std::throw_with_nested(EngineError("Failed to create swapchain"));
+        }
+    }
+
+    void PresentContext::destroy() {
+        if (this->_swapchain.has_value()) {
+            this->destroySwapchain(this->_swapchain.value());
+            this->_swapchain = std::nullopt;
+        }
+    }
+
+    void PresentContext::recreate() {
+        auto newSwapchain = this->createSwapchain();
+
+        if (this->_swapchain.has_value()) {
+            this->destroySwapchain(this->_swapchain.value());
+        }
+
+        this->_swapchain = newSwapchain;
     }
 
     PresentContext::SwapchainProxy PresentContext::createSwapchain() {
@@ -122,36 +154,5 @@ namespace Penrose {
         }
 
         logicalDevice.destroy(swapchain.handle);
-    }
-
-    PresentContext::PresentContext(ResourceSet *resources)
-            : _deviceContext(resources->get<DeviceContext>()),
-              _surface(resources->get<Surface>()) {
-        //
-    }
-
-    void PresentContext::init() {
-        try {
-            this->_swapchain = this->createSwapchain();
-        } catch (...) {
-            std::throw_with_nested(EngineError("Failed to create swapchain"));
-        }
-    }
-
-    void PresentContext::destroy() {
-        if (this->_swapchain.has_value()) {
-            this->destroySwapchain(this->_swapchain.value());
-            this->_swapchain = std::nullopt;
-        }
-    }
-
-    void PresentContext::recreate() {
-        auto newSwapchain = this->createSwapchain();
-
-        if (this->_swapchain.has_value()) {
-            this->destroySwapchain(this->_swapchain.value());
-        }
-
-        this->_swapchain = newSwapchain;
     }
 }

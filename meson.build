@@ -48,8 +48,8 @@ src = [
     'src/Rendering/RenderContext.cpp',
     'src/Rendering/RenderGraph.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
-    'src/Rendering/RenderGraphParser.cpp',
-    'src/Rendering/RenderThread.cpp',
+    'src/Rendering/RenderGraphExecutorProvider.cpp',
+    'src/Rendering/RenderManager.cpp',
     'src/Rendering/Surface.cpp',
     'src/Rendering/Utils.cpp',
 
@@ -76,6 +76,10 @@ src = [
     # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
+    'src/Builtin/Rendering/VkFramebuffer.cpp',
+    'src/Builtin/Rendering/VkRenderPass.cpp',
+    'src/Builtin/Rendering/VkRenderTarget.cpp',
+    'src/Builtin/Rendering/VkUtils.cpp',
 ]
 
 cpp_args = [

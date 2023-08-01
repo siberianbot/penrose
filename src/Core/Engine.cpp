@@ -17,8 +17,8 @@
 
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
-#include "src/Rendering/RenderGraphExecutor.hpp"
-#include "src/Rendering/RenderThread.hpp"
+#include "src/Rendering/RenderGraphExecutorProvider.hpp"
+#include "src/Rendering/RenderManager.hpp"
 #include "src/Rendering/Surface.hpp"
 
 #include "src/Builtin/Backends/GlfwBackend.hpp"
@@ -49,9 +49,9 @@ namespace Penrose {
         this->_resources.add<AssetManager>();
 
         // rendering
-        auto renderContext = this->_resources.add<RenderContext>();
-        this->_resources.add<RenderGraphExecutor>();
-        this->_resources.add<RenderThread>();
+        this->_resources.add<RenderContext>();
+        this->_resources.add<RenderGraphExecutorProvider>();
+        this->_resources.add<RenderManager>();
 
         // builtin / ECS
         ecsManager->registerSystem<RenderListBuilderSystem>();
