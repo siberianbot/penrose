@@ -12,7 +12,7 @@ cmake_opts = cmake.subproject_options()
 cmake_opts.add_cmake_defines({'CMAKE_POSITION_INDEPENDENT_CODE': true})
 
 deps = [
-    subproject('fmt', default_options: ['default_library=static']).get_variable('fmt_dep'),
+    subproject('fmt').get_variable('fmt_dep'),
     subproject('glfw').get_variable('glfw_dep'),
     dependency('vulkan'),
     subproject('imgui', default_options: ['default_library=static']).get_variable('imgui_dep'),
