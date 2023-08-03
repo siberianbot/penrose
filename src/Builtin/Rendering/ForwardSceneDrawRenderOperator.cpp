@@ -6,13 +6,13 @@
 
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Common/Vertex.hpp>
-#include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 #include "src/Constants.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/RenderData.hpp"
+#include "src/Rendering/RenderListBuilder.hpp"
 
 #include "src/Builtin/Assets/VkImageAsset.hpp"
 #include "src/Builtin/Assets/VkMeshAsset.hpp"
@@ -22,7 +22,7 @@ namespace Penrose {
 
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                                                    DeviceContext *deviceContext,
-                                                                   RenderContext *renderContext,
+                                                                   RenderListBuilder *renderListBuilder,
                                                                    DescriptorSetLayout descriptorSetLayout,
                                                                    PipelineLayout pipelineLayout,
                                                                    Pipeline pipeline,
@@ -30,7 +30,7 @@ namespace Penrose {
                                                                    std::string renderList)
             : _assetManager(assetManager),
               _deviceContext(deviceContext),
-              _renderContext(renderContext),
+              _renderListBuilder(renderListBuilder),
               _descriptorSetLayout(std::move(descriptorSetLayout)),
               _pipelineLayout(std::move(pipelineLayout)),
               _pipeline(std::move(pipeline)),
@@ -40,8 +40,7 @@ namespace Penrose {
     }
 
     void ForwardSceneDrawRenderOperator::execute(const RenderOperator::Context &context) {
-        auto lock = this->_renderContext->acquireContextLock();
-        auto renderList = this->_renderContext->tryGetRenderList(this->_renderList);
+        auto renderList = this->_renderListBuilder->tryBuildRenderList(this->_renderList);
 
         if (!renderList.has_value()) {
             return;
@@ -160,7 +159,7 @@ namespace Penrose {
     ForwardSceneDrawRenderOperatorFactory::ForwardSceneDrawRenderOperatorFactory(ResourceSet *resources)
             : _assetManager(resources->get<AssetManager>()),
               _deviceContext(resources->get<DeviceContext>()),
-              _renderContext(resources->get<RenderContext>()) {
+              _renderListBuilder(resources->get<RenderListBuilder>()) {
         //
     }
 
@@ -338,7 +337,7 @@ namespace Penrose {
 
         return new ForwardSceneDrawRenderOperator(this->_assetManager,
                                                   this->_deviceContext,
-                                                  this->_renderContext,
+                                                  this->_renderListBuilder,
                                                   std::move(descriptorSetLayout),
                                                   std::move(pipelineLayout),
                                                   std::move(pipeline),

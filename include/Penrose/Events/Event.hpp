@@ -20,7 +20,6 @@ namespace Penrose {
         ComponentDestroyed,
 
         RenderGraphModified,
-        RenderListsModified,
 
         SurfaceResized
     };

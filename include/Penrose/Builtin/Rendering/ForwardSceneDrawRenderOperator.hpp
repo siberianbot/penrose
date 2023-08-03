@@ -21,7 +21,7 @@ namespace Penrose {
     class ResourceSet;
     class AssetManager;
     class DeviceContext;
-    class RenderContext;
+    class RenderListBuilder;
 
     class ForwardSceneDrawRenderOperator : public RenderOperator {
     public:
@@ -33,7 +33,7 @@ namespace Penrose {
 
         ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                        DeviceContext *deviceContext,
-                                       RenderContext *renderContext,
+                                       RenderListBuilder *renderListBuilder,
                                        DescriptorSetLayout descriptorSetLayout,
                                        PipelineLayout pipelineLayout,
                                        Pipeline pipeline,
@@ -46,7 +46,7 @@ namespace Penrose {
     private:
         AssetManager *_assetManager;
         DeviceContext *_deviceContext;
-        RenderContext *_renderContext;
+        RenderListBuilder *_renderListBuilder;
         DescriptorSetLayout _descriptorSetLayout;
         PipelineLayout _pipelineLayout;
         Pipeline _pipeline;
@@ -77,7 +77,7 @@ namespace Penrose {
     private:
         AssetManager *_assetManager;
         DeviceContext *_deviceContext;
-        RenderContext *_renderContext;
+        RenderListBuilder *_renderListBuilder;
     };
 }
 

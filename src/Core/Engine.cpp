@@ -11,20 +11,20 @@
 
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>
 #include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
-#include <Penrose/Builtin/ECS/RenderSourceComponent.hpp>
 #include <Penrose/Builtin/ECS/TransformComponent.hpp>
+#include <Penrose/Builtin/ECS/ViewComponent.hpp>
 #include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"
+#include "src/Rendering/RenderListBuilder.hpp"
 #include "src/Rendering/RenderManager.hpp"
 #include "src/Rendering/Surface.hpp"
 
 #include "src/Builtin/Backends/GlfwBackend.hpp"
 #include "src/Builtin/Backends/ImGuiBackend.hpp"
 #include "src/Builtin/Backends/VulkanBackend.hpp"
-#include "src/Builtin/ECS/RenderListBuilderSystem.hpp"
 
 namespace Penrose {
 
@@ -51,14 +51,14 @@ namespace Penrose {
         // rendering
         this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutorProvider>();
+        this->_resources.add<RenderListBuilder>();
         this->_resources.add<RenderManager>();
 
         // builtin / ECS
-        ecsManager->registerSystem<RenderListBuilderSystem>();
         ecsManager->registerComponent<CameraComponent>();
         ecsManager->registerComponent<MeshRendererComponent>();
-        ecsManager->registerComponent<RenderSourceComponent>();
         ecsManager->registerComponent<TransformComponent>();
+        ecsManager->registerComponent<ViewComponent>();
 
         // builtin / rendering operators
         this->_resources.add<RenderOperatorFactory, ForwardSceneDrawRenderOperatorFactory>();

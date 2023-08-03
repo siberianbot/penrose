@@ -49,6 +49,7 @@ src = [
     'src/Rendering/RenderGraph.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
     'src/Rendering/RenderGraphExecutorProvider.cpp',
+    'src/Rendering/RenderListBuilder.cpp',
     'src/Rendering/RenderManager.cpp',
     'src/Rendering/Surface.cpp',
     'src/Rendering/Utils.cpp',
@@ -69,9 +70,6 @@ src = [
     'src/Builtin/Backends/GlfwBackend.cpp',
     'src/Builtin/Backends/ImGuiBackend.cpp',
     'src/Builtin/Backends/VulkanBackend.cpp',
-
-    # Builtin / ECS
-    'src/Builtin/ECS/RenderListBuilderSystem.cpp',
 
     # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
