@@ -14,7 +14,8 @@ TEST_CASE("Start engine and immediately exit by EngineDestroyRequested event", "
     engine.run();
 }
 
-TEST_CASE("Start engine and exit by EngineDestroyRequested event after short period of time", "[engine][event-queue]") {
+TEST_CASE("Start engine and exit by EngineDestroyRequested event after short period of time",
+          "[engine][event-queue][ecs][ecs-system]") {
     class CountdownSystem : public System {
     public:
         explicit CountdownSystem(ResourceSet *resources)
