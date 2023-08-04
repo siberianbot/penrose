@@ -13,8 +13,9 @@
 
 namespace Penrose {
 
-    static constexpr const std::array<std::string_view, 1> REQUIRED_DEVICE_EXTENSIONS = {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    static constexpr const std::array<std::string_view, 2> REQUIRED_DEVICE_EXTENSIONS = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME
     };
 
     DeviceContext::PhysicalDeviceProxy DeviceContext::selectPhysicalDevice() {
