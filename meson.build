@@ -87,3 +87,5 @@ cpp_args = [
 
 penrose = library('penrose', src, dependencies: deps, cpp_args: cpp_args, include_directories: incdir)
 penrose_dep = declare_dependency(include_directories: incdir, link_with: penrose)
+
+subdir('tests')
