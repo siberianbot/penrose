@@ -23,20 +23,27 @@ namespace Penrose {
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                                                    DeviceContext *deviceContext,
                                                                    RenderListBuilder *renderListBuilder,
-                                                                   DescriptorSetLayout descriptorSetLayout,
-                                                                   PipelineLayout pipelineLayout,
-                                                                   Pipeline pipeline,
-                                                                   Sampler sampler,
+                                                                   vk::DescriptorSetLayout descriptorSetLayout,
+                                                                   vk::PipelineLayout pipelineLayout,
+                                                                   vk::Pipeline pipeline,
+                                                                   vk::Sampler sampler,
                                                                    std::string renderList)
             : _assetManager(assetManager),
               _deviceContext(deviceContext),
               _renderListBuilder(renderListBuilder),
-              _descriptorSetLayout(std::move(descriptorSetLayout)),
-              _pipelineLayout(std::move(pipelineLayout)),
-              _pipeline(std::move(pipeline)),
-              _sampler(std::move(sampler)),
+              _descriptorSetLayout(descriptorSetLayout),
+              _pipelineLayout(pipelineLayout),
+              _pipeline(pipeline),
+              _sampler(sampler),
               _renderList(std::move(renderList)) {
         //
+    }
+
+    ForwardSceneDrawRenderOperator::~ForwardSceneDrawRenderOperator() {
+        this->_deviceContext->getLogicalDevice().destroy(this->_sampler);
+        this->_deviceContext->getLogicalDevice().destroy(this->_pipeline);
+        this->_deviceContext->getLogicalDevice().destroy(this->_pipelineLayout);
+        this->_deviceContext->getLogicalDevice().destroy(this->_descriptorSetLayout);
     }
 
     void ForwardSceneDrawRenderOperator::execute(const RenderOperator::Context &context) {
@@ -60,7 +67,7 @@ namespace Penrose {
         context.commandBuffer.setViewport(0, viewport);
         context.commandBuffer.setScissor(0, context.renderArea);
 
-        context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline.getInstance());
+        context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline);
 
         for (const auto &[entity, drawable]: renderList->drawables) {
             auto maybeMesh = flatMap(drawable.meshAsset, [this](const std::string &asset) {
@@ -86,13 +93,12 @@ namespace Penrose {
                     .modelRot = drawable.modelRot
             };
 
-            context.commandBuffer.pushConstants(this->_pipelineLayout.getInstance(), vk::ShaderStageFlagBits::eVertex,
+            context.commandBuffer.pushConstants(this->_pipelineLayout, vk::ShaderStageFlagBits::eVertex,
                                                 0, sizeof(RenderData), &renderData);
             context.commandBuffer.bindVertexBuffers(0, maybeMesh->get()->getVertexBuffer(), {0});
             context.commandBuffer.bindIndexBuffer(maybeMesh->get()->getIndexBuffer(), 0, vk::IndexType::eUint32);
             context.commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                                     this->_pipelineLayout.getInstance(),
-                                                     0, {*maybeDescriptorSet}, {});
+                                                     this->_pipelineLayout, 0, {*maybeDescriptorSet}, {});
 
             context.commandBuffer.drawIndexed(maybeMesh->get()->getIndexCount(), 1, 0, 0, 0);
         }
@@ -113,7 +119,7 @@ namespace Penrose {
 
         auto layouts = std::vector<vk::DescriptorSetLayout>(INFLIGHT_FRAME_COUNT);
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            layouts[idx] = this->_descriptorSetLayout.getInstance();
+            layouts[idx] = this->_descriptorSetLayout;
         }
 
         auto allocateInfo = vk::DescriptorSetAllocateInfo()
@@ -126,7 +132,7 @@ namespace Penrose {
         auto imageInfo = vk::DescriptorImageInfo()
                 .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
                 .setImageView(maybeImage->get()->getImageView())
-                .setSampler(this->_sampler.getInstance());
+                .setSampler(this->_sampler);
 
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
             writes[idx] = vk::WriteDescriptorSet()
@@ -212,13 +218,15 @@ namespace Penrose {
         auto descriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo()
                 .setBindings(descriptorSetBindings);
 
-        auto descriptorSetLayout = makeDescriptorSetLayout(this->_deviceContext, descriptorSetLayoutCreateInfo);
+        auto descriptorSetLayout = this->_deviceContext->getLogicalDevice()
+                .createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 
         auto pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
                 .setPushConstantRanges(pushConstants)
-                .setSetLayouts(descriptorSetLayout.getInstance());
+                .setSetLayouts(descriptorSetLayout);
 
-        auto pipelineLayout = makePipelineLayout(this->_deviceContext, pipelineLayoutCreateInfo);
+        auto pipelineLayout = this->_deviceContext->getLogicalDevice()
+                .createPipelineLayout(pipelineLayoutCreateInfo);
 
         auto bindings = {
                 vk::VertexInputBindingDescription(0, sizeof(Vertex), vk::VertexInputRate::eVertex)
@@ -304,7 +312,7 @@ namespace Penrose {
         auto pipelineCreateInfo = vk::GraphicsPipelineCreateInfo()
                 .setRenderPass(context.renderPass)
                 .setSubpass(context.subpassIdx)
-                .setLayout(pipelineLayout.getInstance())
+                .setLayout(pipelineLayout)
                 .setStages(stages)
                 .setPVertexInputState(&vertexInputState)
                 .setPInputAssemblyState(&inputAssemblyState)
@@ -316,7 +324,8 @@ namespace Penrose {
                 .setPColorBlendState(&colorBlendState)
                 .setPDynamicState(&dynamicState);
 
-        auto pipeline = makeGraphicsPipeline(this->_deviceContext, pipelineCreateInfo);
+        auto [_, pipeline] = this->_deviceContext->getLogicalDevice()
+                .createGraphicsPipeline(nullptr, pipelineCreateInfo);
 
         auto samplerCreateInfo = vk::SamplerCreateInfo()
                 .setAddressModeU(vk::SamplerAddressMode::eRepeat)
@@ -333,15 +342,15 @@ namespace Penrose {
                 .setUnnormalizedCoordinates(false)
                 .setMipmapMode(vk::SamplerMipmapMode::eLinear);
 
-        auto sampler = makeSampler(this->_deviceContext, samplerCreateInfo);
+        auto sampler = this->_deviceContext->getLogicalDevice().createSampler(samplerCreateInfo);
 
         return new ForwardSceneDrawRenderOperator(this->_assetManager,
                                                   this->_deviceContext,
                                                   this->_renderListBuilder,
-                                                  std::move(descriptorSetLayout),
-                                                  std::move(pipelineLayout),
-                                                  std::move(pipeline),
-                                                  std::move(sampler),
+                                                  descriptorSetLayout,
+                                                  pipelineLayout,
+                                                  pipeline,
+                                                  sampler,
                                                   renderList);
     }
 }

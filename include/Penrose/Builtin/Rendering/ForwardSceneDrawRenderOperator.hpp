@@ -14,7 +14,6 @@
 #include <Penrose/Rendering/RenderList.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/RenderOperatorFactory.hpp>
-#include <Penrose/Rendering/Utils.hpp>
 
 namespace Penrose {
 
@@ -34,12 +33,12 @@ namespace Penrose {
         ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                        DeviceContext *deviceContext,
                                        RenderListBuilder *renderListBuilder,
-                                       DescriptorSetLayout descriptorSetLayout,
-                                       PipelineLayout pipelineLayout,
-                                       Pipeline pipeline,
-                                       Sampler sampler,
+                                       vk::DescriptorSetLayout descriptorSetLayout,
+                                       vk::PipelineLayout pipelineLayout,
+                                       vk::Pipeline pipeline,
+                                       vk::Sampler sampler,
                                        std::string renderList);
-        ~ForwardSceneDrawRenderOperator() override = default;
+        ~ForwardSceneDrawRenderOperator() override;
 
         void execute(const RenderOperator::Context &context) override;
 
@@ -47,10 +46,10 @@ namespace Penrose {
         AssetManager *_assetManager;
         DeviceContext *_deviceContext;
         RenderListBuilder *_renderListBuilder;
-        DescriptorSetLayout _descriptorSetLayout;
-        PipelineLayout _pipelineLayout;
-        Pipeline _pipeline;
-        Sampler _sampler;
+        vk::DescriptorSetLayout _descriptorSetLayout;
+        vk::PipelineLayout _pipelineLayout;
+        vk::Pipeline _pipeline;
+        vk::Sampler _sampler;
         std::string _renderList;
 
         std::unordered_map<Entity, std::vector<vk::DescriptorSet>> _descriptors;

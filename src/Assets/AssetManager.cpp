@@ -8,7 +8,6 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Utils/DestructibleObject.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 #include "src/Assets/AssetReader.hpp"
@@ -240,11 +239,11 @@ namespace Penrose {
             throw EngineError("Image file is invalid");
         }
 
-        auto destructibleData = DestructibleObject<stbi_uc *>(data, [](stbi_uc *instance) {
-            stbi_image_free(instance);
-        });
+        auto imageAsset = makeVkImageAsset(this->_deviceContext, width, height, 4, data);
 
-        return std::shared_ptr<ImageAsset>(makeVkImageAsset(this->_deviceContext, width, height, 4, data));
+        stbi_image_free(data);
+
+        return std::shared_ptr<ImageAsset>(imageAsset);
     }
 
     template<>
