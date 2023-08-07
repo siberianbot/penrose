@@ -12,11 +12,11 @@ cmake_opts = cmake.subproject_options()
 cmake_opts.add_cmake_defines({'CMAKE_POSITION_INDEPENDENT_CODE': true})
 
 deps = [
-    subproject('fmt').get_variable('fmt_dep'),
-    subproject('glfw').get_variable('glfw_dep'),
+    dependency('fmt'),
+    dependency('glfw3'),
     dependency('vulkan'),
-    subproject('imgui', default_options: ['default_library=static']).get_variable('imgui_dep'),
-    subproject('glm').get_variable('glm_dep'),
+    dependency('imgui'),
+    dependency('glm'),
     cmake.subproject('tinyobjloader', options: cmake_opts).dependency('tinyobjloader'),
     # TODO: https://github.com/nothings/stb
 ]
@@ -85,7 +85,18 @@ cpp_args = [
     '-DGLM_FORCE_DEPTH_ZERO_TO_ONE'
 ]
 
-penrose = library('penrose', src, dependencies: deps, cpp_args: cpp_args, include_directories: incdir)
-penrose_dep = declare_dependency(include_directories: incdir, link_with: penrose)
+penrose = library(
+    'penrose',
+    src,
+    dependencies: deps,
+    cpp_args: cpp_args,
+    include_directories: incdir
+)
+
+penrose_dep = declare_dependency(
+    dependencies: deps,
+    include_directories: incdir,
+    link_with: penrose
+)
 
 subdir('tests')
