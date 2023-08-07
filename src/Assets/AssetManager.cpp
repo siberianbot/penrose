@@ -247,20 +247,20 @@ namespace Penrose {
     }
 
     template<>
-    std::optional<std::shared_ptr<Asset>> AssetManager::tryGetAsset<Asset>(const std::string &asset) const {
+    std::optional<std::shared_ptr<Asset>> AssetManager::tryGetAsset<Asset>(const std::string &asset, bool wait) const {
         auto it = this->_assets.find(asset);
 
         if (it == this->_assets.end()) {
             return std::nullopt;
         }
 
-        if (it->second.state != LoadingState::Loaded && it->second.state != LoadingState::Failed) {
-            while (it->second.state != LoadingState::Loaded && it->second.state != LoadingState::Failed) {
+        if (it->second.state == LoadingState::Pending && wait) {
+            while (it->second.state == LoadingState::Pending) {
                 // wait
             }
         }
 
-        if (it->second.state == LoadingState::Failed) {
+        if (it->second.state != LoadingState::Loaded) {
             return std::nullopt;
         }
 

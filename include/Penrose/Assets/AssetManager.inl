@@ -20,16 +20,22 @@ namespace Penrose {
     }
 
     template<IsAsset T>
-    std::optional<std::shared_ptr<T>> AssetManager::tryGetAsset(const std::string &asset) const {
+    std::optional<std::shared_ptr<T>> AssetManager::tryGetAsset(const std::string &asset, bool wait) const {
+        auto maybeAsset = this->tryGetAsset<Asset>(asset, wait);
+
+        if (!maybeAsset.has_value()) {
+            return std::nullopt;
+        }
+
         return orElseThrow(
-                flatMap(this->tryGetAsset<Asset>(asset), toConcreteAsset<T>),
+                flatMap(maybeAsset, toConcreteAsset<T>),
                 EngineError(fmt::format("Asset {} miscast: not a {}", asset, typeid(T).name()))
         );
     }
 
     template<IsAsset T>
     std::shared_ptr<T> AssetManager::getAsset(const std::string &asset) const {
-        return orElseThrow(this->tryGetAsset<T>(asset), EngineError(fmt::format("Asset {} not loaded", asset)));
+        return orElseThrow(this->tryGetAsset<T>(asset, true), EngineError(fmt::format("Asset {} not loaded", asset)));
     }
 }
 

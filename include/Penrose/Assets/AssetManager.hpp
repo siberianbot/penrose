@@ -40,7 +40,7 @@ namespace Penrose {
         void unload(const std::string &asset);
 
         template<IsAsset T>
-        [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetAsset(const std::string &asset) const;
+        [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetAsset(const std::string &asset, bool wait = false) const;
 
         template<IsAsset T>
         [[nodiscard]] std::shared_ptr<T> getAsset(const std::string &asset) const;
