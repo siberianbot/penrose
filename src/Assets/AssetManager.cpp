@@ -205,7 +205,7 @@ namespace Penrose {
 
                 if (index.texcoord_index >= 0) {
                     vertex.uv = {
-                            attrib.texcoords.at(2 * index.texcoord_index + 0),
+                            1 - attrib.texcoords.at(2 * index.texcoord_index + 0),
                             attrib.texcoords.at(2 * index.texcoord_index + 1)
                     };
                 }
