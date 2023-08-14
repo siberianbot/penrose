@@ -28,6 +28,8 @@ namespace Penrose {
                 return;
             }
 
+            auto lock = std::lock_guard<std::mutex>(this->_mutex);
+
             switch (event.type) {
                 case EventType::ComponentCreated:
                     this->handleComponentCreate(*componentEvent);
