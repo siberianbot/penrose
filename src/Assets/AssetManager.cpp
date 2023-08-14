@@ -5,6 +5,7 @@
 #include <tiny_obj_loader.h>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
+#include <Penrose/Assets/MeshAssetFactory.hpp>
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
@@ -13,14 +14,14 @@
 #include "src/Assets/AssetReader.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Builtin/Assets/VkImageAsset.hpp"
-#include "src/Builtin/Assets/VkMeshAsset.hpp"
 #include "src/Builtin/Assets/VkShaderAsset.hpp"
 
 namespace Penrose {
 
     AssetManager::AssetManager(ResourceSet *resources)
             : _assetDictionary(resources->get<AssetDictionary>()),
-              _deviceContext(resources->get<DeviceContext>()) {
+              _deviceContext(resources->get<DeviceContext>()),
+              _meshAssetFactory(resources->get<MeshAssetFactory>()) {
         //
     }
 
@@ -222,9 +223,10 @@ namespace Penrose {
             }
         }
 
-        return std::shared_ptr<MeshAsset>(makeVkMeshAsset(this->_deviceContext,
-                                                          std::move(vertices),
-                                                          std::move(indices)));
+        auto meshAsset = this->_meshAssetFactory->makeMesh(std::move(vertices),
+                                                           std::move(indices));
+
+        return std::shared_ptr<MeshAsset>(meshAsset);
     }
 
     std::shared_ptr<ImageAsset> AssetManager::loadImageByPath(std::filesystem::path &&path) {

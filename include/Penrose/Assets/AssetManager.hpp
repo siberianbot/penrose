@@ -12,6 +12,8 @@
 #include <unordered_map>
 
 #include <Penrose/Assets/Asset.hpp>
+#include <Penrose/Assets/MeshAsset.hpp>
+#include <Penrose/Assets/MeshAssetFactory.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -60,6 +62,7 @@ namespace Penrose {
 
         AssetDictionary *_assetDictionary;
         DeviceContext *_deviceContext;
+        MeshAssetFactory *_meshAssetFactory;
 
         std::unordered_map<std::string, Entry> _assets;
 

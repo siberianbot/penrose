@@ -21,11 +21,11 @@ namespace Penrose {
                 .setUsage(usage)
                 .setSize(size);
 
-        bool isLocal = (usage & vk::BufferUsageFlagBits::eTransferSrc) == vk::BufferUsageFlagBits::eTransferSrc ||
-                       (usage & vk::BufferUsageFlagBits::eUniformBuffer) == vk::BufferUsageFlagBits::eUniformBuffer;
+        bool isVisible = (usage & vk::BufferUsageFlagBits::eTransferSrc) == vk::BufferUsageFlagBits::eTransferSrc ||
+                         (usage & vk::BufferUsageFlagBits::eUniformBuffer) == vk::BufferUsageFlagBits::eUniformBuffer;
 
         auto buffer = this->_deviceContext->getLogicalDevice().createBuffer(createInfo);
-        auto bufferMemory = makeDeviceMemory(this->_deviceContext, buffer, isLocal);
+        auto bufferMemory = makeDeviceMemory(this->_deviceContext, buffer, !isVisible);
 
         std::optional<BufferPtr> ptr;
         if (map) {

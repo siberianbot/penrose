@@ -28,6 +28,7 @@ src = [
     'src/Assets/AssetDictionary.cpp',
     'src/Assets/AssetReader.cpp',
     'src/Assets/AssetManager.cpp',
+    'src/Assets/MeshAsset.cpp',
 
     # Common
     'src/Common/ParamsCollection.cpp',
@@ -62,7 +63,7 @@ src = [
 
     # Builtin / Assets
     'src/Builtin/Assets/VkImageAsset.cpp',
-    'src/Builtin/Assets/VkMeshAsset.cpp',
+    'src/Builtin/Assets/VkMeshAssetFactory.cpp',
     'src/Builtin/Assets/VkShaderAsset.cpp',
 
     # Builtin / Backends

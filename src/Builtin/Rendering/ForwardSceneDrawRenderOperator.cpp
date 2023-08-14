@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Assets/AssetManager.hpp>
+#include <Penrose/Assets/MeshAsset.hpp>
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
@@ -15,8 +16,8 @@
 #include "src/Rendering/RenderListBuilder.hpp"
 
 #include "src/Builtin/Assets/VkImageAsset.hpp"
-#include "src/Builtin/Assets/VkMeshAsset.hpp"
 #include "src/Builtin/Assets/VkShaderAsset.hpp"
+#include "src/Builtin/Rendering/VkBuffer.hpp"
 
 namespace Penrose {
 
@@ -71,7 +72,7 @@ namespace Penrose {
 
         for (const auto &[entity, drawable]: renderList->drawables) {
             auto maybeMesh = flatMap(drawable.meshAsset, [this](const std::string &asset) {
-                return this->_assetManager->tryGetAsset<VkMeshAsset>(asset);
+                return this->_assetManager->tryGetAsset<MeshAsset>(asset);
             });
 
             if (!maybeMesh.has_value()) {
@@ -93,14 +94,17 @@ namespace Penrose {
                     .modelRot = drawable.modelRot
             };
 
+            auto vertexBuffer = dynamic_cast<VkBuffer *>(maybeMesh->get()->getVertexBuffer());
+            auto indexBuffer = dynamic_cast<VkBuffer *>(maybeMesh->get()->getIndexBuffer());
+
             context.commandBuffer.pushConstants(this->_pipelineLayout, vk::ShaderStageFlagBits::eVertex,
                                                 0, sizeof(RenderData), &renderData);
-            context.commandBuffer.bindVertexBuffers(0, maybeMesh->get()->getVertexBuffer(), {0});
-            context.commandBuffer.bindIndexBuffer(maybeMesh->get()->getIndexBuffer(), 0, vk::IndexType::eUint32);
+            context.commandBuffer.bindVertexBuffers(0, vertexBuffer->getBuffer(), {0});
+            context.commandBuffer.bindIndexBuffer(indexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
             context.commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                                                      this->_pipelineLayout, 0, {*maybeDescriptorSet}, {});
 
-            context.commandBuffer.drawIndexed(maybeMesh->get()->getIndexCount(), 1, 0, 0, 0);
+            context.commandBuffer.drawIndexed(indexBuffer->getCount(), 1, 0, 0, 0);
         }
     }
 

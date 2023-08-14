@@ -26,6 +26,7 @@
 #include "src/Builtin/Backends/ImGuiBackend.hpp"
 #include "src/Builtin/Backends/VulkanBackend.hpp"
 
+#include "src/Builtin/Assets/VkMeshAssetFactory.hpp"
 #include "src/Builtin/Rendering/VkBufferFactory.hpp"
 
 namespace Penrose {
@@ -51,6 +52,7 @@ namespace Penrose {
         this->_resources.add<BufferFactory, VkBufferFactory>();
 
         // asset
+        this->_resources.add<MeshAssetFactory, VkMeshAssetFactory>();
         this->_resources.add<AssetManager>();
 
         // rendering

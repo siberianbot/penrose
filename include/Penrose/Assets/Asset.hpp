@@ -24,13 +24,6 @@ namespace Penrose {
         [[nodiscard]] AssetType getType() const override { return AssetType::Shader; }
     };
 
-    class MeshAsset : public Asset {
-    public:
-        ~MeshAsset() override = default;
-
-        [[nodiscard]] AssetType getType() const override { return AssetType::Mesh; }
-    };
-
     class ImageAsset : public Asset {
     public:
         ~ImageAsset() override = default;
