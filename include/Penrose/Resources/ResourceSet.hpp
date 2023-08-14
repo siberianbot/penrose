@@ -47,11 +47,12 @@ namespace Penrose {
         std::multimap<std::type_index, ResourceList::iterator> _resourceMap;
 
         template<IsResource T>
+        requires IsDefaultConstructableResource<T> || IsConstructableWithResourceSetResource<T>
         [[nodiscard]] constexpr T *construct();
 
-        void add(std::type_index idx,
-                 Resource *resource,
-                 std::optional<ResourceList::iterator> before);
+        ResourceList::iterator addToList(Resource *resource, std::optional<ResourceList::iterator> before);
+        void addToMap(std::type_index idx, ResourceList::iterator it);
+
         [[nodiscard]] Resource *get(const std::type_index &idx) const;
     };
 }

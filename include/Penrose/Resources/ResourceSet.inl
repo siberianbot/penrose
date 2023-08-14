@@ -6,10 +6,16 @@ namespace Penrose {
     template<IsResource TBase, IsResource TImpl>
     requires std::is_base_of<TBase, TImpl>::value
     TBase *ResourceSet::add(std::optional<ResourceList::iterator> before) {
-        auto idx = std::type_index(typeid(TBase));
         auto resource = this->construct<TImpl>();
+        auto iterator = this->addToList(resource, before);
 
-        this->add(idx, resource, before);
+        auto baseIdx = std::type_index(typeid(TBase));
+        this->addToMap(baseIdx, iterator);
+
+        if constexpr (!std::is_same_v<TBase, TImpl>) {
+            auto implIdx = std::type_index(typeid(TImpl));
+            this->addToMap(implIdx, iterator);
+        }
 
         return resource;
     }
@@ -35,10 +41,8 @@ namespace Penrose {
     }
 
     template<IsResource T>
+    requires IsDefaultConstructableResource<T> || IsConstructableWithResourceSetResource<T>
     constexpr T *ResourceSet::construct() {
-        static_assert(IsDefaultConstructableResource<T> || IsConstructableWithResourceSetResource<T>,
-                      "Resource is not constructable");
-
         if constexpr (IsConstructableWithResourceSetResource<T>) {
             return new T(this);
         } else {

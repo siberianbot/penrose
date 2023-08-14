@@ -32,12 +32,14 @@ namespace Penrose {
         }
     }
 
-    void ResourceSet::add(std::type_index idx,
-                          Resource *resource,
-                          std::optional<ResourceList::iterator> before) {
+    ResourceSet::ResourceList::iterator ResourceSet::addToList(Resource *resource,
+                                                               std::optional<ResourceList::iterator> before) {
         auto position = before.has_value() ? *before : this->_resources.end();
-        auto it = this->_resources.emplace(position, resource);
 
+        return this->_resources.emplace(position, resource);
+    }
+
+    void ResourceSet::addToMap(std::type_index idx, std::list<std::unique_ptr<Resource>>::iterator it) {
         this->_resourceMap.emplace(idx, it);
     }
 
