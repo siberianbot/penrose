@@ -8,10 +8,11 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/ParamsCollection.hpp>
-#include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
+
+    class RenderOperator;
 
     class RenderOperatorFactory : public Resource {
     public:
