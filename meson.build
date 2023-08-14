@@ -73,6 +73,8 @@ src = [
     # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
+    'src/Builtin/Rendering/VkBuffer.cpp',
+    'src/Builtin/Rendering/VkBufferFactory.cpp',
     'src/Builtin/Rendering/VkFramebuffer.cpp',
     'src/Builtin/Rendering/VkRenderPass.cpp',
     'src/Builtin/Rendering/VkRenderTarget.cpp',

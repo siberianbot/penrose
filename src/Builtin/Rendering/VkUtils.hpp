@@ -5,11 +5,14 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Rendering/Buffer.hpp>
 #include <Penrose/Rendering/RenderGraph.hpp>
 
 namespace Penrose {
 
     class DeviceContext;
+
+    [[nodiscard]] vk::BufferUsageFlags toVkBufferUsageFlags(const BufferType &type);
 
     [[nodiscard]] vk::ImageUsageFlags toVkImageUsageFlags(const RenderTargetType &type);
     [[nodiscard]] vk::ImageAspectFlags toVkImageAspectFlags(const RenderTargetType &type);

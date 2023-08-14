@@ -26,6 +26,8 @@
 #include "src/Builtin/Backends/ImGuiBackend.hpp"
 #include "src/Builtin/Backends/VulkanBackend.hpp"
 
+#include "src/Builtin/Rendering/VkBufferFactory.hpp"
+
 namespace Penrose {
 
     Engine::Engine() {
@@ -44,6 +46,9 @@ namespace Penrose {
         this->_resources.add<Surface>();
         this->_resources.add<DeviceContext>();
         this->_resources.add<PresentContext>();
+
+        // rendering / factories
+        this->_resources.add<BufferFactory, VkBufferFactory>();
 
         // asset
         this->_resources.add<AssetManager>();

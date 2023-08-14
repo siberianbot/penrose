@@ -6,6 +6,25 @@
 
 namespace Penrose {
 
+    vk::BufferUsageFlags toVkBufferUsageFlags(const BufferType &type) {
+        switch (type) {
+            case BufferType::Staging:
+                return vk::BufferUsageFlagBits::eTransferSrc;
+
+            case BufferType::Uniform:
+                return vk::BufferUsageFlagBits::eUniformBuffer;
+
+            case BufferType::Vertex:
+                return vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer;
+
+            case BufferType::Index:
+                return vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer;
+
+            default:
+                throw EngineError("Buffer type is not supported");
+        }
+    }
+
     vk::ImageUsageFlags toVkImageUsageFlags(const RenderTargetType &type) {
         auto usage = vk::ImageUsageFlags();
 
