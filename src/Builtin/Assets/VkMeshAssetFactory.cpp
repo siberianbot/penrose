@@ -25,21 +25,25 @@ namespace Penrose {
         auto indexBufferSize = sizeof(std::uint32_t) * indices.size();
 
         auto stagingVertexBuffer = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(BufferType::Staging,
-                                                                                             vertexBufferSize, 0,
+                                                                                             vertexBufferSize,
+                                                                                             vertices.size(),
                                                                                              true));
         std::memcpy(stagingVertexBuffer->getPointer(), vertices.data(), vertexBufferSize);
 
         auto stagingIndexBuffer = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(BufferType::Staging,
                                                                                             indexBufferSize,
-                                                                                            indices.size(), true));
+                                                                                            indices.size(),
+                                                                                            true));
         std::memcpy(stagingIndexBuffer->getPointer(), indices.data(), indexBufferSize);
 
         auto targetVertexBuffer = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(BufferType::Vertex,
-                                                                                            vertexBufferSize, 0,
+                                                                                            vertexBufferSize,
+                                                                                            vertices.size(),
                                                                                             false));
         auto targetIndexBuffer = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(BufferType::Index,
                                                                                            indexBufferSize,
-                                                                                           indices.size(), false));
+                                                                                           indices.size(),
+                                                                                           false));
         auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
                 .setCommandBufferCount(1)
                 .setCommandPool(this->_deviceContext->getCommandPool());

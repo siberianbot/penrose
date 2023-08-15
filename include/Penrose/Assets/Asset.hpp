@@ -23,13 +23,6 @@ namespace Penrose {
 
         [[nodiscard]] AssetType getType() const override { return AssetType::Shader; }
     };
-
-    class ImageAsset : public Asset {
-    public:
-        ~ImageAsset() override = default;
-
-        [[nodiscard]] AssetType getType() const override { return AssetType::Image; }
-    };
 }
 
 #endif // PENROSE_ASSETS_ASSET_HPP

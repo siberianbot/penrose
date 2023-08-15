@@ -5,7 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Assets/AssetManager.hpp>
-#include <Penrose/Assets/MeshAsset.hpp>
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
@@ -15,9 +14,9 @@
 #include "src/Rendering/RenderData.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
 
-#include "src/Builtin/Assets/VkImageAsset.hpp"
 #include "src/Builtin/Assets/VkShaderAsset.hpp"
 #include "src/Builtin/Rendering/VkBuffer.hpp"
+#include "src/Builtin/Rendering/VkImage.hpp"
 
 namespace Penrose {
 
@@ -116,7 +115,7 @@ namespace Penrose {
             return descriptorsIt->second.at(frameIdx);
         }
 
-        auto maybeImage = this->_assetManager->tryGetAsset<VkImageAsset>(asset);
+        auto maybeImage = this->_assetManager->tryGetAsset<ImageAsset>(asset);
         if (!maybeImage.has_value()) {
             return std::nullopt;
         }
@@ -133,9 +132,10 @@ namespace Penrose {
         auto descriptorSets = this->_deviceContext->getLogicalDevice().allocateDescriptorSets(allocateInfo);
         auto writes = std::vector<vk::WriteDescriptorSet>(descriptorSets.size());
 
+        auto image = dynamic_cast<VkImage *>(maybeImage->get()->getImage());
         auto imageInfo = vk::DescriptorImageInfo()
                 .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                .setImageView(maybeImage->get()->getImageView())
+                .setImageView(image->getImageView())
                 .setSampler(this->_sampler);
 
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {

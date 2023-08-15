@@ -3,9 +3,9 @@
 
 #include <optional>
 
-#include <Penrose/Rendering/Buffer.hpp>
-
 #include <vulkan/vulkan.hpp>
+
+#include <Penrose/Rendering/Buffer.hpp>
 
 namespace Penrose {
 

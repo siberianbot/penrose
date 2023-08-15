@@ -5,6 +5,7 @@
 #include <tiny_obj_loader.h>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
+#include <Penrose/Assets/ImageAssetFactory.hpp>
 #include <Penrose/Assets/MeshAssetFactory.hpp>
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Common/Vertex.hpp>
@@ -13,7 +14,6 @@
 
 #include "src/Assets/AssetReader.hpp"
 #include "src/Rendering/DeviceContext.hpp"
-#include "src/Builtin/Assets/VkImageAsset.hpp"
 #include "src/Builtin/Assets/VkShaderAsset.hpp"
 
 namespace Penrose {
@@ -21,6 +21,7 @@ namespace Penrose {
     AssetManager::AssetManager(ResourceSet *resources)
             : _assetDictionary(resources->get<AssetDictionary>()),
               _deviceContext(resources->get<DeviceContext>()),
+              _imageAssetFactory(resources->get<ImageAssetFactory>()),
               _meshAssetFactory(resources->get<MeshAssetFactory>()) {
         //
     }
@@ -241,7 +242,7 @@ namespace Penrose {
             throw EngineError("Image file is invalid");
         }
 
-        auto imageAsset = makeVkImageAsset(this->_deviceContext, width, height, 4, data);
+        auto imageAsset = this->_imageAssetFactory->makeImage(ImageFormat::RGBA, width, height, data);
 
         stbi_image_free(data);
 

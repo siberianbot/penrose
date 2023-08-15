@@ -28,6 +28,7 @@ src = [
     'src/Assets/AssetDictionary.cpp',
     'src/Assets/AssetReader.cpp',
     'src/Assets/AssetManager.cpp',
+    'src/Assets/ImageAsset.cpp',
     'src/Assets/MeshAsset.cpp',
 
     # Common
@@ -53,6 +54,7 @@ src = [
     'src/Rendering/RenderListBuilder.cpp',
     'src/Rendering/RenderManager.cpp',
     'src/Rendering/Surface.cpp',
+    'src/Rendering/Utils.cpp',
 
     # Resources
     'src/Resources/ResourceSet.cpp',
@@ -62,7 +64,7 @@ src = [
     'src/Scene/SceneNode.cpp',
 
     # Builtin / Assets
-    'src/Builtin/Assets/VkImageAsset.cpp',
+    'src/Builtin/Assets/VkImageAssetFactory.cpp',
     'src/Builtin/Assets/VkMeshAssetFactory.cpp',
     'src/Builtin/Assets/VkShaderAsset.cpp',
 
@@ -77,6 +79,8 @@ src = [
     'src/Builtin/Rendering/VkBuffer.cpp',
     'src/Builtin/Rendering/VkBufferFactory.cpp',
     'src/Builtin/Rendering/VkFramebuffer.cpp',
+    'src/Builtin/Rendering/VkImage.cpp',
+    'src/Builtin/Rendering/VkImageFactory.cpp',
     'src/Builtin/Rendering/VkRenderPass.cpp',
     'src/Builtin/Rendering/VkRenderTarget.cpp',
     'src/Builtin/Rendering/VkUtils.cpp',

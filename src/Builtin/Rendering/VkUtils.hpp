@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Rendering/Buffer.hpp>
+#include <Penrose/Rendering/Image.hpp>
 #include <Penrose/Rendering/RenderGraph.hpp>
 
 namespace Penrose {
@@ -17,6 +18,7 @@ namespace Penrose {
     [[nodiscard]] vk::ImageUsageFlags toVkImageUsageFlags(const RenderTargetType &type);
     [[nodiscard]] vk::ImageAspectFlags toVkImageAspectFlags(const RenderTargetType &type);
 
+    [[nodiscard]] vk::Format toVkFormat(const ImageFormat &format);
     [[nodiscard]] std::optional<vk::Format> toVkFormat(const RenderFormat &format);
 
     [[nodiscard]] vk::AttachmentLoadOp toVkAttachmentLoadOp(const RenderAttachmentLoadOp &loadOp);

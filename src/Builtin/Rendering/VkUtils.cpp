@@ -57,6 +57,16 @@ namespace Penrose {
         return aspect;
     }
 
+    vk::Format toVkFormat(const ImageFormat &format) {
+        switch (format) {
+            case ImageFormat::RGBA:
+                return vk::Format::eR8G8B8A8Srgb;
+
+            default:
+                throw EngineError("Image format is not supported");
+        }
+    }
+
     std::optional<vk::Format> toVkFormat(const RenderFormat &format) {
         switch (format) {
             case RenderFormat::None:
