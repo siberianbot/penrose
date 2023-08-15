@@ -37,6 +37,9 @@ namespace Penrose {
         TBase *add(std::optional<ResourceList::iterator> before = std::nullopt);
 
         template<IsResource T>
+        [[nodiscard]] std::optional<ResourceList::iterator> tryGetIteratorOf() const;
+
+        template<IsResource T>
         [[nodiscard]] T *get() const;
 
         template<IsResource T>

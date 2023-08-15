@@ -1,6 +1,8 @@
 #ifndef PENROSE_RESOURCES_RESOURCE_SET_INL
 #define PENROSE_RESOURCES_RESOURCE_SET_INL
 
+#include <algorithm>
+
 namespace Penrose {
 
     template<IsResource TBase, IsResource TImpl>
@@ -18,6 +20,18 @@ namespace Penrose {
         }
 
         return resource;
+    }
+
+    template<IsResource T>
+    std::optional<ResourceSet::ResourceList::iterator> ResourceSet::tryGetIteratorOf() const {
+        auto idx = std::type_index(typeid(T));
+        auto it = this->_resourceMap.find(idx);
+
+        if (it == this->_resourceMap.end()) {
+            return std::nullopt;
+        }
+
+        return it->second;
     }
 
     template<IsResource T>
