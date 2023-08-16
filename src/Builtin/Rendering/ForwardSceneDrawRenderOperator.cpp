@@ -5,6 +5,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Assets/AssetManager.hpp>
+#include <Penrose/Assets/ImageAsset.hpp>
+#include <Penrose/Assets/MeshAsset.hpp>
+#include <Penrose/Assets/ShaderAsset.hpp>
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
@@ -14,9 +17,9 @@
 #include "src/Rendering/RenderData.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
 
-#include "src/Builtin/Assets/VkShaderAsset.hpp"
 #include "src/Builtin/Rendering/VkBuffer.hpp"
 #include "src/Builtin/Rendering/VkImage.hpp"
+#include "src/Builtin/Rendering/VkShader.hpp"
 
 namespace Penrose {
 
@@ -190,8 +193,10 @@ namespace Penrose {
         auto fragmentShader = context.params.getString(ForwardSceneDrawRenderOperator::FRAGMENT_SHADER_PARAM);
         auto renderList = context.params.getString(ForwardSceneDrawRenderOperator::RENDER_LIST_PARAM);
 
-        auto vertexShaderAsset = this->_assetManager->getAsset<VkShaderAsset>(vertexShader);
-        auto fragmentShaderAsset = this->_assetManager->getAsset<VkShaderAsset>(fragmentShader);
+        auto vertexShaderAsset = dynamic_cast<VkShader *>(this->_assetManager->getAsset<ShaderAsset>(
+                vertexShader)->getShader());
+        auto fragmentShaderAsset = dynamic_cast<VkShader *>(this->_assetManager->getAsset<ShaderAsset>(
+                fragmentShader)->getShader());
 
         auto stages = {
                 vk::PipelineShaderStageCreateInfo()

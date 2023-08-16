@@ -12,8 +12,6 @@
 #include <unordered_map>
 
 #include <Penrose/Assets/Asset.hpp>
-#include <Penrose/Assets/ImageAsset.hpp>
-#include <Penrose/Assets/MeshAsset.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -23,6 +21,7 @@ namespace Penrose {
     class DeviceContext;
     class ImageAssetFactory;
     class MeshAssetFactory;
+    class ShaderAssetFactory;
 
     template<typename T>
     concept IsAsset = std::is_base_of<Asset, T>::value;
@@ -64,8 +63,10 @@ namespace Penrose {
 
         AssetDictionary *_assetDictionary;
         DeviceContext *_deviceContext;
+
         ImageAssetFactory *_imageAssetFactory;
         MeshAssetFactory *_meshAssetFactory;
+        ShaderAssetFactory *_shaderAssetFactory;
 
         std::unordered_map<std::string, Entry> _assets;
 
@@ -75,9 +76,9 @@ namespace Penrose {
 
         void tryLoadAsset(const std::string &asset);
 
-        [[nodiscard]] std::shared_ptr<ShaderAsset> loadShaderByPath(std::filesystem::path &&path);
-        [[nodiscard]] std::shared_ptr<MeshAsset> loadMeshByPath(std::filesystem::path &&path);
-        [[nodiscard]] std::shared_ptr<ImageAsset> loadImageByPath(std::filesystem::path &&path);
+        [[nodiscard]] std::shared_ptr<Asset> loadShaderByPath(std::filesystem::path &&path);
+        [[nodiscard]] std::shared_ptr<Asset> loadMeshByPath(std::filesystem::path &&path);
+        [[nodiscard]] std::shared_ptr<Asset> loadImageByPath(std::filesystem::path &&path);
     };
 }
 

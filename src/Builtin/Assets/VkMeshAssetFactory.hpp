@@ -14,8 +14,8 @@ namespace Penrose {
         explicit VkMeshAssetFactory(ResourceSet *resources);
         ~VkMeshAssetFactory() override = default;
 
-        MeshAsset *makeMesh(std::vector<Vertex> &&vertices,
-                            std::vector<std::uint32_t> &&indices) override;
+        [[nodiscard]] MeshAsset *makeMesh(std::vector<Vertex> &&vertices,
+                                          std::vector<std::uint32_t> &&indices) override;
 
     private:
         BufferFactory *_bufferFactory;

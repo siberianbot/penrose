@@ -30,6 +30,7 @@ src = [
     'src/Assets/AssetManager.cpp',
     'src/Assets/ImageAsset.cpp',
     'src/Assets/MeshAsset.cpp',
+    'src/Assets/ShaderAsset.cpp',
 
     # Common
     'src/Common/ParamsCollection.cpp',
@@ -66,7 +67,7 @@ src = [
     # Builtin / Assets
     'src/Builtin/Assets/VkImageAssetFactory.cpp',
     'src/Builtin/Assets/VkMeshAssetFactory.cpp',
-    'src/Builtin/Assets/VkShaderAsset.cpp',
+    'src/Builtin/Assets/VkShaderAssetFactory.cpp',
 
     # Builtin / Backends
     'src/Builtin/Backends/GlfwBackend.cpp',
@@ -83,6 +84,8 @@ src = [
     'src/Builtin/Rendering/VkImageFactory.cpp',
     'src/Builtin/Rendering/VkRenderPass.cpp',
     'src/Builtin/Rendering/VkRenderTarget.cpp',
+    'src/Builtin/Rendering/VkShader.cpp',
+    'src/Builtin/Rendering/VkShaderFactory.cpp',
     'src/Builtin/Rendering/VkUtils.cpp',
 ]
 

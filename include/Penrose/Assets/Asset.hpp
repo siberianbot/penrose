@@ -16,13 +16,6 @@ namespace Penrose {
 
         [[nodiscard]] virtual AssetType getType() const { return AssetType::Common; }
     };
-
-    class ShaderAsset : public Asset {
-    public:
-        ~ShaderAsset() override = default;
-
-        [[nodiscard]] AssetType getType() const override { return AssetType::Shader; }
-    };
 }
 
 #endif // PENROSE_ASSETS_ASSET_HPP

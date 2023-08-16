@@ -7,6 +7,7 @@
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/ImageAssetFactory.hpp>
 #include <Penrose/Assets/MeshAssetFactory.hpp>
+#include <Penrose/Assets/ShaderAssetFactory.hpp>
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
@@ -14,7 +15,6 @@
 
 #include "src/Assets/AssetReader.hpp"
 #include "src/Rendering/DeviceContext.hpp"
-#include "src/Builtin/Assets/VkShaderAsset.hpp"
 
 namespace Penrose {
 
@@ -22,7 +22,8 @@ namespace Penrose {
             : _assetDictionary(resources->get<AssetDictionary>()),
               _deviceContext(resources->get<DeviceContext>()),
               _imageAssetFactory(resources->get<ImageAssetFactory>()),
-              _meshAssetFactory(resources->get<MeshAssetFactory>()) {
+              _meshAssetFactory(resources->get<MeshAssetFactory>()),
+              _shaderAssetFactory(resources->get<ShaderAssetFactory>()) {
         //
     }
 
@@ -158,15 +159,16 @@ namespace Penrose {
         }
     }
 
-    std::shared_ptr<ShaderAsset> AssetManager::loadShaderByPath(std::filesystem::path &&path) {
+    std::shared_ptr<Asset> AssetManager::loadShaderByPath(std::filesystem::path &&path) {
         auto assetReader = AssetReader::read(std::move(path));
+        auto shaderAsset = this->_shaderAssetFactory->makeShader(
+                reinterpret_cast<const std::uint32_t *>(assetReader.data()),
+                assetReader.size());
 
-        return std::shared_ptr<ShaderAsset>(makeVkShaderAsset(this->_deviceContext,
-                                                              reinterpret_cast<const std::uint32_t *>(assetReader.data()),
-                                                              assetReader.size()));
+        return std::shared_ptr<ShaderAsset>(shaderAsset);
     }
 
-    std::shared_ptr<MeshAsset> AssetManager::loadMeshByPath(std::filesystem::path &&path) {
+    std::shared_ptr<Asset> AssetManager::loadMeshByPath(std::filesystem::path &&path) {
         auto assetReader = AssetReader::read(std::move(path));
         auto assetText = std::string(reinterpret_cast<const char *>(assetReader.data()), assetReader.size());
 
@@ -230,7 +232,7 @@ namespace Penrose {
         return std::shared_ptr<MeshAsset>(meshAsset);
     }
 
-    std::shared_ptr<ImageAsset> AssetManager::loadImageByPath(std::filesystem::path &&path) {
+    std::shared_ptr<Asset> AssetManager::loadImageByPath(std::filesystem::path &&path) {
         auto assetReader = AssetReader::read(std::move(path));
 
         int width, height, channels;
