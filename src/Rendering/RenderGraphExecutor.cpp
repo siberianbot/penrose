@@ -3,6 +3,7 @@
 #include <utility>
 
 #include <Penrose/Rendering/RenderOperator.hpp>
+#include <Penrose/Rendering/RenderTarget.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
@@ -10,6 +11,7 @@
 #include "src/Builtin/Rendering/VkFramebuffer.hpp"
 #include "src/Builtin/Rendering/VkRenderPass.hpp"
 #include "src/Builtin/Rendering/VkRenderTarget.hpp"
+#include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
 
 namespace Penrose {
 
@@ -19,11 +21,13 @@ namespace Penrose {
 
     RenderGraphExecutor::RenderGraphExecutor(DeviceContext *deviceContext,
                                              PresentContext *presentContext,
+                                             VkRenderTargetFactory *vkRenderTargetFactory,
                                              RenderGraph graph,
                                              std::map<std::string, VkRenderTarget *> targets,
                                              std::map<std::string, SubgraphEntry> subgraphs)
             : _deviceContext(deviceContext),
               _presentContext(presentContext),
+              _vkRenderTargetFactory(vkRenderTargetFactory),
               _graph(std::move(graph)),
               _targets(std::move(targets)),
               _subgraphs(std::move(subgraphs)) {
@@ -109,8 +113,9 @@ namespace Penrose {
     }
 
     void RenderGraphExecutor::createFramebuffers() {
-        for (auto &[_, target]: this->_targets) {
-            target->create();
+        for (auto &[targetName, target]: this->_targets) {
+            auto targetInfo = this->_graph.getTargets().at(targetName);
+            target = dynamic_cast<VkRenderTarget *>(this->_vkRenderTargetFactory->makeRenderTarget(targetInfo));
         }
 
         for (auto &[_, subgraph]: this->_subgraphs) {
@@ -131,7 +136,8 @@ namespace Penrose {
         }
 
         for (auto &[_, target]: this->_targets) {
-            target->destroy();
+            delete target;
+            target = nullptr;
         }
     }
 }

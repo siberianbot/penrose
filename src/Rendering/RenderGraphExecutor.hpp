@@ -20,6 +20,7 @@ namespace Penrose {
     class VkFramebuffer;
     class VkRenderPass;
     class VkRenderTarget;
+    class VkRenderTargetFactory;
 
     class RenderGraphExecutor {
     public:
@@ -32,6 +33,7 @@ namespace Penrose {
 
         RenderGraphExecutor(DeviceContext *deviceContext,
                             PresentContext *presentContext,
+                            VkRenderTargetFactory *vkRenderTargetFactory,
                             RenderGraph graph,
                             std::map<std::string, VkRenderTarget *> targets,
                             std::map<std::string, SubgraphEntry> subgraphs);
@@ -49,6 +51,7 @@ namespace Penrose {
     private:
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
+        VkRenderTargetFactory *_vkRenderTargetFactory;
 
         RenderGraph _graph;
         std::map<std::string, VkRenderTarget *> _targets;

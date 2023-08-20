@@ -2,44 +2,36 @@
 #define PENROSE_BUILTIN_RENDERING_VK_RENDER_TARGET_HPP
 
 #include <cstdint>
-#include <optional>
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Rendering/RenderGraph.hpp>
+#include <Penrose/Rendering/RenderTarget.hpp>
 
 namespace Penrose {
 
     class DeviceContext;
     class PresentContext;
 
-    class VkRenderTarget {
+    class VkRenderTarget : public RenderTarget {
     public:
-        explicit VkRenderTarget(RenderTargetInfo target);
-        virtual ~VkRenderTarget() = default;
+        explicit VkRenderTarget(RenderTargetInfo targetInfo);
+        ~VkRenderTarget() override = default;
+
+        [[nodiscard]] const RenderTargetInfo &getTargetInfo() const override { return this->_targetInfo; }
 
         [[nodiscard]] virtual const vk::ImageView &getView(std::uint32_t imageIdx) const = 0;
 
-        [[nodiscard]] const RenderTargetInfo &getTarget() const { return this->_target; }
-
-        virtual void create() = 0;
-        virtual void destroy() = 0;
-
     protected:
-        RenderTargetInfo _target;
+        RenderTargetInfo _targetInfo;
     };
 
     class VkSwapchainRenderTarget : public VkRenderTarget {
     public:
-        explicit VkSwapchainRenderTarget(RenderTargetInfo target,
+        explicit VkSwapchainRenderTarget(RenderTargetInfo targetInfo,
                                          PresentContext *presentContext);
         ~VkSwapchainRenderTarget() override = default;
 
         [[nodiscard]] const vk::ImageView &getView(std::uint32_t imageIdx) const override;
-
-        void create() override { /* nothing to do */ }
-
-        void destroy() override { /* nothing to do */}
 
     private:
         PresentContext *_presentContext;
@@ -47,34 +39,22 @@ namespace Penrose {
 
     class VkImageRenderTarget : public VkRenderTarget {
     public:
-        VkImageRenderTarget(RenderTargetInfo target,
+        VkImageRenderTarget(RenderTargetInfo targetInfo,
                             DeviceContext *deviceContext,
-                            PresentContext *presentContext);
-        ~VkImageRenderTarget() override = default;
+                            vk::Image image,
+                            vk::DeviceMemory imageMemory,
+                            vk::ImageView imageView);
+        ~VkImageRenderTarget() override;
 
-        [[nodiscard]] const vk::ImageView &getView(std::uint32_t) const override {
-            return this->_state->imageView;
-        }
-
-        void create() override;
-        void destroy() override;
+        [[nodiscard]] const vk::ImageView &getView(std::uint32_t) const override { return this->_imageView; }
 
     private:
-        struct State {
-            vk::Image image;
-            vk::DeviceMemory imageMemory;
-            vk::ImageView imageView;
-        };
-
         DeviceContext *_deviceContext;
-        PresentContext *_presentContext;
 
-        std::optional<State> _state;
+        vk::Image _image;
+        vk::DeviceMemory _imageMemory;
+        vk::ImageView _imageView;
     };
-
-    [[nodiscard]] VkRenderTarget *makeVkRenderTarget(DeviceContext *deviceContext,
-                                                     PresentContext *presentContext,
-                                                     const RenderTargetInfo &target);
 }
 
 #endif // PENROSE_BUILTIN_RENDERING_VK_RENDER_TARGET_HPP

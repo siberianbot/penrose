@@ -17,6 +17,7 @@
 #include "src/Builtin/Rendering/VkFramebuffer.hpp"
 #include "src/Builtin/Rendering/VkRenderPass.hpp"
 #include "src/Builtin/Rendering/VkRenderTarget.hpp"
+#include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
 
 namespace Penrose {
 
@@ -30,9 +31,7 @@ namespace Penrose {
     RenderGraphExecutor *RenderGraphExecutorProvider::createFor(const RenderGraph &graph) {
         std::map<std::string, VkRenderTarget *> targets;
         for (const auto &[name, target]: graph.getTargets()) {
-            targets.emplace(name, makeVkRenderTarget(this->_deviceContext,
-                                                     this->_presentContext,
-                                                     target));
+            targets.emplace(name, nullptr);
         }
 
         std::map<std::string, RenderOperatorFactory *> factoryMap;
@@ -83,6 +82,7 @@ namespace Penrose {
         }
 
         return new RenderGraphExecutor(this->_deviceContext, this->_presentContext,
+                                       this->_resources->get<VkRenderTargetFactory>(),
                                        graph, targets, subgraphs);
     }
 }
