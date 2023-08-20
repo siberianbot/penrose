@@ -4,52 +4,6 @@
 
 namespace Penrose {
 
-    RenderTargetInfo::RenderTargetInfo(RenderTargetSource source,
-                                       RenderTargetType type,
-                                       RenderFormat format,
-                                       std::optional<Size> size)
-            : _source(source),
-              _type(type),
-              _format(format),
-              _size(std::move(size)) {
-        //
-    }
-
-    RenderTargetInfo &RenderTargetInfo::setSource(RenderTargetSource source) {
-        this->_source = source;
-
-        return *this;
-    }
-
-    RenderTargetInfo &RenderTargetInfo::setType(RenderTargetType type) {
-        this->_type = type;
-
-        return *this;
-    }
-
-    RenderTargetInfo &RenderTargetInfo::setFormat(RenderFormat format) {
-        this->_format = format;
-
-        return *this;
-    }
-
-    RenderTargetInfo &RenderTargetInfo::setSize(std::optional<Size> size) {
-        this->_size = size;
-
-        return *this;
-    }
-
-    RenderTargetInfo RenderTargetInfo::makeSwapchain() {
-        return RenderTargetInfo(RenderTargetSource::Swapchain);
-    }
-
-    RenderTargetInfo RenderTargetInfo::makeImage(RenderTargetType type,
-                                                 RenderFormat format,
-                                                 std::optional<Size> size) {
-        return RenderTargetInfo(RenderTargetSource::Image,
-                                type, format, size);
-    }
-
     RenderAttachmentClearValue::RenderAttachmentClearValue(std::array<float, 4> color,
                                                            float depth,
                                                            std::uint32_t stencil)
@@ -193,7 +147,8 @@ namespace Penrose {
         return *this;
     }
 
-    RenderPassInfo &RenderPassInfo::setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment) {
+    RenderPassInfo &
+    RenderPassInfo::setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment) {
         this->_depthStencilAttachment = depthStencilAttachment;
 
         return *this;
@@ -299,7 +254,8 @@ namespace Penrose {
     RenderGraph RenderGraph::makeDefault() {
         constexpr static const char *SWAPCHAIN_TARGET = "Swapchain";
 
-        auto defaultTarget = RenderTargetInfo::makeSwapchain();
+        auto defaultTarget = RenderTargetInfo(RenderTargetSource::Swapchain);
+
         auto defaultPass = RenderSubgraph()
                 .addAttachment(RenderAttachment(SWAPCHAIN_TARGET)
                                        .setClearValue(RenderAttachmentClearValue().setColor({0, 0, 0, 1}))

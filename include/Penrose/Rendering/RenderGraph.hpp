@@ -10,29 +10,10 @@
 
 #include <Penrose/Common/ParamsCollection.hpp>
 #include <Penrose/Common/Size.hpp>
+#include <Penrose/Rendering/RenderFormat.hpp>
+#include <Penrose/Rendering/RenderTargetInfo.hpp>
 
 namespace Penrose {
-
-    enum class RenderTargetSource {
-        None,
-        Image,
-        Swapchain
-    };
-
-    enum class RenderTargetType : std::uint8_t {
-        None = 0,
-        Input = 1 << 0,
-        Color = 1 << 1,
-        DepthStencil = 1 << 2
-    };
-
-    enum class RenderFormat {
-        None,
-        R8UNorm,
-        RGBA8UNorm,
-        RGBA16Float,
-        D32Float
-    };
 
     enum class RenderAttachmentLayout {
         Undefined,
@@ -50,40 +31,6 @@ namespace Penrose {
     enum class RenderAttachmentStoreOp {
         DontCare,
         Store
-    };
-
-    class RenderTargetInfo {
-    public:
-        explicit RenderTargetInfo(RenderTargetSource source = RenderTargetSource::None,
-                                  RenderTargetType type = RenderTargetType::None,
-                                  RenderFormat format = RenderFormat::None,
-                                  std::optional<Size> size = std::nullopt);
-
-        [[nodiscard]] RenderTargetInfo &setSource(RenderTargetSource source);
-        [[nodiscard]] RenderTargetInfo &setType(RenderTargetType type);
-        [[nodiscard]] RenderTargetInfo &setFormat(RenderFormat format);
-        [[nodiscard]] RenderTargetInfo &setSize(std::optional<Size> size);
-
-        [[nodiscard]] const RenderTargetSource &getSource() const { return this->_source; }
-
-        [[nodiscard]] const RenderTargetType &getType() const { return this->_type; }
-
-        [[nodiscard]] const RenderFormat &getFormat() const { return this->_format; }
-
-        [[nodiscard]] const std::optional<Size> &getSize() const { return this->_size; }
-
-        [[nodiscard]] static RenderTargetInfo makeSwapchain();
-        [[nodiscard]] static RenderTargetInfo makeImage(RenderTargetType type,
-                                                        RenderFormat format,
-                                                        std::optional<Size> size);
-
-        [[nodiscard]] bool operator==(const RenderTargetInfo &rhs) const = default;
-
-    private:
-        RenderTargetSource _source;
-        RenderTargetType _type;
-        RenderFormat _format;
-        std::optional<Size> _size;
     };
 
     class RenderAttachmentClearValue {
