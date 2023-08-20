@@ -15,23 +15,23 @@ namespace Penrose {
 
     class VkRenderTarget {
     public:
-        explicit VkRenderTarget(RenderTarget target);
+        explicit VkRenderTarget(RenderTargetInfo target);
         virtual ~VkRenderTarget() = default;
 
         [[nodiscard]] virtual const vk::ImageView &getView(std::uint32_t imageIdx) const = 0;
 
-        [[nodiscard]] const RenderTarget &getTarget() const { return this->_target; }
+        [[nodiscard]] const RenderTargetInfo &getTarget() const { return this->_target; }
 
         virtual void create() = 0;
         virtual void destroy() = 0;
 
     protected:
-        RenderTarget _target;
+        RenderTargetInfo _target;
     };
 
     class VkSwapchainRenderTarget : public VkRenderTarget {
     public:
-        explicit VkSwapchainRenderTarget(RenderTarget target,
+        explicit VkSwapchainRenderTarget(RenderTargetInfo target,
                                          PresentContext *presentContext);
         ~VkSwapchainRenderTarget() override = default;
 
@@ -47,7 +47,7 @@ namespace Penrose {
 
     class VkImageRenderTarget : public VkRenderTarget {
     public:
-        VkImageRenderTarget(RenderTarget target,
+        VkImageRenderTarget(RenderTargetInfo target,
                             DeviceContext *deviceContext,
                             PresentContext *presentContext);
         ~VkImageRenderTarget() override = default;
@@ -74,7 +74,7 @@ namespace Penrose {
 
     [[nodiscard]] VkRenderTarget *makeVkRenderTarget(DeviceContext *deviceContext,
                                                      PresentContext *presentContext,
-                                                     const RenderTarget &target);
+                                                     const RenderTargetInfo &target);
 }
 
 #endif // PENROSE_BUILTIN_RENDERING_VK_RENDER_TARGET_HPP

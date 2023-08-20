@@ -4,10 +4,10 @@
 
 namespace Penrose {
 
-    RenderTarget::RenderTarget(RenderTargetSource source,
-                               RenderTargetType type,
-                               RenderFormat format,
-                               std::optional<Size> size)
+    RenderTargetInfo::RenderTargetInfo(RenderTargetSource source,
+                                       RenderTargetType type,
+                                       RenderFormat format,
+                                       std::optional<Size> size)
             : _source(source),
               _type(type),
               _format(format),
@@ -15,39 +15,39 @@ namespace Penrose {
         //
     }
 
-    RenderTarget &RenderTarget::setSource(RenderTargetSource source) {
+    RenderTargetInfo &RenderTargetInfo::setSource(RenderTargetSource source) {
         this->_source = source;
 
         return *this;
     }
 
-    RenderTarget &RenderTarget::setType(RenderTargetType type) {
+    RenderTargetInfo &RenderTargetInfo::setType(RenderTargetType type) {
         this->_type = type;
 
         return *this;
     }
 
-    RenderTarget &RenderTarget::setFormat(RenderFormat format) {
+    RenderTargetInfo &RenderTargetInfo::setFormat(RenderFormat format) {
         this->_format = format;
 
         return *this;
     }
 
-    RenderTarget &RenderTarget::setSize(std::optional<Size> size) {
+    RenderTargetInfo &RenderTargetInfo::setSize(std::optional<Size> size) {
         this->_size = size;
 
         return *this;
     }
 
-    RenderTarget RenderTarget::makeSwapchain() {
-        return RenderTarget(RenderTargetSource::Swapchain);
+    RenderTargetInfo RenderTargetInfo::makeSwapchain() {
+        return RenderTargetInfo(RenderTargetSource::Swapchain);
     }
 
-    RenderTarget RenderTarget::makeImage(RenderTargetType type,
-                                         RenderFormat format,
-                                         std::optional<Size> size) {
-        return RenderTarget(RenderTargetSource::Image,
-                            type, format, size);
+    RenderTargetInfo RenderTargetInfo::makeImage(RenderTargetType type,
+                                                 RenderFormat format,
+                                                 std::optional<Size> size) {
+        return RenderTargetInfo(RenderTargetSource::Image,
+                                type, format, size);
     }
 
     RenderAttachmentClearValue::RenderAttachmentClearValue(std::array<float, 4> color,
@@ -162,11 +162,11 @@ namespace Penrose {
         return *this;
     }
 
-    RenderPass::RenderPass(std::vector<std::uint32_t> dependsOn,
-                           std::vector<std::uint32_t> inputAttachments,
-                           std::vector<std::uint32_t> colorAttachments,
-                           std::optional<std::uint32_t> depthStencilAttachment,
-                           std::optional<RenderPassOperator> anOperator)
+    RenderPassInfo::RenderPassInfo(std::vector<std::uint32_t> dependsOn,
+                                   std::vector<std::uint32_t> inputAttachments,
+                                   std::vector<std::uint32_t> colorAttachments,
+                                   std::optional<std::uint32_t> depthStencilAttachment,
+                                   std::optional<RenderPassOperator> anOperator)
             : _dependsOn(std::move(dependsOn)),
               _inputAttachments(std::move(inputAttachments)),
               _colorAttachments(std::move(colorAttachments)),
@@ -175,49 +175,49 @@ namespace Penrose {
         //
     }
 
-    RenderPass &RenderPass::setDependsOn(const std::vector<std::uint32_t> &dependsOn) {
+    RenderPassInfo &RenderPassInfo::setDependsOn(const std::vector<std::uint32_t> &dependsOn) {
         this->_dependsOn = dependsOn;
 
         return *this;
     }
 
-    RenderPass &RenderPass::setInputAttachments(const std::vector<std::uint32_t> &inputAttachments) {
+    RenderPassInfo &RenderPassInfo::setInputAttachments(const std::vector<std::uint32_t> &inputAttachments) {
         this->_inputAttachments = inputAttachments;
 
         return *this;
     }
 
-    RenderPass &RenderPass::setColorAttachments(const std::vector<std::uint32_t> &colorAttachments) {
+    RenderPassInfo &RenderPassInfo::setColorAttachments(const std::vector<std::uint32_t> &colorAttachments) {
         this->_colorAttachments = colorAttachments;
 
         return *this;
     }
 
-    RenderPass &RenderPass::setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment) {
+    RenderPassInfo &RenderPassInfo::setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment) {
         this->_depthStencilAttachment = depthStencilAttachment;
 
         return *this;
     }
 
-    RenderPass &RenderPass::setOperator(const std::optional<RenderPassOperator> &anOperator) {
+    RenderPassInfo &RenderPassInfo::setOperator(const std::optional<RenderPassOperator> &anOperator) {
         this->_operator = anOperator;
 
         return *this;
     }
 
-    RenderPass &RenderPass::addDependencyIdx(std::uint32_t dependencyIdx) {
+    RenderPassInfo &RenderPassInfo::addDependencyIdx(std::uint32_t dependencyIdx) {
         this->_dependsOn.push_back(dependencyIdx);
 
         return *this;
     }
 
-    RenderPass &RenderPass::addInputAttachmentIdx(std::uint32_t attachmentIdx) {
+    RenderPassInfo &RenderPassInfo::addInputAttachmentIdx(std::uint32_t attachmentIdx) {
         this->_inputAttachments.push_back(attachmentIdx);
 
         return *this;
     }
 
-    RenderPass &RenderPass::addColorAttachmentIdx(std::uint32_t attachmentIdx) {
+    RenderPassInfo &RenderPassInfo::addColorAttachmentIdx(std::uint32_t attachmentIdx) {
         this->_colorAttachments.push_back(attachmentIdx);
 
         return *this;
@@ -225,7 +225,7 @@ namespace Penrose {
 
     RenderSubgraph::RenderSubgraph(std::vector<std::string> dependsOn,
                                    std::vector<RenderAttachment> attachments,
-                                   std::vector<RenderPass> passes,
+                                   std::vector<RenderPassInfo> passes,
                                    std::optional<Size> renderArea)
             : _dependsOn(std::move(dependsOn)),
               _attachments(std::move(attachments)),
@@ -246,7 +246,7 @@ namespace Penrose {
         return *this;
     }
 
-    RenderSubgraph &RenderSubgraph::setPasses(const std::vector<RenderPass> &passes) {
+    RenderSubgraph &RenderSubgraph::setPasses(const std::vector<RenderPassInfo> &passes) {
         this->_passes = passes;
 
         return *this;
@@ -270,13 +270,13 @@ namespace Penrose {
         return *this;
     }
 
-    RenderSubgraph &RenderSubgraph::addPass(const RenderPass &pass) {
+    RenderSubgraph &RenderSubgraph::addPass(const RenderPassInfo &pass) {
         this->_passes.push_back(pass);
 
         return *this;
     }
 
-    RenderGraph &RenderGraph::setTarget(const std::string &name, const RenderTarget &target) {
+    RenderGraph &RenderGraph::setTarget(const std::string &name, const RenderTargetInfo &target) {
         this->_targets.insert_or_assign(name, target);
 
         return *this;
@@ -299,7 +299,7 @@ namespace Penrose {
     RenderGraph RenderGraph::makeDefault() {
         constexpr static const char *SWAPCHAIN_TARGET = "Swapchain";
 
-        auto defaultTarget = RenderTarget::makeSwapchain();
+        auto defaultTarget = RenderTargetInfo::makeSwapchain();
         auto defaultPass = RenderSubgraph()
                 .addAttachment(RenderAttachment(SWAPCHAIN_TARGET)
                                        .setClearValue(RenderAttachmentClearValue().setColor({0, 0, 0, 1}))
@@ -307,7 +307,7 @@ namespace Penrose {
                                        .setStoreOp(RenderAttachmentStoreOp::Store)
                                        .setInitialLayout(RenderAttachmentLayout::Undefined)
                                        .setFinalLayout(RenderAttachmentLayout::Present))
-                .addPass(RenderPass().addColorAttachmentIdx(0));
+                .addPass(RenderPassInfo().addColorAttachmentIdx(0));
 
         return RenderGraph()
                 .setTarget(SWAPCHAIN_TARGET, defaultTarget)

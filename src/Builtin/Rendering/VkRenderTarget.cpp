@@ -12,12 +12,12 @@
 
 namespace Penrose {
 
-    VkRenderTarget::VkRenderTarget(RenderTarget target)
+    VkRenderTarget::VkRenderTarget(RenderTargetInfo target)
             : _target(std::move(target)) {
         //
     }
 
-    VkSwapchainRenderTarget::VkSwapchainRenderTarget(RenderTarget target,
+    VkSwapchainRenderTarget::VkSwapchainRenderTarget(RenderTargetInfo target,
                                                      PresentContext *presentContext)
             : VkRenderTarget(target),
               _presentContext(presentContext) {
@@ -28,7 +28,7 @@ namespace Penrose {
         return this->_presentContext->getSwapchainImageViews().at(imageIdx);
     }
 
-    VkImageRenderTarget::VkImageRenderTarget(RenderTarget target,
+    VkImageRenderTarget::VkImageRenderTarget(RenderTargetInfo target,
                                              DeviceContext *deviceContext,
                                              PresentContext *presentContext)
             : VkRenderTarget(target),
@@ -90,7 +90,7 @@ namespace Penrose {
 
     VkRenderTarget *makeVkRenderTarget(DeviceContext *deviceContext,
                                        PresentContext *presentContext,
-                                       const RenderTarget &target) {
+                                       const RenderTargetInfo &target) {
         switch (target.getSource()) {
             case RenderTargetSource::None:
                 throw EngineError("Render target source should be either swapchain or image");

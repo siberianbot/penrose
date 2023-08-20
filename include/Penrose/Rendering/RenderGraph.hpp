@@ -52,17 +52,17 @@ namespace Penrose {
         Store
     };
 
-    class RenderTarget {
+    class RenderTargetInfo {
     public:
-        explicit RenderTarget(RenderTargetSource source = RenderTargetSource::None,
-                              RenderTargetType type = RenderTargetType::None,
-                              RenderFormat format = RenderFormat::None,
-                              std::optional<Size> size = std::nullopt);
+        explicit RenderTargetInfo(RenderTargetSource source = RenderTargetSource::None,
+                                  RenderTargetType type = RenderTargetType::None,
+                                  RenderFormat format = RenderFormat::None,
+                                  std::optional<Size> size = std::nullopt);
 
-        [[nodiscard]] RenderTarget &setSource(RenderTargetSource source);
-        [[nodiscard]] RenderTarget &setType(RenderTargetType type);
-        [[nodiscard]] RenderTarget &setFormat(RenderFormat format);
-        [[nodiscard]] RenderTarget &setSize(std::optional<Size> size);
+        [[nodiscard]] RenderTargetInfo &setSource(RenderTargetSource source);
+        [[nodiscard]] RenderTargetInfo &setType(RenderTargetType type);
+        [[nodiscard]] RenderTargetInfo &setFormat(RenderFormat format);
+        [[nodiscard]] RenderTargetInfo &setSize(std::optional<Size> size);
 
         [[nodiscard]] const RenderTargetSource &getSource() const { return this->_source; }
 
@@ -72,12 +72,12 @@ namespace Penrose {
 
         [[nodiscard]] const std::optional<Size> &getSize() const { return this->_size; }
 
-        [[nodiscard]] static RenderTarget makeSwapchain();
-        [[nodiscard]] static RenderTarget makeImage(RenderTargetType type,
-                                                    RenderFormat format,
-                                                    std::optional<Size> size);
+        [[nodiscard]] static RenderTargetInfo makeSwapchain();
+        [[nodiscard]] static RenderTargetInfo makeImage(RenderTargetType type,
+                                                        RenderFormat format,
+                                                        std::optional<Size> size);
 
-        [[nodiscard]] bool operator==(const RenderTarget &rhs) const = default;
+        [[nodiscard]] bool operator==(const RenderTargetInfo &rhs) const = default;
 
     private:
         RenderTargetSource _source;
@@ -176,23 +176,23 @@ namespace Penrose {
         ParamsCollection _params;
     };
 
-    class RenderPass {
+    class RenderPassInfo {
     public:
-        explicit RenderPass(std::vector<std::uint32_t> dependsOn = {},
-                            std::vector<std::uint32_t> inputAttachments = {},
-                            std::vector<std::uint32_t> colorAttachments = {},
-                            std::optional<std::uint32_t> depthStencilAttachment = std::nullopt,
-                            std::optional<RenderPassOperator> anOperator = std::nullopt);
+        explicit RenderPassInfo(std::vector<std::uint32_t> dependsOn = {},
+                                std::vector<std::uint32_t> inputAttachments = {},
+                                std::vector<std::uint32_t> colorAttachments = {},
+                                std::optional<std::uint32_t> depthStencilAttachment = std::nullopt,
+                                std::optional<RenderPassOperator> anOperator = std::nullopt);
 
-        [[nodiscard]] RenderPass &setDependsOn(const std::vector<std::uint32_t> &dependsOn);
-        [[nodiscard]] RenderPass &setInputAttachments(const std::vector<std::uint32_t> &inputAttachments);
-        [[nodiscard]] RenderPass &setColorAttachments(const std::vector<std::uint32_t> &colorAttachments);
-        [[nodiscard]] RenderPass &setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment);
-        [[nodiscard]] RenderPass &setOperator(const std::optional<RenderPassOperator> &anOperator);
+        [[nodiscard]] RenderPassInfo &setDependsOn(const std::vector<std::uint32_t> &dependsOn);
+        [[nodiscard]] RenderPassInfo &setInputAttachments(const std::vector<std::uint32_t> &inputAttachments);
+        [[nodiscard]] RenderPassInfo &setColorAttachments(const std::vector<std::uint32_t> &colorAttachments);
+        [[nodiscard]] RenderPassInfo &setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment);
+        [[nodiscard]] RenderPassInfo &setOperator(const std::optional<RenderPassOperator> &anOperator);
 
-        [[nodiscard]] RenderPass &addDependencyIdx(std::uint32_t dependencyIdx);
-        [[nodiscard]] RenderPass &addInputAttachmentIdx(std::uint32_t attachmentIdx);
-        [[nodiscard]] RenderPass &addColorAttachmentIdx(std::uint32_t attachmentIdx);
+        [[nodiscard]] RenderPassInfo &addDependencyIdx(std::uint32_t dependencyIdx);
+        [[nodiscard]] RenderPassInfo &addInputAttachmentIdx(std::uint32_t attachmentIdx);
+        [[nodiscard]] RenderPassInfo &addColorAttachmentIdx(std::uint32_t attachmentIdx);
 
         [[nodiscard]] const std::vector<std::uint32_t> &getDependsOn() const { return this->_dependsOn; }
 
@@ -206,7 +206,7 @@ namespace Penrose {
 
         [[nodiscard]] const std::optional<RenderPassOperator> &getOperator() const { return this->_operator; }
 
-        [[nodiscard]] bool operator==(const RenderPass &rhs) const = default;
+        [[nodiscard]] bool operator==(const RenderPassInfo &rhs) const = default;
 
     private:
         std::vector<std::uint32_t> _dependsOn;
@@ -220,23 +220,23 @@ namespace Penrose {
     public:
         explicit RenderSubgraph(std::vector<std::string> dependsOn = {},
                                 std::vector<RenderAttachment> attachments = {},
-                                std::vector<RenderPass> passes = {},
+                                std::vector<RenderPassInfo> passes = {},
                                 std::optional<Size> renderArea = std::nullopt);
 
         [[nodiscard]] RenderSubgraph &setDependsOn(const std::vector<std::string> &dependsOn);
         [[nodiscard]] RenderSubgraph &setAttachments(const std::vector<RenderAttachment> &attachments);
-        [[nodiscard]] RenderSubgraph &setPasses(const std::vector<RenderPass> &passes);
+        [[nodiscard]] RenderSubgraph &setPasses(const std::vector<RenderPassInfo> &passes);
         [[nodiscard]] RenderSubgraph &setRenderArea(const std::optional<Size> &renderArea);
 
         [[nodiscard]] RenderSubgraph &addDependency(const std::string &dependency);
         [[nodiscard]] RenderSubgraph &addAttachment(const RenderAttachment &attachment);
-        [[nodiscard]] RenderSubgraph &addPass(const RenderPass &pass);
+        [[nodiscard]] RenderSubgraph &addPass(const RenderPassInfo &pass);
 
         [[nodiscard]] const std::vector<std::string> &getDependsOn() const { return this->_dependsOn; }
 
         [[nodiscard]] const std::vector<RenderAttachment> &getAttachments() const { return this->_attachments; }
 
-        [[nodiscard]] const std::vector<RenderPass> &getPasses() const { return this->_passes; }
+        [[nodiscard]] const std::vector<RenderPassInfo> &getPasses() const { return this->_passes; }
 
         [[nodiscard]] const std::optional<Size> &getRenderArea() const { return this->_renderArea; }
 
@@ -245,19 +245,19 @@ namespace Penrose {
     private:
         std::vector<std::string> _dependsOn;
         std::vector<RenderAttachment> _attachments;
-        std::vector<RenderPass> _passes;
+        std::vector<RenderPassInfo> _passes;
         std::optional<Size> _renderArea;
     };
 
     class RenderGraph {
     public:
-        RenderGraph &setTarget(const std::string &name, const RenderTarget &target);
+        RenderGraph &setTarget(const std::string &name, const RenderTargetInfo &target);
         void removeTarget(const std::string &name);
 
         RenderGraph &setSubgraph(const std::string &name, const RenderSubgraph &subgraph);
         void removeSubgraph(const std::string &name);
 
-        [[nodiscard]] const std::map<std::string, RenderTarget> &getTargets() const { return this->_targets; }
+        [[nodiscard]] const std::map<std::string, RenderTargetInfo> &getTargets() const { return this->_targets; }
 
         [[nodiscard]] const std::map<std::string, RenderSubgraph> &getSubgraphs() const { return this->_subgraphs; }
 
@@ -266,7 +266,7 @@ namespace Penrose {
         [[nodiscard]] bool operator==(const RenderGraph &rhs) const = default;
 
     private:
-        std::map<std::string, RenderTarget> _targets;
+        std::map<std::string, RenderTargetInfo> _targets;
         std::map<std::string, RenderSubgraph> _subgraphs;
     };
 

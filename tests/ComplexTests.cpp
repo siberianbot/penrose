@@ -77,10 +77,10 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
     assetManager->queueShaderLoading("shaders/default-forward-rendering.vert.spv");
 
     auto graph = RenderGraph()
-            .setTarget("swapchain", RenderTarget::makeSwapchain())
-            .setTarget("depth", RenderTarget::makeImage(RenderTargetType::DepthStencil,
-                                                        RenderFormat::D32Float,
-                                                        std::nullopt))
+            .setTarget("swapchain", RenderTargetInfo::makeSwapchain())
+            .setTarget("depth", RenderTargetInfo::makeImage(RenderTargetType::DepthStencil,
+                                                            RenderFormat::D32Float,
+                                                            std::nullopt))
             .setSubgraph("default", RenderSubgraph()
                     .addAttachment(RenderAttachment("swapchain")
                                            .setClearValue(RenderAttachmentClearValue({0, 0, 0, 1}))
@@ -95,7 +95,7 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
                                            .setStoreOp(RenderAttachmentStoreOp::Store)
                                            .setInitialLayout(RenderAttachmentLayout::Undefined)
                                            .setFinalLayout(RenderAttachmentLayout::DepthStencilAttachment))
-                    .addPass(RenderPass()
+                    .addPass(RenderPassInfo()
                                      .addColorAttachmentIdx(0)
                                      .setDepthStencilAttachment(1)
                                      .setOperator(RenderPassOperator(
@@ -205,10 +205,10 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
     assetManager->queueShaderLoading("shaders/default-forward-rendering.vert.spv");
 
     auto graph = RenderGraph()
-            .setTarget("swapchain", RenderTarget::makeSwapchain())
-            .setTarget("depth", RenderTarget::makeImage(RenderTargetType::DepthStencil,
-                                                        RenderFormat::D32Float,
-                                                        std::nullopt))
+            .setTarget("swapchain", RenderTargetInfo::makeSwapchain())
+            .setTarget("depth", RenderTargetInfo::makeImage(RenderTargetType::DepthStencil,
+                                                            RenderFormat::D32Float,
+                                                            std::nullopt))
             .setSubgraph("default", RenderSubgraph()
                     .addAttachment(RenderAttachment("swapchain")
                                            .setClearValue(RenderAttachmentClearValue({0, 0, 0, 1}))
@@ -223,7 +223,7 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
                                            .setStoreOp(RenderAttachmentStoreOp::Store)
                                            .setInitialLayout(RenderAttachmentLayout::Undefined)
                                            .setFinalLayout(RenderAttachmentLayout::DepthStencilAttachment))
-                    .addPass(RenderPass()
+                    .addPass(RenderPassInfo()
                                      .addColorAttachmentIdx(0)
                                      .setDepthStencilAttachment(1)
                                      .setOperator(RenderPassOperator(
