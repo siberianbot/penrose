@@ -99,7 +99,7 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
                     .addPass(RenderPassInfo()
                                      .addColorAttachmentIdx(0)
                                      .setDepthStencilAttachment(1)
-                                     .setOperator(RenderPassOperator(
+                                     .setOperator(RenderOperatorInfo(
                                              std::string(ForwardSceneDrawRenderOperator::NAME))))
             );
 
@@ -228,7 +228,7 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
                     .addPass(RenderPassInfo()
                                      .addColorAttachmentIdx(0)
                                      .setDepthStencilAttachment(1)
-                                     .setOperator(RenderPassOperator(
+                                     .setOperator(RenderOperatorInfo(
                                              std::string(ForwardSceneDrawRenderOperator::NAME))))
             );
 

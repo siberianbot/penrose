@@ -8,35 +8,13 @@
 #include <string>
 #include <vector>
 
-#include <Penrose/Common/ParamsCollection.hpp>
 #include <Penrose/Common/Size.hpp>
 #include <Penrose/Rendering/RenderAttachmentInfo.hpp>
 #include <Penrose/Rendering/RenderFormat.hpp>
+#include <Penrose/Rendering/RenderOperatorInfo.hpp>
 #include <Penrose/Rendering/RenderTargetInfo.hpp>
 
 namespace Penrose {
-
-    class RenderPassOperator {
-    public:
-        explicit RenderPassOperator(std::string name,
-                                    ParamsCollection params = {});
-
-        [[nodiscard]] RenderPassOperator &setName(std::string name);
-        [[nodiscard]] RenderPassOperator &setParams(ParamsCollection params);
-
-        [[nodiscard]] RenderPassOperator &withParameter(const ParamsCollection::KeyView &key,
-                                                        const ParamsCollection::Value &value);
-
-        [[nodiscard]] const std::string &getName() const { return this->_name; }
-
-        [[nodiscard]] const ParamsCollection &getParams() const { return this->_params; }
-
-        [[nodiscard]] bool operator==(const RenderPassOperator &rhs) const = default;
-
-    private:
-        std::string _name;
-        ParamsCollection _params;
-    };
 
     class RenderPassInfo {
     public:
@@ -44,14 +22,14 @@ namespace Penrose {
                                 std::vector<std::uint32_t> inputAttachments = {},
                                 std::vector<std::uint32_t> colorAttachments = {},
                                 std::optional<std::uint32_t> depthStencilAttachment = std::nullopt,
-                                std::optional<RenderPassOperator> anOperator = std::nullopt);
+                                std::optional<RenderOperatorInfo> anOperator = std::nullopt);
 
         [[nodiscard]] RenderPassInfo &setDependsOn(const std::vector<std::uint32_t> &dependsOn);
         [[nodiscard]] RenderPassInfo &setInputAttachments(const std::vector<std::uint32_t> &inputAttachments);
         [[nodiscard]] RenderPassInfo &setColorAttachments(const std::vector<std::uint32_t> &colorAttachments);
         [[nodiscard]] RenderPassInfo &
         setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment);
-        [[nodiscard]] RenderPassInfo &setOperator(const std::optional<RenderPassOperator> &anOperator);
+        [[nodiscard]] RenderPassInfo &setOperator(const std::optional<RenderOperatorInfo> &anOperator);
 
         [[nodiscard]] RenderPassInfo &addDependencyIdx(std::uint32_t dependencyIdx);
         [[nodiscard]] RenderPassInfo &addInputAttachmentIdx(std::uint32_t attachmentIdx);
@@ -67,7 +45,7 @@ namespace Penrose {
             return this->_depthStencilAttachment;
         }
 
-        [[nodiscard]] const std::optional<RenderPassOperator> &getOperator() const { return this->_operator; }
+        [[nodiscard]] const std::optional<RenderOperatorInfo> &getOperator() const { return this->_operator; }
 
         [[nodiscard]] bool operator==(const RenderPassInfo &rhs) const = default;
 
@@ -76,7 +54,7 @@ namespace Penrose {
         std::vector<std::uint32_t> _inputAttachments;
         std::vector<std::uint32_t> _colorAttachments;
         std::optional<std::uint32_t> _depthStencilAttachment;
-        std::optional<RenderPassOperator> _operator;
+        std::optional<RenderOperatorInfo> _operator;
     };
 
     class RenderSubgraph {

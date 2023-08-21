@@ -4,37 +4,11 @@
 
 namespace Penrose {
 
-    RenderPassOperator::RenderPassOperator(std::string name,
-                                           ParamsCollection params)
-            : _name(std::move(name)),
-              _params(std::move(params)) {
-        //
-    }
-
-    RenderPassOperator &RenderPassOperator::setName(std::string name) {
-        this->_name = std::move(name);
-
-        return *this;
-    }
-
-    RenderPassOperator &RenderPassOperator::setParams(ParamsCollection params) {
-        this->_params = std::move(params);
-
-        return *this;
-    }
-
-    RenderPassOperator &RenderPassOperator::withParameter(const ParamsCollection::KeyView &key,
-                                                          const ParamsCollection::Value &value) {
-        this->_params.set(key, value);
-
-        return *this;
-    }
-
     RenderPassInfo::RenderPassInfo(std::vector<std::uint32_t> dependsOn,
                                    std::vector<std::uint32_t> inputAttachments,
                                    std::vector<std::uint32_t> colorAttachments,
                                    std::optional<std::uint32_t> depthStencilAttachment,
-                                   std::optional<RenderPassOperator> anOperator)
+                                   std::optional<RenderOperatorInfo> anOperator)
             : _dependsOn(std::move(dependsOn)),
               _inputAttachments(std::move(inputAttachments)),
               _colorAttachments(std::move(colorAttachments)),
@@ -68,7 +42,7 @@ namespace Penrose {
         return *this;
     }
 
-    RenderPassInfo &RenderPassInfo::setOperator(const std::optional<RenderPassOperator> &anOperator) {
+    RenderPassInfo &RenderPassInfo::setOperator(const std::optional<RenderOperatorInfo> &anOperator) {
         this->_operator = anOperator;
 
         return *this;
