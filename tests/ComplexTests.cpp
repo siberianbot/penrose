@@ -96,10 +96,10 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
                                            .setStoreOp(RenderAttachmentStoreOp::Store)
                                            .setInitialLayout(RenderAttachmentLayout::Undefined)
                                            .setFinalLayout(RenderAttachmentLayout::DepthStencilAttachment))
-                    .addPass(RenderPassInfo()
+                    .addPass(RenderSubgraphPassInfo()
                                      .addColorAttachmentIdx(0)
                                      .setDepthStencilAttachment(1)
-                                     .setOperator(RenderOperatorInfo(
+                                     .setOperatorInfo(RenderOperatorInfo(
                                              std::string(ForwardSceneDrawRenderOperator::NAME))))
             );
 
@@ -225,10 +225,10 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
                                            .setStoreOp(RenderAttachmentStoreOp::Store)
                                            .setInitialLayout(RenderAttachmentLayout::Undefined)
                                            .setFinalLayout(RenderAttachmentLayout::DepthStencilAttachment))
-                    .addPass(RenderPassInfo()
+                    .addPass(RenderSubgraphPassInfo()
                                      .addColorAttachmentIdx(0)
                                      .setDepthStencilAttachment(1)
-                                     .setOperator(RenderOperatorInfo(
+                                     .setOperatorInfo(RenderOperatorInfo(
                                              std::string(ForwardSceneDrawRenderOperator::NAME))))
             );
 

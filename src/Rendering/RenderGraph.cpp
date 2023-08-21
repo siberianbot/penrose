@@ -4,71 +4,9 @@
 
 namespace Penrose {
 
-    RenderPassInfo::RenderPassInfo(std::vector<std::uint32_t> dependsOn,
-                                   std::vector<std::uint32_t> inputAttachments,
-                                   std::vector<std::uint32_t> colorAttachments,
-                                   std::optional<std::uint32_t> depthStencilAttachment,
-                                   std::optional<RenderOperatorInfo> anOperator)
-            : _dependsOn(std::move(dependsOn)),
-              _inputAttachments(std::move(inputAttachments)),
-              _colorAttachments(std::move(colorAttachments)),
-              _depthStencilAttachment(depthStencilAttachment),
-              _operator(std::move(anOperator)) {
-        //
-    }
-
-    RenderPassInfo &RenderPassInfo::setDependsOn(const std::vector<std::uint32_t> &dependsOn) {
-        this->_dependsOn = dependsOn;
-
-        return *this;
-    }
-
-    RenderPassInfo &RenderPassInfo::setInputAttachments(const std::vector<std::uint32_t> &inputAttachments) {
-        this->_inputAttachments = inputAttachments;
-
-        return *this;
-    }
-
-    RenderPassInfo &RenderPassInfo::setColorAttachments(const std::vector<std::uint32_t> &colorAttachments) {
-        this->_colorAttachments = colorAttachments;
-
-        return *this;
-    }
-
-    RenderPassInfo &
-    RenderPassInfo::setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment) {
-        this->_depthStencilAttachment = depthStencilAttachment;
-
-        return *this;
-    }
-
-    RenderPassInfo &RenderPassInfo::setOperator(const std::optional<RenderOperatorInfo> &anOperator) {
-        this->_operator = anOperator;
-
-        return *this;
-    }
-
-    RenderPassInfo &RenderPassInfo::addDependencyIdx(std::uint32_t dependencyIdx) {
-        this->_dependsOn.push_back(dependencyIdx);
-
-        return *this;
-    }
-
-    RenderPassInfo &RenderPassInfo::addInputAttachmentIdx(std::uint32_t attachmentIdx) {
-        this->_inputAttachments.push_back(attachmentIdx);
-
-        return *this;
-    }
-
-    RenderPassInfo &RenderPassInfo::addColorAttachmentIdx(std::uint32_t attachmentIdx) {
-        this->_colorAttachments.push_back(attachmentIdx);
-
-        return *this;
-    }
-
     RenderSubgraph::RenderSubgraph(std::vector<std::string> dependsOn,
                                    std::vector<RenderAttachmentInfo> attachments,
-                                   std::vector<RenderPassInfo> passes,
+                                   std::vector<RenderSubgraphPassInfo> passes,
                                    std::optional<Size> renderArea)
             : _dependsOn(std::move(dependsOn)),
               _attachments(std::move(attachments)),
@@ -89,7 +27,7 @@ namespace Penrose {
         return *this;
     }
 
-    RenderSubgraph &RenderSubgraph::setPasses(const std::vector<RenderPassInfo> &passes) {
+    RenderSubgraph &RenderSubgraph::setPasses(const std::vector<RenderSubgraphPassInfo> &passes) {
         this->_passes = passes;
 
         return *this;
@@ -113,7 +51,7 @@ namespace Penrose {
         return *this;
     }
 
-    RenderSubgraph &RenderSubgraph::addPass(const RenderPassInfo &pass) {
+    RenderSubgraph &RenderSubgraph::addPass(const RenderSubgraphPassInfo &pass) {
         this->_passes.push_back(pass);
 
         return *this;
@@ -151,7 +89,7 @@ namespace Penrose {
                                        .setStoreOp(RenderAttachmentStoreOp::Store)
                                        .setInitialLayout(RenderAttachmentLayout::Undefined)
                                        .setFinalLayout(RenderAttachmentLayout::Present))
-                .addPass(RenderPassInfo().addColorAttachmentIdx(0));
+                .addPass(RenderSubgraphPassInfo().addColorAttachmentIdx(0));
 
         return RenderGraph()
                 .setTarget(SWAPCHAIN_TARGET, defaultTarget)
