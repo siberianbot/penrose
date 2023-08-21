@@ -10,7 +10,7 @@ namespace Penrose {
         //
     }
 
-    void RenderContext::setRenderGraph(const std::optional<RenderGraph> &graph) {
+    void RenderContext::setRenderGraph(const std::optional<RenderGraphInfo> &graph) {
         this->_graph = graph;
         this->_eventQueue->push(makeEvent(EventType::RenderGraphModified));
     }

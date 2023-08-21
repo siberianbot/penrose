@@ -28,7 +28,7 @@ namespace Penrose {
         //
     }
 
-    RenderGraphExecutor *RenderGraphExecutorProvider::createFor(const RenderGraph &graph) {
+    RenderGraphExecutor *RenderGraphExecutorProvider::createFor(const RenderGraphInfo &graph) {
         std::map<std::string, VkRenderTarget *> targets;
         for (const auto &[name, target]: graph.getTargets()) {
             targets.emplace(name, nullptr);

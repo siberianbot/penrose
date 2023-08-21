@@ -3,7 +3,7 @@
 
 #include <optional>
 
-#include <Penrose/Rendering/RenderGraph.hpp>
+#include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -16,14 +16,14 @@ namespace Penrose {
         explicit RenderContext(ResourceSet *resources);
         ~RenderContext() override = default;
 
-        void setRenderGraph(const std::optional<RenderGraph> &graph);
+        void setRenderGraph(const std::optional<RenderGraphInfo> &graph);
 
-        [[nodiscard]] const std::optional<RenderGraph> &getRenderGraph() { return this->_graph; }
+        [[nodiscard]] const std::optional<RenderGraphInfo> &getRenderGraph() { return this->_graph; }
 
     private:
         EventQueue *_eventQueue;
 
-        std::optional<RenderGraph> _graph;
+        std::optional<RenderGraphInfo> _graph;
     };
 }
 

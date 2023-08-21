@@ -7,7 +7,7 @@
 
 #include <Penrose/Rendering/Buffer.hpp>
 #include <Penrose/Rendering/Image.hpp>
-#include <Penrose/Rendering/RenderGraph.hpp>
+#include <Penrose/Rendering/RenderGraphInfo.hpp>
 
 namespace Penrose {
 

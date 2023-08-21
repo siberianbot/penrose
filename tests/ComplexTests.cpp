@@ -76,7 +76,7 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
     assetManager->queueShaderLoading("shaders/default-forward-rendering.frag.spv");
     assetManager->queueShaderLoading("shaders/default-forward-rendering.vert.spv");
 
-    auto graph = RenderGraph()
+    auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
             .setTarget("depth", RenderTargetInfo(RenderTargetSource::Image,
                                                  RenderTargetType::DepthStencil,
@@ -205,7 +205,7 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
     assetManager->queueShaderLoading("shaders/default-forward-rendering.frag.spv");
     assetManager->queueShaderLoading("shaders/default-forward-rendering.vert.spv");
 
-    auto graph = RenderGraph()
+    auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
             .setTarget("depth", RenderTargetInfo(RenderTargetSource::Image,
                                                  RenderTargetType::DepthStencil,

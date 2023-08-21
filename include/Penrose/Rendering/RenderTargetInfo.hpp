@@ -23,6 +23,10 @@ namespace Penrose {
         DepthStencil = 1 << 2
     };
 
+    [[nodiscard]] constexpr std::uint8_t operator&(const RenderTargetType &lhs, const RenderTargetType &rhs) {
+        return static_cast<std::uint8_t>(lhs) & static_cast<std::uint8_t>(rhs);
+    }
+
     class RenderTargetInfo {
     public:
         explicit constexpr RenderTargetInfo(RenderTargetSource source = RenderTargetSource::None,

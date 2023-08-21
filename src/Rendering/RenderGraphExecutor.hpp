@@ -9,7 +9,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Rendering/RenderGraph.hpp>
+#include <Penrose/Rendering/RenderGraphInfo.hpp>
 
 namespace Penrose {
 
@@ -34,7 +34,7 @@ namespace Penrose {
         RenderGraphExecutor(DeviceContext *deviceContext,
                             PresentContext *presentContext,
                             VkRenderTargetFactory *vkRenderTargetFactory,
-                            RenderGraph graph,
+                            RenderGraphInfo graph,
                             std::map<std::string, VkRenderTarget *> targets,
                             std::map<std::string, SubgraphEntry> subgraphs);
         ~RenderGraphExecutor();
@@ -53,7 +53,7 @@ namespace Penrose {
         PresentContext *_presentContext;
         VkRenderTargetFactory *_vkRenderTargetFactory;
 
-        RenderGraph _graph;
+        RenderGraphInfo _graph;
         std::map<std::string, VkRenderTarget *> _targets;
         std::map<std::string, SubgraphEntry> _subgraphs;
     };

@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Rendering/RenderGraph.hpp>
+#include <Penrose/Rendering/RenderGraphInfo.hpp>
 
 #include "src/Constants.hpp"
 

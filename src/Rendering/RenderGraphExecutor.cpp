@@ -22,7 +22,7 @@ namespace Penrose {
     RenderGraphExecutor::RenderGraphExecutor(DeviceContext *deviceContext,
                                              PresentContext *presentContext,
                                              VkRenderTargetFactory *vkRenderTargetFactory,
-                                             RenderGraph graph,
+                                             RenderGraphInfo graph,
                                              std::map<std::string, VkRenderTarget *> targets,
                                              std::map<std::string, SubgraphEntry> subgraphs)
             : _deviceContext(deviceContext),
