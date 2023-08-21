@@ -4,92 +4,6 @@
 
 namespace Penrose {
 
-    RenderAttachmentClearValue::RenderAttachmentClearValue(std::array<float, 4> color,
-                                                           float depth,
-                                                           std::uint32_t stencil)
-            : _color(color),
-              _depth(depth),
-              _stencil(stencil) {
-        //
-    }
-
-    RenderAttachmentClearValue &RenderAttachmentClearValue::setColor(std::array<float, 4> color) {
-        this->_color = color;
-
-        return *this;
-    }
-
-    RenderAttachmentClearValue &RenderAttachmentClearValue::setDepth(float depth) {
-        this->_depth = depth;
-
-        return *this;
-    }
-
-    RenderAttachmentClearValue &RenderAttachmentClearValue::setStencil(std::uint32_t stencil) {
-        this->_stencil = stencil;
-
-        return *this;
-    }
-
-    RenderAttachment::RenderAttachment(std::string target,
-                                       RenderFormat format,
-                                       RenderAttachmentClearValue clearValue,
-                                       RenderAttachmentLoadOp loadOp,
-                                       RenderAttachmentStoreOp storeOp,
-                                       RenderAttachmentLayout initialLayout,
-                                       RenderAttachmentLayout finalLayout)
-            : _target(std::move(target)),
-              _format(format),
-              _clearValue(clearValue),
-              _loadOp(loadOp),
-              _storeOp(storeOp),
-              _initialLayout(initialLayout),
-              _finalLayout(finalLayout) {
-        //
-    }
-
-    RenderAttachment &RenderAttachment::setTarget(std::string target) {
-        this->_target = std::move(target);
-
-        return *this;
-    }
-
-    RenderAttachment &RenderAttachment::setFormat(RenderFormat format) {
-        this->_format = format;
-
-        return *this;
-    }
-
-    RenderAttachment &RenderAttachment::setClearValue(RenderAttachmentClearValue clearValue) {
-        this->_clearValue = clearValue;
-
-        return *this;
-    }
-
-    RenderAttachment &RenderAttachment::setLoadOp(RenderAttachmentLoadOp loadOp) {
-        this->_loadOp = loadOp;
-
-        return *this;
-    }
-
-    RenderAttachment &RenderAttachment::setStoreOp(RenderAttachmentStoreOp storeOp) {
-        this->_storeOp = storeOp;
-
-        return *this;
-    }
-
-    RenderAttachment &RenderAttachment::setInitialLayout(RenderAttachmentLayout initialLayout) {
-        this->_initialLayout = initialLayout;
-
-        return *this;
-    }
-
-    RenderAttachment &RenderAttachment::setFinalLayout(RenderAttachmentLayout finalLayout) {
-        this->_finalLayout = finalLayout;
-
-        return *this;
-    }
-
     RenderPassOperator::RenderPassOperator(std::string name,
                                            ParamsCollection params)
             : _name(std::move(name)),
@@ -179,7 +93,7 @@ namespace Penrose {
     }
 
     RenderSubgraph::RenderSubgraph(std::vector<std::string> dependsOn,
-                                   std::vector<RenderAttachment> attachments,
+                                   std::vector<RenderAttachmentInfo> attachments,
                                    std::vector<RenderPassInfo> passes,
                                    std::optional<Size> renderArea)
             : _dependsOn(std::move(dependsOn)),
@@ -195,7 +109,7 @@ namespace Penrose {
         return *this;
     }
 
-    RenderSubgraph &RenderSubgraph::setAttachments(const std::vector<RenderAttachment> &attachments) {
+    RenderSubgraph &RenderSubgraph::setAttachments(const std::vector<RenderAttachmentInfo> &attachments) {
         this->_attachments = attachments;
 
         return *this;
@@ -219,7 +133,7 @@ namespace Penrose {
         return *this;
     }
 
-    RenderSubgraph &RenderSubgraph::addAttachment(const RenderAttachment &attachment) {
+    RenderSubgraph &RenderSubgraph::addAttachment(const RenderAttachmentInfo &attachment) {
         this->_attachments.push_back(attachment);
 
         return *this;
@@ -257,8 +171,8 @@ namespace Penrose {
         auto defaultTarget = RenderTargetInfo(RenderTargetSource::Swapchain);
 
         auto defaultPass = RenderSubgraph()
-                .addAttachment(RenderAttachment(SWAPCHAIN_TARGET)
-                                       .setClearValue(RenderAttachmentClearValue().setColor({0, 0, 0, 1}))
+                .addAttachment(RenderAttachmentInfo(SWAPCHAIN_TARGET)
+                                       .setClearValue(RenderAttachmentClearValueInfo().setColor({0, 0, 0, 1}))
                                        .setLoadOp(RenderAttachmentLoadOp::Clear)
                                        .setStoreOp(RenderAttachmentStoreOp::Store)
                                        .setInitialLayout(RenderAttachmentLayout::Undefined)

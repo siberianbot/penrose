@@ -10,96 +10,11 @@
 
 #include <Penrose/Common/ParamsCollection.hpp>
 #include <Penrose/Common/Size.hpp>
+#include <Penrose/Rendering/RenderAttachmentInfo.hpp>
 #include <Penrose/Rendering/RenderFormat.hpp>
 #include <Penrose/Rendering/RenderTargetInfo.hpp>
 
 namespace Penrose {
-
-    enum class RenderAttachmentLayout {
-        Undefined,
-        ColorAttachment,
-        DepthStencilAttachment,
-        Present
-    };
-
-    enum class RenderAttachmentLoadOp {
-        DontCare,
-        Load,
-        Clear
-    };
-
-    enum class RenderAttachmentStoreOp {
-        DontCare,
-        Store
-    };
-
-    class RenderAttachmentClearValue {
-    public:
-        explicit RenderAttachmentClearValue(std::array<float, 4> color = {},
-                                            float depth = 0,
-                                            std::uint32_t stencil = 0);
-
-        [[nodiscard]] RenderAttachmentClearValue &setColor(std::array<float, 4> color);
-        [[nodiscard]] RenderAttachmentClearValue &setDepth(float depth);
-        [[nodiscard]] RenderAttachmentClearValue &setStencil(std::uint32_t stencil);
-
-        [[nodiscard]] const std::array<float, 4> &getColor() const { return this->_color; }
-
-        [[nodiscard]] const float &getDepth() const { return this->_depth; }
-
-        [[nodiscard]] const std::uint32_t &getStencil() const { return this->_stencil; }
-
-        [[nodiscard]] bool operator==(const RenderAttachmentClearValue &rhs) const = default;
-
-    private:
-        std::array<float, 4> _color;
-        float _depth;
-        std::uint32_t _stencil;
-    };
-
-    class RenderAttachment {
-    public:
-        explicit RenderAttachment(std::string target,
-                                  RenderFormat format = RenderFormat::None,
-                                  RenderAttachmentClearValue clearValue = RenderAttachmentClearValue{},
-                                  RenderAttachmentLoadOp loadOp = RenderAttachmentLoadOp::DontCare,
-                                  RenderAttachmentStoreOp storeOp = RenderAttachmentStoreOp::DontCare,
-                                  RenderAttachmentLayout initialLayout = RenderAttachmentLayout::Undefined,
-                                  RenderAttachmentLayout finalLayout = RenderAttachmentLayout::Undefined);
-
-        [[nodiscard]] RenderAttachment &setTarget(std::string target);
-        [[nodiscard]] RenderAttachment &setFormat(RenderFormat format);
-        [[nodiscard]] RenderAttachment &setClearValue(RenderAttachmentClearValue clearValue);
-        [[nodiscard]] RenderAttachment &setLoadOp(RenderAttachmentLoadOp loadOp);
-        [[nodiscard]] RenderAttachment &setStoreOp(RenderAttachmentStoreOp storeOp);
-        [[nodiscard]] RenderAttachment &setInitialLayout(RenderAttachmentLayout initialLayout);
-        [[nodiscard]] RenderAttachment &setFinalLayout(RenderAttachmentLayout finalLayout);
-
-        [[nodiscard]] const std::string &getTarget() const { return this->_target; }
-
-        [[nodiscard]] const RenderFormat &getFormat() const { return this->_format; }
-
-        [[nodiscard]] const RenderAttachmentClearValue &getClearValue() const { return this->_clearValue; }
-
-        [[nodiscard]] const RenderAttachmentLoadOp &getLoadOp() const { return this->_loadOp; }
-
-        [[nodiscard]] const RenderAttachmentStoreOp &getStoreOp() const { return this->_storeOp; }
-
-        [[nodiscard]] const RenderAttachmentLayout &getInitialLayout() const { return this->_initialLayout; }
-
-        [[nodiscard]] const RenderAttachmentLayout &getFinalLayout() const { return this->_finalLayout; }
-
-        [[nodiscard]] bool operator==(const RenderAttachment &rhs) const = default;
-
-    private:
-        std::string _target;
-        RenderFormat _format;
-        RenderAttachmentClearValue _clearValue;
-        RenderAttachmentLoadOp _loadOp;
-        RenderAttachmentStoreOp _storeOp;
-        RenderAttachmentLayout _initialLayout;
-        RenderAttachmentLayout _finalLayout;
-    };
 
     class RenderPassOperator {
     public:
@@ -134,7 +49,8 @@ namespace Penrose {
         [[nodiscard]] RenderPassInfo &setDependsOn(const std::vector<std::uint32_t> &dependsOn);
         [[nodiscard]] RenderPassInfo &setInputAttachments(const std::vector<std::uint32_t> &inputAttachments);
         [[nodiscard]] RenderPassInfo &setColorAttachments(const std::vector<std::uint32_t> &colorAttachments);
-        [[nodiscard]] RenderPassInfo &setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment);
+        [[nodiscard]] RenderPassInfo &
+        setDepthStencilAttachment(const std::optional<std::uint32_t> &depthStencilAttachment);
         [[nodiscard]] RenderPassInfo &setOperator(const std::optional<RenderPassOperator> &anOperator);
 
         [[nodiscard]] RenderPassInfo &addDependencyIdx(std::uint32_t dependencyIdx);
@@ -166,22 +82,22 @@ namespace Penrose {
     class RenderSubgraph {
     public:
         explicit RenderSubgraph(std::vector<std::string> dependsOn = {},
-                                std::vector<RenderAttachment> attachments = {},
+                                std::vector<RenderAttachmentInfo> attachments = {},
                                 std::vector<RenderPassInfo> passes = {},
                                 std::optional<Size> renderArea = std::nullopt);
 
         [[nodiscard]] RenderSubgraph &setDependsOn(const std::vector<std::string> &dependsOn);
-        [[nodiscard]] RenderSubgraph &setAttachments(const std::vector<RenderAttachment> &attachments);
+        [[nodiscard]] RenderSubgraph &setAttachments(const std::vector<RenderAttachmentInfo> &attachments);
         [[nodiscard]] RenderSubgraph &setPasses(const std::vector<RenderPassInfo> &passes);
         [[nodiscard]] RenderSubgraph &setRenderArea(const std::optional<Size> &renderArea);
 
         [[nodiscard]] RenderSubgraph &addDependency(const std::string &dependency);
-        [[nodiscard]] RenderSubgraph &addAttachment(const RenderAttachment &attachment);
+        [[nodiscard]] RenderSubgraph &addAttachment(const RenderAttachmentInfo &attachment);
         [[nodiscard]] RenderSubgraph &addPass(const RenderPassInfo &pass);
 
         [[nodiscard]] const std::vector<std::string> &getDependsOn() const { return this->_dependsOn; }
 
-        [[nodiscard]] const std::vector<RenderAttachment> &getAttachments() const { return this->_attachments; }
+        [[nodiscard]] const std::vector<RenderAttachmentInfo> &getAttachments() const { return this->_attachments; }
 
         [[nodiscard]] const std::vector<RenderPassInfo> &getPasses() const { return this->_passes; }
 
@@ -191,7 +107,7 @@ namespace Penrose {
 
     private:
         std::vector<std::string> _dependsOn;
-        std::vector<RenderAttachment> _attachments;
+        std::vector<RenderAttachmentInfo> _attachments;
         std::vector<RenderPassInfo> _passes;
         std::optional<Size> _renderArea;
     };

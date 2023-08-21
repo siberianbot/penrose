@@ -35,7 +35,7 @@ namespace Penrose {
 
         auto attachments = std::vector<vk::AttachmentDescription>(subgraph.getAttachments().size());
         std::transform(subgraph.getAttachments().begin(), subgraph.getAttachments().end(), attachments.begin(),
-                       [&defaultFormat](const RenderAttachment &attachment) {
+                       [&defaultFormat](const RenderAttachmentInfo &attachment) {
                            return vk::AttachmentDescription()
                                    .setFormat(toVkFormat(attachment.getFormat()).value_or(defaultFormat))
                                    .setLoadOp(toVkAttachmentLoadOp(attachment.getLoadOp()))

@@ -32,7 +32,7 @@ namespace Penrose {
                 : _source(source),
                   _type(type),
                   _format(format),
-                  _size(std::move(size)) {
+                  _size(size) {
             //
         }
 
@@ -54,7 +54,7 @@ namespace Penrose {
             return *this;
         }
 
-        [[nodiscard]] constexpr RenderTargetInfo &setSize(std::optional<Size> size) {
+        [[nodiscard]] constexpr RenderTargetInfo &setSize(std::optional<Size> &&size) {
             this->_size = size;
 
             return *this;
