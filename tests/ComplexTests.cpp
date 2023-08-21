@@ -82,7 +82,7 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
                                                  RenderTargetType::DepthStencil,
                                                  RenderFormat::D32Float,
                                                  std::nullopt))
-            .setSubgraph("default", RenderSubgraph()
+            .setSubgraph("default", RenderSubgraphInfo()
                     .addAttachment(RenderAttachmentInfo("swapchain")
                                            .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
                                            .setLoadOp(RenderAttachmentLoadOp::Clear)
@@ -211,7 +211,7 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
                                                  RenderTargetType::DepthStencil,
                                                  RenderFormat::D32Float,
                                                  std::nullopt))
-            .setSubgraph("default", RenderSubgraph()
+            .setSubgraph("default", RenderSubgraphInfo()
                     .addAttachment(RenderAttachmentInfo("swapchain")
                                            .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
                                            .setLoadOp(RenderAttachmentLoadOp::Clear)

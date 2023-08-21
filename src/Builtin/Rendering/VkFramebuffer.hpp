@@ -45,7 +45,7 @@ namespace Penrose {
                                                    PresentContext *presentContext,
                                                    const std::map<std::string, VkRenderTarget *> &targets,
                                                    const vk::RenderPass &renderPass,
-                                                   const RenderSubgraph &subgraph);
+                                                   const RenderSubgraphInfo &subgraph);
 }
 
 #endif // PENROSE_BUILTIN_RENDERING_VK_FRAMEBUFFER_HPP

@@ -30,7 +30,7 @@ namespace Penrose {
 
     VkRenderPass *makeVkRenderPass(DeviceContext *deviceContext,
                                    PresentContext *presentContext,
-                                   const RenderSubgraph &subgraph) {
+                                   const RenderSubgraphInfo &subgraph) {
         auto defaultFormat = presentContext->getSwapchainFormat();
 
         auto attachments = std::vector<vk::AttachmentDescription>(subgraph.getAttachments().size());

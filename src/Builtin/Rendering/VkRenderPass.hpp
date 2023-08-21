@@ -36,7 +36,7 @@ namespace Penrose {
 
     [[nodiscard]] VkRenderPass *makeVkRenderPass(DeviceContext *deviceContext,
                                                  PresentContext *presentContext,
-                                                 const RenderSubgraph &subgraph);
+                                                 const RenderSubgraphInfo &subgraph);
 }
 
 #endif // PENROSE_BUILTIN_RENDERING_VK_RENDER_PASS_HPP

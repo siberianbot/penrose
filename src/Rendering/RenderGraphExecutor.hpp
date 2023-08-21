@@ -25,7 +25,7 @@ namespace Penrose {
     class RenderGraphExecutor {
     public:
         struct SubgraphEntry {
-            RenderSubgraph subgraph;
+            RenderSubgraphInfo subgraph;
             VkRenderPass *renderPass;
             std::vector<RenderOperator *> renderOperators;
             VkFramebuffer *framebuffer;

@@ -34,7 +34,7 @@ namespace Penrose {
                                      PresentContext *presentContext,
                                      const std::map<std::string, VkRenderTarget *> &targets,
                                      const vk::RenderPass &renderPass,
-                                     const RenderSubgraph &subgraph) {
+                                     const RenderSubgraphInfo &subgraph) {
         auto swapchainExtent = presentContext->getSwapchainExtent();
         auto [width, height] = subgraph.getRenderArea()
                 .value_or(Size(swapchainExtent.width, swapchainExtent.height));
