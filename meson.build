@@ -47,7 +47,6 @@ src = [
 
     # Rendering
     'src/Rendering/DeviceContext.cpp',
-    'src/Rendering/PipelineInfo.cpp',
     'src/Rendering/PresentContext.cpp',
     'src/Rendering/RenderContext.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
