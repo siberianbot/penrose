@@ -8,6 +8,7 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/RenderOperatorFactory.hpp>
+#include <Penrose/Rendering/RenderSubgraphFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
@@ -15,7 +16,7 @@
 #include "src/Rendering/RenderGraphExecutor.hpp"
 
 #include "src/Builtin/Rendering/VkFramebuffer.hpp"
-#include "src/Builtin/Rendering/VkRenderPass.hpp"
+#include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 #include "src/Builtin/Rendering/VkRenderTarget.hpp"
 #include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
 
@@ -24,7 +25,8 @@ namespace Penrose {
     RenderGraphExecutorProvider::RenderGraphExecutorProvider(ResourceSet *resources)
             : _resources(resources),
               _deviceContext(resources->get<DeviceContext>()),
-              _presentContext(resources->get<PresentContext>()) {
+              _presentContext(resources->get<PresentContext>()),
+              _renderSubgraphFactory(resources->get<RenderSubgraphFactory>()) {
         //
     }
 
@@ -43,9 +45,8 @@ namespace Penrose {
 
         std::map<std::string, RenderGraphExecutor::SubgraphEntry> subgraphs;
         for (const auto &[name, subgraph]: graph.getSubgraphs()) {
-            auto renderPass = makeVkRenderPass(this->_deviceContext,
-                                               this->_presentContext,
-                                               subgraph);
+            auto renderSubgraph = dynamic_cast<VkRenderSubgraph *>(
+                    this->_renderSubgraphFactory->makeRenderSubgraph(subgraph));
 
             auto operators = std::vector<RenderOperator *>(subgraph.getPasses().size());
             for (std::uint32_t passIdx = 0; passIdx < subgraph.getPasses().size(); passIdx++) {
@@ -66,7 +67,7 @@ namespace Penrose {
                 auto createContext = RenderOperatorFactory::Context{
                         .params =factoryIt->second->defaults()
                                 .merge(pass.getOperator()->getParams()),
-                        .renderPass = renderPass->getRenderPass(),
+                        .renderPass = renderSubgraph->getRenderPass(),
                         .subpassIdx = passIdx
                 };
 
@@ -74,8 +75,7 @@ namespace Penrose {
             }
 
             subgraphs.emplace(name, RenderGraphExecutor::SubgraphEntry{
-                    .subgraph = subgraph,
-                    .renderPass = renderPass,
+                    .renderSubgraph = renderSubgraph,
                     .renderOperators = std::move(operators),
                     .framebuffer = nullptr
             });

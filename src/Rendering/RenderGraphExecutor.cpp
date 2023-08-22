@@ -9,7 +9,7 @@
 #include "src/Rendering/PresentContext.hpp"
 
 #include "src/Builtin/Rendering/VkFramebuffer.hpp"
-#include "src/Builtin/Rendering/VkRenderPass.hpp"
+#include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 #include "src/Builtin/Rendering/VkRenderTarget.hpp"
 #include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
 
@@ -46,7 +46,7 @@ namespace Penrose {
                 delete renderOperator;
             }
 
-            delete subgraph.renderPass;
+            delete subgraph.renderSubgraph;
         }
 
         this->_targets.clear();
@@ -73,7 +73,7 @@ namespace Penrose {
             }
 
             auto renderPassBeginInfo = vk::RenderPassBeginInfo()
-                    .setRenderPass(subgraph.renderPass->getRenderPass())
+                    .setRenderPass(subgraph.renderSubgraph->getRenderPass())
                     .setFramebuffer(subgraph.framebuffer->getFramebuffer(imageIdx))
                     .setClearValues(subgraph.framebuffer->getClearValues())
                     .setRenderArea(subgraph.framebuffer->getRenderArea());
@@ -122,8 +122,8 @@ namespace Penrose {
             auto framebuffer = makeVkFramebuffer(this->_deviceContext,
                                                  this->_presentContext,
                                                  this->_targets,
-                                                 subgraph.renderPass->getRenderPass(),
-                                                 subgraph.subgraph);
+                                                 subgraph.renderSubgraph->getRenderPass(),
+                                                 subgraph.renderSubgraph->getSubgraphInfo());
 
             subgraph.framebuffer = framebuffer;
         }

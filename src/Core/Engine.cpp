@@ -31,6 +31,7 @@
 #include "src/Builtin/Assets/VkShaderAssetFactory.hpp"
 #include "src/Builtin/Rendering/VkBufferFactory.hpp"
 #include "src/Builtin/Rendering/VkImageFactory.hpp"
+#include "src/Builtin/Rendering/VkRenderSubgraphFactory.hpp"
 #include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
 #include "src/Builtin/Rendering/VkShaderFactory.hpp"
 
@@ -57,6 +58,7 @@ namespace Penrose {
         this->_resources.add<BufferFactory, VkBufferFactory>();
         this->_resources.add<ImageFactory, VkImageFactory>();
         this->_resources.add<ShaderFactory, VkShaderFactory>();
+        this->_resources.add<RenderSubgraphFactory, VkRenderSubgraphFactory>();
         this->_resources.add<RenderTargetFactory, VkRenderTargetFactory>();
 
         // asset

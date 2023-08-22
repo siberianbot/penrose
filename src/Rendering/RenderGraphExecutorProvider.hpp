@@ -10,6 +10,7 @@ namespace Penrose {
     class DeviceContext;
     class PresentContext;
     class RenderGraphExecutor;
+    class RenderSubgraphFactory;
 
     class RenderGraphExecutorProvider : public Resource {
     public:
@@ -22,6 +23,7 @@ namespace Penrose {
         ResourceSet *_resources;
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
+        RenderSubgraphFactory *_renderSubgraphFactory;
     };
 }
 

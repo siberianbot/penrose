@@ -1,40 +1,26 @@
-#include "VkRenderPass.hpp"
+#include "VkRenderSubgraphFactory.hpp"
 
-#include <list>
-#include <vector>
+#include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Constants.hpp"
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 
+#include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 #include "src/Builtin/Rendering/VkUtils.hpp"
 
 namespace Penrose {
 
-    VkRenderPass::VkRenderPass(DeviceContext *deviceContext,
-                               vk::RenderPass renderPass,
-                               std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> semaphores)
-            : _deviceContext(deviceContext),
-              _renderPass(renderPass),
-              _semaphores(semaphores) {
+    VkRenderSubgraphFactory::VkRenderSubgraphFactory(ResourceSet *resources)
+            : _deviceContext(resources->get<DeviceContext>()),
+              _presentContext(resources->get<PresentContext>()) {
         //
     }
 
-    VkRenderPass::~VkRenderPass() {
-        this->_deviceContext->getLogicalDevice().destroy(this->_renderPass);
+    RenderSubgraph *VkRenderSubgraphFactory::makeRenderSubgraph(const RenderSubgraphInfo &subgraphInfo) {
+        auto defaultFormat = this->_presentContext->getSwapchainFormat();
 
-        for (const auto &semaphore: this->_semaphores) {
-            this->_deviceContext->getLogicalDevice().destroy(semaphore);
-        }
-    }
-
-    VkRenderPass *makeVkRenderPass(DeviceContext *deviceContext,
-                                   PresentContext *presentContext,
-                                   const RenderSubgraphInfo &subgraph) {
-        auto defaultFormat = presentContext->getSwapchainFormat();
-
-        auto attachments = std::vector<vk::AttachmentDescription>(subgraph.getAttachments().size());
-        std::transform(subgraph.getAttachments().begin(), subgraph.getAttachments().end(), attachments.begin(),
+        auto attachments = std::vector<vk::AttachmentDescription>(subgraphInfo.getAttachments().size());
+        std::transform(subgraphInfo.getAttachments().begin(), subgraphInfo.getAttachments().end(), attachments.begin(),
                        [&defaultFormat](const RenderAttachmentInfo &attachment) {
                            return vk::AttachmentDescription()
                                    .setFormat(toVkFormat(attachment.getFormat()).value_or(defaultFormat))
@@ -44,12 +30,12 @@ namespace Penrose {
                                    .setFinalLayout(toVkImageLayout(attachment.getFinalLayout()));
                        });
 
-        auto refsList = std::list<std::vector<vk::AttachmentReference>>(subgraph.getPasses().size());
-        auto subpasses = std::vector<vk::SubpassDescription>(subgraph.getPasses().size());
+        auto refsList = std::list<std::vector<vk::AttachmentReference>>(subgraphInfo.getPasses().size());
+        auto subpasses = std::vector<vk::SubpassDescription>(subgraphInfo.getPasses().size());
         auto dependencies = std::vector<vk::SubpassDependency>();
 
-        for (std::uint32_t passIdx = 0; passIdx < subgraph.getPasses().size(); passIdx++) {
-            auto pass = subgraph.getPasses().at(passIdx);
+        for (std::uint32_t passIdx = 0; passIdx < subgraphInfo.getPasses().size(); passIdx++) {
+            auto pass = subgraphInfo.getPasses().at(passIdx);
 
             auto inputCount = pass.getInputAttachments().size();
             auto colorCount = pass.getColorAttachments().size();
@@ -114,13 +100,15 @@ namespace Penrose {
                 .setSubpasses(subpasses)
                 .setDependencies(dependencies);
 
-        auto renderPass = deviceContext->getLogicalDevice().createRenderPass(renderPassCreateInfo);
+        auto renderPass = this->_deviceContext->getLogicalDevice().createRenderPass(renderPassCreateInfo);
 
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> semaphores;
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            semaphores[idx] = deviceContext->getLogicalDevice().createSemaphore(vk::SemaphoreCreateInfo());
+            semaphores[idx] = this->_deviceContext->getLogicalDevice().createSemaphore(vk::SemaphoreCreateInfo());
         }
 
-        return new VkRenderPass(deviceContext, renderPass, semaphores);
+        return new VkRenderSubgraph(subgraphInfo,
+                                    this->_deviceContext,
+                                    renderPass, semaphores);
     }
 }
