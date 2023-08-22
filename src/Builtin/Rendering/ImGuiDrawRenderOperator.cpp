@@ -10,6 +10,7 @@
 #include "src/Rendering/PresentContext.hpp"
 
 #include "src/Builtin/Backends/VulkanBackend.hpp"
+#include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 
 namespace Penrose {
 
@@ -49,7 +50,7 @@ namespace Penrose {
                 .Queue = this->_deviceContext->getGraphicsQueue(),
                 .PipelineCache = nullptr,
                 .DescriptorPool = this->_deviceContext->getDescriptorPool(),
-                .Subpass = context.subpassIdx,
+                .Subpass = context.passIdx,
                 .MinImageCount = imageCount,
                 .ImageCount = imageCount,
                 .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
@@ -61,7 +62,7 @@ namespace Penrose {
                 }
         };
 
-        ImGui_ImplVulkan_Init(&initInfo, context.renderPass);
+        ImGui_ImplVulkan_Init(&initInfo, dynamic_cast<VkRenderSubgraph *>(context.subgraph)->getRenderPass());
 
         auto allocateInfo = vk::CommandBufferAllocateInfo()
                 .setCommandPool(this->_deviceContext->getCommandPool())

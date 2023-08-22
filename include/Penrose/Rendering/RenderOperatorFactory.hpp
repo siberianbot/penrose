@@ -4,22 +4,21 @@
 #include <cstdint>
 #include <string_view>
 
-#include <utility>
-#include <vulkan/vulkan.hpp>
-
 #include <Penrose/Common/ParamsCollection.hpp>
+#include <Penrose/Rendering/RenderSubgraph.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
     class RenderOperator;
+    class RenderSubgraph;
 
     class RenderOperatorFactory : public Resource {
     public:
         struct Context {
             ParamsCollection params;
-            vk::RenderPass renderPass;
-            std::uint32_t subpassIdx;
+            RenderSubgraph *subgraph;
+            std::uint32_t passIdx;
         };
 
         ~RenderOperatorFactory() override = default;

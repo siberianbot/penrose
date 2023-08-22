@@ -20,22 +20,21 @@ namespace Penrose {
     class ResourceSet;
     class AssetManager;
     class DeviceContext;
+    class PipelineFactory;
     class RenderListBuilder;
+    class VkPipeline;
 
     class ForwardSceneDrawRenderOperator : public RenderOperator {
     public:
         static constexpr const std::string_view NAME = "ForwardSceneDraw";
 
+        static constexpr const std::string_view PIPELINE_PARAM = "Pipeline";
         static constexpr const std::string_view RENDER_LIST_PARAM = "RenderList";
-        static constexpr const std::string_view VERTEX_SHADER_PARAM = "VertexShader";
-        static constexpr const std::string_view FRAGMENT_SHADER_PARAM = "FragmentShader";
 
         ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                        DeviceContext *deviceContext,
                                        RenderListBuilder *renderListBuilder,
-                                       vk::DescriptorSetLayout descriptorSetLayout,
-                                       vk::PipelineLayout pipelineLayout,
-                                       vk::Pipeline pipeline,
+                                       VkPipeline *pipeline,
                                        vk::Sampler sampler,
                                        std::string renderList);
         ~ForwardSceneDrawRenderOperator() override;
@@ -46,9 +45,7 @@ namespace Penrose {
         AssetManager *_assetManager;
         DeviceContext *_deviceContext;
         RenderListBuilder *_renderListBuilder;
-        vk::DescriptorSetLayout _descriptorSetLayout;
-        vk::PipelineLayout _pipelineLayout;
-        vk::Pipeline _pipeline;
+        VkPipeline *_pipeline;
         vk::Sampler _sampler;
         std::string _renderList;
 
@@ -76,6 +73,7 @@ namespace Penrose {
     private:
         AssetManager *_assetManager;
         DeviceContext *_deviceContext;
+        PipelineFactory *_pipelineFactory;
         RenderListBuilder *_renderListBuilder;
     };
 }

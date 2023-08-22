@@ -6,6 +6,61 @@
 
 namespace Penrose {
 
+    vk::DescriptorType toVkDescriptorType(const PipelineLayoutBindingType &type) {
+        switch (type) {
+            case PipelineLayoutBindingType::Sampler:
+                return vk::DescriptorType::eCombinedImageSampler;
+
+            case PipelineLayoutBindingType::InputAttachment:
+                return vk::DescriptorType::eInputAttachment;
+
+            case PipelineLayoutBindingType::UniformBuffer:
+                return vk::DescriptorType::eUniformBuffer;
+
+            default:
+                throw EngineError("Binding type is not supported");
+        }
+    }
+
+    vk::ShaderStageFlags toVkShaderStageFlags(const PipelineShaderStageType &type) {
+        switch (type) {
+            case PipelineShaderStageType::Vertex:
+                return vk::ShaderStageFlagBits::eVertex;
+
+            case PipelineShaderStageType::Fragment:
+                return vk::ShaderStageFlagBits::eFragment;
+
+            default:
+                throw EngineError("Shader stage type is not supported");
+        }
+    }
+
+    vk::ShaderStageFlagBits toVkShaderStageFlagBits(const PipelineShaderStageType &type) {
+        switch (type) {
+            case PipelineShaderStageType::Vertex:
+                return vk::ShaderStageFlagBits::eVertex;
+
+            case PipelineShaderStageType::Fragment:
+                return vk::ShaderStageFlagBits::eFragment;
+
+            default:
+                throw EngineError("Shader stage type is not supported");
+        }
+    }
+
+    vk::VertexInputRate toVkVertexInputRate(const PipelineBindingInputRate &inputRate) {
+        switch (inputRate) {
+            case PipelineBindingInputRate::Vertex:
+                return vk::VertexInputRate::eVertex;
+
+            case PipelineBindingInputRate::Instance:
+                return vk::VertexInputRate::eInstance;
+
+            default:
+                throw EngineError("Input rate is not supported");
+        }
+    }
+
     vk::BufferUsageFlags toVkBufferUsageFlags(const BufferType &type) {
         switch (type) {
             case BufferType::Staging:
@@ -55,6 +110,19 @@ namespace Penrose {
         }
 
         return aspect;
+    }
+
+    vk::Format toVkFormat(const PipelineBindingAttributeFormat &format) {
+        switch (format) {
+            case PipelineBindingAttributeFormat::Vec2:
+                return vk::Format::eR32G32Sfloat;
+
+            case PipelineBindingAttributeFormat::Vec3:
+                return vk::Format::eR32G32B32Sfloat;
+
+            default:
+                throw EngineError("Binding attribute format is not supported");
+        }
     }
 
     vk::Format toVkFormat(const ImageFormat &format) {

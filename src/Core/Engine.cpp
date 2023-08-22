@@ -4,6 +4,7 @@
 
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
+#include <Penrose/Common/Vertex.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
@@ -17,6 +18,7 @@
 
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
+#include "src/Rendering/RenderData.hpp"
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
 #include "src/Rendering/RenderManager.hpp"
@@ -31,6 +33,7 @@
 #include "src/Builtin/Assets/VkShaderAssetFactory.hpp"
 #include "src/Builtin/Rendering/VkBufferFactory.hpp"
 #include "src/Builtin/Rendering/VkImageFactory.hpp"
+#include "src/Builtin/Rendering/VkPipelineFactory.hpp"
 #include "src/Builtin/Rendering/VkRenderSubgraphFactory.hpp"
 #include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
 #include "src/Builtin/Rendering/VkShaderFactory.hpp"
@@ -68,6 +71,7 @@ namespace Penrose {
         this->_resources.add<AssetManager>();
 
         // rendering
+        auto pipelineFactory = this->_resources.add<PipelineFactory, VkPipelineFactory>();
         this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutorProvider>();
         this->_resources.add<RenderListBuilder>();
@@ -81,6 +85,41 @@ namespace Penrose {
 
         // builtin / rendering operators
         this->_resources.add<RenderOperatorFactory, ForwardSceneDrawRenderOperatorFactory>();
+
+        //
+        auto defaultPipelineInfo = PipelineInfo()
+                .setLayout(
+                        PipelineLayout()
+                                .addConstant(
+                                        PipelineLayoutConstant(PipelineShaderStageType::Vertex, 0, sizeof(RenderData))
+                                )
+                                .addBinding(
+                                        PipelineLayoutBinding(PipelineShaderStageType::Fragment,
+                                                              PipelineLayoutBindingType::Sampler,
+                                                              1)
+                                )
+                )
+                .addStage(
+                        PipelineShaderStage(PipelineShaderStageType::Vertex,
+                                            "shaders/default-forward-rendering.vert.spv")
+                )
+                .addStage(
+                        PipelineShaderStage(PipelineShaderStageType::Fragment,
+                                            "shaders/default-forward-rendering.frag.spv")
+                )
+                .addBinding(
+                        PipelineBinding(PipelineBindingInputRate::Vertex, sizeof(Vertex))
+                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
+                                                                       offsetof(Vertex, pos)))
+                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
+                                                                       offsetof(Vertex, normal)))
+                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
+                                                                       offsetof(Vertex, color)))
+                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec2,
+                                                                       offsetof(Vertex, uv)))
+                );
+
+        pipelineFactory->addPipeline("Default", defaultPipelineInfo);
     }
 
     void Engine::run() {

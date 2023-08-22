@@ -22,6 +22,12 @@ namespace Penrose {
         Vec3
     };
 
+    enum class PipelineLayoutBindingType {
+        Sampler,
+        InputAttachment,
+        UniformBuffer
+    };
+
     class PipelineShaderStage {
     public:
         explicit constexpr PipelineShaderStage(PipelineShaderStageType type,
@@ -131,13 +137,120 @@ namespace Penrose {
         std::vector<PipelineBindingAttribute> _attributes;
     };
 
-    class PipelineInfo {
+    class PipelineLayoutConstant {
     public:
-        explicit constexpr PipelineInfo(std::vector<PipelineShaderStage> &&stages = {},
-                                        std::vector<PipelineBinding> &&bindings = {})
-                : _stages(stages),
+        explicit constexpr PipelineLayoutConstant(PipelineShaderStageType shaderStageType,
+                                                  std::uint32_t offset, std::uint32_t size)
+                : _shaderStageType(shaderStageType),
+                  _offset(offset), _size(size) {
+            //
+        }
+
+        [[nodiscard]] constexpr const PipelineShaderStageType &getShaderStageType() const {
+            return this->_shaderStageType;
+        }
+
+        [[nodiscard]] constexpr const std::uint32_t &getOffset() const { return this->_offset; }
+
+        [[nodiscard]] constexpr const std::uint32_t &getSize() const { return this->_size; }
+
+    private:
+        PipelineShaderStageType _shaderStageType;
+        std::uint32_t _offset;
+        std::uint32_t _size;
+    };
+
+    class PipelineLayoutBinding {
+    public:
+        explicit constexpr PipelineLayoutBinding(PipelineShaderStageType shaderStageType,
+                                                 PipelineLayoutBindingType type, std::uint32_t count)
+                : _shaderStageType(shaderStageType),
+                  _type(type),
+                  _count(count) {
+            //
+        }
+
+        [[nodiscard]] constexpr const PipelineShaderStageType &getShaderStageType() const {
+            return this->_shaderStageType;
+        }
+
+        [[nodiscard]] constexpr const PipelineLayoutBindingType &getType() const { return this->_type; }
+
+        [[nodiscard]] constexpr const std::uint32_t &getCount() const { return this->_count; }
+
+    private:
+        PipelineShaderStageType _shaderStageType;
+        PipelineLayoutBindingType _type;
+        std::uint32_t _count;
+    };
+
+    class PipelineLayout {
+    public:
+        explicit constexpr PipelineLayout(std::vector<PipelineLayoutConstant> &&constants = {},
+                                          std::vector<PipelineLayoutBinding> &&bindings = {})
+                : _constants(constants),
                   _bindings(bindings) {
             //
+        }
+
+        [[nodiscard]] constexpr PipelineLayout &addConstant(const PipelineLayoutConstant &constant) {
+            this->_constants.push_back(constant);
+
+            return *this;
+        }
+
+        [[nodiscard]] constexpr PipelineLayout &addConstant(PipelineLayoutConstant &&constant) {
+            this->_constants.push_back(constant);
+
+            return *this;
+        }
+
+        [[nodiscard]] constexpr PipelineLayout &addBinding(const PipelineLayoutBinding &binding) {
+            this->_bindings.push_back(binding);
+
+            return *this;
+        }
+
+        [[nodiscard]] constexpr PipelineLayout &addBinding(PipelineLayoutBinding &&binding) {
+            this->_bindings.push_back(binding);
+
+            return *this;
+        }
+
+        [[nodiscard]] constexpr const std::vector<PipelineLayoutConstant> &getConstants() const {
+            return this->_constants;
+        }
+
+        [[nodiscard]] constexpr const std::vector<PipelineLayoutBinding> &getBindings() const {
+            return this->_bindings;
+        }
+
+    private:
+        std::vector<PipelineLayoutConstant> _constants;
+        std::vector<PipelineLayoutBinding> _bindings;
+    };
+
+    class PipelineInfo {
+    public:
+        explicit constexpr PipelineInfo(PipelineLayout &&layout = PipelineLayout{},
+                                        std::vector<PipelineShaderStage> &&stages = {},
+                                        std::vector<PipelineBinding> &&bindings = {})
+                : _layout(layout),
+                  _stages(stages),
+                  _bindings(bindings) {
+            //
+        }
+
+        [[nodiscard]] constexpr PipelineInfo &setLayout(const PipelineLayout &layout) {
+            this->_layout = layout;
+
+            return *this;
+        }
+
+        [[nodiscard]] constexpr PipelineInfo &setLayout(PipelineLayout &&layout) {
+            this->_layout = layout;
+
+            return *this;
         }
 
         [[nodiscard]] constexpr PipelineInfo &addStage(const PipelineShaderStage &stage) {
@@ -164,11 +277,14 @@ namespace Penrose {
             return *this;
         }
 
+        [[nodiscard]] constexpr const PipelineLayout &getLayout() const { return this->_layout; }
+
         [[nodiscard]] constexpr const std::vector<PipelineShaderStage> &getStages() const { return this->_stages; }
 
         [[nodiscard]] constexpr const std::vector<PipelineBinding> &getBindings() const { return this->_bindings; }
 
     private:
+        PipelineLayout _layout;
         std::vector<PipelineShaderStage> _stages;
         std::vector<PipelineBinding> _bindings;
     };

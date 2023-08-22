@@ -67,8 +67,8 @@ namespace Penrose {
                 auto createContext = RenderOperatorFactory::Context{
                         .params =factoryIt->second->defaults()
                                 .merge(pass.getOperator()->getParams()),
-                        .renderPass = renderSubgraph->getRenderPass(),
-                        .subpassIdx = passIdx
+                        .subgraph = renderSubgraph,
+                        .passIdx = passIdx
                 };
 
                 operators[passIdx] = factoryIt->second->create(createContext);

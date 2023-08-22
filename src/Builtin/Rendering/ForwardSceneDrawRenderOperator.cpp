@@ -7,8 +7,7 @@
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Assets/ImageAsset.hpp>
 #include <Penrose/Assets/MeshAsset.hpp>
-#include <Penrose/Assets/ShaderAsset.hpp>
-#include <Penrose/Common/Vertex.hpp>
+#include <Penrose/Rendering/PipelineFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
@@ -19,23 +18,19 @@
 
 #include "src/Builtin/Rendering/VkBuffer.hpp"
 #include "src/Builtin/Rendering/VkImage.hpp"
-#include "src/Builtin/Rendering/VkShader.hpp"
+#include "src/Builtin/Rendering/VkPipeline.hpp"
 
 namespace Penrose {
 
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(AssetManager *assetManager,
                                                                    DeviceContext *deviceContext,
                                                                    RenderListBuilder *renderListBuilder,
-                                                                   vk::DescriptorSetLayout descriptorSetLayout,
-                                                                   vk::PipelineLayout pipelineLayout,
-                                                                   vk::Pipeline pipeline,
+                                                                   VkPipeline *pipeline,
                                                                    vk::Sampler sampler,
                                                                    std::string renderList)
             : _assetManager(assetManager),
               _deviceContext(deviceContext),
               _renderListBuilder(renderListBuilder),
-              _descriptorSetLayout(descriptorSetLayout),
-              _pipelineLayout(pipelineLayout),
               _pipeline(pipeline),
               _sampler(sampler),
               _renderList(std::move(renderList)) {
@@ -44,9 +39,6 @@ namespace Penrose {
 
     ForwardSceneDrawRenderOperator::~ForwardSceneDrawRenderOperator() {
         this->_deviceContext->getLogicalDevice().destroy(this->_sampler);
-        this->_deviceContext->getLogicalDevice().destroy(this->_pipeline);
-        this->_deviceContext->getLogicalDevice().destroy(this->_pipelineLayout);
-        this->_deviceContext->getLogicalDevice().destroy(this->_descriptorSetLayout);
     }
 
     void ForwardSceneDrawRenderOperator::execute(const RenderOperator::Context &context) {
@@ -70,7 +62,7 @@ namespace Penrose {
         context.commandBuffer.setViewport(0, viewport);
         context.commandBuffer.setScissor(0, context.renderArea);
 
-        context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline);
+        context.commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, this->_pipeline->getPipeline());
 
         for (const auto &[entity, drawable]: renderList->drawables) {
             auto maybeMesh = flatMap(drawable.meshAsset, [this](const std::string &asset) {
@@ -99,12 +91,13 @@ namespace Penrose {
             auto vertexBuffer = dynamic_cast<VkBuffer *>(maybeMesh->get()->getVertexBuffer());
             auto indexBuffer = dynamic_cast<VkBuffer *>(maybeMesh->get()->getIndexBuffer());
 
-            context.commandBuffer.pushConstants(this->_pipelineLayout, vk::ShaderStageFlagBits::eVertex,
+            context.commandBuffer.pushConstants(this->_pipeline->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex,
                                                 0, sizeof(RenderData), &renderData);
             context.commandBuffer.bindVertexBuffers(0, vertexBuffer->getBuffer(), {0});
             context.commandBuffer.bindIndexBuffer(indexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
             context.commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                                     this->_pipelineLayout, 0, {*maybeDescriptorSet}, {});
+                                                     this->_pipeline->getPipelineLayout(), 0,
+                                                     {*maybeDescriptorSet}, {});
 
             context.commandBuffer.drawIndexed(indexBuffer->getCount(), 1, 0, 0, 0);
         }
@@ -125,7 +118,7 @@ namespace Penrose {
 
         auto layouts = std::vector<vk::DescriptorSetLayout>(INFLIGHT_FRAME_COUNT);
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            layouts[idx] = this->_descriptorSetLayout;
+            layouts[idx] = this->_pipeline->getDescriptorSetLayout();
         }
 
         auto allocateInfo = vk::DescriptorSetAllocateInfo()
@@ -172,169 +165,25 @@ namespace Penrose {
     ForwardSceneDrawRenderOperatorFactory::ForwardSceneDrawRenderOperatorFactory(ResourceSet *resources)
             : _assetManager(resources->get<AssetManager>()),
               _deviceContext(resources->get<DeviceContext>()),
+              _pipelineFactory(resources->get<PipelineFactory>()),
               _renderListBuilder(resources->get<RenderListBuilder>()) {
         //
     }
 
     ParamsCollection ForwardSceneDrawRenderOperatorFactory::defaults() const {
         ParamsCollection params;
+        params.setString(ForwardSceneDrawRenderOperator::PIPELINE_PARAM,
+                         "Default");
         params.setString(ForwardSceneDrawRenderOperator::RENDER_LIST_PARAM,
                          "Default");
-        params.setString(ForwardSceneDrawRenderOperator::VERTEX_SHADER_PARAM,
-                         "shaders/default-forward-rendering.vert.spv");
-        params.setString(ForwardSceneDrawRenderOperator::FRAGMENT_SHADER_PARAM,
-                         "shaders/default-forward-rendering.frag.spv");
 
         return params;
     }
 
     RenderOperator *ForwardSceneDrawRenderOperatorFactory::create(const RenderOperatorFactory::Context &context) const {
-        auto vertexShader = context.params.getString(ForwardSceneDrawRenderOperator::VERTEX_SHADER_PARAM);
-        auto fragmentShader = context.params.getString(ForwardSceneDrawRenderOperator::FRAGMENT_SHADER_PARAM);
         auto renderList = context.params.getString(ForwardSceneDrawRenderOperator::RENDER_LIST_PARAM);
 
-        auto vertexShaderAsset = dynamic_cast<VkShader *>(this->_assetManager->getAsset<ShaderAsset>(
-                vertexShader)->getShader());
-        auto fragmentShaderAsset = dynamic_cast<VkShader *>(this->_assetManager->getAsset<ShaderAsset>(
-                fragmentShader)->getShader());
-
-        auto stages = {
-                vk::PipelineShaderStageCreateInfo()
-                        .setStage(vk::ShaderStageFlagBits::eVertex)
-                        .setModule(vertexShaderAsset->getShaderModule())
-                        .setPName("main"),
-                vk::PipelineShaderStageCreateInfo()
-                        .setStage(vk::ShaderStageFlagBits::eFragment)
-                        .setModule(fragmentShaderAsset->getShaderModule())
-                        .setPName("main")
-        };
-
-        auto pushConstants = {
-                vk::PushConstantRange()
-                        .setStageFlags(vk::ShaderStageFlagBits::eVertex)
-                        .setOffset(0)
-                        .setSize(sizeof(RenderData))
-        };
-
-        auto descriptorSetBindings = {
-                vk::DescriptorSetLayoutBinding()
-                        .setBinding(0)
-                        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-                        .setDescriptorCount(1)
-                        .setStageFlags(vk::ShaderStageFlagBits::eFragment)
-        };
-
-        auto descriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo()
-                .setBindings(descriptorSetBindings);
-
-        auto descriptorSetLayout = this->_deviceContext->getLogicalDevice()
-                .createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
-
-        auto pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
-                .setPushConstantRanges(pushConstants)
-                .setSetLayouts(descriptorSetLayout);
-
-        auto pipelineLayout = this->_deviceContext->getLogicalDevice()
-                .createPipelineLayout(pipelineLayoutCreateInfo);
-
-        auto bindings = {
-                vk::VertexInputBindingDescription(0, sizeof(Vertex), vk::VertexInputRate::eVertex)
-        };
-
-        auto attributes = {
-                vk::VertexInputAttributeDescription(0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, pos)),
-                vk::VertexInputAttributeDescription(1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normal)),
-                vk::VertexInputAttributeDescription(2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)),
-                vk::VertexInputAttributeDescription(3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, uv))
-        };
-
-        auto vertexInputState = vk::PipelineVertexInputStateCreateInfo()
-                .setVertexBindingDescriptions(bindings)
-                .setVertexAttributeDescriptions(attributes);
-
-        auto inputAssemblyState = vk::PipelineInputAssemblyStateCreateInfo()
-                .setTopology(vk::PrimitiveTopology::eTriangleList);
-
-        auto viewportState = vk::PipelineViewportStateCreateInfo()
-                .setScissorCount(1)
-                .setViewportCount(1);
-
-        auto depthStencilState = vk::PipelineDepthStencilStateCreateInfo()
-                .setDepthTestEnable(true)
-                .setDepthWriteEnable(true)
-                .setDepthCompareOp(vk::CompareOp::eLessOrEqual)
-                .setDepthBoundsTestEnable(false)
-                .setStencilTestEnable(false)
-                .setFront({})
-                .setBack({})
-                .setMinDepthBounds(0)
-                .setMaxDepthBounds(0);
-
-        auto rasterizationState = vk::PipelineRasterizationStateCreateInfo()
-                .setDepthClampEnable(false)
-                .setRasterizerDiscardEnable(false)
-                .setPolygonMode(vk::PolygonMode::eFill)
-                .setCullMode(vk::CullModeFlagBits::eBack)
-                .setFrontFace(vk::FrontFace::eCounterClockwise)
-                .setDepthBiasEnable(false)
-                .setDepthBiasConstantFactor(0)
-                .setDepthBiasClamp(0)
-                .setDepthBiasSlopeFactor(0)
-                .setLineWidth(1);
-
-        auto colorBlendAttachments = {
-                vk::PipelineColorBlendAttachmentState()
-                        .setBlendEnable(false)
-                        .setSrcColorBlendFactor({})
-                        .setDstColorBlendFactor({})
-                        .setColorBlendOp(vk::BlendOp::eAdd)
-                        .setSrcAlphaBlendFactor({})
-                        .setDstAlphaBlendFactor({})
-                        .setAlphaBlendOp(vk::BlendOp::eAdd)
-                        .setColorWriteMask(vk::ColorComponentFlagBits::eR |
-                                           vk::ColorComponentFlagBits::eG |
-                                           vk::ColorComponentFlagBits::eB |
-                                           vk::ColorComponentFlagBits::eA)
-        };
-
-        auto colorBlendState = vk::PipelineColorBlendStateCreateInfo()
-                .setLogicOpEnable(false)
-                .setLogicOp(vk::LogicOp::eCopy)
-                .setAttachments(colorBlendAttachments)
-                .setBlendConstants({0, 0, 0, 0});
-
-        auto dynamicStates = {
-                vk::DynamicState::eViewport,
-                vk::DynamicState::eScissor
-        };
-
-        auto dynamicState = vk::PipelineDynamicStateCreateInfo()
-                .setDynamicStates(dynamicStates);
-
-        auto multisampleState = vk::PipelineMultisampleStateCreateInfo()
-                .setRasterizationSamples(vk::SampleCountFlagBits::e1)
-                .setSampleShadingEnable(false)
-                .setMinSampleShading(0)
-                .setAlphaToCoverageEnable(false)
-                .setAlphaToOneEnable(false);
-
-        auto pipelineCreateInfo = vk::GraphicsPipelineCreateInfo()
-                .setRenderPass(context.renderPass)
-                .setSubpass(context.subpassIdx)
-                .setLayout(pipelineLayout)
-                .setStages(stages)
-                .setPVertexInputState(&vertexInputState)
-                .setPInputAssemblyState(&inputAssemblyState)
-                .setPViewportState(&viewportState)
-                .setPRasterizationState(&rasterizationState)
-                .setPDepthStencilState(&depthStencilState)
-                .setPMultisampleState(&multisampleState)
-                .setPTessellationState(nullptr)
-                .setPColorBlendState(&colorBlendState)
-                .setPDynamicState(&dynamicState);
-
-        auto [_, pipeline] = this->_deviceContext->getLogicalDevice()
-                .createGraphicsPipeline(nullptr, pipelineCreateInfo);
+        auto pipeline = this->_pipelineFactory->getPipeline("Default", context.subgraph, context.passIdx);
 
         auto samplerCreateInfo = vk::SamplerCreateInfo()
                 .setAddressModeU(vk::SamplerAddressMode::eRepeat)
@@ -356,9 +205,7 @@ namespace Penrose {
         return new ForwardSceneDrawRenderOperator(this->_assetManager,
                                                   this->_deviceContext,
                                                   this->_renderListBuilder,
-                                                  descriptorSetLayout,
-                                                  pipelineLayout,
-                                                  pipeline,
+                                                  dynamic_cast<VkPipeline *>(pipeline),
                                                   sampler,
                                                   renderList);
     }
