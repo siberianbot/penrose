@@ -238,6 +238,54 @@ namespace Penrose {
         return deviceContext->getLogicalDevice().allocateMemory(allocateInfo);
     }
 
+    vk::SamplerAddressMode toVkSamplerAddressMode(const SamplerAddressMode &addressMode) {
+        switch (addressMode) {
+            case SamplerAddressMode::Repeat:
+                return vk::SamplerAddressMode::eRepeat;
+
+            case SamplerAddressMode::MirroredRepeat:
+                return vk::SamplerAddressMode::eMirroredRepeat;
+
+            case SamplerAddressMode::ClampToEdge:
+                return vk::SamplerAddressMode::eClampToEdge;
+
+            case SamplerAddressMode::ClampToBorder:
+                return vk::SamplerAddressMode::eClampToBorder;
+
+            default:
+                throw EngineError("Sampler address mode is not supported");
+        }
+    }
+
+    vk::BorderColor toVkBorderColor(const SamplerBorderColor &borderColor) {
+        switch (borderColor) {
+            case SamplerBorderColor::Transparent:
+                return vk::BorderColor::eFloatTransparentBlack;
+
+            case SamplerBorderColor::Black:
+                return vk::BorderColor::eFloatOpaqueBlack;
+
+            case SamplerBorderColor::White:
+                return vk::BorderColor::eFloatOpaqueWhite;
+
+            default:
+                throw EngineError("Sampler border color is not supported");
+        }
+    }
+
+    vk::Filter toVkFilter(const SamplerFilter &filter) {
+        switch (filter) {
+            case SamplerFilter::Linear:
+                return vk::Filter::eLinear;
+
+            case SamplerFilter::Nearest:
+                return vk::Filter::eNearest;
+
+            default:
+                throw EngineError("Sampler filter is not supported");
+        }
+    }
+
     vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Buffer &buffer, bool local) {
         auto requirements = deviceContext->getLogicalDevice().getBufferMemoryRequirements(buffer);
         auto memory = makeDeviceMemory(deviceContext, requirements, local);

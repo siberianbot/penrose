@@ -87,6 +87,8 @@ src = [
     'src/Builtin/Rendering/VkRenderSubgraphFactory.cpp',
     'src/Builtin/Rendering/VkRenderTarget.cpp',
     'src/Builtin/Rendering/VkRenderTargetFactory.cpp',
+    'src/Builtin/Rendering/VkSampler.cpp',
+    'src/Builtin/Rendering/VkSamplerFactory.cpp',
     'src/Builtin/Rendering/VkShader.cpp',
     'src/Builtin/Rendering/VkShaderFactory.cpp',
     'src/Builtin/Rendering/VkUtils.cpp',

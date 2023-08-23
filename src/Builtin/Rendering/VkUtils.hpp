@@ -10,6 +10,7 @@
 #include <Penrose/Rendering/Image.hpp>
 #include <Penrose/Rendering/PipelineInfo.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
+#include <Penrose/Rendering/SamplerInfo.hpp>
 
 namespace Penrose {
 
@@ -34,6 +35,10 @@ namespace Penrose {
     [[nodiscard]] vk::AttachmentStoreOp toVkAttachmentStoreOp(const RenderAttachmentStoreOp &storeOp);
 
     [[nodiscard]] vk::ImageLayout toVkImageLayout(const RenderAttachmentLayout &layout);
+
+    [[nodiscard]] vk::SamplerAddressMode toVkSamplerAddressMode(const SamplerAddressMode &addressMode);
+    [[nodiscard]] vk::BorderColor toVkBorderColor(const SamplerBorderColor &borderColor);
+    [[nodiscard]] vk::Filter toVkFilter(const SamplerFilter &filter);
 
     [[nodiscard]] vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Buffer &buffer,
                                                     bool local = true);
