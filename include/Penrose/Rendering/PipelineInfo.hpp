@@ -2,6 +2,7 @@
 #define PENROSE_RENDERING_PIPELINE_INFO_HPP
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -287,6 +288,93 @@ namespace Penrose {
         PipelineLayout _layout;
         std::vector<PipelineShaderStage> _stages;
         std::vector<PipelineBinding> _bindings;
+    };
+}
+
+namespace std {
+
+    template<>
+    struct hash<Penrose::PipelineShaderStage> {
+        size_t operator()(const Penrose::PipelineShaderStage &shaderStage) const {
+            return hash<string>{}(shaderStage.getShaderAssetName())
+                   ^ (hash<Penrose::PipelineShaderStageType>{}(shaderStage.getType()) << 1);
+        }
+    };
+
+    template<>
+    struct hash<Penrose::PipelineBindingAttribute> {
+        size_t operator()(const Penrose::PipelineBindingAttribute &bindingAttribute) const {
+            return hash<Penrose::PipelineBindingAttributeFormat>{}(bindingAttribute.getFormat())
+                   ^ (hash<uint32_t>{}(bindingAttribute.getOffset()) << 1);
+        }
+    };
+
+    template<>
+    struct hash<Penrose::PipelineBinding> {
+        size_t operator()(const Penrose::PipelineBinding &binding) const {
+            auto h = hash<uint32_t>{}(binding.getStride())
+                     ^ (hash<Penrose::PipelineBindingInputRate>{}(binding.getInputRate()) << 1);
+
+            for (std::uint32_t idx = 0; idx < binding.getAttributes().size(); idx++) {
+                h ^= (hash<Penrose::PipelineBindingAttribute>{}(binding.getAttributes().at(idx)) << (idx + 2));
+            }
+
+            return h;
+        }
+    };
+
+    template<>
+    struct hash<Penrose::PipelineLayoutConstant> {
+        size_t operator()(const Penrose::PipelineLayoutConstant &constant) const {
+            return hash<std::uint32_t>{}(constant.getSize())
+                   ^ (hash<std::uint32_t>{}(constant.getOffset()) << 1)
+                   ^ (hash<Penrose::PipelineShaderStageType>{}(constant.getShaderStageType()) << 2);
+        }
+    };
+
+    template<>
+    struct hash<Penrose::PipelineLayoutBinding> {
+        size_t operator()(const Penrose::PipelineLayoutBinding &binding) const {
+            return hash<std::uint32_t>{}(binding.getCount())
+                   ^ (hash<Penrose::PipelineLayoutBindingType>{}(binding.getType()) << 1)
+                   ^ (hash<Penrose::PipelineShaderStageType>{}(binding.getShaderStageType()) << 2);
+        }
+    };
+
+    template<>
+    struct hash<Penrose::PipelineLayout> {
+        size_t operator()(const Penrose::PipelineLayout &layout) const {
+            size_t h = 0x9e3779b9;
+
+            for (std::uint32_t idx = 0; idx < layout.getBindings().size(); idx++) {
+                h ^= (hash<Penrose::PipelineLayoutBinding>{}(layout.getBindings().at(idx)) << idx);
+            }
+
+            for (std::uint32_t idx = 0; idx < layout.getConstants().size(); idx++) {
+                h ^= (hash<Penrose::PipelineLayoutConstant>{}(layout.getConstants().at(idx))
+                        << (idx + layout.getBindings().size()));
+            }
+
+            return h;
+        }
+    };
+
+    template<>
+    struct hash<Penrose::PipelineInfo> {
+        size_t operator()(const Penrose::PipelineInfo &pipelineInfo) const {
+            size_t h = hash<Penrose::PipelineLayout>{}(pipelineInfo.getLayout());
+
+            for (std::uint32_t idx = 0; idx < pipelineInfo.getBindings().size(); idx++) {
+                h ^= (hash<Penrose::PipelineBinding>{}(pipelineInfo.getBindings().at(idx)) << (idx + 1));
+            }
+
+            for (std::uint32_t idx = 0; idx < pipelineInfo.getStages().size(); idx++) {
+                h ^= (hash<Penrose::PipelineShaderStage>{}(pipelineInfo.getStages().at(idx))
+                        << (idx + pipelineInfo.getBindings().size() + 1));
+            }
+
+            return h;
+        }
     };
 }
 

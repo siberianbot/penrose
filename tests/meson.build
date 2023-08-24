@@ -9,6 +9,7 @@ tests_src = [
     # TESTS
     'ComplexTests.cpp',
     'EngineTests.cpp',
+    'PipelineInfoTests.cpp'
 ]
 
 tests_exe = executable(
