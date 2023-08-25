@@ -224,7 +224,8 @@ namespace Penrose {
         auto [_, pipeline] = this->_deviceContext->getLogicalDevice()
                 .createGraphicsPipeline(this->_pipelineCache, pipelineCreateInfo);
 
-        return new VkPipeline(this->_deviceContext,
+        return new VkPipeline(pipelineInfo,
+                              this->_deviceContext,
                               descriptorSetLayout,
                               pipelineLayout,
                               pipeline);
