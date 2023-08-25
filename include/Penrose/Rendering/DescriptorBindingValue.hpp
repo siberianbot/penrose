@@ -75,8 +75,19 @@ namespace Penrose {
         std::optional<Image *> _image;
         std::optional<Sampler *> _sampler;
     };
+}
 
-    constexpr static const DescriptorBindingValue sasoidjoaisjdpio = DescriptorBindingValue(1);
+namespace std {
+
+    template<>
+    struct hash<Penrose::DescriptorBindingValue> {
+        size_t operator()(const Penrose::DescriptorBindingValue &bindingValue) const {
+            return hash<std::uint32_t>{}(bindingValue.getBindingIdx())
+                   ^ (hash<std::optional<Penrose::Buffer *>>{}(bindingValue.getBuffer()) << 1)
+                   ^ (hash<std::optional<Penrose::Image *>>{}(bindingValue.getImage()) << 2)
+                   ^ (hash<std::optional<Penrose::Sampler *>>{}(bindingValue.getSampler()) << 3);
+        }
+    };
 }
 
 #endif // PENROSE_RENDERING_DESCRIPTOR_BINDING_VALUE_HPP

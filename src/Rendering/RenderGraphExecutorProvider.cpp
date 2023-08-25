@@ -3,11 +3,7 @@
 #include <map>
 #include <string>
 
-#include <fmt/core.h>
-
-#include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
-#include <Penrose/Rendering/RenderOperatorFactory.hpp>
 #include <Penrose/Rendering/RenderSubgraphFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -36,11 +32,11 @@ namespace Penrose {
             targets.emplace(name, nullptr);
         }
 
-        std::map<std::string, RenderOperatorFactory *> factoryMap;
-        auto factories = this->_resources->getAll<RenderOperatorFactory>();
+        std::map<std::string, RenderOperator *> operatorMap;
+        auto operators = this->_resources->getAll<RenderOperator>();
 
-        for (const auto &factory: factories) {
-            factoryMap.emplace(factory->name(), factory);
+        for (const auto &op: operators) {
+            operatorMap.emplace(op->getName(), op);
         }
 
         std::map<std::string, RenderGraphExecutor::SubgraphEntry> subgraphs;
@@ -48,40 +44,13 @@ namespace Penrose {
             auto renderSubgraph = dynamic_cast<VkRenderSubgraph *>(
                     this->_renderSubgraphFactory->makeRenderSubgraph(subgraph));
 
-            auto operators = std::vector<RenderOperator *>(subgraph.getPasses().size());
-            for (std::uint32_t passIdx = 0; passIdx < subgraph.getPasses().size(); passIdx++) {
-                auto pass = subgraph.getPasses().at(passIdx);
-
-                if (!pass.getOperator().has_value()) {
-                    operators[passIdx] = nullptr;
-                    continue;
-                }
-
-                auto operatorName = pass.getOperator()->getName();
-                auto factoryIt = factoryMap.find(operatorName);
-
-                if (factoryIt == factoryMap.end()) {
-                    throw EngineError(fmt::format("No factory for operator {}", operatorName));
-                }
-
-                auto createContext = RenderOperatorFactory::Context{
-                        .params =factoryIt->second->defaults()
-                                .merge(pass.getOperator()->getParams()),
-                        .subgraph = renderSubgraph,
-                        .passIdx = passIdx
-                };
-
-                operators[passIdx] = factoryIt->second->create(createContext);
-            }
-
             subgraphs.emplace(name, RenderGraphExecutor::SubgraphEntry{
                     .renderSubgraph = renderSubgraph,
-                    .renderOperators = std::move(operators),
                     .framebuffer = nullptr
             });
         }
 
-        return new RenderGraphExecutor(this->_deviceContext, this->_presentContext,
+        return new RenderGraphExecutor(this->_deviceContext, this->_presentContext, operatorMap,
                                        this->_resources->get<VkRenderTargetFactory>(),
                                        graph, targets, subgraphs);
     }

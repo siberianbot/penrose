@@ -45,11 +45,21 @@ namespace Penrose {
         }
 
         this->_eventHandlerIdx = this->_eventQueue->addHandler([this](const Event &event) {
-            if (event.type != EventType::SurfaceResized && event.type != EventType::RenderGraphModified) {
-                return;
-            }
-
             switch (event.type) {
+                case EventType::EngineDestroyRequested:
+                    if (this->_thread.has_value()) {
+                        this->_deviceContext->getLogicalDevice().waitIdle();
+
+                        this->_thread->request_stop();
+
+                        if (this->_thread->joinable()) {
+                            this->_thread->join();
+                        }
+
+                        this->_thread = std::nullopt;
+                    }
+                    break;
+
                 case EventType::RenderGraphModified:
                     this->_renderGraphModified = true;
                     break;
@@ -59,10 +69,38 @@ namespace Penrose {
                     break;
 
                 default:
-                    throw EngineError("Not supported event");
+                    break;
             }
         });
+    }
 
+    void RenderManager::destroy() {
+        this->_eventQueue->removeHandler(this->_eventHandlerIdx);
+
+        if (this->_thread.has_value()) {
+            this->_thread->request_stop();
+
+            if (this->_thread->joinable()) {
+                this->_thread->join();
+            }
+
+            this->_thread = std::nullopt;
+        }
+
+        this->_deviceContext->getLogicalDevice().waitIdle();
+
+        this->_currentRenderGraphExecutor = std::nullopt;
+
+        this->_deviceContext->getLogicalDevice().free(this->_deviceContext->getCommandPool(), this->_commandBuffers);
+
+        for (std::uint32_t frameIdx = 0; frameIdx < INFLIGHT_FRAME_COUNT; frameIdx++) {
+            this->_deviceContext->getLogicalDevice().destroy(this->_fences.at(frameIdx));
+            this->_deviceContext->getLogicalDevice().destroy(this->_imageReadySemaphores.at(frameIdx));
+            this->_deviceContext->getLogicalDevice().destroy(this->_renderFinishedSemaphores.at(frameIdx));
+        }
+    }
+
+    void RenderManager::run() {
         this->_thread = std::jthread([this](const std::stop_token &stopToken) {
             bool swapchainInvalid = false;
 
@@ -110,32 +148,6 @@ namespace Penrose {
                 }
             }
         });
-    }
-
-    void RenderManager::destroy() {
-        this->_eventQueue->removeHandler(this->_eventHandlerIdx);
-
-        if (this->_thread.has_value()) {
-            this->_thread->request_stop();
-
-            if (this->_thread->joinable()) {
-                this->_thread->join();
-            }
-
-            this->_thread = std::nullopt;
-        }
-
-        this->_deviceContext->getLogicalDevice().waitIdle();
-
-        this->_currentRenderGraphExecutor = std::nullopt;
-
-        this->_deviceContext->getLogicalDevice().free(this->_deviceContext->getCommandPool(), this->_commandBuffers);
-
-        for (std::uint32_t frameIdx = 0; frameIdx < INFLIGHT_FRAME_COUNT; frameIdx++) {
-            this->_deviceContext->getLogicalDevice().destroy(this->_fences.at(frameIdx));
-            this->_deviceContext->getLogicalDevice().destroy(this->_imageReadySemaphores.at(frameIdx));
-            this->_deviceContext->getLogicalDevice().destroy(this->_renderFinishedSemaphores.at(frameIdx));
-        }
     }
 
     bool RenderManager::renderFrame(const std::uint32_t &frameIdx) const {

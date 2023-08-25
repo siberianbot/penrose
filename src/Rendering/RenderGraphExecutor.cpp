@@ -2,12 +2,16 @@
 
 #include <utility>
 
+#include <fmt/core.h>
+
+#include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/RenderTarget.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 
+#include "src/Builtin/Rendering/VkCommandRecording.hpp"
 #include "src/Builtin/Rendering/VkFramebuffer.hpp"
 #include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 #include "src/Builtin/Rendering/VkRenderTarget.hpp"
@@ -21,12 +25,14 @@ namespace Penrose {
 
     RenderGraphExecutor::RenderGraphExecutor(DeviceContext *deviceContext,
                                              PresentContext *presentContext,
+                                             std::map<std::string, RenderOperator *> operators,
                                              VkRenderTargetFactory *vkRenderTargetFactory,
                                              RenderGraphInfo graph,
                                              std::map<std::string, VkRenderTarget *> targets,
                                              std::map<std::string, SubgraphEntry> subgraphs)
             : _deviceContext(deviceContext),
               _presentContext(presentContext),
+              _operators(std::move(operators)),
               _vkRenderTargetFactory(vkRenderTargetFactory),
               _graph(std::move(graph)),
               _targets(std::move(targets)),
@@ -42,10 +48,6 @@ namespace Penrose {
         }
 
         for (const auto &[_, subgraph]: this->_subgraphs) {
-            for (const auto &renderOperator: subgraph.renderOperators) {
-                delete renderOperator;
-            }
-
             delete subgraph.renderSubgraph;
         }
 
@@ -58,6 +60,9 @@ namespace Penrose {
                                                              const vk::Semaphore &signalSemaphore,
                                                              std::uint32_t frameIdx,
                                                              std::uint32_t imageIdx) {
+        auto swapchainSize = Size(this->_presentContext->getSwapchainExtent().width,
+                                  this->_presentContext->getSwapchainExtent().height);
+
         if (this->_subgraphs.empty()) {
             return {};
         }
@@ -80,22 +85,35 @@ namespace Penrose {
 
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
-            auto executionContext = RenderOperator::Context{
-                    .frameIdx = frameIdx,
-                    .renderArea = subgraph.framebuffer->getRenderArea(),
-                    .commandBuffer = commandBuffer
-            };
+            auto commandRecording = new VkCommandRecording(frameIdx, this->_deviceContext, commandBuffer);
+            auto &passes = subgraph.renderSubgraph->getSubgraphInfo().getPasses();
 
-            for (auto it = subgraph.renderOperators.begin(); it != subgraph.renderOperators.end(); it++) {
-                if (it != subgraph.renderOperators.begin()) {
+            for (std::uint32_t passIdx = 0; passIdx < passes.size(); passIdx++) {
+                const auto &pass = passes.at(passIdx);
+
+                if (passIdx != 0) {
                     commandBuffer.nextSubpass(vk::SubpassContents::eInline);
                 }
 
-                if (*it == nullptr) {
+                if (!pass.getOperator().has_value()) {
                     continue;
                 }
 
-                (*it)->execute(executionContext);
+                auto operatorIt = this->_operators.find(pass.getOperator()->getName());
+                if (operatorIt == this->_operators.end()) {
+                    throw EngineError(fmt::format("No such operator {}", pass.getOperator()->getName()));
+                }
+
+                auto context = RenderOperator::Context{
+                        .subgraph = subgraph.renderSubgraph,
+                        .subgraphPassIdx = passIdx,
+                        .renderArea = subgraph.renderSubgraph->getSubgraphInfo()
+                                .getRenderArea().value_or(swapchainSize),
+                        .param = ParamsCollection::merge(operatorIt->second->getDefaults(),
+                                                         pass.getOperator()->getParams())
+                };
+
+                operatorIt->second->execute(commandRecording, context);
             }
 
             commandBuffer.endRenderPass();

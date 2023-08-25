@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include <Penrose/Common/Rect.hpp>
+
 namespace Penrose {
 
     class Buffer;
@@ -12,6 +14,9 @@ namespace Penrose {
     class CommandRecording {
     public:
         virtual ~CommandRecording() = default;
+
+        virtual void setViewport(FloatRect rect) = 0;
+        virtual void setScissor(IntRect rect) = 0;
 
         virtual void bindGraphicsPipeline(Pipeline *pipeline) = 0;
 

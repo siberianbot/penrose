@@ -26,12 +26,12 @@ namespace Penrose {
     public:
         struct SubgraphEntry {
             VkRenderSubgraph *renderSubgraph;
-            std::vector<RenderOperator *> renderOperators;
             VkFramebuffer *framebuffer;
         };
 
         RenderGraphExecutor(DeviceContext *deviceContext,
                             PresentContext *presentContext,
+                            std::map<std::string, RenderOperator *> operators,
                             VkRenderTargetFactory *vkRenderTargetFactory,
                             RenderGraphInfo graph,
                             std::map<std::string, VkRenderTarget *> targets,
@@ -50,6 +50,7 @@ namespace Penrose {
     private:
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
+        std::map<std::string, RenderOperator *> _operators;
         VkRenderTargetFactory *_vkRenderTargetFactory;
 
         RenderGraphInfo _graph;

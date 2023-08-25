@@ -17,16 +17,16 @@ namespace Penrose {
                      std::vector<vk::DescriptorSet> &&descriptorSets);
         ~VkDescriptor() override;
 
-        void setBindingValues(const std::set<DescriptorBindingValue> &values);
+        void setBindingValues(const std::unordered_set<DescriptorBindingValue> &values);
 
-        [[nodiscard]] const std::set<DescriptorBindingValue> &getBindingValues() const override {
+        [[nodiscard]] const std::unordered_set<DescriptorBindingValue> &getBindingValues() const override {
             return this->_bindingValues;
         }
 
         [[nodiscard]] const std::vector<vk::DescriptorSet> &getDescriptorSets() const { return this->_descriptorSets; }
 
     private:
-        std::set<DescriptorBindingValue> _bindingValues;
+        std::unordered_set<DescriptorBindingValue> _bindingValues;
 
         DeviceContext *_deviceContext;
 

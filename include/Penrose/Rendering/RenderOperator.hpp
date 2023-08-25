@@ -2,22 +2,33 @@
 #define PENROSE_RENDERING_RENDER_OPERATOR_HPP
 
 #include <cstdint>
+#include <string>
 
-#include <vulkan/vulkan.hpp>
+#include <Penrose/Common/ParamsCollection.hpp>
+#include <Penrose/Common/Size.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class RenderOperator {
+    class CommandRecording;
+    class RenderSubgraph;
+
+    class RenderOperator : public InitializableResource {
     public:
         struct Context {
-            std::uint32_t frameIdx;
-            vk::Rect2D renderArea;
-            vk::CommandBuffer commandBuffer;
+            RenderSubgraph *subgraph;
+            std::uint32_t subgraphPassIdx;
+            Size renderArea;
+            ParamsCollection param;
         };
 
-        virtual ~RenderOperator() = default;
+        ~RenderOperator() override = default;
 
-        virtual void execute(const Context &context) = 0;
+        [[nodiscard]] virtual std::string getName() const = 0;
+
+        [[nodiscard]] virtual ParamsCollection getDefaults() const = 0;
+
+        virtual void execute(CommandRecording *commandRecording, const RenderOperator::Context &context) = 0;
     };
 }
 

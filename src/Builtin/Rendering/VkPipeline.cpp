@@ -35,7 +35,7 @@ namespace Penrose {
     }
 
     Descriptor *VkPipeline::getDescriptorFor(const Entity &entity,
-                                             const std::set<DescriptorBindingValue> &values) {
+                                             const std::unordered_set<DescriptorBindingValue> &values) {
         auto descriptorIt = this->_descriptors.find(entity);
 
         if (descriptorIt != this->_descriptors.end() && descriptorIt->second->getBindingValues() == values) {
@@ -48,8 +48,8 @@ namespace Penrose {
 
         const auto &descriptorSets = descriptor->getDescriptorSets();
 
-        std::vector<vk::DescriptorBufferInfo> bufferInfos;
-        std::vector<vk::DescriptorImageInfo> imageInfos;
+        std::vector<vk::DescriptorBufferInfo *> bufferInfos;
+        std::vector<vk::DescriptorImageInfo *> imageInfos;
         std::vector<vk::WriteDescriptorSet> writes;
 
         for (const auto &descriptorSet: descriptorSets) {
@@ -67,22 +67,22 @@ namespace Penrose {
                                 value.getSampler(),
                                 EngineError(fmt::format("Binding {} requires sampler", bindingIdx))));
 
-                        auto &imageInfo = imageInfos.emplace_back(
-                                vk::DescriptorImageInfo()
-                                        .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                                        .setSampler(sampler->getSampler())
-                                        .setImageView(image->getImageView())
+                        auto imageInfo = new vk::DescriptorImageInfo(
+                                sampler->getSampler(),
+                                image->getImageView(),
+                                vk::ImageLayout::eShaderReadOnlyOptimal
                         );
 
                         writes.emplace_back(
                                 vk::WriteDescriptorSet()
                                         .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
                                         .setDescriptorCount(1)
-                                        .setImageInfo(imageInfo)
+                                        .setPImageInfo(imageInfo)
                                         .setDstBinding(bindingIdx)
                                         .setDstSet(descriptorSet)
                         );
 
+                        imageInfos.push_back(imageInfo);
                         break;
                     }
 
@@ -91,22 +91,22 @@ namespace Penrose {
                                 value.getBuffer(),
                                 EngineError(fmt::format("Binding {} requires buffer", bindingIdx))));
 
-                        auto &bufferInfo = bufferInfos.emplace_back(
-                                vk::DescriptorBufferInfo()
-                                        .setBuffer(buffer->getBuffer())
-                                        .setOffset(0)
-                                        .setRange(buffer->getSize())
+                        auto bufferInfo = new vk::DescriptorBufferInfo(
+                                buffer->getBuffer(),
+                                0,
+                                buffer->getSize()
                         );
 
                         writes.emplace_back(
                                 vk::WriteDescriptorSet()
                                         .setDescriptorType(vk::DescriptorType::eUniformBuffer)
                                         .setDescriptorCount(1)
-                                        .setBufferInfo(bufferInfo)
+                                        .setPBufferInfo(bufferInfo)
                                         .setDstBinding(bindingIdx)
                                         .setDstSet(descriptorSet)
                         );
 
+                        bufferInfos.push_back(bufferInfo);
                         break;
                     }
 
@@ -121,6 +121,14 @@ namespace Penrose {
         }
 
         this->_deviceContext->getLogicalDevice().updateDescriptorSets(writes, {});
+
+        for (auto &bufferInfo: bufferInfos) {
+            delete bufferInfo;
+        }
+
+        for (auto &imageInfo: imageInfos) {
+            delete imageInfo;
+        }
 
         descriptor->setBindingValues(values);
 

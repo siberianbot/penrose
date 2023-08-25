@@ -9,7 +9,6 @@
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
-#include <Penrose/Rendering/RenderOperatorFactory.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>

@@ -16,7 +16,7 @@ namespace Penrose {
                                                       this->_descriptorSets);
     }
 
-    void VkDescriptor::setBindingValues(const std::set<DescriptorBindingValue> &values) {
+    void VkDescriptor::setBindingValues(const std::unordered_set<DescriptorBindingValue> &values) {
         this->_bindingValues = values;
     }
 }

@@ -1,10 +1,11 @@
 #ifndef PENROSE_BUILTIN_RENDERING_IMGUI_DRAW_RENDER_OPERATOR_HPP
 #define PENROSE_BUILTIN_RENDERING_IMGUI_DRAW_RENDER_OPERATOR_HPP
 
+#include <cstdint>
+#include <optional>
 #include <string_view>
 
 #include <Penrose/Rendering/RenderOperator.hpp>
-#include <Penrose/Rendering/RenderOperatorFactory.hpp>
 
 namespace Penrose {
 
@@ -12,35 +13,39 @@ namespace Penrose {
     class VulkanBackend;
     class DeviceContext;
     class PresentContext;
+    class RenderSubgraph;
 
+    // TODO: this operator should be abstract
     class ImGuiDrawRenderOperator : public RenderOperator {
     public:
-        static constexpr const std::string_view NAME = "ImGuiDraw";
+        constexpr static const std::string_view NAME = "ImGuiDraw";
 
-        ~ImGuiDrawRenderOperator() override;
+        explicit ImGuiDrawRenderOperator(ResourceSet *resources);
+        ~ImGuiDrawRenderOperator() override = default;
 
-        void execute(const RenderOperator::Context &context) override;
-    };
+        void init() override { /* nothing to do */ }
 
-    class ImGuiDrawRenderOperatorFactory : public RenderOperatorFactory {
-    public:
-        explicit ImGuiDrawRenderOperatorFactory(ResourceSet *resources);
-        ~ImGuiDrawRenderOperatorFactory() override = default;
+        void destroy() override;
 
-        [[nodiscard]] std::string_view name() const override {
-            return ImGuiDrawRenderOperator::NAME;
-        }
+        [[nodiscard]] std::string getName() const override { return std::string(NAME); }
 
-        [[nodiscard]] ParamsCollection defaults() const override {
-            return ParamsCollection::empty();
-        }
+        [[nodiscard]] ParamsCollection getDefaults() const override { return ParamsCollection::empty(); }
 
-        [[nodiscard]] RenderOperator *create(const RenderOperatorFactory::Context &context) const override;
+        void execute(CommandRecording *commandRecording, const RenderOperator::Context &context) override;
 
     private:
+        struct State {
+            RenderSubgraph *subgraph;
+            std::uint32_t subgraphPassIdx;
+        };
+
         VulkanBackend *_vulkanBackend;
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
+
+        std::optional<State> _state;
+
+        void initFor(const RenderOperator::Context &context);
     };
 }
 

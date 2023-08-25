@@ -18,6 +18,18 @@ namespace Penrose {
         //
     }
 
+    void VkCommandRecording::setViewport(FloatRect rect) {
+        auto viewport = vk::Viewport(rect.x, rect.y, rect.w, rect.h, 0, 1);
+
+        this->_commandBuffer.setViewport(0, viewport);
+    }
+
+    void VkCommandRecording::setScissor(IntRect rect) {
+        auto scissor = vk::Rect2D(vk::Offset2D(rect.x, rect.y), vk::Extent2D(rect.w, rect.h));
+
+        this->_commandBuffer.setScissor(0, scissor);
+    }
+
     void VkCommandRecording::bindGraphicsPipeline(Pipeline *pipeline) {
         auto vkPipeline = dynamic_cast<VkPipeline *>(pipeline);
 

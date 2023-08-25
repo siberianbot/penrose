@@ -32,6 +32,8 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
+        void run();
+
     private:
         EventQueue *_eventQueue;
         DeviceContext *_deviceContext;

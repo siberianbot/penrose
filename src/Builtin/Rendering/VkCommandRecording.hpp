@@ -20,6 +20,9 @@ namespace Penrose {
 
         [[nodiscard]] const vk::CommandBuffer &getCommandBuffer() const { return this->_commandBuffer; }
 
+        void setViewport(FloatRect rect) override;
+        void setScissor(IntRect rect) override;
+
         void bindGraphicsPipeline(Pipeline *pipeline) override;
 
         void bindPushConstants(Pipeline *pipeline, std::uint32_t constantIdx, void *data) override;

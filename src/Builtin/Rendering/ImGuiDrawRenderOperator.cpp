@@ -1,24 +1,53 @@
 #include <Penrose/Builtin/Rendering/ImGuiDrawRenderOperator.hpp>
 
+#include <fmt/core.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
+#include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 
 #include "src/Builtin/Backends/VulkanBackend.hpp"
+#include "src/Builtin/Rendering/VkCommandRecording.hpp"
 #include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 
 namespace Penrose {
 
-    ImGuiDrawRenderOperator::~ImGuiDrawRenderOperator() {
-        ImGui_ImplVulkan_Shutdown();
+    ImGuiDrawRenderOperator::ImGuiDrawRenderOperator(ResourceSet *resources)
+            : _vulkanBackend(resources->get<VulkanBackend>()),
+              _deviceContext(resources->get<DeviceContext>()),
+              _presentContext(resources->get<PresentContext>()) {
+        //
     }
 
-    void ImGuiDrawRenderOperator::execute(const RenderOperator::Context &context) {
+    void ImGuiDrawRenderOperator::destroy() {
+        if (!this->_state.has_value()) {
+            return;
+        }
+
+        ImGui_ImplVulkan_Shutdown();
+
+        this->_state = std::nullopt;
+    }
+
+    void ImGuiDrawRenderOperator::execute(CommandRecording *commandRecording, const RenderOperator::Context &context) {
+
+        if (this->_state.has_value() && (this->_state->subgraph != context.subgraph ||
+                                         this->_state->subgraphPassIdx != context.subgraphPassIdx)) {
+            throw EngineError(fmt::format("ImGui draw operator was bound to {:#x}/pass {}",
+                                          (std::size_t) this->_state->subgraph, this->_state->subgraphPassIdx));
+        }
+
+        if (!this->_state.has_value()) {
+            this->initFor(context);
+        }
+
+        auto commandBuffer = dynamic_cast<VkCommandRecording *>(commandRecording)->getCommandBuffer();
+
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -28,17 +57,10 @@ namespace Penrose {
 
         ImGui::Render();
         ImDrawData *drawData = ImGui::GetDrawData();
-        ImGui_ImplVulkan_RenderDrawData(drawData, context.commandBuffer);
+        ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
     }
 
-    ImGuiDrawRenderOperatorFactory::ImGuiDrawRenderOperatorFactory(ResourceSet *resources)
-            : _vulkanBackend(resources->get<VulkanBackend>()),
-              _deviceContext(resources->get<DeviceContext>()),
-              _presentContext(resources->get<PresentContext>()) {
-        //
-    }
-
-    RenderOperator *ImGuiDrawRenderOperatorFactory::create(const RenderOperatorFactory::Context &context) const {
+    void ImGuiDrawRenderOperator::initFor(const RenderOperator::Context &context) {
         auto logicalDevice = this->_deviceContext->getLogicalDevice();
         auto imageCount = static_cast<uint32_t>(this->_presentContext->getSwapchainImages().size());
 
@@ -50,7 +72,7 @@ namespace Penrose {
                 .Queue = this->_deviceContext->getGraphicsQueue(),
                 .PipelineCache = nullptr,
                 .DescriptorPool = this->_deviceContext->getDescriptorPool(),
-                .Subpass = context.passIdx,
+                .Subpass = context.subgraphPassIdx,
                 .MinImageCount = imageCount,
                 .ImageCount = imageCount,
                 .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
@@ -83,6 +105,6 @@ namespace Penrose {
 
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
-        return new ImGuiDrawRenderOperator();
+        this->_state = {context.subgraph, context.subgraphPassIdx};
     }
 }

@@ -86,7 +86,7 @@ namespace Penrose {
         ecsManager->registerComponent<ViewComponent>();
 
         // builtin / rendering operators
-        this->_resources.add<RenderOperatorFactory, ForwardSceneDrawRenderOperatorFactory>();
+        this->_resources.add<RenderOperator, ForwardSceneDrawRenderOperator>();
 
         //
         auto defaultPipelineInfo = PipelineInfo()
@@ -139,6 +139,8 @@ namespace Penrose {
 
             alive = false;
         });
+
+        this->_resources.get<RenderManager>()->run();
 
         std::chrono::high_resolution_clock::time_point start;
         float delta = 0;
