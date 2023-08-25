@@ -5,6 +5,7 @@
 
 #include <Penrose/ECS/Entity.hpp>
 #include <Penrose/Rendering/DescriptorBindingValue.hpp>
+#include <Penrose/Rendering/PipelineInfo.hpp>
 
 namespace Penrose {
 
@@ -13,6 +14,8 @@ namespace Penrose {
     class Pipeline {
     public:
         virtual ~Pipeline() = default;
+
+        [[nodiscard]] virtual const PipelineInfo &getPipelineInfo() const = 0;
 
         [[nodiscard]] virtual Descriptor *getDescriptorFor(const Entity &entity,
                                                            const std::set<DescriptorBindingValue> &values) = 0;

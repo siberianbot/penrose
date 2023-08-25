@@ -22,6 +22,8 @@ namespace Penrose {
                    vk::Pipeline pipeline);
         ~VkPipeline() override;
 
+        [[nodiscard]] const PipelineInfo &getPipelineInfo() const override { return this->_pipelineInfo; }
+
         [[nodiscard]] const vk::DescriptorSetLayout &getDescriptorSetLayout() const {
             return this->_descriptorSetLayout;
         }

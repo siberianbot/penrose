@@ -78,6 +78,8 @@ src = [
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
     'src/Builtin/Rendering/VkBuffer.cpp',
     'src/Builtin/Rendering/VkBufferFactory.cpp',
+    'src/Builtin/Rendering/VkCommandRecording.cpp',
+    'src/Builtin/Rendering/VkDescriptor.cpp',
     'src/Builtin/Rendering/VkFramebuffer.cpp',
     'src/Builtin/Rendering/VkImage.cpp',
     'src/Builtin/Rendering/VkImageFactory.cpp',
