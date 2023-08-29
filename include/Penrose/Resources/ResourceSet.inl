@@ -55,6 +55,16 @@ namespace Penrose {
     }
 
     template<IsResource T>
+    Lazy<T> ResourceSet::getLazy() const {
+        return Lazy<T>([this]() { return this->get<T>(); });
+    }
+
+    template<IsResource T>
+    LazyCollection<T> ResourceSet::getAllLazy() const {
+        return LazyCollection<T>([this]() { return this->getAll<T>(); });
+    }
+
+    template<IsResource T>
     requires IsDefaultConstructableResource<T> || IsConstructableWithResourceSetResource<T>
     constexpr T *ResourceSet::construct() {
         if constexpr (IsConstructableWithResourceSetResource<T>) {

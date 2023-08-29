@@ -2,6 +2,9 @@
 #define PENROSE_RENDERING_RENDER_GRAPH_EXECUTOR_PROVIDER_HPP
 
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
+#include <Penrose/Rendering/RenderOperator.hpp>
+#include <Penrose/Rendering/RenderTargetFactory.hpp>
+#include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -20,10 +23,12 @@ namespace Penrose {
         RenderGraphExecutor *createFor(const RenderGraphInfo &graph);
 
     private:
-        ResourceSet *_resources;
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
         RenderSubgraphFactory *_renderSubgraphFactory;
+
+        LazyCollection<RenderOperator> _renderOperators;
+        Lazy<RenderTargetFactory> _renderTargetFactory;
     };
 }
 

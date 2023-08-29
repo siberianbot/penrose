@@ -58,6 +58,10 @@ namespace Penrose {
         }
     }
 
+    ResourceSet::ResourceList::const_iterator ResourceSet::getBeginIterator() const {
+        return this->_resources.begin();
+    }
+
     ResourceSet::ResourceList::iterator ResourceSet::addToList(Resource *resource,
                                                                std::optional<ResourceList::iterator> before) {
         auto position = before.has_value() ? *before : this->_resources.end();

@@ -3,7 +3,6 @@
 #include <map>
 #include <string>
 
-#include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/RenderSubgraphFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -19,10 +18,11 @@
 namespace Penrose {
 
     RenderGraphExecutorProvider::RenderGraphExecutorProvider(ResourceSet *resources)
-            : _resources(resources),
-              _deviceContext(resources->get<DeviceContext>()),
+            : _deviceContext(resources->get<DeviceContext>()),
               _presentContext(resources->get<PresentContext>()),
-              _renderSubgraphFactory(resources->get<RenderSubgraphFactory>()) {
+              _renderSubgraphFactory(resources->get<RenderSubgraphFactory>()),
+              _renderOperators(resources->getAllLazy<RenderOperator>()),
+              _renderTargetFactory(resources->getLazy<RenderTargetFactory>()) {
         //
     }
 
@@ -33,9 +33,8 @@ namespace Penrose {
         }
 
         std::map<std::string, RenderOperator *> operatorMap;
-        auto operators = this->_resources->getAll<RenderOperator>();
 
-        for (const auto &op: operators) {
+        for (auto &op: this->_renderOperators) {
             operatorMap.emplace(op->getName(), op);
         }
 
@@ -51,7 +50,7 @@ namespace Penrose {
         }
 
         return new RenderGraphExecutor(this->_deviceContext, this->_presentContext, operatorMap,
-                                       this->_resources->get<VkRenderTargetFactory>(),
+                                       dynamic_cast<VkRenderTargetFactory *>(this->_renderTargetFactory.get()),
                                        graph, targets, subgraphs);
     }
 }

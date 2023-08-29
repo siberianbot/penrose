@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <vector>
 
+#include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -42,11 +43,19 @@ namespace Penrose {
         template<IsResource T>
         [[nodiscard]] std::optional<ResourceList::iterator> tryGetIteratorOf() const;
 
+        [[nodiscard]] ResourceList::const_iterator getBeginIterator() const;
+
         template<IsResource T>
         [[nodiscard]] T *get() const;
 
         template<IsResource T>
         [[nodiscard]] std::vector<T *> getAll() const;
+
+        template<IsResource T>
+        [[nodiscard]] Lazy<T> getLazy() const;
+
+        template<IsResource T>
+        [[nodiscard]] LazyCollection<T> getAllLazy() const;
 
     private:
         ResourceList _resources;
