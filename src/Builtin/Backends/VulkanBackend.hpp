@@ -12,18 +12,9 @@ namespace Penrose {
 
     class ResourceSet;
     class GlfwBackend;
+    class Log;
 
     class VulkanBackend : public Resource, public Initializable {
-    private:
-        GlfwBackend *_glfwBackend;
-
-        std::optional<vk::Instance> _instance;
-
-        static VkBool32 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                      VkDebugUtilsMessageTypeFlagsEXT messageTypes,
-                                      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                                      void *pUserData);
-
     public:
         explicit VulkanBackend(ResourceSet *resources);
         ~VulkanBackend() override = default;
@@ -32,6 +23,17 @@ namespace Penrose {
         void destroy() override;
 
         [[nodiscard]] vk::Instance &getInstance() { return this->_instance.value(); }
+
+    private:
+        GlfwBackend *_glfwBackend;
+        Log *_log;
+
+        std::optional<vk::Instance> _instance;
+
+        static VkBool32 debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                      VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+                                      const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                      void *pUserData);
     };
 }
 

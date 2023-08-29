@@ -37,6 +37,7 @@ src = [
 
     # Core
     'src/Core/Engine.cpp',
+    'src/Core/Log.cpp',
 
     # ECS
     'src/ECS/ECSManager.cpp',

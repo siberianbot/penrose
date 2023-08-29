@@ -5,6 +5,7 @@
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Common/Vertex.hpp>
+#include <Penrose/Core/Log.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
@@ -42,6 +43,9 @@
 namespace Penrose {
 
     Engine::Engine() {
+        // core
+        this->_resources.add<Log>();
+
         // backends
         this->_resources.add<GlfwBackend>();
         this->_resources.add<ImGuiBackend>();
