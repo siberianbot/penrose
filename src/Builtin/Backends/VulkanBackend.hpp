@@ -5,6 +5,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -12,7 +13,7 @@ namespace Penrose {
     class ResourceSet;
     class GlfwBackend;
 
-    class VulkanBackend : public InitializableResource {
+    class VulkanBackend : public Resource, public Initializable {
     private:
         GlfwBackend *_glfwBackend;
 

@@ -12,7 +12,7 @@ namespace Penrose {
     class Pipeline;
     class RenderSubgraph;
 
-    class PipelineFactory : public InitializableResource {
+    class PipelineFactory : public Resource {
     public:
         ~PipelineFactory() override = default;
 

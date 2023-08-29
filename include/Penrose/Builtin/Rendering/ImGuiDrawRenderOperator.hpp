@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include <Penrose/Rendering/RenderOperator.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 
 namespace Penrose {
 
@@ -16,7 +17,7 @@ namespace Penrose {
     class RenderSubgraph;
 
     // TODO: this operator should be abstract
-    class ImGuiDrawRenderOperator : public RenderOperator {
+    class ImGuiDrawRenderOperator : public RenderOperator, public Initializable {
     public:
         constexpr static const std::string_view NAME = "ImGuiDraw";
 

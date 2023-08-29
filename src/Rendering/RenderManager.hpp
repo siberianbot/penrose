@@ -10,7 +10,9 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Events/Event.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/Runnable.hpp>
 
 #include "src/Constants.hpp"
 
@@ -24,7 +26,7 @@ namespace Penrose {
     class RenderGraphExecutor;
     class RenderGraphExecutorProvider;
 
-    class RenderManager : public InitializableResource {
+    class RenderManager : public Resource, public Initializable, public Runnable {
     public:
         explicit RenderManager(ResourceSet *resources);
         ~RenderManager() override = default;
@@ -32,7 +34,8 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
-        void run();
+        void run() override;
+        void stop() override;
 
     private:
         EventQueue *_eventQueue;

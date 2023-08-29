@@ -10,14 +10,6 @@ namespace Penrose {
         virtual ~Resource() = default;
     };
 
-    class InitializableResource : public Resource {
-    public:
-        ~InitializableResource() override = default;
-
-        virtual void init() = 0;
-        virtual void destroy() = 0;
-    };
-
     template<typename T>
     concept IsResource = std::is_base_of<Resource, T>::value;
 }

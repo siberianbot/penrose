@@ -6,6 +6,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -14,7 +15,7 @@ namespace Penrose {
     class DeviceContext;
     class Surface;
 
-    class PresentContext : public InitializableResource {
+    class PresentContext : public Resource, public Initializable {
     public:
         explicit PresentContext(ResourceSet *resources);
         ~PresentContext() override = default;

@@ -7,12 +7,13 @@
 #include <string>
 
 #include <Penrose/ECS/Entity.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Scene/SceneNode.hpp>
 
 namespace Penrose {
 
-    class SceneManager : public InitializableResource {
+    class SceneManager : public Resource, public Initializable {
     public:
         ~SceneManager() override = default;
 

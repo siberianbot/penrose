@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Rendering/PipelineFactory.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 
 #include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 
@@ -17,7 +18,7 @@ namespace Penrose {
     class AssetManager;
     class DeviceContext;
 
-    class VkPipelineFactory : public PipelineFactory {
+    class VkPipelineFactory : public PipelineFactory, public Initializable {
     public:
         explicit VkPipelineFactory(ResourceSet *resources);
         ~VkPipelineFactory() override = default;

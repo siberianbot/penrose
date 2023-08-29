@@ -6,6 +6,7 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -14,7 +15,7 @@ namespace Penrose {
     class VulkanBackend;
     class Surface;
 
-    class DeviceContext : public InitializableResource {
+    class DeviceContext : public Resource, public Initializable {
     private:
         struct PhysicalDeviceProxy {
             vk::PhysicalDevice handle;

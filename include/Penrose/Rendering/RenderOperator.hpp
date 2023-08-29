@@ -13,7 +13,7 @@ namespace Penrose {
     class CommandRecording;
     class RenderSubgraph;
 
-    class RenderOperator : public InitializableResource {
+    class RenderOperator : public Resource {
     public:
         struct Context {
             RenderSubgraph *subgraph;

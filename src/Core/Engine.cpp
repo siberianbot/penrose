@@ -140,7 +140,7 @@ namespace Penrose {
             alive = false;
         });
 
-        this->_resources.get<RenderManager>()->run();
+        this->_resources.runAll();
 
         std::chrono::high_resolution_clock::time_point start;
         float delta = 0;
@@ -154,6 +154,8 @@ namespace Penrose {
 
             delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
         }
+
+        this->_resources.stopAll();
 
         eventQueue->removeHandler(handlerIdx);
 

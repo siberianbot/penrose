@@ -46,20 +46,6 @@ namespace Penrose {
 
         this->_eventHandlerIdx = this->_eventQueue->addHandler([this](const Event &event) {
             switch (event.type) {
-                case EventType::EngineDestroyRequested:
-                    if (this->_thread.has_value()) {
-                        this->_deviceContext->getLogicalDevice().waitIdle();
-
-                        this->_thread->request_stop();
-
-                        if (this->_thread->joinable()) {
-                            this->_thread->join();
-                        }
-
-                        this->_thread = std::nullopt;
-                    }
-                    break;
-
                 case EventType::RenderGraphModified:
                     this->_renderGraphModified = true;
                     break;
@@ -76,18 +62,6 @@ namespace Penrose {
 
     void RenderManager::destroy() {
         this->_eventQueue->removeHandler(this->_eventHandlerIdx);
-
-        if (this->_thread.has_value()) {
-            this->_thread->request_stop();
-
-            if (this->_thread->joinable()) {
-                this->_thread->join();
-            }
-
-            this->_thread = std::nullopt;
-        }
-
-        this->_deviceContext->getLogicalDevice().waitIdle();
 
         this->_currentRenderGraphExecutor = std::nullopt;
 
@@ -148,6 +122,20 @@ namespace Penrose {
                 }
             }
         });
+    }
+
+    void RenderManager::stop() {
+        if (this->_thread.has_value()) {
+            this->_thread->request_stop();
+
+            if (this->_thread->joinable()) {
+                this->_thread->join();
+            }
+
+            this->_thread = std::nullopt;
+        }
+
+        this->_deviceContext->getLogicalDevice().waitIdle();
     }
 
     bool RenderManager::renderFrame(const std::uint32_t &frameIdx) const {

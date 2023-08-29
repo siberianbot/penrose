@@ -32,6 +32,9 @@ namespace Penrose {
         void initAll();
         void destroyAll();
 
+        void runAll();
+        void stopAll();
+
         template<IsResource TBase, IsResource TImpl = TBase>
         requires std::is_base_of<TBase, TImpl>::value
         TBase *add(std::optional<ResourceList::iterator> before = std::nullopt);

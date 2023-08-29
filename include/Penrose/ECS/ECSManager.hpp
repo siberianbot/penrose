@@ -11,6 +11,7 @@
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/Entity.hpp>
 #include <Penrose/ECS/System.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -18,7 +19,7 @@ namespace Penrose {
     class ResourceSet;
     class EventQueue;
 
-    class ECSManager : public InitializableResource {
+    class ECSManager : public Resource, public Initializable {
     public:
         explicit ECSManager(ResourceSet *resources);
         ~ECSManager() override = default;

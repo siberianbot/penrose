@@ -5,12 +5,14 @@
 #include <fmt/core.h>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/Runnable.hpp>
 
 namespace Penrose {
 
     void ResourceSet::initAll() {
         for (const auto &resource: this->_resources) {
-            auto initializable = dynamic_cast<InitializableResource *>(resource.get());
+            auto initializable = dynamic_cast<Initializable *>(resource.get());
 
             if (initializable == nullptr) {
                 continue;
@@ -22,13 +24,37 @@ namespace Penrose {
 
     void ResourceSet::destroyAll() {
         for (const auto &resource: std::ranges::reverse_view(this->_resources)) {
-            auto initializable = dynamic_cast<InitializableResource *>(resource.get());
+            auto initializable = dynamic_cast<Initializable *>(resource.get());
 
             if (initializable == nullptr) {
                 continue;
             }
 
             initializable->destroy();
+        }
+    }
+
+    void ResourceSet::runAll() {
+        for (const auto &resource: this->_resources) {
+            auto runnable = dynamic_cast<Runnable *>(resource.get());
+
+            if (runnable == nullptr) {
+                continue;
+            }
+
+            runnable->run();
+        }
+    }
+
+    void ResourceSet::stopAll() {
+        for (const auto &resource: std::ranges::reverse_view(this->_resources)) {
+            auto runnable = dynamic_cast<Runnable *>(resource.get());
+
+            if (runnable == nullptr) {
+                continue;
+            }
+
+            runnable->stop();
         }
     }
 

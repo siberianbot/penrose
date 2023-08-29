@@ -10,6 +10,7 @@
 #include <Penrose/ECS/Entity.hpp>
 #include <Penrose/Events/Event.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -19,7 +20,7 @@ namespace Penrose {
     class EventQueue;
     class SceneManager;
 
-    class RenderListBuilder : public InitializableResource {
+    class RenderListBuilder : public Resource, public Initializable {
     public:
         explicit RenderListBuilder(ResourceSet *resources);
         ~RenderListBuilder() override = default;

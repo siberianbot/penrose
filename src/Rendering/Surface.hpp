@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/Size.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 struct GLFWwindow;
@@ -16,7 +17,7 @@ namespace Penrose {
     class EventQueue;
     class VulkanBackend;
 
-    class Surface : public InitializableResource {
+    class Surface : public Resource, public Initializable {
     private:
         EventQueue *_eventQueue;
         VulkanBackend *_vulkanBackend;

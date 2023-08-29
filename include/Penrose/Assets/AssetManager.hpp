@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include <Penrose/Assets/Asset.hpp>
+#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
@@ -26,7 +27,7 @@ namespace Penrose {
     template<typename T>
     concept IsAsset = std::is_base_of<Asset, T>::value;
 
-    class AssetManager : public InitializableResource {
+    class AssetManager : public Resource, public Initializable {
     public:
         explicit AssetManager(ResourceSet *resources);
         ~AssetManager() override = default;
