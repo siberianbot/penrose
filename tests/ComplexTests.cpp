@@ -70,10 +70,10 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
     assetDictionary->addDir("tests/data");
 
     auto assetManager = engine.resources().get<AssetManager>();
-    assetManager->queueMeshLoading("models/cube.obj");
-    assetManager->queueImageLoading("textures/texture-1024.png");
-    assetManager->queueShaderLoading("shaders/default-forward-rendering.frag.spv");
-    assetManager->queueShaderLoading("shaders/default-forward-rendering.vert.spv");
+    assetManager->enqueue("models/cube.asset");
+    assetManager->enqueue("textures/texture-1024.asset");
+    assetManager->enqueue("shaders/default-forward-rendering.frag.asset");
+    assetManager->enqueue("shaders/default-forward-rendering.vert.asset");
 
     auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
@@ -116,8 +116,8 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
         auto entity = ecsManager->createEntity();
 
         auto meshRenderer = ecsManager->addComponent<MeshRendererComponent>(entity);
-        meshRenderer->setMeshAsset("models/cube.obj");
-        meshRenderer->setAlbedoTextureAsset("textures/texture-1024.png");
+        meshRenderer->setMeshAsset("models/cube.asset");
+        meshRenderer->setAlbedoTextureAsset("textures/texture-1024.asset");
 
         auto transform = ecsManager->addComponent<TransformComponent>(entity);
         transform->getPos() = glm::vec3(2.5 * x, 0, 4);
@@ -199,10 +199,10 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
     assetDictionary->addDir("tests/data");
 
     auto assetManager = engine.resources().get<AssetManager>();
-    assetManager->queueMeshLoading("models/cube.obj");
-    assetManager->queueImageLoading("textures/texture-1024.png");
-    assetManager->queueShaderLoading("shaders/default-forward-rendering.frag.spv");
-    assetManager->queueShaderLoading("shaders/default-forward-rendering.vert.spv");
+    assetManager->enqueue("models/cube.asset");
+    assetManager->enqueue("textures/texture-1024.asset");
+    assetManager->enqueue("shaders/default-forward-rendering.frag.asset");
+    assetManager->enqueue("shaders/default-forward-rendering.vert.asset");
 
     auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
@@ -245,8 +245,8 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
         auto entity = ecsManager->createEntity();
 
         auto meshRenderer = ecsManager->addComponent<MeshRendererComponent>(entity);
-        meshRenderer->setMeshAsset("models/cube.obj");
-        meshRenderer->setAlbedoTextureAsset("textures/texture-1024.png");
+        meshRenderer->setMeshAsset("models/cube.asset");
+        meshRenderer->setAlbedoTextureAsset("textures/texture-1024.asset");
 
         auto transform = ecsManager->addComponent<TransformComponent>(entity);
         transform->getPos() = glm::vec3(0);

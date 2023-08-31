@@ -12,17 +12,16 @@
 #include <unordered_map>
 
 #include <Penrose/Assets/Asset.hpp>
+#include <Penrose/Assets/AssetDictionary.hpp>
+#include <Penrose/Assets/AssetLoader.hpp>
+#include <Penrose/Core/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
-    class AssetDictionary;
-    class DeviceContext;
-    class ImageAssetFactory;
-    class MeshAssetFactory;
-    class ShaderAssetFactory;
 
     template<typename T>
     concept IsAsset = std::is_base_of<Asset, T>::value;
@@ -35,9 +34,7 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
-        void queueImageLoading(const std::string &asset);
-        void queueMeshLoading(const std::string &asset);
-        void queueShaderLoading(const std::string &asset);
+        void enqueue(const std::string &asset);
 
         [[nodiscard]] bool isLoaded(const std::string &asset) const;
 
@@ -57,17 +54,13 @@ namespace Penrose {
         };
 
         struct Entry {
-            AssetType type;
             LoadingState state;
             std::shared_ptr<Asset> ptr;
         };
 
-        AssetDictionary *_assetDictionary;
-        DeviceContext *_deviceContext;
-
-        ImageAssetFactory *_imageAssetFactory;
-        MeshAssetFactory *_meshAssetFactory;
-        ShaderAssetFactory *_shaderAssetFactory;
+        Lazy<AssetDictionary> _assetDictionary;
+        Lazy<AssetLoader> _assetLoader;
+        Lazy<Log> _log;
 
         std::unordered_map<std::string, Entry> _assets;
 
@@ -76,10 +69,6 @@ namespace Penrose {
         std::queue<std::string> _loadingQueue;
 
         void tryLoadAsset(const std::string &asset);
-
-        [[nodiscard]] std::shared_ptr<Asset> loadShaderByPath(std::filesystem::path &&path);
-        [[nodiscard]] std::shared_ptr<Asset> loadMeshByPath(std::filesystem::path &&path);
-        [[nodiscard]] std::shared_ptr<Asset> loadImageByPath(std::filesystem::path &&path);
     };
 }
 

@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
+#include <Penrose/Assets/AssetLoader.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Core/Log.hpp>
@@ -74,6 +75,7 @@ namespace Penrose {
         this->_resources.add<ImageAssetFactory, VkImageAssetFactory>();
         this->_resources.add<MeshAssetFactory, VkMeshAssetFactory>();
         this->_resources.add<ShaderAssetFactory, VkShaderAssetFactory>();
+        this->_resources.add<AssetLoader>();
         this->_resources.add<AssetManager>();
 
         // rendering
@@ -92,7 +94,7 @@ namespace Penrose {
         // builtin / rendering operators
         this->_resources.add<RenderOperator, ForwardSceneDrawRenderOperator>();
 
-        //
+        // TODO:
         auto defaultPipelineInfo = PipelineInfo()
                 .setLayout(
                         PipelineLayout()
@@ -107,11 +109,11 @@ namespace Penrose {
                 )
                 .addStage(
                         PipelineShaderStage(PipelineShaderStageType::Vertex,
-                                            "shaders/default-forward-rendering.vert.spv")
+                                            "shaders/default-forward-rendering.vert.asset")
                 )
                 .addStage(
                         PipelineShaderStage(PipelineShaderStageType::Fragment,
-                                            "shaders/default-forward-rendering.frag.spv")
+                                            "shaders/default-forward-rendering.frag.asset")
                 )
                 .addBinding(
                         PipelineBinding(PipelineBindingInputRate::Vertex, sizeof(Vertex))

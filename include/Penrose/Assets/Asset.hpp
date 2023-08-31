@@ -1,20 +1,15 @@
 #ifndef PENROSE_ASSETS_ASSET_HPP
 #define PENROSE_ASSETS_ASSET_HPP
 
-namespace Penrose {
+#include <Penrose/Assets/AssetType.hpp>
 
-    enum class AssetType {
-        Common,
-        Shader,
-        Mesh,
-        Image
-    };
+namespace Penrose {
 
     class Asset {
     public:
         virtual ~Asset() = default;
 
-        [[nodiscard]] virtual AssetType getType() const { return AssetType::Common; }
+        [[nodiscard]] virtual AssetType getType() const = 0;
     };
 }
 

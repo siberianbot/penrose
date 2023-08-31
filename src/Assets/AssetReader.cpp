@@ -1,6 +1,5 @@
-#include "AssetReader.hpp"
+#include <Penrose/Assets/AssetReader.hpp>
 
-#include <fstream>
 #include <utility>
 
 #include <fmt/core.h>
@@ -14,28 +13,23 @@ namespace Penrose {
         //
     }
 
-    void AssetReader::read() {
-        auto stream = std::ifstream(this->_path, std::ios::ate | std::ios::binary);
-
-        if (!stream.is_open()) {
-            throw EngineError(fmt::format("Failed to open asset {}", this->_path.string()));
+    void AssetReader::open() {
+        if (this->_stream.is_open()) {
+            return;
         }
 
-        auto length = stream.tellg();
-        this->_data = std::vector<std::byte>(length);
+        this->_stream = std::ifstream(this->_path, std::ios::binary);
 
-        stream.seekg(0, std::ios::beg);
-        stream.read(reinterpret_cast<char *>(this->_data->data()), length);
-
-        if (!stream.good()) {
-            throw EngineError(fmt::format("Failed to read asset {}", this->_path.string()));
+        if (!this->_stream.is_open()) {
+            throw EngineError(fmt::format("Failed to open {}", this->_path.string()));
         }
     }
 
-    AssetReader AssetReader::read(std::filesystem::path &&path) {
-        auto reader = AssetReader(path);
-        reader.read();
+    void AssetReader::read(std::size_t size, void *ptr) {
+        this->_stream.read(reinterpret_cast<char *>(ptr), static_cast<std::streamsize>(size));
 
-        return reader;
+        if (!this->_stream.good()) {
+            throw EngineError(fmt::format("Failed to read {}", this->_path.string()));
+        }
     }
 }

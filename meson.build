@@ -17,8 +17,6 @@ deps = [
     dependency('vulkan'),
     dependency('imgui'),
     dependency('glm'),
-    cmake.subproject('tinyobjloader', options: cmake_opts).dependency('tinyobjloader'),
-    # TODO: https://github.com/nothings/stb
 ]
 
 incdir = include_directories('include')
@@ -26,6 +24,7 @@ incdir = include_directories('include')
 src = [
     # Assets
     'src/Assets/AssetDictionary.cpp',
+    'src/Assets/AssetLoader.cpp',
     'src/Assets/AssetReader.cpp',
     'src/Assets/AssetManager.cpp',
     'src/Assets/ImageAsset.cpp',
