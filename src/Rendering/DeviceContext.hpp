@@ -7,13 +7,16 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
+
+#include "src/Rendering/Surface.hpp"
+
+#include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 namespace Penrose {
 
     class ResourceSet;
-    class VulkanBackend;
-    class Surface;
 
     class DeviceContext : public Resource, public Initializable {
     private:
@@ -30,8 +33,8 @@ namespace Penrose {
             vk::Queue presentQueue;
         };
 
-        VulkanBackend *_vulkanBackend;
-        Surface *_surface;
+        Lazy<VulkanBackend> _vulkanBackend;
+        Lazy<Surface> _surface;
 
         std::optional<PhysicalDeviceProxy> _physicalDevice;
         std::optional<LogicalDeviceProxy> _logicalDevice;

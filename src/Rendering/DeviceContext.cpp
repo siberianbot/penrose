@@ -7,10 +7,6 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/Surface.hpp"
-
-#include "src/Builtin/Backends/VulkanBackend.hpp"
-
 namespace Penrose {
 
     static constexpr const std::array<std::string_view, 2> REQUIRED_DEVICE_EXTENSIONS = {
@@ -144,8 +140,8 @@ namespace Penrose {
     }
 
     DeviceContext::DeviceContext(ResourceSet *resources)
-            : _vulkanBackend(resources->get<VulkanBackend>()),
-              _surface(resources->get<Surface>()) {
+            : _vulkanBackend(resources->getLazy<VulkanBackend>()),
+              _surface(resources->getLazy<Surface>()) {
         //
     }
 

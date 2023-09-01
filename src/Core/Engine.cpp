@@ -28,18 +28,9 @@
 
 #include "src/Builtin/Backends/GlfwBackend.hpp"
 #include "src/Builtin/Backends/ImGuiBackend.hpp"
-#include "src/Builtin/Backends/VulkanBackend.hpp"
+#include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
-#include "src/Builtin/Assets/VkImageAssetFactory.hpp"
-#include "src/Builtin/Assets/VkMeshAssetFactory.hpp"
-#include "src/Builtin/Assets/VkShaderAssetFactory.hpp"
-#include "src/Builtin/Rendering/VkBufferFactory.hpp"
-#include "src/Builtin/Rendering/VkImageFactory.hpp"
-#include "src/Builtin/Rendering/VkPipelineFactory.hpp"
-#include "src/Builtin/Rendering/VkRenderSubgraphFactory.hpp"
-#include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
-#include "src/Builtin/Rendering/VkSamplerFactory.hpp"
-#include "src/Builtin/Rendering/VkShaderFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
 
 namespace Penrose {
 
@@ -48,9 +39,10 @@ namespace Penrose {
         this->_resources.add<Log>();
 
         // backends
-        this->_resources.add<GlfwBackend>();
+        this->_resources.add<GlfwBackend, VkInstanceExtensionsProvider>();
         this->_resources.add<ImGuiBackend>();
-        this->_resources.add<VulkanBackend>();
+
+        addVulkan(this->_resources);
 
         // core
         this->_resources.add<EventQueue>();
@@ -59,27 +51,13 @@ namespace Penrose {
         this->_resources.add<SceneManager>();
 
         // rendering / core
-        this->_resources.add<Surface>();
-        this->_resources.add<DeviceContext>();
-        this->_resources.add<PresentContext>();
-
-        // rendering / factories
-        this->_resources.add<VkBufferFactory, BufferFactory>();
-        this->_resources.add<VkImageFactory, ImageFactory>();
-        this->_resources.add<VkShaderFactory, ShaderFactory>();
-        this->_resources.add<VkRenderSubgraphFactory, RenderSubgraphFactory>();
-        this->_resources.add<VkRenderTargetFactory, RenderTargetFactory>();
-        this->_resources.add<VkSamplerFactory, SamplerFactory>();
+        this->_resources.add<Surface>(this->_resources.tryGetIteratorOf<DeviceContext>().value());
 
         // asset
-        this->_resources.add<VkImageAssetFactory, ImageAssetFactory>();
-        this->_resources.add<VkMeshAssetFactory, MeshAssetFactory>();
-        this->_resources.add<VkShaderAssetFactory, ShaderAssetFactory>();
         this->_resources.add<AssetLoader>();
         this->_resources.add<AssetManager>();
 
         // rendering
-        auto pipelineFactory = this->_resources.add<VkPipelineFactory, PipelineFactory>();
         this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutorProvider>();
         this->_resources.add<RenderListBuilder>();
@@ -127,7 +105,7 @@ namespace Penrose {
                                                                        offsetof(Vertex, uv)))
                 );
 
-        pipelineFactory->addPipeline("Default", defaultPipelineInfo);
+        this->_resources.get<PipelineFactory>()->addPipeline("Default", defaultPipelineInfo);
     }
 
     void Engine::run() {

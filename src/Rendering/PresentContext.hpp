@@ -7,13 +7,15 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
+
+#include "src/Rendering/DeviceContext.hpp"
+#include "src/Rendering/Surface.hpp"
 
 namespace Penrose {
 
     class ResourceSet;
-    class DeviceContext;
-    class Surface;
 
     class PresentContext : public Resource, public Initializable {
     public:
@@ -48,8 +50,8 @@ namespace Penrose {
             std::vector<vk::ImageView> imageViews;
         };
 
-        DeviceContext *_deviceContext;
-        Surface *_surface;
+        Lazy<DeviceContext> _deviceContext;
+        Lazy<Surface> _surface;
 
         std::optional<SwapchainProxy> _swapchain;
 

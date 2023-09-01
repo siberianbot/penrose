@@ -14,7 +14,7 @@
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Runnable.hpp>
 
-#include "src/Constants.hpp"
+#include "src/Builtin/Vulkan/Constants.hpp"
 
 namespace Penrose {
 

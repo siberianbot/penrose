@@ -6,16 +6,18 @@
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
+#include "src/Builtin/Vulkan/VkInstanceExtensionsProvider.hpp"
+
 namespace Penrose {
 
-    class GlfwBackend : public Resource, public Initializable {
+    class GlfwBackend : public Resource, public Initializable, public VkInstanceExtensionsProvider {
     public:
         ~GlfwBackend() override = default;
 
         void init() override;
         void destroy() override;
 
-        [[nodiscard]] std::vector<const char *> getRequiredInstanceExtensions() const;
+        [[nodiscard]] std::vector<const char *> getRequiredInstanceExtensions() const override;
     };
 }
 

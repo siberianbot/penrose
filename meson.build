@@ -59,37 +59,41 @@ src = [
     'src/Scene/SceneManager.cpp',
     'src/Scene/SceneNode.cpp',
 
-    # Builtin / Assets
-    'src/Builtin/Assets/VkImageAssetFactory.cpp',
-    'src/Builtin/Assets/VkMeshAssetFactory.cpp',
-    'src/Builtin/Assets/VkShaderAssetFactory.cpp',
-
     # Builtin / Backends
     'src/Builtin/Backends/GlfwBackend.cpp',
     'src/Builtin/Backends/ImGuiBackend.cpp',
-    'src/Builtin/Backends/VulkanBackend.cpp',
 
     # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
-    'src/Builtin/Rendering/VkBuffer.cpp',
-    'src/Builtin/Rendering/VkBufferFactory.cpp',
-    'src/Builtin/Rendering/VkCommandRecording.cpp',
-    'src/Builtin/Rendering/VkDescriptor.cpp',
-    'src/Builtin/Rendering/VkFramebuffer.cpp',
-    'src/Builtin/Rendering/VkImage.cpp',
-    'src/Builtin/Rendering/VkImageFactory.cpp',
-    'src/Builtin/Rendering/VkPipeline.cpp',
-    'src/Builtin/Rendering/VkPipelineFactory.cpp',
-    'src/Builtin/Rendering/VkRenderSubgraph.cpp',
-    'src/Builtin/Rendering/VkRenderSubgraphFactory.cpp',
-    'src/Builtin/Rendering/VkRenderTarget.cpp',
-    'src/Builtin/Rendering/VkRenderTargetFactory.cpp',
-    'src/Builtin/Rendering/VkSampler.cpp',
-    'src/Builtin/Rendering/VkSamplerFactory.cpp',
-    'src/Builtin/Rendering/VkShader.cpp',
-    'src/Builtin/Rendering/VkShaderFactory.cpp',
-    'src/Builtin/Rendering/VkUtils.cpp',
+
+    # Builtin / GLFW /
+
+    # Builtin / Vulkan
+    'src/Builtin/Vulkan/VulkanBackend.cpp',
+
+    'src/Builtin/Vulkan/Assets/VkImageAssetFactory.cpp',
+    'src/Builtin/Vulkan/Assets/VkMeshAssetFactory.cpp',
+    'src/Builtin/Vulkan/Assets/VkShaderAssetFactory.cpp',
+
+    'src/Builtin/Vulkan/Rendering/VkBuffer.cpp',
+    'src/Builtin/Vulkan/Rendering/VkBufferFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkCommandRecording.cpp',
+    'src/Builtin/Vulkan/Rendering/VkDescriptor.cpp',
+    'src/Builtin/Vulkan/Rendering/VkFramebuffer.cpp',
+    'src/Builtin/Vulkan/Rendering/VkImage.cpp',
+    'src/Builtin/Vulkan/Rendering/VkImageFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkPipeline.cpp',
+    'src/Builtin/Vulkan/Rendering/VkPipelineFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderSubgraph.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderTarget.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkSampler.cpp',
+    'src/Builtin/Vulkan/Rendering/VkSamplerFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkShader.cpp',
+    'src/Builtin/Vulkan/Rendering/VkShaderFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkUtils.cpp',
 ]
 
 cpp_args = [

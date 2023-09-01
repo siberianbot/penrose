@@ -18,10 +18,9 @@ namespace Penrose {
         glfwTerminate();
     }
 
-    std::vector<const char *>
-    GlfwBackend::getRequiredInstanceExtensions() const { // NOLINT(readability-convert-member-functions-to-static)
+    std::vector<const char *> GlfwBackend::getRequiredInstanceExtensions() const {
         std::uint32_t count = 0;
-        const char **extensions = glfwGetRequiredInstanceExtensions(&count);
+        auto extensions = glfwGetRequiredInstanceExtensions(&count);
 
         return {extensions, extensions + count};
     }

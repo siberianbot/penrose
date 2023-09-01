@@ -3,11 +3,7 @@
 #include <limits>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
-
-#include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/Surface.hpp"
 
 namespace Penrose {
 
@@ -56,8 +52,8 @@ namespace Penrose {
     }
 
     PresentContext::PresentContext(ResourceSet *resources)
-            : _deviceContext(resources->get<DeviceContext>()),
-              _surface(resources->get<Surface>()) {
+            : _deviceContext(resources->getLazy<DeviceContext>()),
+              _surface(resources->getLazy<Surface>()) {
         //
     }
 

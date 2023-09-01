@@ -11,11 +11,11 @@
 #include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 
-#include "src/Builtin/Rendering/VkCommandRecording.hpp"
-#include "src/Builtin/Rendering/VkFramebuffer.hpp"
-#include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
-#include "src/Builtin/Rendering/VkRenderTarget.hpp"
-#include "src/Builtin/Rendering/VkRenderTargetFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkFramebuffer.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkRenderTarget.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.hpp"
 
 namespace Penrose {
 
