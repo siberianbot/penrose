@@ -7,10 +7,6 @@ project(
         'cpp_std=c++20'
     ])
 
-cmake = import('cmake')
-cmake_opts = cmake.subproject_options()
-cmake_opts.add_cmake_defines({'CMAKE_POSITION_INDEPENDENT_CODE': true})
-
 deps = [
     dependency('fmt'),
     dependency('glfw3'),
