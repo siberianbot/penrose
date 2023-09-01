@@ -111,7 +111,7 @@ namespace Penrose {
 
     ResourceSet &addVulkan(ResourceSet &resources) {
 
-        resources.add<VulkanBackend>();
+        resources.add<VulkanBackend>(resources.getBeginIterator());
 
         resources.add<DeviceContext>();
         resources.add<PresentContext>();

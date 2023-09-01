@@ -6,12 +6,14 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 #include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/Surface.hpp"
+
+#include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
 
 namespace Penrose {
 
@@ -51,7 +53,8 @@ namespace Penrose {
         };
 
         Lazy<DeviceContext> _deviceContext;
-        Lazy<Surface> _surface;
+        Lazy<VkSurfaceProvider> _vkSurfaceProvider;
+        Lazy<SurfaceManager> _surfaceManager;
 
         std::optional<SwapchainProxy> _swapchain;
 

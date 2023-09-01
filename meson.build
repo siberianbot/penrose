@@ -49,7 +49,7 @@ src = [
     'src/Rendering/RenderGraphExecutorProvider.cpp',
     'src/Rendering/RenderListBuilder.cpp',
     'src/Rendering/RenderManager.cpp',
-    'src/Rendering/Surface.cpp',
+    'src/Rendering/SurfaceManager.cpp',
     'src/Rendering/Utils.cpp',
 
     # Resources
@@ -60,14 +60,17 @@ src = [
     'src/Scene/SceneNode.cpp',
 
     # Builtin / Backends
-    'src/Builtin/Backends/GlfwBackend.cpp',
     'src/Builtin/Backends/ImGuiBackend.cpp',
 
     # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
 
-    # Builtin / GLFW /
+    # Builtin / GLFW
+    'src/Builtin/Glfw/GlfwBackend.cpp',
+
+    'src/Builtin/Glfw/Rendering/GlfwSurface.cpp',
+    'src/Builtin/Glfw/Rendering/GlfwSurfaceController.cpp',
 
     # Builtin / Vulkan
     'src/Builtin/Vulkan/VulkanBackend.cpp',

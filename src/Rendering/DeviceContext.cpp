@@ -16,6 +16,7 @@ namespace Penrose {
 
     DeviceContext::PhysicalDeviceProxy DeviceContext::selectPhysicalDevice() {
         auto devices = this->_vulkanBackend->getInstance().enumeratePhysicalDevices();
+        auto surface = this->_vkSurfaceProvider->getVkSurfaceFor(this->_surfaceManager->getSurface());
 
         for (const auto &device: devices) {
             auto queueFamilyProperties = device.getQueueFamilyProperties();
@@ -32,7 +33,7 @@ namespace Penrose {
                     graphicsIdx = idx;
                 }
 
-                if (device.getSurfaceSupportKHR(idx, this->_surface->getSurface())) {
+                if (device.getSurfaceSupportKHR(idx, surface)) {
                     presentIdx = idx;
                 }
             }
@@ -141,7 +142,8 @@ namespace Penrose {
 
     DeviceContext::DeviceContext(ResourceSet *resources)
             : _vulkanBackend(resources->getLazy<VulkanBackend>()),
-              _surface(resources->getLazy<Surface>()) {
+              _vkSurfaceProvider(resources->getLazy<VkSurfaceProvider>()),
+              _surfaceManager(resources->getLazy<SurfaceManager>()) {
         //
     }
 

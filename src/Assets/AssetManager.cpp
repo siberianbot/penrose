@@ -15,7 +15,15 @@ namespace Penrose {
         //
     }
 
-    void AssetManager::init() {
+    void AssetManager::destroy() {
+        this->_assets.clear();
+
+        while (!this->_loadingQueue.empty()) {
+            this->_loadingQueue.pop();
+        }
+    }
+
+    void AssetManager::run() {
         this->_log->writeInfo(ASSET_MANAGER_TAG, "Initializing background loading thread");
 
         this->_loadingThread = std::jthread([this](const std::stop_token &stopToken) {
@@ -32,7 +40,7 @@ namespace Penrose {
         });
     }
 
-    void AssetManager::destroy() {
+    void AssetManager::stop() {
         if (this->_loadingThread.has_value()) {
             auto &thread = this->_loadingThread.value();
 
@@ -43,12 +51,6 @@ namespace Penrose {
             }
 
             this->_loadingThread = std::nullopt;
-        }
-
-        this->_assets.clear();
-
-        while (!this->_loadingQueue.empty()) {
-            this->_loadingQueue.pop();
         }
     }
 

@@ -18,6 +18,7 @@
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/Runnable.hpp>
 
 namespace Penrose {
 
@@ -26,13 +27,16 @@ namespace Penrose {
     template<typename T>
     concept IsAsset = std::is_base_of<Asset, T>::value;
 
-    class AssetManager : public Resource, public Initializable {
+    class AssetManager : public Resource, public Initializable, public Runnable {
     public:
         explicit AssetManager(ResourceSet *resources);
         ~AssetManager() override = default;
 
-        void init() override;
+        void init() override { /* nothing to do */ }
         void destroy() override;
+
+        void run() override;
+        void stop() override;
 
         void enqueue(const std::string &asset);
 

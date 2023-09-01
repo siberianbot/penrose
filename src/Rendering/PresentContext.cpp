@@ -53,7 +53,8 @@ namespace Penrose {
 
     PresentContext::PresentContext(ResourceSet *resources)
             : _deviceContext(resources->getLazy<DeviceContext>()),
-              _surface(resources->getLazy<Surface>()) {
+              _vkSurfaceProvider(resources->getLazy<VkSurfaceProvider>()),
+              _surfaceManager(resources->getLazy<SurfaceManager>()) {
         //
     }
 
@@ -83,20 +84,22 @@ namespace Penrose {
     }
 
     PresentContext::SwapchainProxy PresentContext::createSwapchain() {
-        auto surface = this->_surface->getSurface();
+        auto surface = this->_surfaceManager->getSurface();
+        auto vkSurface = this->_vkSurfaceProvider->getVkSurfaceFor(surface);
+
         auto physicalDevice = this->_deviceContext->getPhysicalDevice();
         auto logicalDevice = this->_deviceContext->getLogicalDevice();
 
-        auto surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
-        auto surfaceFormats = physicalDevice.getSurfaceFormatsKHR(surface);
+        auto surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(vkSurface);
+        auto surfaceFormats = physicalDevice.getSurfaceFormatsKHR(vkSurface);
 
-        auto extent = getPreferredExtent(surfaceCapabilities, this->_surface->getSize());
+        auto extent = getPreferredExtent(surfaceCapabilities, surface->getSize());
         auto [format, colorSpace] = getPreferredSurfaceFormat(surfaceFormats);
         auto imageCount = getPreferredImageCount(surfaceCapabilities);
         auto presentMode = getPreferredPresentMode();
 
         auto createInfo = vk::SwapchainCreateInfoKHR()
-                .setSurface(surface)
+                .setSurface(vkSurface)
                 .setPresentMode(presentMode)
                 .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
                 .setImageArrayLayers(1)

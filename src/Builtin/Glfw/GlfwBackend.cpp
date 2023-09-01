@@ -5,6 +5,9 @@
 #include <GLFW/glfw3.h>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
+
+#include "src/Builtin/Glfw/Rendering/GlfwSurfaceController.hpp"
 
 namespace Penrose {
 
@@ -18,10 +21,22 @@ namespace Penrose {
         glfwTerminate();
     }
 
+    void GlfwBackend::update(float) {
+        glfwPollEvents();
+    }
+
     std::vector<const char *> GlfwBackend::getRequiredInstanceExtensions() const {
         std::uint32_t count = 0;
         auto extensions = glfwGetRequiredInstanceExtensions(&count);
 
         return {extensions, extensions + count};
+    }
+
+    ResourceSet &addGlfw(ResourceSet &resources) {
+
+        resources.add<GlfwBackend, VkInstanceExtensionsProvider>(resources.getBeginIterator());
+        resources.add<GlfwSurfaceController, SurfaceFactory, VkSurfaceProvider>();
+
+        return resources;
     }
 }

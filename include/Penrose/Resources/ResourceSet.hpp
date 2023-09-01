@@ -36,13 +36,15 @@ namespace Penrose {
         void runAll();
         void stopAll();
 
+        void updateAll(float delta);
+
         template<IsResource T, class ...Interfaces>
         T *add(std::optional<ResourceList::iterator> before = std::nullopt);
 
         template<class T>
         [[nodiscard]] std::optional<ResourceList::iterator> tryGetIteratorOf() const;
 
-        [[nodiscard]] ResourceList::const_iterator getBeginIterator() const;
+        [[nodiscard]] ResourceList::iterator getBeginIterator();
 
         template<class T>
         [[nodiscard]] T *get() const;

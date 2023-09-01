@@ -10,6 +10,7 @@
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderContext.hpp>
+#include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>
@@ -24,10 +25,10 @@
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
 #include "src/Rendering/RenderManager.hpp"
-#include "src/Rendering/Surface.hpp"
 
-#include "src/Builtin/Backends/GlfwBackend.hpp"
 #include "src/Builtin/Backends/ImGuiBackend.hpp"
+
+#include "src/Builtin/Glfw/GlfwBackend.hpp"
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 #include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
@@ -35,27 +36,22 @@
 namespace Penrose {
 
     Engine::Engine() {
-        // core
+        // assets
+        this->_resources.add<AssetDictionary>();
+        this->_resources.add<AssetLoader>();
+        this->_resources.add<EventQueue>();
         this->_resources.add<Log>();
+        this->_resources.add<SurfaceManager>();
 
         // backends
-        this->_resources.add<GlfwBackend, VkInstanceExtensionsProvider>();
-        this->_resources.add<ImGuiBackend>();
+        this->_resources.add<ImGuiBackend>(this->_resources.getBeginIterator());
 
         addVulkan(this->_resources);
+        addGlfw(this->_resources);
 
-        // core
-        this->_resources.add<EventQueue>();
-        this->_resources.add<AssetDictionary>();
+        this->_resources.add<AssetManager>();
         auto ecsManager = this->_resources.add<ECSManager>();
         this->_resources.add<SceneManager>();
-
-        // rendering / core
-        this->_resources.add<Surface>(this->_resources.tryGetIteratorOf<DeviceContext>().value());
-
-        // asset
-        this->_resources.add<AssetLoader>();
-        this->_resources.add<AssetManager>();
 
         // rendering
         this->_resources.add<RenderContext>();
@@ -113,7 +109,6 @@ namespace Penrose {
 
         auto eventQueue = this->_resources.get<EventQueue>();
         auto ecsManager = this->_resources.get<ECSManager>();
-        auto surface = this->_resources.get<Surface>();
 
         auto alive = true;
         auto handlerIdx = eventQueue->addHandler([&alive](const Event &event) {
@@ -132,9 +127,11 @@ namespace Penrose {
         while (alive) {
             start = std::chrono::high_resolution_clock::now();
 
+            // TODO: use Updatable
             eventQueue->process();
             ecsManager->updateSystems(delta);
-            surface->poll();
+
+            this->_resources.updateAll(delta);
 
             delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
         }

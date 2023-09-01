@@ -7,6 +7,7 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Runnable.hpp>
+#include <Penrose/Resources/Updatable.hpp>
 
 namespace Penrose {
 
@@ -58,7 +59,19 @@ namespace Penrose {
         }
     }
 
-    ResourceSet::ResourceList::const_iterator ResourceSet::getBeginIterator() const {
+    void ResourceSet::updateAll(float delta) {
+        for (const auto &resource: std::ranges::reverse_view(this->_resources)) {
+            auto updatable = dynamic_cast<Updatable *>(resource.get());
+
+            if (updatable == nullptr) {
+                continue;
+            }
+
+            updatable->update(delta);
+        }
+    }
+
+    ResourceSet::ResourceList::iterator ResourceSet::getBeginIterator() {
         return this->_resources.begin();
     }
 
