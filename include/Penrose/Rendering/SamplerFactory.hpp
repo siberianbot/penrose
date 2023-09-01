@@ -2,15 +2,14 @@
 #define PENROSE_RENDERING_SAMPLER_FACTORY_HPP
 
 #include <Penrose/Rendering/SamplerInfo.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
     class Sampler;
 
-    class SamplerFactory : public Resource {
+    class SamplerFactory {
     public:
-        ~SamplerFactory() override = default;
+        virtual ~SamplerFactory() = default;
 
         [[nodiscard]] virtual Sampler *makeSampler(const SamplerInfo &samplerInfo) = 0;
     };

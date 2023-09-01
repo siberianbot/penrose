@@ -2,13 +2,14 @@
 #define PENROSE_BUILTIN_ASSETS_VK_SHADER_ASSET_FACTORY_HPP
 
 #include <Penrose/Assets/ShaderAssetFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
     class ShaderFactory;
 
-    class VkShaderAssetFactory : public ShaderAssetFactory {
+    class VkShaderAssetFactory : public Resource, public ShaderAssetFactory {
     public:
         explicit VkShaderAssetFactory(ResourceSet *resources);
         ~VkShaderAssetFactory() override = default;

@@ -6,14 +6,13 @@
 
 #include <Penrose/Common/ParamsCollection.hpp>
 #include <Penrose/Common/Size.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
     class CommandRecording;
     class RenderSubgraph;
 
-    class RenderOperator : public Resource {
+    class RenderOperator {
     public:
         struct Context {
             RenderSubgraph *subgraph;
@@ -22,7 +21,7 @@ namespace Penrose {
             ParamsCollection param;
         };
 
-        ~RenderOperator() override = default;
+        virtual ~RenderOperator() = default;
 
         [[nodiscard]] virtual std::string getName() const = 0;
 

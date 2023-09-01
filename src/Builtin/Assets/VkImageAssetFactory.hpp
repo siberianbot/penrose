@@ -2,6 +2,7 @@
 #define PENROSE_BUILTIN_ASSETS_VK_IMAGE_ASSET_FACTORY_HPP
 
 #include <Penrose/Assets/ImageAssetFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
@@ -10,7 +11,7 @@ namespace Penrose {
     class DeviceContext;
     class ImageFactory;
 
-    class VkImageAssetFactory : public ImageAssetFactory {
+    class VkImageAssetFactory : public Resource, public ImageAssetFactory {
     public:
         explicit VkImageAssetFactory(ResourceSet *resources);
         ~VkImageAssetFactory() override = default;

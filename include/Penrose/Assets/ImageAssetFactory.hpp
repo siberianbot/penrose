@@ -4,13 +4,12 @@
 #include <cstdint>
 
 #include <Penrose/Assets/ImageAsset.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class ImageAssetFactory : public Resource {
+    class ImageAssetFactory {
     public:
-        ~ImageAssetFactory() override = default;
+        virtual ~ImageAssetFactory() = default;
 
         [[nodiscard]] virtual ImageAsset *makeImage(ImageFormat format, std::uint32_t width, std::uint32_t height,
                                                     void *data) = 0;

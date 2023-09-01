@@ -64,22 +64,22 @@ namespace Penrose {
         this->_resources.add<PresentContext>();
 
         // rendering / factories
-        this->_resources.add<BufferFactory, VkBufferFactory>();
-        this->_resources.add<ImageFactory, VkImageFactory>();
-        this->_resources.add<ShaderFactory, VkShaderFactory>();
-        this->_resources.add<RenderSubgraphFactory, VkRenderSubgraphFactory>();
-        this->_resources.add<RenderTargetFactory, VkRenderTargetFactory>();
-        this->_resources.add<SamplerFactory, VkSamplerFactory>();
+        this->_resources.add<VkBufferFactory, BufferFactory>();
+        this->_resources.add<VkImageFactory, ImageFactory>();
+        this->_resources.add<VkShaderFactory, ShaderFactory>();
+        this->_resources.add<VkRenderSubgraphFactory, RenderSubgraphFactory>();
+        this->_resources.add<VkRenderTargetFactory, RenderTargetFactory>();
+        this->_resources.add<VkSamplerFactory, SamplerFactory>();
 
         // asset
-        this->_resources.add<ImageAssetFactory, VkImageAssetFactory>();
-        this->_resources.add<MeshAssetFactory, VkMeshAssetFactory>();
-        this->_resources.add<ShaderAssetFactory, VkShaderAssetFactory>();
+        this->_resources.add<VkImageAssetFactory, ImageAssetFactory>();
+        this->_resources.add<VkMeshAssetFactory, MeshAssetFactory>();
+        this->_resources.add<VkShaderAssetFactory, ShaderAssetFactory>();
         this->_resources.add<AssetLoader>();
         this->_resources.add<AssetManager>();
 
         // rendering
-        auto pipelineFactory = this->_resources.add<PipelineFactory, VkPipelineFactory>();
+        auto pipelineFactory = this->_resources.add<VkPipelineFactory, PipelineFactory>();
         this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutorProvider>();
         this->_resources.add<RenderListBuilder>();
@@ -92,7 +92,7 @@ namespace Penrose {
         ecsManager->registerComponent<ViewComponent>();
 
         // builtin / rendering operators
-        this->_resources.add<RenderOperator, ForwardSceneDrawRenderOperator>();
+        this->_resources.add<ForwardSceneDrawRenderOperator, RenderOperator>();
 
         // TODO:
         auto defaultPipelineInfo = PipelineInfo()

@@ -2,6 +2,7 @@
 #define PENROSE_BUILTIN_RENDERING_VK_RENDER_TARGET_FACTORY_HPP
 
 #include <Penrose/Rendering/RenderTargetFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
@@ -9,7 +10,7 @@ namespace Penrose {
     class DeviceContext;
     class PresentContext;
 
-    class VkRenderTargetFactory : public RenderTargetFactory {
+    class VkRenderTargetFactory : public Resource, public RenderTargetFactory {
     public:
         explicit VkRenderTargetFactory(ResourceSet *resources);
         ~VkRenderTargetFactory() override = default;

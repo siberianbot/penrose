@@ -2,6 +2,7 @@
 #define PENROSE_BUILTIN_ASSETS_VK_MESH_ASSET_FACTORY_HPP
 
 #include <Penrose/Assets/MeshAssetFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
@@ -9,7 +10,7 @@ namespace Penrose {
     class BufferFactory;
     class DeviceContext;
 
-    class VkMeshAssetFactory : public MeshAssetFactory {
+    class VkMeshAssetFactory : public Resource, public MeshAssetFactory {
     public:
         explicit VkMeshAssetFactory(ResourceSet *resources);
         ~VkMeshAssetFactory() override = default;

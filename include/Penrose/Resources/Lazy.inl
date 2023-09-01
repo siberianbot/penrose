@@ -3,29 +3,29 @@
 
 namespace Penrose {
 
-    template<IsResource T>
+    template<class T>
     Lazy<T>::Lazy(Lazy::Factory factory)
             : _factory(factory),
               _payload(std::nullopt) {
         //
     }
 
-    template<IsResource T>
+    template<class T>
     T *Lazy<T>::operator->() {
         return this->acquire();
     }
 
-    template<IsResource T>
+    template<class T>
     T *Lazy<T>::get() {
         return this->acquire();
     }
 
-    template<IsResource T>
+    template<class T>
     void Lazy<T>::reset() {
         this->_payload = std::nullopt;
     }
 
-    template<IsResource T>
+    template<class T>
     T *Lazy<T>::acquire() {
         if (!this->_payload.has_value()) {
             this->_payload = this->_factory();
@@ -34,29 +34,29 @@ namespace Penrose {
         return *this->_payload;
     }
 
-    template<IsResource T>
+    template<class T>
     LazyCollection<T>::LazyCollection(LazyCollection::Factory factory)
             : _factory(factory),
               _payload(std::nullopt) {
         //
     }
 
-    template<IsResource T>
+    template<class T>
     LazyCollection<T>::Iterator LazyCollection<T>::begin() {
         return this->acquire().begin();
     }
 
-    template<IsResource T>
+    template<class T>
     LazyCollection<T>::Iterator LazyCollection<T>::end() {
         return this->acquire().end();
     }
 
-    template<IsResource T>
+    template<class T>
     void LazyCollection<T>::reset() {
         this->_payload = std::nullopt;
     }
 
-    template<IsResource T>
+    template<class T>
     std::vector<T *> &LazyCollection<T>::acquire() {
         if (!this->_payload.has_value()) {
             this->_payload = this->_factory();

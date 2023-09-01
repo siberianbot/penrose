@@ -4,13 +4,12 @@
 #include <cstdint>
 
 #include <Penrose/Rendering/Shader.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class ShaderFactory : public Resource {
+    class ShaderFactory {
     public:
-        ~ShaderFactory() override = default;
+        virtual ~ShaderFactory() = default;
 
         [[nodiscard]] virtual Shader *makeShader(const std::uint32_t *data, std::uint32_t size) = 0;
     };

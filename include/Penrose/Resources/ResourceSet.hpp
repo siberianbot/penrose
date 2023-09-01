@@ -36,25 +36,24 @@ namespace Penrose {
         void runAll();
         void stopAll();
 
-        template<IsResource TBase, IsResource TImpl = TBase>
-        requires std::is_base_of<TBase, TImpl>::value
-        TBase *add(std::optional<ResourceList::iterator> before = std::nullopt);
+        template<IsResource T, class ...Interfaces>
+        T *add(std::optional<ResourceList::iterator> before = std::nullopt);
 
-        template<IsResource T>
+        template<class T>
         [[nodiscard]] std::optional<ResourceList::iterator> tryGetIteratorOf() const;
 
         [[nodiscard]] ResourceList::const_iterator getBeginIterator() const;
 
-        template<IsResource T>
+        template<class T>
         [[nodiscard]] T *get() const;
 
-        template<IsResource T>
+        template<class T>
         [[nodiscard]] std::vector<T *> getAll() const;
 
-        template<IsResource T>
+        template<class T>
         [[nodiscard]] Lazy<T> getLazy() const;
 
-        template<IsResource T>
+        template<class T>
         [[nodiscard]] LazyCollection<T> getAllLazy() const;
 
     private:
@@ -66,6 +65,14 @@ namespace Penrose {
         [[nodiscard]] constexpr T *construct();
 
         ResourceList::iterator addToList(Resource *resource, std::optional<ResourceList::iterator> before);
+
+        template<IsResource T>
+        void addToMap(ResourceList::iterator it);
+
+        template<IsResource T, class TInterface, class ...Interfaces>
+        requires std::is_base_of<TInterface, T>::value && (!std::is_same<TInterface, T>::value)
+        void addToMap(ResourceList::iterator it);
+
         void addToMap(std::type_index idx, ResourceList::iterator it);
 
         [[nodiscard]] Resource *get(const std::type_index &idx) const;

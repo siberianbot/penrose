@@ -9,6 +9,7 @@
 
 #include <Penrose/Rendering/PipelineFactory.hpp>
 #include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 #include "src/Builtin/Rendering/VkRenderSubgraph.hpp"
 
@@ -18,7 +19,7 @@ namespace Penrose {
     class AssetManager;
     class DeviceContext;
 
-    class VkPipelineFactory : public PipelineFactory, public Initializable {
+    class VkPipelineFactory : public Resource, public Initializable, public PipelineFactory {
     public:
         explicit VkPipelineFactory(ResourceSet *resources);
         ~VkPipelineFactory() override = default;

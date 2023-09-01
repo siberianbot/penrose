@@ -6,13 +6,12 @@
 
 #include <Penrose/Assets/MeshAsset.hpp>
 #include <Penrose/Common/Vertex.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class MeshAssetFactory : public Resource {
+    class MeshAssetFactory {
     public:
-        ~MeshAssetFactory() override = default;
+        virtual ~MeshAssetFactory() = default;
 
         [[nodiscard]] virtual MeshAsset *makeMesh(std::vector<Vertex> &&vertices,
                                                   std::vector<std::uint32_t> &&indices) = 0;

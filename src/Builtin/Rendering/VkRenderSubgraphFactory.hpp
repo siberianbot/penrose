@@ -2,6 +2,7 @@
 #define PENROSE_BUILTIN_RENDERING_VK_RENDER_SUBGRAPH_FACTORY_HPP
 
 #include <Penrose/Rendering/RenderSubgraphFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
@@ -9,7 +10,7 @@ namespace Penrose {
     class DeviceContext;
     class PresentContext;
 
-    class VkRenderSubgraphFactory : public RenderSubgraphFactory {
+    class VkRenderSubgraphFactory : public Resource, public RenderSubgraphFactory {
     public:
         explicit VkRenderSubgraphFactory(ResourceSet *resources);
         ~VkRenderSubgraphFactory() override = default;

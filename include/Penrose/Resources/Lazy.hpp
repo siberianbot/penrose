@@ -5,11 +5,9 @@
 #include <optional>
 #include <vector>
 
-#include <Penrose/Resources/Resource.hpp>
-
 namespace Penrose {
 
-    template<IsResource T>
+    template<class T>
     class Lazy {
     public:
         using Factory = std::function<T *()>;
@@ -29,12 +27,11 @@ namespace Penrose {
         [[nodiscard]] T *acquire();
     };
 
-    template<IsResource T>
+    template<class T>
     class LazyCollection {
     public:
         using Factory = std::function<std::vector<T *>()>;
         using Iterator = std::vector<T *>::iterator;
-        using ConstIterator = std::vector<T *>::const_iterator;
 
         explicit LazyCollection(Factory factory);
 

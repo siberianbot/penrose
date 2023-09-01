@@ -4,13 +4,12 @@
 #include <cstdint>
 
 #include <Penrose/Rendering/Buffer.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class BufferFactory : public Resource {
+    class BufferFactory {
     public:
-        ~BufferFactory() override = default;
+        virtual ~BufferFactory() = default;
 
         [[nodiscard]] virtual Buffer *makeBuffer(BufferType type, std::uint64_t size, std::uint32_t count,
                                                  bool map) = 0;

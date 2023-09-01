@@ -2,13 +2,14 @@
 #define PENROSE_BUILTIN_RENDERING_VK_IMAGE_FACTORY_HPP
 
 #include <Penrose/Rendering/ImageFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
     class DeviceContext;
 
-    class VkImageFactory : public ImageFactory {
+    class VkImageFactory : public Resource, public ImageFactory {
     public:
         explicit VkImageFactory(ResourceSet *resources);
         ~VkImageFactory() override = default;

@@ -10,6 +10,7 @@
 #include <Penrose/Rendering/RenderList.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/Sampler.hpp>
+#include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 
 namespace Penrose {
@@ -20,7 +21,7 @@ namespace Penrose {
     class RenderListBuilder;
     class SamplerFactory;
 
-    class ForwardSceneDrawRenderOperator : public RenderOperator, public Initializable {
+    class ForwardSceneDrawRenderOperator : public Resource, public Initializable, public RenderOperator {
     public:
         constexpr static const std::string_view NAME = "ForwardSceneDraw";
 

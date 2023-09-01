@@ -2,15 +2,14 @@
 #define PENROSE_RENDERING_RENDER_TARGET_FACTORY_HPP
 
 #include <Penrose/Rendering/RenderTargetInfo.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
     class RenderTarget;
 
-    class RenderTargetFactory : public Resource {
+    class RenderTargetFactory {
     public:
-        ~RenderTargetFactory() override = default;
+        virtual ~RenderTargetFactory() = default;
 
         [[nodiscard]] virtual RenderTarget *makeRenderTarget(const RenderTargetInfo &targetInfo) = 0;
     };

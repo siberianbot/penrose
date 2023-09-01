@@ -5,24 +5,17 @@
 
 namespace Penrose {
 
-    template<IsResource TBase, IsResource TImpl>
-    requires std::is_base_of<TBase, TImpl>::value
-    TBase *ResourceSet::add(std::optional<ResourceList::iterator> before) {
-        auto resource = this->construct<TImpl>();
+    template<IsResource T, class... Interfaces>
+    T *ResourceSet::add(std::optional<ResourceList::iterator> before) {
+        auto resource = this->construct<T>();
         auto iterator = this->addToList(resource, before);
 
-        auto baseIdx = std::type_index(typeid(TBase));
-        this->addToMap(baseIdx, iterator);
-
-        if constexpr (!std::is_same_v<TBase, TImpl>) {
-            auto implIdx = std::type_index(typeid(TImpl));
-            this->addToMap(implIdx, iterator);
-        }
+        this->addToMap<T, Interfaces...>(iterator);
 
         return resource;
     }
 
-    template<IsResource T>
+    template<class T>
     std::optional<ResourceSet::ResourceList::iterator> ResourceSet::tryGetIteratorOf() const {
         auto idx = std::type_index(typeid(T));
         auto it = this->_resourceMap.find(idx);
@@ -34,14 +27,14 @@ namespace Penrose {
         return it->second;
     }
 
-    template<IsResource T>
+    template<class T>
     T *ResourceSet::get() const {
         auto idx = std::type_index(typeid(T));
 
         return dynamic_cast<T *>(this->get(idx));
     }
 
-    template<IsResource T>
+    template<class T>
     std::vector<T *> ResourceSet::getAll() const {
         std::vector<T *> resources;
         auto idx = std::type_index(typeid(T));
@@ -54,12 +47,12 @@ namespace Penrose {
         return resources;
     }
 
-    template<IsResource T>
+    template<class T>
     Lazy<T> ResourceSet::getLazy() const {
         return Lazy<T>([this]() { return this->get<T>(); });
     }
 
-    template<IsResource T>
+    template<class T>
     LazyCollection<T> ResourceSet::getAllLazy() const {
         return LazyCollection<T>([this]() { return this->getAll<T>(); });
     }
@@ -72,6 +65,19 @@ namespace Penrose {
         } else {
             return new T();
         }
+    }
+
+    template<IsResource T>
+    void ResourceSet::addToMap(ResourceList::iterator it) {
+        this->addToMap(std::type_index(typeid(T)), it);
+    }
+
+    template<IsResource T, class TInterface, class... Interfaces>
+    requires std::is_base_of<TInterface, T>::value && (!std::is_same<TInterface, T>::value)
+    void ResourceSet::addToMap(ResourceList::iterator it) {
+        this->addToMap(std::type_index(typeid(TInterface)), it);
+
+        this->addToMap<T, Interfaces...>(it);
     }
 }
 
