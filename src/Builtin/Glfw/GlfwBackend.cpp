@@ -35,7 +35,7 @@ namespace Penrose {
     ResourceSet &addGlfw(ResourceSet &resources) {
 
         resources.add<GlfwBackend, VkInstanceExtensionsProvider>(resources.getBeginIterator());
-        resources.add<GlfwSurfaceController, SurfaceFactory, VkSurfaceProvider>();
+        resources.add<GlfwSurfaceController, SurfaceFactory, SurfaceHook, VkSurfaceProvider>();
 
         return resources;
     }

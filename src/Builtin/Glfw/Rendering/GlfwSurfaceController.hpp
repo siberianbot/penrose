@@ -8,6 +8,7 @@
 
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/SurfaceFactory.hpp>
+#include <Penrose/Rendering/SurfaceHook.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
@@ -19,7 +20,10 @@ namespace Penrose {
     class ResourceSet;
     class GlfwSurface;
 
-    class GlfwSurfaceController : public Resource, public SurfaceFactory, public VkSurfaceProvider {
+    class GlfwSurfaceController : public Resource,
+                                  public SurfaceFactory,
+                                  public SurfaceHook,
+                                  public VkSurfaceProvider {
     public:
         explicit GlfwSurfaceController(ResourceSet *resources);
         ~GlfwSurfaceController() override = default;
@@ -28,7 +32,9 @@ namespace Penrose {
 
         [[nodiscard]] vk::SurfaceKHR getVkSurfaceFor(Surface *surface) override;
 
-        void handleSurfaceDestroy(GlfwSurface *glfwSurface);
+        void onSurfaceCreate(Surface *) override { /* nothing to do */ };
+
+        void onSurfaceDestroy(Surface *surface) override;
 
     private:
         Lazy<EventQueue> _eventQueue;

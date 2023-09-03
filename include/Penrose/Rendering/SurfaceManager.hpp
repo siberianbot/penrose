@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <Penrose/Rendering/SurfaceFactory.hpp>
+#include <Penrose/Rendering/SurfaceHook.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
@@ -25,6 +26,7 @@ namespace Penrose {
 
     private:
         Lazy<SurfaceFactory> _surfaceFactory;
+        LazyCollection<SurfaceHook> _surfaceHooks;
 
         std::optional<std::unique_ptr<Surface>> _surface;
     };

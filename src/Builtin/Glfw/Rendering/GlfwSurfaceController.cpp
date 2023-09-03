@@ -1,7 +1,5 @@
 #include "GlfwSurfaceController.hpp"
 
-#include <imgui_impl_glfw.h>
-
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -28,13 +26,11 @@ namespace Penrose {
         glfwSetWindowCloseCallback(handle, GlfwSurfaceController::windowCloseCallback);
         glfwSetFramebufferSizeCallback(handle, GlfwSurfaceController::framebufferSizeCallback);
 
-        // TODO: remove
-        ImGui_ImplGlfw_InitForVulkan(handle, true);
-
-        return new GlfwSurface(this, handle);
+        return new GlfwSurface(handle);
     }
 
-    void GlfwSurfaceController::handleSurfaceDestroy(GlfwSurface *glfwSurface) {
+    void GlfwSurfaceController::onSurfaceDestroy(Surface *surface) {
+        auto glfwSurface = dynamic_cast<GlfwSurface *>(surface);
         auto vkSurfaceIt = this->_vkSurfaces.find(glfwSurface->getHandle());
 
         if (vkSurfaceIt == this->_vkSurfaces.end()) {

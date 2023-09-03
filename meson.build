@@ -59,9 +59,6 @@ src = [
     'src/Scene/SceneManager.cpp',
     'src/Scene/SceneNode.cpp',
 
-    # Builtin / Backends
-    'src/Builtin/Backends/ImGuiBackend.cpp',
-
     # Builtin / Rendering
     'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
@@ -71,6 +68,9 @@ src = [
 
     'src/Builtin/Glfw/Rendering/GlfwSurface.cpp',
     'src/Builtin/Glfw/Rendering/GlfwSurfaceController.cpp',
+
+    # Builtin / ImGui
+    'src/Builtin/ImGui/ImGuiBackend.cpp',
 
     # Builtin / Vulkan
     'src/Builtin/Vulkan/VulkanBackend.cpp',

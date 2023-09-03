@@ -7,12 +7,9 @@
 
 namespace Penrose {
 
-    class GlfwSurfaceController;
-
     class GlfwSurface : public Surface {
     public:
-        explicit GlfwSurface(GlfwSurfaceController *surfaceController,
-                             GLFWwindow *handle);
+        explicit GlfwSurface(GLFWwindow *handle);
         ~GlfwSurface() override;
 
         [[nodiscard]] Size getSize() const override;
@@ -20,7 +17,6 @@ namespace Penrose {
         [[nodiscard]] GLFWwindow *getHandle() const { return this->_handle; }
 
     private:
-        GlfwSurfaceController *_surfaceController;
         GLFWwindow *_handle;
     };
 }

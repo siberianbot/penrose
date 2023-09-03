@@ -26,9 +26,8 @@
 #include "src/Rendering/RenderListBuilder.hpp"
 #include "src/Rendering/RenderManager.hpp"
 
-#include "src/Builtin/Backends/ImGuiBackend.hpp"
-
 #include "src/Builtin/Glfw/GlfwBackend.hpp"
+#include "src/Builtin/ImGui/ImGuiBackend.hpp"
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 #include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
@@ -44,10 +43,9 @@ namespace Penrose {
         this->_resources.add<SurfaceManager>();
 
         // backends
-        this->_resources.add<ImGuiBackend>(this->_resources.getBeginIterator());
-
         addVulkan(this->_resources);
         addGlfw(this->_resources);
+        addImGui(this->_resources);
 
         this->_resources.add<AssetManager>();
         auto ecsManager = this->_resources.add<ECSManager>();
