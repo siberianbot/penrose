@@ -3,7 +3,9 @@
 
 #include <exception>
 #include <string>
-#include <utility>
+#include <string_view>
+
+#include <fmt/core.h>
 
 namespace Penrose {
 
@@ -12,9 +14,12 @@ namespace Penrose {
         std::string _msg;
 
     public:
-        explicit EngineError(std::string msg) : _msg(std::move(msg)) {
+        explicit EngineError(std::string_view msg) : _msg(msg) {
             //
         }
+
+        template<typename ...Args>
+        constexpr EngineError(fmt::format_string<Args...> fmt, Args &&...args);
 
         ~EngineError() noexcept override = default;
 
@@ -23,5 +28,7 @@ namespace Penrose {
         }
     };
 }
+
+#include "EngineError.inl"
 
 #endif // PENROSE_COMMON_ENGINE_ERROR_HPP

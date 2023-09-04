@@ -25,23 +25,23 @@ namespace Penrose {
         }
     }
 
-    void Log::writeDebug(std::string_view src, std::string_view msg) const {
-        this->write(LogLevel::Debug, src, msg);
+    void Log::writeDebug(std::string_view tag, std::string_view msg) {
+        this->write(LogLevel::Debug, tag, msg);
     }
 
-    void Log::writeInfo(std::string_view src, std::string_view msg) const {
-        this->write(LogLevel::Info, src, msg);
+    void Log::writeInfo(std::string_view tag, std::string_view msg) {
+        this->write(LogLevel::Info, tag, msg);
     }
 
-    void Log::writeWarning(std::string_view src, std::string_view msg) const {
-        this->write(LogLevel::Warning, src, msg);
+    void Log::writeWarning(std::string_view tag, std::string_view msg) {
+        this->write(LogLevel::Warning, tag, msg);
     }
 
-    void Log::writeError(std::string_view src, std::string_view msg) const {
-        this->write(LogLevel::Error, src, msg);
+    void Log::writeError(std::string_view tag, std::string_view msg) {
+        this->write(LogLevel::Error, tag, msg);
     }
 
-    void Log::write(LogLevel level, std::string_view src, std::string_view msg) const {
-        std::cout << toString(level) << "/" << src << ":\t" << msg << std::endl;
+    void Log::write(LogLevel level, std::string_view tag, std::string_view msg) {
+        std::cout << toString(level) << "/" << tag << ":\t" << msg << std::endl;
     }
 }
