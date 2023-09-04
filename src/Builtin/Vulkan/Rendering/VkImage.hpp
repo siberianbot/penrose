@@ -7,11 +7,11 @@
 
 namespace Penrose {
 
-    class DeviceContext;
+    class VkLogicalDeviceContext;
 
     class VkImage : public Image {
     public:
-        VkImage(DeviceContext *deviceContext,
+        VkImage(VkLogicalDeviceContext *logicalDeviceContext,
                 ImageFormat format, std::uint32_t width, std::uint32_t height,
                 vk::Image image, vk::DeviceMemory imageMemory, vk::ImageView imageView);
         ~VkImage() override;
@@ -27,7 +27,7 @@ namespace Penrose {
         [[nodiscard]] const vk::ImageView &getImageView() const { return this->_imageView; }
 
     private:
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         ImageFormat _format;
         std::uint32_t _width;

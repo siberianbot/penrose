@@ -7,18 +7,18 @@
 
 namespace Penrose {
 
-    class DeviceContext;
+    class VkLogicalDeviceContext;
 
     class VkShader : public Shader {
     public:
-        VkShader(DeviceContext *deviceContext,
+        VkShader(VkLogicalDeviceContext *logicalDeviceContext,
                  vk::ShaderModule shaderModule);
         ~VkShader() override;
 
         [[nodiscard]] const vk::ShaderModule &getShaderModule() const { return this->_shaderModule; }
 
     private:
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         vk::ShaderModule _shaderModule;
     };

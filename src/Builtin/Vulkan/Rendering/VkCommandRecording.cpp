@@ -1,7 +1,5 @@
 #include "VkCommandRecording.hpp"
 
-#include "src/Rendering/DeviceContext.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkBuffer.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkDescriptor.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkPipeline.hpp"
@@ -10,10 +8,8 @@
 namespace Penrose {
 
     VkCommandRecording::VkCommandRecording(std::uint32_t frameIdx,
-                                           DeviceContext *deviceContext,
                                            vk::CommandBuffer commandBuffer)
             : _frameIdx(frameIdx),
-              _deviceContext(deviceContext),
               _commandBuffer(commandBuffer) {
         //
     }

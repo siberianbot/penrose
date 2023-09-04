@@ -8,7 +8,7 @@
 namespace Penrose {
 
     VkRenderSubgraphFactory::VkRenderSubgraphFactory(ResourceSet *resources)
-            : _deviceContext(resources->getLazy<DeviceContext>()),
+            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
               _presentContext(resources->getLazy<PresentContext>()) {
         //
     }
@@ -97,15 +97,15 @@ namespace Penrose {
                 .setSubpasses(subpasses)
                 .setDependencies(dependencies);
 
-        auto renderPass = this->_deviceContext->getLogicalDevice().createRenderPass(renderPassCreateInfo);
+        auto renderPass = this->_logicalDeviceContext->getHandle().createRenderPass(renderPassCreateInfo);
 
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> semaphores;
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            semaphores[idx] = this->_deviceContext->getLogicalDevice().createSemaphore(vk::SemaphoreCreateInfo());
+            semaphores[idx] = this->_logicalDeviceContext->getHandle().createSemaphore(vk::SemaphoreCreateInfo());
         }
 
         return new VkRenderSubgraph(subgraphInfo,
-                                    this->_deviceContext.get(),
+                                    this->_logicalDeviceContext.get(),
                                     renderPass, semaphores);
     }
 }

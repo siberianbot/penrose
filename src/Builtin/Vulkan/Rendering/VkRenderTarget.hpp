@@ -9,7 +9,7 @@
 
 namespace Penrose {
 
-    class DeviceContext;
+    class VkLogicalDeviceContext;
     class PresentContext;
 
     class VkRenderTarget : public RenderTarget {
@@ -40,7 +40,7 @@ namespace Penrose {
     class VkImageRenderTarget : public VkRenderTarget {
     public:
         VkImageRenderTarget(RenderTargetInfo targetInfo,
-                            DeviceContext *deviceContext,
+                            VkLogicalDeviceContext *logicalDeviceContext,
                             vk::Image image,
                             vk::DeviceMemory imageMemory,
                             vk::ImageView imageView);
@@ -49,7 +49,7 @@ namespace Penrose {
         [[nodiscard]] const vk::ImageView &getView(std::uint32_t) const override { return this->_imageView; }
 
     private:
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         vk::Image _image;
         vk::DeviceMemory _imageMemory;

@@ -8,7 +8,8 @@
 namespace Penrose {
 
     VkBufferFactory::VkBufferFactory(ResourceSet *resources)
-            : _deviceContext(resources->getLazy<DeviceContext>()) {
+            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
+              _memoryAllocator(resources->getLazy<VkMemoryAllocator>()) {
         //
     }
 
@@ -22,14 +23,14 @@ namespace Penrose {
         bool isVisible = (usage & vk::BufferUsageFlagBits::eTransferSrc) == vk::BufferUsageFlagBits::eTransferSrc ||
                          (usage & vk::BufferUsageFlagBits::eUniformBuffer) == vk::BufferUsageFlagBits::eUniformBuffer;
 
-        auto buffer = this->_deviceContext->getLogicalDevice().createBuffer(createInfo);
-        auto bufferMemory = makeDeviceMemory(this->_deviceContext.get(), buffer, !isVisible);
+        auto buffer = this->_logicalDeviceContext->getHandle().createBuffer(createInfo);
+        auto bufferMemory = this->_memoryAllocator->allocate(buffer, !isVisible);
 
         std::optional<BufferPtr> ptr;
         if (map) {
-            ptr = this->_deviceContext->getLogicalDevice().mapMemory(bufferMemory, 0, size);
+            ptr = this->_logicalDeviceContext->getHandle().mapMemory(bufferMemory, 0, size);
         }
 
-        return new VkBuffer(this->_deviceContext.get(), type, size, count, buffer, bufferMemory, ptr);
+        return new VkBuffer(this->_logicalDeviceContext.get(), type, size, count, buffer, bufferMemory, ptr);
     }
 }

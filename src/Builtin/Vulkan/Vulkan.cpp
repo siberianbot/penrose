@@ -11,6 +11,9 @@
 #include "src/Builtin/Vulkan/Assets/VkShaderAssetFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkBufferFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkImageFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkMemoryAllocator.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.hpp"
@@ -22,6 +25,10 @@ namespace Penrose {
     ResourceSet &addVulkan(ResourceSet &resources) {
 
         resources.add<VulkanBackend>(resources.getBeginIterator());
+
+        resources.add<VkPhysicalDeviceContext>();
+        resources.add<VkLogicalDeviceContext>();
+        resources.add<VkMemoryAllocator>();
 
         resources.add<DeviceContext>();
         resources.add<PresentContext>();

@@ -15,6 +15,7 @@
 
 #include "src/Rendering/DeviceContext.hpp"
 
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
 
 namespace Penrose {
@@ -40,6 +41,7 @@ namespace Penrose {
 
         Lazy<AssetManager> _assetManager;
         Lazy<DeviceContext> _deviceContext;
+        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
 
         vk::PipelineCache _pipelineCache;
         std::map<std::string, PipelineInfo> _pipelineInfos;

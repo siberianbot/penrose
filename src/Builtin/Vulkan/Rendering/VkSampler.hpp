@@ -7,17 +7,17 @@
 
 namespace Penrose {
 
-    class DeviceContext;
+    class VkLogicalDeviceContext;
 
     class VkSampler : public Sampler {
     public:
-        VkSampler(DeviceContext *deviceContext, vk::Sampler sampler);
+        VkSampler(VkLogicalDeviceContext *logicalDeviceContext, vk::Sampler sampler);
         ~VkSampler() override;
 
         [[nodiscard]] const vk::Sampler &getSampler() const { return this->_sampler; }
 
     private:
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         vk::Sampler _sampler;
     };

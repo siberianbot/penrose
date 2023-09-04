@@ -6,18 +6,18 @@
 
 #include <Penrose/Common/EngineError.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTarget.hpp"
 
 namespace Penrose {
 
-    VkFramebuffer::VkFramebuffer(DeviceContext *deviceContext,
+    VkFramebuffer::VkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
                                  std::vector<vk::Framebuffer> framebuffers,
                                  std::vector<vk::ClearValue> clearValues,
                                  vk::Rect2D renderArea)
-            : _deviceContext(deviceContext),
+            : _logicalDeviceContext(logicalDeviceContext),
               _framebuffers(std::move(framebuffers)),
               _clearValues(std::move(clearValues)),
               _renderArea(renderArea) {
@@ -26,11 +26,11 @@ namespace Penrose {
 
     VkFramebuffer::~VkFramebuffer() {
         for (const auto &framebuffer: this->_framebuffers) {
-            this->_deviceContext->getLogicalDevice().destroy(framebuffer);
+            this->_logicalDeviceContext->getHandle().destroy(framebuffer);
         }
     }
 
-    VkFramebuffer *makeVkFramebuffer(DeviceContext *deviceContext,
+    VkFramebuffer *makeVkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
                                      PresentContext *presentContext,
                                      const std::map<std::string, VkRenderTarget *> &targets,
                                      const vk::RenderPass &renderPass,
@@ -75,10 +75,10 @@ namespace Penrose {
                     .setAttachments(views)
                     .setLayers(1);
 
-            framebuffers[imageIdx] = deviceContext->getLogicalDevice().createFramebuffer(createInfo);
+            framebuffers[imageIdx] = logicalDeviceContext->getHandle().createFramebuffer(createInfo);
         }
 
-        return new VkFramebuffer(deviceContext,
+        return new VkFramebuffer(logicalDeviceContext,
                                  framebuffers,
                                  clearValues,
                                  renderArea);

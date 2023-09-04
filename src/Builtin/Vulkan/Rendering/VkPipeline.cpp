@@ -17,11 +17,13 @@ namespace Penrose {
 
     VkPipeline::VkPipeline(PipelineInfo pipelineInfo,
                            DeviceContext *deviceContext,
+                           VkLogicalDeviceContext *logicalDeviceContext,
                            vk::DescriptorSetLayout descriptorSetLayout,
                            vk::PipelineLayout pipelineLayout,
                            vk::Pipeline pipeline)
             : _pipelineInfo(std::move(pipelineInfo)),
               _deviceContext(deviceContext),
+              _logicalDeviceContext(logicalDeviceContext),
               _descriptorSetLayout(descriptorSetLayout),
               _pipelineLayout(pipelineLayout),
               _pipeline(pipeline) {
@@ -29,9 +31,9 @@ namespace Penrose {
     }
 
     VkPipeline::~VkPipeline() {
-        this->_deviceContext->getLogicalDevice().destroy(this->_pipeline);
-        this->_deviceContext->getLogicalDevice().destroy(this->_pipelineLayout);
-        this->_deviceContext->getLogicalDevice().destroy(this->_descriptorSetLayout);
+        this->_logicalDeviceContext->getHandle().destroy(this->_pipeline);
+        this->_logicalDeviceContext->getHandle().destroy(this->_pipelineLayout);
+        this->_logicalDeviceContext->getHandle().destroy(this->_descriptorSetLayout);
     }
 
     Descriptor *VkPipeline::getDescriptorFor(const Entity &entity,
@@ -120,7 +122,7 @@ namespace Penrose {
             }
         }
 
-        this->_deviceContext->getLogicalDevice().updateDescriptorSets(writes, {});
+        this->_logicalDeviceContext->getHandle().updateDescriptorSets(writes, {});
 
         for (auto &bufferInfo: bufferInfos) {
             delete bufferInfo;
@@ -143,8 +145,8 @@ namespace Penrose {
                 .setSetLayouts(layouts)
                 .setDescriptorPool(this->_deviceContext->getDescriptorPool());
 
-        auto descriptorSets = this->_deviceContext->getLogicalDevice().allocateDescriptorSets(allocateInfo);
+        auto descriptorSets = this->_logicalDeviceContext->getHandle().allocateDescriptorSets(allocateInfo);
 
-        return new VkDescriptor(this->_deviceContext, std::move(descriptorSets));
+        return new VkDescriptor(this->_deviceContext, this->_logicalDeviceContext, std::move(descriptorSets));
     }
 }

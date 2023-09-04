@@ -1,15 +1,15 @@
 #include "VkRenderSubgraph.hpp"
 
-#include "src/Rendering/DeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 
 namespace Penrose {
 
     VkRenderSubgraph::VkRenderSubgraph(RenderSubgraphInfo subgraphInfo,
-                                       DeviceContext *deviceContext,
+                                       VkLogicalDeviceContext *logicalDeviceContext,
                                        vk::RenderPass renderPass,
                                        std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> semaphores)
             : _subgraphInfo(std::move(subgraphInfo)),
-              _deviceContext(deviceContext),
+              _logicalDeviceContext(logicalDeviceContext),
               _renderPass(renderPass),
               _semaphores(semaphores) {
         //
@@ -17,9 +17,9 @@ namespace Penrose {
 
     VkRenderSubgraph::~VkRenderSubgraph() {
         for (const auto &semaphore: this->_semaphores) {
-            this->_deviceContext->getLogicalDevice().destroy(semaphore);
+            this->_logicalDeviceContext->getHandle().destroy(semaphore);
         }
 
-        this->_deviceContext->getLogicalDevice().destroy(this->_renderPass);
+        this->_logicalDeviceContext->getHandle().destroy(this->_renderPass);
     }
 }

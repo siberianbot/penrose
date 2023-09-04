@@ -12,12 +12,12 @@
 
 namespace Penrose {
 
-    class DeviceContext;
+    class VkLogicalDeviceContext;
 
     class VkRenderSubgraph : public RenderSubgraph {
     public:
         VkRenderSubgraph(RenderSubgraphInfo subgraphInfo,
-                         DeviceContext *deviceContext,
+                         VkLogicalDeviceContext *logicalDeviceContext,
                          vk::RenderPass renderPass,
                          std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> semaphores);
         ~VkRenderSubgraph() override;
@@ -33,7 +33,7 @@ namespace Penrose {
     private:
         RenderSubgraphInfo _subgraphInfo;
 
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         vk::RenderPass _renderPass;
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _semaphores;

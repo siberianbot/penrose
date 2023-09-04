@@ -20,7 +20,9 @@ namespace Penrose {
     ImGuiDrawRenderOperator::ImGuiDrawRenderOperator(ResourceSet *resources)
             : _vulkanBackend(resources->get<VulkanBackend>()),
               _deviceContext(resources->get<DeviceContext>()),
-              _presentContext(resources->get<PresentContext>()) {
+              _presentContext(resources->get<PresentContext>()),
+              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
         //
     }
 
@@ -61,15 +63,14 @@ namespace Penrose {
     }
 
     void ImGuiDrawRenderOperator::initFor(const RenderOperator::Context &context) {
-        auto logicalDevice = this->_deviceContext->getLogicalDevice();
         auto imageCount = static_cast<uint32_t>(this->_presentContext->getSwapchainImages().size());
 
         auto initInfo = ImGui_ImplVulkan_InitInfo{
                 .Instance = this->_vulkanBackend->getInstance(),
-                .PhysicalDevice = this->_deviceContext->getPhysicalDevice(),
-                .Device = logicalDevice,
-                .QueueFamily = this->_deviceContext->getGraphicsQueueFamily(),
-                .Queue = this->_deviceContext->getGraphicsQueue(),
+                .PhysicalDevice = this->_physicalDeviceContext->getHandle(),
+                .Device = this->_logicalDeviceContext->getHandle(),
+                .QueueFamily = this->_physicalDeviceContext->getGraphicsFamilyIdx(),
+                .Queue = this->_logicalDeviceContext->getGraphicsQueue(),
                 .PipelineCache = nullptr,
                 .DescriptorPool = this->_deviceContext->getDescriptorPool(),
                 .Subpass = context.subgraphPassIdx,
@@ -89,7 +90,7 @@ namespace Penrose {
         auto allocateInfo = vk::CommandBufferAllocateInfo()
                 .setCommandPool(this->_deviceContext->getCommandPool())
                 .setCommandBufferCount(1);
-        auto commandBuffers = logicalDevice.allocateCommandBuffers(allocateInfo);
+        auto commandBuffers = this->_logicalDeviceContext->getHandle().allocateCommandBuffers(allocateInfo);
 
         commandBuffers.at(0).begin(vk::CommandBufferBeginInfo());
         ImGui_ImplVulkan_CreateFontsTexture(commandBuffers.at(0));
@@ -98,10 +99,11 @@ namespace Penrose {
         auto submit = vk::SubmitInfo()
                 .setCommandBuffers(commandBuffers);
 
-        this->_deviceContext->getGraphicsQueue().submit(submit);
-        this->_deviceContext->getGraphicsQueue().waitIdle();
+        this->_logicalDeviceContext->getGraphicsQueue().submit(submit);
+        this->_logicalDeviceContext->getGraphicsQueue().waitIdle();
 
-        logicalDevice.freeCommandBuffers(this->_deviceContext->getCommandPool(), commandBuffers);
+        this->_logicalDeviceContext->getHandle().freeCommandBuffers(this->_deviceContext->getCommandPool(),
+                                                                    commandBuffers);
 
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 

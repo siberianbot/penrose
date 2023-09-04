@@ -11,9 +11,9 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
-
 #include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 
 namespace Penrose {
 
@@ -52,9 +52,10 @@ namespace Penrose {
             std::vector<vk::ImageView> imageViews;
         };
 
-        Lazy<DeviceContext> _deviceContext;
-        Lazy<VkSurfaceProvider> _vkSurfaceProvider;
+        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
+        Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
         Lazy<SurfaceManager> _surfaceManager;
+        Lazy<VkSurfaceProvider> _surfaceProvider;
 
         std::optional<SwapchainProxy> _swapchain;
 

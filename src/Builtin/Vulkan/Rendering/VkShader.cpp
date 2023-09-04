@@ -1,17 +1,17 @@
 #include "VkShader.hpp"
 
-#include "src/Rendering/DeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    VkShader::VkShader(DeviceContext *deviceContext,
+    VkShader::VkShader(VkLogicalDeviceContext *logicalDeviceContext,
                        vk::ShaderModule shaderModule)
-            : _deviceContext(deviceContext),
+            : _logicalDeviceContext(logicalDeviceContext),
               _shaderModule(shaderModule) {
         //
     }
 
     VkShader::~VkShader() {
-        this->_deviceContext->getLogicalDevice().destroy(this->_shaderModule);
+        this->_logicalDeviceContext->getHandle().destroy(this->_shaderModule);
     }
 }

@@ -10,10 +10,12 @@
 namespace Penrose {
 
     class DeviceContext;
+    class VkLogicalDeviceContext;
 
     class VkDescriptor : public Descriptor {
     public:
         VkDescriptor(DeviceContext *deviceContext,
+                     VkLogicalDeviceContext *logicalDeviceContext,
                      std::vector<vk::DescriptorSet> &&descriptorSets);
         ~VkDescriptor() override;
 
@@ -29,6 +31,7 @@ namespace Penrose {
         std::unordered_set<DescriptorBindingValue> _bindingValues;
 
         DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         std::vector<vk::DescriptorSet> _descriptorSets;
     };

@@ -9,11 +9,11 @@
 
 namespace Penrose {
 
-    class DeviceContext;
+    class VkLogicalDeviceContext;
 
     class VkBuffer : public Buffer {
     public:
-        VkBuffer(DeviceContext *deviceContext,
+        VkBuffer(VkLogicalDeviceContext *logicalDeviceContext,
                  BufferType type, std::uint64_t size, std::uint32_t count,
                  vk::Buffer buffer, vk::DeviceMemory bufferMemory,
                  std::optional<BufferPtr> ptr);
@@ -30,7 +30,7 @@ namespace Penrose {
         [[nodiscard]] const vk::Buffer &getBuffer() const { return this->_buffer; }
 
     private:
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         BufferType _type;
         std::uint64_t _size;

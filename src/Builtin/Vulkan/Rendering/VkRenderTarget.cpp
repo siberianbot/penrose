@@ -2,8 +2,9 @@
 
 #include <utility>
 
-#include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
+
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 
 namespace Penrose {
 
@@ -24,12 +25,12 @@ namespace Penrose {
     }
 
     VkImageRenderTarget::VkImageRenderTarget(RenderTargetInfo targetInfo,
-                                             DeviceContext *deviceContext,
+                                             VkLogicalDeviceContext *logicalDeviceContext,
                                              vk::Image image,
                                              vk::DeviceMemory imageMemory,
                                              vk::ImageView imageView)
             : VkRenderTarget(targetInfo),
-              _deviceContext(deviceContext),
+              _logicalDeviceContext(logicalDeviceContext),
               _image(image),
               _imageMemory(imageMemory),
               _imageView(imageView) {
@@ -37,8 +38,8 @@ namespace Penrose {
     }
 
     VkImageRenderTarget::~VkImageRenderTarget() {
-        this->_deviceContext->getLogicalDevice().destroy(this->_imageView);
-        this->_deviceContext->getLogicalDevice().free(this->_imageMemory);
-        this->_deviceContext->getLogicalDevice().destroy(this->_image);
+        this->_logicalDeviceContext->getHandle().destroy(this->_imageView);
+        this->_logicalDeviceContext->getHandle().free(this->_imageMemory);
+        this->_logicalDeviceContext->getHandle().destroy(this->_image);
     }
 }

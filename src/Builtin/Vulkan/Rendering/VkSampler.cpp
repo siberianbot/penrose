@@ -1,16 +1,16 @@
 #include "VkSampler.hpp"
 
-#include "src/Rendering/DeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    VkSampler::VkSampler(DeviceContext *deviceContext, vk::Sampler sampler)
-            : _deviceContext(deviceContext),
+    VkSampler::VkSampler(VkLogicalDeviceContext *logicalDeviceContext, vk::Sampler sampler)
+            : _logicalDeviceContext(logicalDeviceContext),
               _sampler(sampler) {
         //
     }
 
     VkSampler::~VkSampler() {
-        this->_deviceContext->getLogicalDevice().destroy(this->_sampler);
+        this->_logicalDeviceContext->getHandle().destroy(this->_sampler);
     }
 }

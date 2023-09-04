@@ -7,6 +7,8 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+
 namespace Penrose {
 
     class ResourceSet;
@@ -23,10 +25,10 @@ namespace Penrose {
         RenderGraphExecutor *createFor(const RenderGraphInfo &graph);
 
     private:
-        DeviceContext *_deviceContext;
         PresentContext *_presentContext;
         RenderSubgraphFactory *_renderSubgraphFactory;
 
+        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
         LazyCollection<RenderOperator> _renderOperators;
         Lazy<RenderTargetFactory> _renderTargetFactory;
     };

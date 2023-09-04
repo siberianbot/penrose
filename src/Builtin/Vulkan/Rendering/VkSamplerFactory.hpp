@@ -5,7 +5,7 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 
 namespace Penrose {
 
@@ -19,7 +19,7 @@ namespace Penrose {
         [[nodiscard]] Sampler *makeSampler(const SamplerInfo &samplerInfo) override;
 
     private:
-        Lazy<DeviceContext> _deviceContext;
+        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
     };
 }
 

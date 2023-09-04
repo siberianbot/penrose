@@ -10,7 +10,8 @@ namespace Penrose {
 
     VkMeshAssetFactory::VkMeshAssetFactory(ResourceSet *resources)
             : _bufferFactory(resources->getLazy<BufferFactory>()),
-              _deviceContext(resources->getLazy<DeviceContext>()) {
+              _deviceContext(resources->getLazy<DeviceContext>()),
+              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
         //
     }
 
@@ -42,7 +43,7 @@ namespace Penrose {
         auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
                 .setCommandBufferCount(1)
                 .setCommandPool(this->_deviceContext->getCommandPool());
-        auto commandBuffers = this->_deviceContext->getLogicalDevice()
+        auto commandBuffers = this->_logicalDeviceContext->getHandle()
                 .allocateCommandBuffers(commandBufferAllocateInfo);
 
         auto beginInfo = vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
@@ -53,10 +54,10 @@ namespace Penrose {
                                         vk::BufferCopy(0, 0, indexBufferSize));
         commandBuffers.at(0).end();
 
-        this->_deviceContext->getGraphicsQueue().submit(vk::SubmitInfo().setCommandBuffers(commandBuffers));
-        this->_deviceContext->getGraphicsQueue().waitIdle();
+        this->_logicalDeviceContext->getGraphicsQueue().submit(vk::SubmitInfo().setCommandBuffers(commandBuffers));
+        this->_logicalDeviceContext->getGraphicsQueue().waitIdle();
 
-        this->_deviceContext->getLogicalDevice().free(this->_deviceContext->getCommandPool(), commandBuffers);
+        this->_logicalDeviceContext->getHandle().free(this->_deviceContext->getCommandPool(), commandBuffers);
 
         delete stagingVertexBuffer;
         delete stagingIndexBuffer;

@@ -16,7 +16,8 @@ namespace Penrose {
 
     VkPipelineFactory::VkPipelineFactory(ResourceSet *resources)
             : _assetManager(resources->getLazy<AssetManager>()),
-              _deviceContext(resources->getLazy<DeviceContext>()) {
+              _deviceContext(resources->getLazy<DeviceContext>()),
+              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
         //
     }
 
@@ -25,7 +26,7 @@ namespace Penrose {
                 .setPInitialData(nullptr)
                 .setInitialDataSize(0);
 
-        this->_pipelineCache = this->_deviceContext->getLogicalDevice().createPipelineCache(createInfo);
+        this->_pipelineCache = this->_logicalDeviceContext->getHandle().createPipelineCache(createInfo);
     }
 
     void VkPipelineFactory::destroy() {
@@ -35,7 +36,7 @@ namespace Penrose {
 
         this->_pipelines.clear();
 
-        this->_deviceContext->getLogicalDevice().destroy(this->_pipelineCache);
+        this->_logicalDeviceContext->getHandle().destroy(this->_pipelineCache);
     }
 
     void VkPipelineFactory::addPipeline(const std::string &pipelineName, const PipelineInfo &pipelineInfo) {
@@ -88,7 +89,7 @@ namespace Penrose {
         auto descriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo()
                 .setBindings(descriptorSetBindings);
 
-        auto descriptorSetLayout = this->_deviceContext->getLogicalDevice()
+        auto descriptorSetLayout = this->_logicalDeviceContext->getHandle()
                 .createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 
         auto pushConstants = std::vector<vk::PushConstantRange>(pipelineInfo.getLayout().getConstants().size());
@@ -105,7 +106,7 @@ namespace Penrose {
                 .setPushConstantRanges(pushConstants)
                 .setSetLayouts(descriptorSetLayout);
 
-        auto pipelineLayout = this->_deviceContext->getLogicalDevice()
+        auto pipelineLayout = this->_logicalDeviceContext->getHandle()
                 .createPipelineLayout(pipelineLayoutCreateInfo);
 
         auto stages = std::vector<vk::PipelineShaderStageCreateInfo>(pipelineInfo.getStages().size());
@@ -218,11 +219,12 @@ namespace Penrose {
                 .setPColorBlendState(&colorBlendState)
                 .setPDynamicState(&dynamicState);
 
-        auto [_, pipeline] = this->_deviceContext->getLogicalDevice()
+        auto [_, pipeline] = this->_logicalDeviceContext->getHandle()
                 .createGraphicsPipeline(this->_pipelineCache, pipelineCreateInfo);
 
         return new VkPipeline(pipelineInfo,
                               this->_deviceContext.get(),
+                              this->_logicalDeviceContext.get(),
                               descriptorSetLayout,
                               pipelineLayout,
                               pipeline);

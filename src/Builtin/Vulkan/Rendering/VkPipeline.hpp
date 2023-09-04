@@ -12,11 +12,13 @@ namespace Penrose {
 
     class DeviceContext;
     class VkDescriptor;
+    class VkLogicalDeviceContext;
 
     class VkPipeline : public Pipeline {
     public:
         VkPipeline(PipelineInfo pipelineInfo,
                    DeviceContext *deviceContext,
+                   VkLogicalDeviceContext *logicalDeviceContext,
                    vk::DescriptorSetLayout descriptorSetLayout,
                    vk::PipelineLayout pipelineLayout,
                    vk::Pipeline pipeline);
@@ -39,6 +41,7 @@ namespace Penrose {
         PipelineInfo _pipelineInfo;
 
         DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         vk::DescriptorSetLayout _descriptorSetLayout;
         vk::PipelineLayout _pipelineLayout;

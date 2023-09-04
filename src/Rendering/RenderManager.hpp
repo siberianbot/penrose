@@ -26,6 +26,8 @@ namespace Penrose {
     class RenderGraphExecutor;
     class RenderGraphExecutorProvider;
 
+    class VkLogicalDeviceContext;
+
     class RenderManager : public Resource, public Initializable, public Runnable {
     public:
         explicit RenderManager(ResourceSet *resources);
@@ -39,6 +41,7 @@ namespace Penrose {
 
     private:
         EventQueue *_eventQueue;
+        VkLogicalDeviceContext *_logicalDeviceContext;
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
         RenderContext *_renderContext;

@@ -10,7 +10,8 @@
 namespace Penrose {
 
     VkRenderTargetFactory::VkRenderTargetFactory(ResourceSet *resources)
-            : _deviceContext(resources->getLazy<DeviceContext>()),
+            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
+              _memoryAllocator(resources->getLazy<VkMemoryAllocator>()),
               _presentContext(resources->getLazy<PresentContext>()) {
         //
     }
@@ -45,8 +46,8 @@ namespace Penrose {
                 .setFormat(format)
                 .setMipLevels(1)
                 .setArrayLayers(1);
-        auto image = this->_deviceContext->getLogicalDevice().createImage(imageCreateInfo);
-        auto imageMemory = makeDeviceMemory(this->_deviceContext.get(), image);
+        auto image = this->_logicalDeviceContext->getHandle().createImage(imageCreateInfo);
+        auto imageMemory = this->_memoryAllocator->allocate(image);
 
         auto subresourceRange = vk::ImageSubresourceRange()
                 .setBaseMipLevel(0)
@@ -61,9 +62,9 @@ namespace Penrose {
                 .setFormat(format)
                 .setSubresourceRange(subresourceRange);
 
-        auto imageView = this->_deviceContext->getLogicalDevice().createImageView(imageViewCreateInfo);
+        auto imageView = this->_logicalDeviceContext->getHandle().createImageView(imageViewCreateInfo);
 
-        return new VkImageRenderTarget(targetInfo, this->_deviceContext.get(), image, imageMemory, imageView);
+        return new VkImageRenderTarget(targetInfo, this->_logicalDeviceContext.get(), image, imageMemory, imageView);
     }
 
     RenderTarget *VkRenderTargetFactory::makeSwapchainRenderTarget(const RenderTargetInfo &targetInfo) {

@@ -16,6 +16,9 @@ namespace Penrose {
     class PresentContext;
     class RenderSubgraph;
 
+    class VkLogicalDeviceContext;
+    class VkPhysicalDeviceContext;
+
     // TODO: this operator should be abstract
     class ImGuiDrawRenderOperator : public RenderOperator, public Initializable {
     public:
@@ -43,6 +46,9 @@ namespace Penrose {
         VulkanBackend *_vulkanBackend;
         DeviceContext *_deviceContext;
         PresentContext *_presentContext;
+
+        VkLogicalDeviceContext *_logicalDeviceContext;
+        VkPhysicalDeviceContext *_physicalDeviceContext;
 
         std::optional<State> _state;
 

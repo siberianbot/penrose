@@ -9,12 +9,9 @@
 
 namespace Penrose {
 
-    class DeviceContext;
-
     class VkCommandRecording : public CommandRecording {
     public:
         explicit VkCommandRecording(std::uint32_t frameIdx,
-                                    DeviceContext *deviceContext,
                                     vk::CommandBuffer commandBuffer);
         ~VkCommandRecording() override = default;
 
@@ -32,8 +29,6 @@ namespace Penrose {
 
     private:
         std::uint32_t _frameIdx;
-
-        DeviceContext *_deviceContext;
 
         vk::CommandBuffer _commandBuffer;
     };

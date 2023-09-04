@@ -8,11 +8,11 @@
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/RenderTarget.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkFramebuffer.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTarget.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.hpp"
@@ -23,14 +23,14 @@ namespace Penrose {
             vk::PipelineStageFlagBits::eColorAttachmentOutput
     };
 
-    RenderGraphExecutor::RenderGraphExecutor(DeviceContext *deviceContext,
+    RenderGraphExecutor::RenderGraphExecutor(VkLogicalDeviceContext *logicalDeviceContext,
                                              PresentContext *presentContext,
                                              std::map<std::string, RenderOperator *> operators,
                                              VkRenderTargetFactory *vkRenderTargetFactory,
                                              RenderGraphInfo graph,
                                              std::map<std::string, VkRenderTarget *> targets,
                                              std::map<std::string, SubgraphEntry> subgraphs)
-            : _deviceContext(deviceContext),
+            : _logicalDeviceContext(logicalDeviceContext),
               _presentContext(presentContext),
               _operators(std::move(operators)),
               _vkRenderTargetFactory(vkRenderTargetFactory),
@@ -85,7 +85,7 @@ namespace Penrose {
 
             commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
-            auto commandRecording = new VkCommandRecording(frameIdx, this->_deviceContext, commandBuffer);
+            auto commandRecording = new VkCommandRecording(frameIdx, commandBuffer);
             auto &passes = subgraph.renderSubgraph->getSubgraphInfo().getPasses();
 
             for (std::uint32_t passIdx = 0; passIdx < passes.size(); passIdx++) {
@@ -137,7 +137,7 @@ namespace Penrose {
         }
 
         for (auto &[_, subgraph]: this->_subgraphs) {
-            auto framebuffer = makeVkFramebuffer(this->_deviceContext,
+            auto framebuffer = makeVkFramebuffer(this->_logicalDeviceContext,
                                                  this->_presentContext,
                                                  this->_targets,
                                                  subgraph.renderSubgraph->getRenderPass(),

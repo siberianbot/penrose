@@ -9,6 +9,8 @@
 
 #include "src/Rendering/DeviceContext.hpp"
 
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+
 namespace Penrose {
 
     class ResourceSet;
@@ -25,6 +27,7 @@ namespace Penrose {
         Lazy<BufferFactory> _bufferFactory;
         Lazy<DeviceContext> _deviceContext;
         Lazy<ImageFactory> _imageFactory;
+        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
     };
 }
 

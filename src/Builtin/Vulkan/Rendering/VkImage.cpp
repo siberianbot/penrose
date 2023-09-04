@@ -1,13 +1,13 @@
 #include "VkImage.hpp"
 
-#include "src/Rendering/DeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    VkImage::VkImage(DeviceContext *deviceContext,
+    VkImage::VkImage(VkLogicalDeviceContext *logicalDeviceContext,
                      ImageFormat format, std::uint32_t width, std::uint32_t height,
                      vk::Image image, vk::DeviceMemory imageMemory, vk::ImageView imageView)
-            : _deviceContext(deviceContext),
+            : _logicalDeviceContext(logicalDeviceContext),
               _format(format),
               _width(width),
               _height(height),
@@ -18,8 +18,8 @@ namespace Penrose {
     }
 
     VkImage::~VkImage() {
-        this->_deviceContext->getLogicalDevice().destroy(this->_imageView);
-        this->_deviceContext->getLogicalDevice().free(this->_imageMemory);
-        this->_deviceContext->getLogicalDevice().destroy(this->_image);
+        this->_logicalDeviceContext->getHandle().destroy(this->_imageView);
+        this->_logicalDeviceContext->getHandle().free(this->_imageMemory);
+        this->_logicalDeviceContext->getHandle().destroy(this->_image);
     }
 }

@@ -8,7 +8,8 @@
 namespace Penrose {
 
     VkImageFactory::VkImageFactory(ResourceSet *resources)
-            : _deviceContext(resources->getLazy<DeviceContext>()) {
+            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
+              _memoryAllocator(resources->getLazy<VkMemoryAllocator>()) {
         //
     }
 
@@ -28,8 +29,8 @@ namespace Penrose {
                 .setSharingMode(vk::SharingMode::eExclusive)
                 .setTiling(vk::ImageTiling::eOptimal);
 
-        auto image = this->_deviceContext->getLogicalDevice().createImage(imageCreateInfo);
-        auto imageMemory = makeDeviceMemory(this->_deviceContext.get(), image);
+        auto image = this->_logicalDeviceContext->getHandle().createImage(imageCreateInfo);
+        auto imageMemory = this->_memoryAllocator->allocate(image);
 
         auto imageViewCreateInfo = vk::ImageViewCreateInfo()
                 .setViewType(vk::ImageViewType::e2D)
@@ -42,9 +43,9 @@ namespace Penrose {
                                              .setLevelCount(1)
                                              .setBaseMipLevel(0))
                 .setComponents(vk::ComponentMapping());
-        auto imageView = this->_deviceContext->getLogicalDevice().createImageView(imageViewCreateInfo);
+        auto imageView = this->_logicalDeviceContext->getHandle().createImageView(imageViewCreateInfo);
 
-        return new VkImage(this->_deviceContext.get(),
+        return new VkImage(this->_logicalDeviceContext.get(),
                            format, width, height,
                            image, imageMemory, imageView);
     }

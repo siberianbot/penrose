@@ -12,14 +12,14 @@
 
 namespace Penrose {
 
-    class DeviceContext;
+    class VkLogicalDeviceContext;
     class PresentContext;
 
     class VkRenderTarget;
 
     class VkFramebuffer {
     public:
-        VkFramebuffer(DeviceContext *deviceContext,
+        VkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
                       std::vector<vk::Framebuffer> framebuffers,
                       std::vector<vk::ClearValue> clearValues,
                       vk::Rect2D renderArea);
@@ -34,14 +34,14 @@ namespace Penrose {
         [[nodiscard]] const vk::Rect2D &getRenderArea() const { return this->_renderArea; }
 
     private:
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
 
         std::vector<vk::Framebuffer> _framebuffers;
         std::vector<vk::ClearValue> _clearValues;
         vk::Rect2D _renderArea;
     };
 
-    [[nodiscard]] VkFramebuffer *makeVkFramebuffer(DeviceContext *deviceContext,
+    [[nodiscard]] VkFramebuffer *makeVkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
                                                    PresentContext *presentContext,
                                                    const std::map<std::string, VkRenderTarget *> &targets,
                                                    const vk::RenderPass &renderPass,

@@ -2,8 +2,6 @@
 
 #include <Penrose/Common/EngineError.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
-
 namespace Penrose {
 
     vk::DescriptorType toVkDescriptorType(const PipelineLayoutBindingType &type) {
@@ -205,39 +203,6 @@ namespace Penrose {
         }
     }
 
-    vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::MemoryRequirements requirements,
-                                      bool local) {
-        vk::MemoryPropertyFlags flags = local
-                                        ? vk::MemoryPropertyFlagBits::eDeviceLocal
-                                        : vk::MemoryPropertyFlagBits::eHostVisible |
-                                          vk::MemoryPropertyFlagBits::eHostCoherent;
-
-        auto properties = deviceContext->getPhysicalDevice().getMemoryProperties();
-        std::optional<uint32_t> memTypeIdx;
-
-        for (uint32_t idx = 0; idx < properties.memoryTypeCount; idx++) {
-            bool typeMatches = requirements.memoryTypeBits & (1 << idx);
-            bool propertiesMatches = (properties.memoryTypes[idx].propertyFlags & flags) == flags;
-
-            if (!typeMatches || !propertiesMatches) {
-                continue;
-            }
-
-            memTypeIdx = idx;
-            break;
-        }
-
-        if (!memTypeIdx.has_value()) {
-            throw EngineError("No memory type available for required allocation");
-        }
-
-        auto allocateInfo = vk::MemoryAllocateInfo()
-                .setAllocationSize(requirements.size)
-                .setMemoryTypeIndex(memTypeIdx.value());
-
-        return deviceContext->getLogicalDevice().allocateMemory(allocateInfo);
-    }
-
     vk::SamplerAddressMode toVkSamplerAddressMode(const SamplerAddressMode &addressMode) {
         switch (addressMode) {
             case SamplerAddressMode::Repeat:
@@ -284,23 +249,5 @@ namespace Penrose {
             default:
                 throw EngineError("Sampler filter is not supported");
         }
-    }
-
-    vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Buffer &buffer, bool local) {
-        auto requirements = deviceContext->getLogicalDevice().getBufferMemoryRequirements(buffer);
-        auto memory = makeDeviceMemory(deviceContext, requirements, local);
-
-        deviceContext->getLogicalDevice().bindBufferMemory(buffer, memory, 0);
-
-        return memory;
-    }
-
-    vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Image &image, bool local) {
-        auto requirements = deviceContext->getLogicalDevice().getImageMemoryRequirements(image);
-        auto memory = makeDeviceMemory(deviceContext, requirements, local);
-
-        deviceContext->getLogicalDevice().bindImageMemory(image, memory, 0);
-
-        return memory;
     }
 }

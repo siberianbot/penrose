@@ -6,7 +6,6 @@
 #include <Penrose/Rendering/RenderSubgraphFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
 
@@ -18,9 +17,9 @@
 namespace Penrose {
 
     RenderGraphExecutorProvider::RenderGraphExecutorProvider(ResourceSet *resources)
-            : _deviceContext(resources->get<DeviceContext>()),
-              _presentContext(resources->get<PresentContext>()),
+            : _presentContext(resources->get<PresentContext>()),
               _renderSubgraphFactory(resources->get<RenderSubgraphFactory>()),
+              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
               _renderOperators(resources->getAllLazy<RenderOperator>()),
               _renderTargetFactory(resources->getLazy<RenderTargetFactory>()) {
         //
@@ -49,7 +48,9 @@ namespace Penrose {
             });
         }
 
-        return new RenderGraphExecutor(this->_deviceContext, this->_presentContext, operatorMap,
+        return new RenderGraphExecutor(this->_logicalDeviceContext.get(),
+                                       this->_presentContext,
+                                       operatorMap,
                                        dynamic_cast<VkRenderTargetFactory *>(this->_renderTargetFactory.get()),
                                        graph, targets, subgraphs);
     }

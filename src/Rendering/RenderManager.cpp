@@ -16,6 +16,7 @@ namespace Penrose {
 
     RenderManager::RenderManager(ResourceSet *resources)
             : _eventQueue(resources->get<EventQueue>()),
+              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _deviceContext(resources->get<DeviceContext>()),
               _presentContext(resources->get<PresentContext>()),
               _renderContext(resources->get<RenderContext>()),
@@ -28,7 +29,7 @@ namespace Penrose {
                 .setCommandPool(this->_deviceContext->getCommandPool())
                 .setCommandBufferCount(INFLIGHT_FRAME_COUNT)
                 .setLevel(vk::CommandBufferLevel::ePrimary);
-        auto commandBuffers = this->_deviceContext->getLogicalDevice()
+        auto commandBuffers = this->_logicalDeviceContext->getHandle()
                 .allocateCommandBuffers(commandBufferAllocateInfo);
 
         std::copy(commandBuffers.begin(), commandBuffers.end(), this->_commandBuffers.begin());
@@ -37,10 +38,10 @@ namespace Penrose {
         auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
 
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            this->_fences[idx] = this->_deviceContext->getLogicalDevice().createFence(fenceCreateInfo);
-            this->_imageReadySemaphores[idx] = this->_deviceContext->getLogicalDevice()
+            this->_fences[idx] = this->_logicalDeviceContext->getHandle().createFence(fenceCreateInfo);
+            this->_imageReadySemaphores[idx] = this->_logicalDeviceContext->getHandle()
                     .createSemaphore(semaphoreCreateInfo);
-            this->_renderFinishedSemaphores[idx] = this->_deviceContext->getLogicalDevice()
+            this->_renderFinishedSemaphores[idx] = this->_logicalDeviceContext->getHandle()
                     .createSemaphore(semaphoreCreateInfo);
         }
 
@@ -65,12 +66,12 @@ namespace Penrose {
 
         this->_currentRenderGraphExecutor = std::nullopt;
 
-        this->_deviceContext->getLogicalDevice().free(this->_deviceContext->getCommandPool(), this->_commandBuffers);
+        this->_logicalDeviceContext->getHandle().free(this->_deviceContext->getCommandPool(), this->_commandBuffers);
 
         for (std::uint32_t frameIdx = 0; frameIdx < INFLIGHT_FRAME_COUNT; frameIdx++) {
-            this->_deviceContext->getLogicalDevice().destroy(this->_fences.at(frameIdx));
-            this->_deviceContext->getLogicalDevice().destroy(this->_imageReadySemaphores.at(frameIdx));
-            this->_deviceContext->getLogicalDevice().destroy(this->_renderFinishedSemaphores.at(frameIdx));
+            this->_logicalDeviceContext->getHandle().destroy(this->_fences.at(frameIdx));
+            this->_logicalDeviceContext->getHandle().destroy(this->_imageReadySemaphores.at(frameIdx));
+            this->_logicalDeviceContext->getHandle().destroy(this->_renderFinishedSemaphores.at(frameIdx));
         }
     }
 
@@ -80,7 +81,7 @@ namespace Penrose {
 
             while (!stopToken.stop_requested()) {
                 if (swapchainInvalid || this->_swapchainModified || this->_renderGraphModified) {
-                    this->_deviceContext->getLogicalDevice().waitIdle();
+                    this->_logicalDeviceContext->getHandle().waitIdle();
                 }
 
                 if (this->_renderGraphModified) {
@@ -135,13 +136,13 @@ namespace Penrose {
             this->_thread = std::nullopt;
         }
 
-        this->_deviceContext->getLogicalDevice().waitIdle();
+        this->_logicalDeviceContext->getHandle().waitIdle();
     }
 
     bool RenderManager::renderFrame(const std::uint32_t &frameIdx) const {
-        auto logicalDevice = this->_deviceContext->getLogicalDevice();
-        auto graphicsQueue = this->_deviceContext->getGraphicsQueue();
-        auto presentQueue = this->_deviceContext->getPresentQueue();
+        auto logicalDevice = this->_logicalDeviceContext->getHandle();
+        auto graphicsQueue = this->_logicalDeviceContext->getGraphicsQueue();
+        auto presentQueue = this->_logicalDeviceContext->getPresentQueue();
         auto swapchain = this->_presentContext->getSwapchain();
 
         auto commandBuffer = this->_commandBuffers.at(frameIdx);

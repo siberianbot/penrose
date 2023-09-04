@@ -8,7 +8,7 @@
 namespace Penrose {
 
     VkSamplerFactory::VkSamplerFactory(ResourceSet *resources)
-            : _deviceContext(resources->getLazy<DeviceContext>()) {
+            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
         //
     }
 
@@ -31,8 +31,8 @@ namespace Penrose {
                 .setUnnormalizedCoordinates(false)
                 .setMipmapMode(vk::SamplerMipmapMode::eLinear);
 
-        auto sampler = this->_deviceContext->getLogicalDevice().createSampler(createInfo);
+        auto sampler = this->_logicalDeviceContext->getHandle().createSampler(createInfo);
 
-        return new VkSampler(this->_deviceContext.get(), sampler);
+        return new VkSampler(this->_logicalDeviceContext.get(), sampler);
     }
 }

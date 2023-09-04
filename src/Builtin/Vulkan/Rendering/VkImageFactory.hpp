@@ -5,7 +5,8 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkMemoryAllocator.hpp"
 
 namespace Penrose {
 
@@ -19,7 +20,8 @@ namespace Penrose {
         [[nodiscard]] Image *makeImage(ImageFormat format, std::uint32_t width, std::uint32_t height) override;
 
     private:
-        Lazy<DeviceContext> _deviceContext;
+        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
+        Lazy<VkMemoryAllocator> _memoryAllocator;
     };
 }
 

@@ -52,9 +52,10 @@ namespace Penrose {
     }
 
     PresentContext::PresentContext(ResourceSet *resources)
-            : _deviceContext(resources->getLazy<DeviceContext>()),
-              _vkSurfaceProvider(resources->getLazy<VkSurfaceProvider>()),
-              _surfaceManager(resources->getLazy<SurfaceManager>()) {
+            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
+              _physicalDeviceContext(resources->getLazy<VkPhysicalDeviceContext>()),
+              _surfaceManager(resources->getLazy<SurfaceManager>()),
+              _surfaceProvider(resources->getLazy<VkSurfaceProvider>()) {
         //
     }
 
@@ -85,10 +86,10 @@ namespace Penrose {
 
     PresentContext::SwapchainProxy PresentContext::createSwapchain() {
         auto surface = this->_surfaceManager->getSurface();
-        auto vkSurface = this->_vkSurfaceProvider->getVkSurfaceFor(surface);
+        auto vkSurface = this->_surfaceProvider->getVkSurfaceFor(surface);
 
-        auto physicalDevice = this->_deviceContext->getPhysicalDevice();
-        auto logicalDevice = this->_deviceContext->getLogicalDevice();
+        auto physicalDevice = this->_physicalDeviceContext->getHandle();
+        auto logicalDevice = this->_logicalDeviceContext->getHandle();
 
         auto surfaceCapabilities = physicalDevice.getSurfaceCapabilitiesKHR(vkSurface);
         auto surfaceFormats = physicalDevice.getSurfaceFormatsKHR(vkSurface);
@@ -146,7 +147,7 @@ namespace Penrose {
     }
 
     void PresentContext::destroySwapchain(const PresentContext::SwapchainProxy &swapchain) {
-        auto logicalDevice = this->_deviceContext->getLogicalDevice();
+        auto logicalDevice = this->_logicalDeviceContext->getHandle();
 
         for (const auto &imageView: swapchain.imageViews) {
             logicalDevice.destroy(imageView);

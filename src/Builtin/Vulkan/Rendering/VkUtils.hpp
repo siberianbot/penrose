@@ -14,8 +14,6 @@
 
 namespace Penrose {
 
-    class DeviceContext;
-
     [[nodiscard]] vk::DescriptorType toVkDescriptorType(const PipelineLayoutBindingType &type);
     [[nodiscard]] vk::ShaderStageFlags toVkShaderStageFlags(const PipelineShaderStageType &type);
     [[nodiscard]] vk::ShaderStageFlagBits toVkShaderStageFlagBits(const PipelineShaderStageType &type);
@@ -39,11 +37,6 @@ namespace Penrose {
     [[nodiscard]] vk::SamplerAddressMode toVkSamplerAddressMode(const SamplerAddressMode &addressMode);
     [[nodiscard]] vk::BorderColor toVkBorderColor(const SamplerBorderColor &borderColor);
     [[nodiscard]] vk::Filter toVkFilter(const SamplerFilter &filter);
-
-    [[nodiscard]] vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Buffer &buffer,
-                                                    bool local = true);
-    [[nodiscard]] vk::DeviceMemory makeDeviceMemory(DeviceContext *deviceContext, const vk::Image &image,
-                                                    bool local = true);
 }
 
 #endif // PENROSE_BUILTIN_VULKAN_RENDERING_VK_UTILS_HPP

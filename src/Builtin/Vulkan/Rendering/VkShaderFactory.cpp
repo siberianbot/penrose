@@ -2,14 +2,12 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkShader.hpp"
 
 namespace Penrose {
 
     VkShaderFactory::VkShaderFactory(ResourceSet *resources)
-            : _deviceContext(resources->getLazy<DeviceContext>()) {
+            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
         //
     }
 
@@ -17,8 +15,8 @@ namespace Penrose {
         auto createInfo = vk::ShaderModuleCreateInfo()
                 .setPCode(data)
                 .setCodeSize(size);
-        auto shaderModule = this->_deviceContext->getLogicalDevice().createShaderModule(createInfo);
+        auto shaderModule = this->_logicalDeviceContext->getHandle().createShaderModule(createInfo);
 
-        return new VkShader(this->_deviceContext.get(), shaderModule);
+        return new VkShader(this->_logicalDeviceContext.get(), shaderModule);
     }
 }

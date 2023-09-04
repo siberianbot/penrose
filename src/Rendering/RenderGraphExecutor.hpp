@@ -13,11 +13,11 @@
 
 namespace Penrose {
 
-    class DeviceContext;
     class PresentContext;
     class RenderOperator;
 
     class VkFramebuffer;
+    class VkLogicalDeviceContext;
     class VkRenderSubgraph;
     class VkRenderTarget;
     class VkRenderTargetFactory;
@@ -29,7 +29,7 @@ namespace Penrose {
             VkFramebuffer *framebuffer;
         };
 
-        RenderGraphExecutor(DeviceContext *deviceContext,
+        RenderGraphExecutor(VkLogicalDeviceContext *logicalDeviceContext,
                             PresentContext *presentContext,
                             std::map<std::string, RenderOperator *> operators,
                             VkRenderTargetFactory *vkRenderTargetFactory,
@@ -48,7 +48,7 @@ namespace Penrose {
         void destroyFramebuffers();
 
     private:
-        DeviceContext *_deviceContext;
+        VkLogicalDeviceContext *_logicalDeviceContext;
         PresentContext *_presentContext;
         std::map<std::string, RenderOperator *> _operators;
         VkRenderTargetFactory *_vkRenderTargetFactory;
