@@ -64,21 +64,21 @@ src = [
     'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
 
     # Builtin / GLFW
+    'src/Builtin/Glfw/Glfw.cpp',
     'src/Builtin/Glfw/GlfwBackend.cpp',
-
     'src/Builtin/Glfw/Rendering/GlfwSurface.cpp',
     'src/Builtin/Glfw/Rendering/GlfwSurfaceController.cpp',
 
     # Builtin / ImGui
+    'src/Builtin/ImGui/ImGui.cpp',
     'src/Builtin/ImGui/ImGuiBackend.cpp',
 
     # Builtin / Vulkan
+    'src/Builtin/Vulkan/Vulkan.cpp',
     'src/Builtin/Vulkan/VulkanBackend.cpp',
-
     'src/Builtin/Vulkan/Assets/VkImageAssetFactory.cpp',
     'src/Builtin/Vulkan/Assets/VkMeshAssetFactory.cpp',
     'src/Builtin/Vulkan/Assets/VkShaderAssetFactory.cpp',
-
     'src/Builtin/Vulkan/Rendering/VkBuffer.cpp',
     'src/Builtin/Vulkan/Rendering/VkBufferFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkCommandRecording.cpp',

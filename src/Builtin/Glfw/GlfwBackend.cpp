@@ -5,9 +5,6 @@
 #include <GLFW/glfw3.h>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
-
-#include "src/Builtin/Glfw/Rendering/GlfwSurfaceController.hpp"
 
 namespace Penrose {
 
@@ -30,13 +27,5 @@ namespace Penrose {
         auto extensions = glfwGetRequiredInstanceExtensions(&count);
 
         return {extensions, extensions + count};
-    }
-
-    ResourceSet &addGlfw(ResourceSet &resources) {
-
-        resources.add<GlfwBackend, VkInstanceExtensionsProvider>(resources.getBeginIterator());
-        resources.add<GlfwSurfaceController, SurfaceFactory, SurfaceHook, VkSurfaceProvider>();
-
-        return resources;
     }
 }

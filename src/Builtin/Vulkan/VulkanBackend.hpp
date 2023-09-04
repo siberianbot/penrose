@@ -37,8 +37,6 @@ namespace Penrose {
                                       const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
                                       void *pUserData);
     };
-
-    ResourceSet &addVulkan(ResourceSet &resources);
 }
 
 #endif // PENROSE_BUILTIN_VULKAN_VULKAN_BACKEND_HPP

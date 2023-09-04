@@ -24,8 +24,6 @@ namespace Penrose {
 
         [[nodiscard]] std::vector<const char *> getRequiredInstanceExtensions() const override;
     };
-
-    ResourceSet &addGlfw(ResourceSet &resources);
 }
 
 #endif // PENROSE_BUILTIN_GLFW_GLFW_BACKEND_HPP

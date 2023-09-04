@@ -13,6 +13,10 @@
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
+#include <Penrose/Builtin/Glfw.hpp>
+#include <Penrose/Builtin/ImGui.hpp>
+#include <Penrose/Builtin/Vulkan.hpp>
+
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>
 #include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
 #include <Penrose/Builtin/ECS/TransformComponent.hpp>
@@ -25,10 +29,6 @@
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
 #include "src/Rendering/RenderManager.hpp"
-
-#include "src/Builtin/Glfw/GlfwBackend.hpp"
-#include "src/Builtin/ImGui/ImGuiBackend.hpp"
-#include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 #include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
 

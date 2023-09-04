@@ -20,8 +20,6 @@ namespace Penrose {
 
         void onSurfaceDestroy(Surface *) override { /* nothing to do */ }
     };
-
-    ResourceSet &addImGui(ResourceSet &resources);
 }
 
 #endif // PENROSE_BUILTIN_IMGUI_IMGUI_BACKEND_HPP
