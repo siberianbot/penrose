@@ -18,6 +18,7 @@ namespace Penrose {
 
     class VkLogicalDeviceContext;
     class VkPhysicalDeviceContext;
+    class VkCommandManager;
 
     // TODO: this operator should be abstract
     class ImGuiDrawRenderOperator : public RenderOperator, public Initializable {
@@ -49,6 +50,7 @@ namespace Penrose {
 
         VkLogicalDeviceContext *_logicalDeviceContext;
         VkPhysicalDeviceContext *_physicalDeviceContext;
+        VkCommandManager *_commandManager;
 
         std::optional<State> _state;
 

@@ -30,10 +30,8 @@ namespace Penrose {
         Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
         Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
 
-        std::optional<vk::CommandPool> _commandPool;
         std::optional<vk::DescriptorPool> _descriptorPool;
 
-        vk::CommandPool createCommandPool();
         vk::DescriptorPool createDescriptorPool();
 
     public:
@@ -42,8 +40,6 @@ namespace Penrose {
 
         void init() override;
         void destroy() override;
-
-        [[nodiscard]] vk::CommandPool &getCommandPool() { return this->_commandPool.value(); }
 
         [[nodiscard]] vk::DescriptorPool &getDescriptorPool() { return this->_descriptorPool.value(); }
     };

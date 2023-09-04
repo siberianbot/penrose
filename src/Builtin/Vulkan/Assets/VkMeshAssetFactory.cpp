@@ -10,8 +10,7 @@ namespace Penrose {
 
     VkMeshAssetFactory::VkMeshAssetFactory(ResourceSet *resources)
             : _bufferFactory(resources->getLazy<BufferFactory>()),
-              _deviceContext(resources->getLazy<DeviceContext>()),
-              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
+              _commandManager(resources->getLazy<VkCommandManager>()) {
         //
     }
 
@@ -40,24 +39,20 @@ namespace Penrose {
                                                                                            indexBufferSize,
                                                                                            indices.size(),
                                                                                            false));
-        auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandBufferCount(1)
-                .setCommandPool(this->_deviceContext->getCommandPool());
-        auto commandBuffers = this->_logicalDeviceContext->getHandle()
-                .allocateCommandBuffers(commandBufferAllocateInfo);
 
-        auto beginInfo = vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-        commandBuffers.at(0).begin(beginInfo);
-        commandBuffers.at(0).copyBuffer(stagingVertexBuffer->getBuffer(), targetVertexBuffer->getBuffer(),
-                                        vk::BufferCopy(0, 0, vertexBufferSize));
-        commandBuffers.at(0).copyBuffer(stagingIndexBuffer->getBuffer(), targetIndexBuffer->getBuffer(),
-                                        vk::BufferCopy(0, 0, indexBufferSize));
-        commandBuffers.at(0).end();
+        this->_commandManager->executeTransferOnce(
+                [
+                        &stagingVertexBuffer, &targetVertexBuffer, vertexBufferSize,
+                        &stagingIndexBuffer, &targetIndexBuffer, indexBufferSize
+                ](vk::CommandBuffer &commandBuffer) {
+                    commandBuffer.copyBuffer(stagingVertexBuffer->getBuffer(),
+                                             targetVertexBuffer->getBuffer(),
+                                             vk::BufferCopy(0, 0, vertexBufferSize));
+                    commandBuffer.copyBuffer(stagingIndexBuffer->getBuffer(),
+                                             targetIndexBuffer->getBuffer(),
+                                             vk::BufferCopy(0, 0, indexBufferSize));
 
-        this->_logicalDeviceContext->getGraphicsQueue().submit(vk::SubmitInfo().setCommandBuffers(commandBuffers));
-        this->_logicalDeviceContext->getGraphicsQueue().waitIdle();
-
-        this->_logicalDeviceContext->getHandle().free(this->_deviceContext->getCommandPool(), commandBuffers);
+                });
 
         delete stagingVertexBuffer;
         delete stagingIndexBuffer;

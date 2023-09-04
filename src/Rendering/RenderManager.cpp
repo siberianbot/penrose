@@ -10,6 +10,9 @@
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"
 
+#include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+
 namespace Penrose {
 
     static constexpr const std::uint64_t MAX_TIMEOUT = std::numeric_limits<std::uint64_t>::max();
@@ -17,7 +20,7 @@ namespace Penrose {
     RenderManager::RenderManager(ResourceSet *resources)
             : _eventQueue(resources->get<EventQueue>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _deviceContext(resources->get<DeviceContext>()),
+              _commandManager(resources->get<VkCommandManager>()),
               _presentContext(resources->get<PresentContext>()),
               _renderContext(resources->get<RenderContext>()),
               _renderGraphExecutorProvider(resources->get<RenderGraphExecutorProvider>()) {
@@ -25,15 +28,6 @@ namespace Penrose {
     }
 
     void RenderManager::init() {
-        auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandPool(this->_deviceContext->getCommandPool())
-                .setCommandBufferCount(INFLIGHT_FRAME_COUNT)
-                .setLevel(vk::CommandBufferLevel::ePrimary);
-        auto commandBuffers = this->_logicalDeviceContext->getHandle()
-                .allocateCommandBuffers(commandBufferAllocateInfo);
-
-        std::copy(commandBuffers.begin(), commandBuffers.end(), this->_commandBuffers.begin());
-
         auto fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
         auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
 
@@ -65,8 +59,6 @@ namespace Penrose {
         this->_eventQueue->removeHandler(this->_eventHandlerIdx);
 
         this->_currentRenderGraphExecutor = std::nullopt;
-
-        this->_logicalDeviceContext->getHandle().free(this->_deviceContext->getCommandPool(), this->_commandBuffers);
 
         for (std::uint32_t frameIdx = 0; frameIdx < INFLIGHT_FRAME_COUNT; frameIdx++) {
             this->_logicalDeviceContext->getHandle().destroy(this->_fences.at(frameIdx));
@@ -145,7 +137,6 @@ namespace Penrose {
         auto presentQueue = this->_logicalDeviceContext->getPresentQueue();
         auto swapchain = this->_presentContext->getSwapchain();
 
-        auto commandBuffer = this->_commandBuffers.at(frameIdx);
         auto fence = this->_fences.at(frameIdx);
         auto imageReadySemaphore = this->_imageReadySemaphores.at(frameIdx);
         auto renderFinishedSemaphore = this->_renderFinishedSemaphores.at(frameIdx);
@@ -168,7 +159,7 @@ namespace Penrose {
             return true;
         }
 
-        commandBuffer.reset();
+        auto &commandBuffer = this->_commandManager->getGraphicsCommandBuffer(frameIdx);
 
         auto submits = (*this->_currentRenderGraphExecutor)->execute(commandBuffer,
                                                                      imageReadySemaphore,

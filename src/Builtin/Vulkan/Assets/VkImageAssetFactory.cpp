@@ -11,9 +11,8 @@ namespace Penrose {
 
     VkImageAssetFactory::VkImageAssetFactory(ResourceSet *resources)
             : _bufferFactory(resources->getLazy<BufferFactory>()),
-              _deviceContext(resources->getLazy<DeviceContext>()),
               _imageFactory(resources->getLazy<ImageFactory>()),
-              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
+              _commandManager(resources->getLazy<VkCommandManager>()) {
         //
     }
 
@@ -26,68 +25,51 @@ namespace Penrose {
 
         std::memcpy(buffer->getPointer(), data, size);
 
-        auto range = vk::ImageSubresourceRange()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setLayerCount(1)
-                .setBaseArrayLayer(0)
-                .setLevelCount(1)
-                .setBaseMipLevel(0);
+        this->_commandManager->executeTransferOnce(
+                [&image, &buffer, width, height](vk::CommandBuffer &commandBuffer) {
+                    vk::ImageMemoryBarrier memoryBarrier = vk::ImageMemoryBarrier()
+                            .setImage(image->getImage())
+                            .setSubresourceRange(vk::ImageSubresourceRange()
+                                                         .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                                                         .setLayerCount(1)
+                                                         .setBaseArrayLayer(0)
+                                                         .setLevelCount(1)
+                                                         .setBaseMipLevel(0));
 
-        auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandBufferCount(1)
-                .setCommandPool(this->_deviceContext->getCommandPool());
-        auto commandBuffers = this->_logicalDeviceContext->getHandle()
-                .allocateCommandBuffers(commandBufferAllocateInfo);
+                    memoryBarrier = memoryBarrier
+                            .setSrcAccessMask(vk::AccessFlagBits::eNone)
+                            .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
+                            .setOldLayout(vk::ImageLayout::eUndefined)
+                            .setNewLayout(vk::ImageLayout::eTransferDstOptimal);
+                    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
+                                                  vk::PipelineStageFlagBits::eTransfer,
+                                                  vk::DependencyFlagBits(0),
+                                                  {}, {}, memoryBarrier);
 
-        auto beginInfo = vk::CommandBufferBeginInfo().setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-        commandBuffers.at(0).begin(beginInfo);
+                    auto region = vk::BufferImageCopy()
+                            .setBufferOffset(0)
+                            .setBufferRowLength(width)
+                            .setBufferImageHeight(height)
+                            .setImageExtent(vk::Extent3D(width, height, 1))
+                            .setImageOffset(vk::Offset3D(0, 0, 0))
+                            .setImageSubresource(vk::ImageSubresourceLayers()
+                                                         .setLayerCount(1)
+                                                         .setBaseArrayLayer(0)
+                                                         .setMipLevel(0)
+                                                         .setAspectMask(vk::ImageAspectFlagBits::eColor));
+                    commandBuffer.copyBufferToImage(buffer->getBuffer(), image->getImage(),
+                                                    vk::ImageLayout::eTransferDstOptimal, region);
 
-        vk::ImageMemoryBarrier memoryBarrier;
-
-        memoryBarrier = vk::ImageMemoryBarrier()
-                .setImage(image->getImage())
-                .setSrcAccessMask(vk::AccessFlagBits::eNone)
-                .setDstAccessMask(vk::AccessFlagBits::eTransferWrite)
-                .setOldLayout(vk::ImageLayout::eUndefined)
-                .setNewLayout(vk::ImageLayout::eTransferDstOptimal)
-                .setSubresourceRange(range);
-        commandBuffers.at(0).pipelineBarrier(vk::PipelineStageFlagBits::eTopOfPipe,
-                                             vk::PipelineStageFlagBits::eTransfer,
-                                             vk::DependencyFlagBits(0),
-                                             {}, {}, memoryBarrier);
-
-        auto region = vk::BufferImageCopy()
-                .setBufferOffset(0)
-                .setBufferRowLength(width)
-                .setBufferImageHeight(height)
-                .setImageExtent(vk::Extent3D(width, height, 1))
-                .setImageOffset(vk::Offset3D(0, 0, 0))
-                .setImageSubresource(vk::ImageSubresourceLayers()
-                                             .setLayerCount(1)
-                                             .setBaseArrayLayer(0)
-                                             .setMipLevel(0)
-                                             .setAspectMask(vk::ImageAspectFlagBits::eColor));
-        commandBuffers.at(0).copyBufferToImage(buffer->getBuffer(), image->getImage(),
-                                               vk::ImageLayout::eTransferDstOptimal, region);
-
-        memoryBarrier = vk::ImageMemoryBarrier()
-                .setImage(image->getImage())
-                .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-                .setDstAccessMask(vk::AccessFlagBits::eShaderRead)
-                .setOldLayout(vk::ImageLayout::eTransferDstOptimal)
-                .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                .setSubresourceRange(range);
-        commandBuffers.at(0).pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
-                                             vk::PipelineStageFlagBits::eFragmentShader,
-                                             vk::DependencyFlagBits(0),
-                                             {}, {}, memoryBarrier);
-
-        commandBuffers.at(0).end();
-
-        this->_logicalDeviceContext->getGraphicsQueue().submit(vk::SubmitInfo().setCommandBuffers(commandBuffers));
-        this->_logicalDeviceContext->getGraphicsQueue().waitIdle();
-
-        this->_logicalDeviceContext->getHandle().free(this->_deviceContext->getCommandPool(), commandBuffers);
+                    memoryBarrier = memoryBarrier
+                            .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+                            .setDstAccessMask(vk::AccessFlagBits::eShaderRead)
+                            .setOldLayout(vk::ImageLayout::eTransferDstOptimal)
+                            .setNewLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
+                    commandBuffer.pipelineBarrier(vk::PipelineStageFlagBits::eTransfer,
+                                                  vk::PipelineStageFlagBits::eFragmentShader,
+                                                  vk::DependencyFlagBits(0),
+                                                  {}, {}, memoryBarrier);
+                });
 
         delete buffer;
 

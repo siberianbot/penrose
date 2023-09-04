@@ -6,9 +6,7 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
-
-#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 
 namespace Penrose {
 
@@ -24,8 +22,7 @@ namespace Penrose {
 
     private:
         Lazy<BufferFactory> _bufferFactory;
-        Lazy<DeviceContext> _deviceContext;
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
+        Lazy<VkCommandManager> _commandManager;
     };
 }
 

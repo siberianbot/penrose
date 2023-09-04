@@ -9,14 +9,6 @@
 
 namespace Penrose {
 
-    vk::CommandPool DeviceContext::createCommandPool() {
-        auto createInfo = vk::CommandPoolCreateInfo()
-                .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
-                .setQueueFamilyIndex(this->_physicalDeviceContext->getGraphicsFamilyIdx());
-
-        return this->_logicalDeviceContext->getHandle().createCommandPool(createInfo);
-    }
-
     vk::DescriptorPool DeviceContext::createDescriptorPool() {
         const auto descriptorCount = 1024;
         const auto maxSets = 1024;
@@ -52,13 +44,6 @@ namespace Penrose {
     }
 
     void DeviceContext::init() {
-
-        try {
-            this->_commandPool = this->createCommandPool();
-        } catch (const std::exception &error) {
-            std::throw_with_nested(EngineError("Failed to create command pool"));
-        }
-
         try {
             this->_descriptorPool = this->createDescriptorPool();
         } catch (const std::exception &error) {
@@ -70,11 +55,6 @@ namespace Penrose {
         if (this->_descriptorPool.has_value()) {
             this->_logicalDeviceContext->getHandle().destroy(*this->_descriptorPool);
             this->_descriptorPool = std::nullopt;
-        }
-
-        if (this->_commandPool.has_value()) {
-            this->_logicalDeviceContext->getHandle().destroy(*this->_commandPool);
-            this->_commandPool = std::nullopt;
         }
     }
 }

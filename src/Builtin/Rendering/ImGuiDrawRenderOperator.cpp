@@ -12,6 +12,7 @@
 #include "src/Rendering/PresentContext.hpp"
 
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
 
@@ -22,7 +23,8 @@ namespace Penrose {
               _deviceContext(resources->get<DeviceContext>()),
               _presentContext(resources->get<PresentContext>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
+              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
+              _commandManager(resources->get<VkCommandManager>()) {
         //
     }
 
@@ -87,23 +89,9 @@ namespace Penrose {
 
         ImGui_ImplVulkan_Init(&initInfo, dynamic_cast<VkRenderSubgraph *>(context.subgraph)->getRenderPass());
 
-        auto allocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandPool(this->_deviceContext->getCommandPool())
-                .setCommandBufferCount(1);
-        auto commandBuffers = this->_logicalDeviceContext->getHandle().allocateCommandBuffers(allocateInfo);
-
-        commandBuffers.at(0).begin(vk::CommandBufferBeginInfo());
-        ImGui_ImplVulkan_CreateFontsTexture(commandBuffers.at(0));
-        commandBuffers.at(0).end();
-
-        auto submit = vk::SubmitInfo()
-                .setCommandBuffers(commandBuffers);
-
-        this->_logicalDeviceContext->getGraphicsQueue().submit(submit);
-        this->_logicalDeviceContext->getGraphicsQueue().waitIdle();
-
-        this->_logicalDeviceContext->getHandle().freeCommandBuffers(this->_deviceContext->getCommandPool(),
-                                                                    commandBuffers);
+        this->_commandManager->executeGraphicsOnce([](vk::CommandBuffer &commandBuffer) {
+            ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
+        });
 
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 

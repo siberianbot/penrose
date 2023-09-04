@@ -20,12 +20,12 @@ namespace Penrose {
 
     class ResourceSet;
     class EventQueue;
-    class DeviceContext;
     class PresentContext;
     class RenderContext;
     class RenderGraphExecutor;
     class RenderGraphExecutorProvider;
 
+    class VkCommandManager;
     class VkLogicalDeviceContext;
 
     class RenderManager : public Resource, public Initializable, public Runnable {
@@ -42,13 +42,12 @@ namespace Penrose {
     private:
         EventQueue *_eventQueue;
         VkLogicalDeviceContext *_logicalDeviceContext;
-        DeviceContext *_deviceContext;
+        VkCommandManager *_commandManager;
         PresentContext *_presentContext;
         RenderContext *_renderContext;
         RenderGraphExecutorProvider *_renderGraphExecutorProvider;
 
         std::uint32_t _frameIdx = 0;
-        std::array<vk::CommandBuffer, INFLIGHT_FRAME_COUNT> _commandBuffers;
         std::array<vk::Fence, INFLIGHT_FRAME_COUNT> _fences;
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _imageReadySemaphores;
         std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _renderFinishedSemaphores;

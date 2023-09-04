@@ -81,6 +81,7 @@ src = [
     'src/Builtin/Vulkan/Assets/VkShaderAssetFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkBuffer.cpp',
     'src/Builtin/Vulkan/Rendering/VkBufferFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkCommandManager.cpp',
     'src/Builtin/Vulkan/Rendering/VkCommandRecording.cpp',
     'src/Builtin/Vulkan/Rendering/VkDescriptor.cpp',
     'src/Builtin/Vulkan/Rendering/VkFramebuffer.cpp',
