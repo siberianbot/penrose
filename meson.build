@@ -42,7 +42,6 @@ src = [
     'src/Events/EventQueue.cpp',
 
     # Rendering
-    'src/Rendering/PresentContext.cpp',
     'src/Rendering/RenderContext.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
     'src/Rendering/RenderGraphExecutorProvider.cpp',
@@ -100,6 +99,10 @@ src = [
     'src/Builtin/Vulkan/Rendering/VkSamplerFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkShader.cpp',
     'src/Builtin/Vulkan/Rendering/VkShaderFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkSwapchain.cpp',
+    'src/Builtin/Vulkan/Rendering/VkSwapchainFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkSwapchainManager.cpp',
+    'src/Builtin/Vulkan/Rendering/VkSwapchainPreferencesProvider.cpp',
     'src/Builtin/Vulkan/Rendering/VkUtils.cpp',
 ]
 

@@ -5,12 +5,12 @@
 #include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"
 
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
@@ -20,7 +20,7 @@ namespace Penrose {
             : _eventQueue(resources->get<EventQueue>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _commandManager(resources->get<VkCommandManager>()),
-              _presentContext(resources->get<PresentContext>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()),
               _renderContext(resources->get<RenderContext>()),
               _renderGraphExecutorProvider(resources->get<RenderGraphExecutorProvider>()) {
         //
@@ -95,7 +95,7 @@ namespace Penrose {
                         (*this->_currentRenderGraphExecutor)->destroyFramebuffers();
                     }
 
-                    this->_presentContext->recreate();
+                    this->_swapchainManager->recreate();
 
                     if (this->_currentRenderGraphExecutor.has_value()) {
                         (*this->_currentRenderGraphExecutor)->createFramebuffers();
@@ -134,7 +134,7 @@ namespace Penrose {
         auto logicalDevice = this->_logicalDeviceContext->getHandle();
         auto graphicsQueue = this->_logicalDeviceContext->getGraphicsQueue();
         auto presentQueue = this->_logicalDeviceContext->getPresentQueue();
-        auto swapchain = this->_presentContext->getSwapchain();
+        auto swapchain = this->_swapchainManager->getSwapchain()->getHandle();
 
         auto fence = this->_fences.at(frameIdx);
         auto imageReadySemaphore = this->_imageReadySemaphores.at(frameIdx);

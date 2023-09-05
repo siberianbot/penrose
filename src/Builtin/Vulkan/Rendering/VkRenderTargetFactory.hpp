@@ -5,10 +5,9 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/Rendering/PresentContext.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkMemoryAllocator.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
@@ -19,15 +18,15 @@ namespace Penrose {
         explicit VkRenderTargetFactory(ResourceSet *resources);
         ~VkRenderTargetFactory() override = default;
 
-        [[nodiscard]] RenderTarget *makeRenderTarget(const RenderTargetInfo &targetInfo) override;
+        [[nodiscard]] RenderTarget *makeRenderTarget(RenderTargetInfo &&targetInfo) override;
 
     private:
         Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
         Lazy<VkMemoryAllocator> _memoryAllocator;
-        Lazy<PresentContext> _presentContext;
+        Lazy<VkSwapchainManager> _swapchainManager;
 
-        [[nodiscard]] RenderTarget *makeImageRenderTarget(const RenderTargetInfo &targetInfo);
-        [[nodiscard]] RenderTarget *makeSwapchainRenderTarget(const RenderTargetInfo &targetInfo);
+        [[nodiscard]] RenderTarget *makeImageRenderTarget(RenderTargetInfo &&targetInfo);
+        [[nodiscard]] RenderTarget *makeSwapchainRenderTarget(RenderTargetInfo &&targetInfo);
     };
 }
 

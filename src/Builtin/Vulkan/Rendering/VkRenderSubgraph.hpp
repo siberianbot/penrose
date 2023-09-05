@@ -16,7 +16,7 @@ namespace Penrose {
 
     class VkRenderSubgraph : public RenderSubgraph {
     public:
-        VkRenderSubgraph(RenderSubgraphInfo subgraphInfo,
+        VkRenderSubgraph(RenderSubgraphInfo &&subgraphInfo,
                          VkLogicalDeviceContext *logicalDeviceContext,
                          vk::RenderPass renderPass,
                          std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> semaphores);

@@ -11,7 +11,7 @@ namespace Penrose {
     public:
         virtual ~RenderSubgraphFactory() = default;
 
-        [[nodiscard]] virtual RenderSubgraph *makeRenderSubgraph(const RenderSubgraphInfo &subgraphInfo) = 0;
+        [[nodiscard]] virtual RenderSubgraph *makeRenderSubgraph(RenderSubgraphInfo &&subgraphInfo) = 0;
     };
 }
 

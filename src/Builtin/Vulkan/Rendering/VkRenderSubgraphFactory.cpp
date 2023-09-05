@@ -1,5 +1,7 @@
 #include "VkRenderSubgraphFactory.hpp"
 
+#include <utility>
+
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
@@ -9,12 +11,12 @@ namespace Penrose {
 
     VkRenderSubgraphFactory::VkRenderSubgraphFactory(ResourceSet *resources)
             : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _presentContext(resources->getLazy<PresentContext>()) {
+              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
         //
     }
 
-    RenderSubgraph *VkRenderSubgraphFactory::makeRenderSubgraph(const RenderSubgraphInfo &subgraphInfo) {
-        auto defaultFormat = this->_presentContext->getSwapchainFormat();
+    RenderSubgraph *VkRenderSubgraphFactory::makeRenderSubgraph(RenderSubgraphInfo &&subgraphInfo) {
+        auto defaultFormat = this->_swapchainManager->getSwapchain()->getFormat();
 
         auto attachments = std::vector<vk::AttachmentDescription>(subgraphInfo.getAttachments().size());
         std::transform(subgraphInfo.getAttachments().begin(), subgraphInfo.getAttachments().end(), attachments.begin(),
@@ -104,7 +106,7 @@ namespace Penrose {
             semaphores[idx] = this->_logicalDeviceContext->getHandle().createSemaphore(vk::SemaphoreCreateInfo());
         }
 
-        return new VkRenderSubgraph(subgraphInfo,
+        return new VkRenderSubgraph(std::forward<decltype(subgraphInfo)>(subgraphInfo),
                                     this->_logicalDeviceContext.get(),
                                     renderPass, semaphores);
     }

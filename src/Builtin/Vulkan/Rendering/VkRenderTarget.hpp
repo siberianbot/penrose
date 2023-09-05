@@ -10,11 +10,11 @@
 namespace Penrose {
 
     class VkLogicalDeviceContext;
-    class PresentContext;
+    class VkSwapchainManager;
 
     class VkRenderTarget : public RenderTarget {
     public:
-        explicit VkRenderTarget(RenderTargetInfo targetInfo);
+        explicit VkRenderTarget(RenderTargetInfo &&targetInfo);
         ~VkRenderTarget() override = default;
 
         [[nodiscard]] const RenderTargetInfo &getTargetInfo() const override { return this->_targetInfo; }
@@ -27,19 +27,19 @@ namespace Penrose {
 
     class VkSwapchainRenderTarget : public VkRenderTarget {
     public:
-        explicit VkSwapchainRenderTarget(RenderTargetInfo targetInfo,
-                                         PresentContext *presentContext);
+        explicit VkSwapchainRenderTarget(RenderTargetInfo &&targetInfo,
+                                         VkSwapchainManager *swapchainManager);
         ~VkSwapchainRenderTarget() override = default;
 
         [[nodiscard]] const vk::ImageView &getView(std::uint32_t imageIdx) const override;
 
     private:
-        PresentContext *_presentContext;
+        VkSwapchainManager *_swapchainManager;
     };
 
     class VkImageRenderTarget : public VkRenderTarget {
     public:
-        VkImageRenderTarget(RenderTargetInfo targetInfo,
+        VkImageRenderTarget(RenderTargetInfo &&targetInfo,
                             VkLogicalDeviceContext *logicalDeviceContext,
                             vk::Image image,
                             vk::DeviceMemory imageMemory,

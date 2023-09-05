@@ -12,13 +12,13 @@ namespace Penrose {
 
     class ResourceSet;
     class VulkanBackend;
-    class PresentContext;
     class RenderSubgraph;
 
     class VkCommandManager;
     class VkDescriptorPoolManager;
     class VkLogicalDeviceContext;
     class VkPhysicalDeviceContext;
+    class VkSwapchainManager;
 
     // TODO: this operator should be abstract
     class ImGuiDrawRenderOperator : public RenderOperator, public Initializable {
@@ -45,12 +45,12 @@ namespace Penrose {
         };
 
         VulkanBackend *_vulkanBackend;
-        PresentContext *_presentContext;
 
         VkCommandManager *_commandManager;
         VkDescriptorPoolManager *_descriptorPoolManager;
         VkLogicalDeviceContext *_logicalDeviceContext;
         VkPhysicalDeviceContext *_physicalDeviceContext;
+        VkSwapchainManager *_swapchainManager;
 
         std::optional<State> _state;
 

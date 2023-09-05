@@ -4,11 +4,11 @@
 
 namespace Penrose {
 
-    VkRenderSubgraph::VkRenderSubgraph(RenderSubgraphInfo subgraphInfo,
+    VkRenderSubgraph::VkRenderSubgraph(RenderSubgraphInfo &&subgraphInfo,
                                        VkLogicalDeviceContext *logicalDeviceContext,
                                        vk::RenderPass renderPass,
                                        std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> semaphores)
-            : _subgraphInfo(std::move(subgraphInfo)),
+            : _subgraphInfo(subgraphInfo),
               _logicalDeviceContext(logicalDeviceContext),
               _renderPass(renderPass),
               _semaphores(semaphores) {

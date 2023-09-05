@@ -8,8 +8,6 @@
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/RenderTarget.hpp>
 
-#include "src/Rendering/PresentContext.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkFramebuffer.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
@@ -24,14 +22,14 @@ namespace Penrose {
     };
 
     RenderGraphExecutor::RenderGraphExecutor(VkLogicalDeviceContext *logicalDeviceContext,
-                                             PresentContext *presentContext,
+                                             VkSwapchainManager *swapchainManager,
                                              std::map<std::string, RenderOperator *> operators,
                                              VkRenderTargetFactory *vkRenderTargetFactory,
                                              RenderGraphInfo graph,
                                              std::map<std::string, VkRenderTarget *> targets,
                                              std::map<std::string, SubgraphEntry> subgraphs)
             : _logicalDeviceContext(logicalDeviceContext),
-              _presentContext(presentContext),
+              _swapchainManager(swapchainManager),
               _operators(std::move(operators)),
               _vkRenderTargetFactory(vkRenderTargetFactory),
               _graph(std::move(graph)),
@@ -60,8 +58,8 @@ namespace Penrose {
                                                              const vk::Semaphore &signalSemaphore,
                                                              std::uint32_t frameIdx,
                                                              std::uint32_t imageIdx) {
-        auto swapchainSize = Size(this->_presentContext->getSwapchainExtent().width,
-                                  this->_presentContext->getSwapchainExtent().height);
+        auto swapchainExtent = this->_swapchainManager->getSwapchain()->getExtent();
+        auto swapchainSize = Size(swapchainExtent.width, swapchainExtent.height);
 
         if (this->_subgraphs.empty()) {
             return {};
@@ -133,12 +131,14 @@ namespace Penrose {
     void RenderGraphExecutor::createFramebuffers() {
         for (auto &[targetName, target]: this->_targets) {
             auto targetInfo = this->_graph.getTargets().at(targetName);
-            target = dynamic_cast<VkRenderTarget *>(this->_vkRenderTargetFactory->makeRenderTarget(targetInfo));
+            target = dynamic_cast<VkRenderTarget *>(this->_vkRenderTargetFactory->makeRenderTarget(
+                    std::forward<decltype(targetInfo)>(targetInfo)
+            ));
         }
 
         for (auto &[_, subgraph]: this->_subgraphs) {
             auto framebuffer = makeVkFramebuffer(this->_logicalDeviceContext,
-                                                 this->_presentContext,
+                                                 this->_swapchainManager,
                                                  this->_targets,
                                                  subgraph.renderSubgraph->getRenderPass(),
                                                  subgraph.renderSubgraph->getSubgraphInfo());

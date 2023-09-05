@@ -13,9 +13,8 @@
 namespace Penrose {
 
     class VkLogicalDeviceContext;
-    class PresentContext;
-
     class VkRenderTarget;
+    class VkSwapchainManager;
 
     class VkFramebuffer {
     public:
@@ -42,7 +41,7 @@ namespace Penrose {
     };
 
     [[nodiscard]] VkFramebuffer *makeVkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
-                                                   PresentContext *presentContext,
+                                                   VkSwapchainManager *swapchainManager,
                                                    const std::map<std::string, VkRenderTarget *> &targets,
                                                    const vk::RenderPass &renderPass,
                                                    const RenderSubgraphInfo &subgraph);

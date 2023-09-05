@@ -8,12 +8,11 @@
 #include <Penrose/Resources/Resource.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
     class ResourceSet;
-    class DeviceContext;
-    class PresentContext;
     class RenderGraphExecutor;
     class RenderSubgraphFactory;
 
@@ -22,13 +21,13 @@ namespace Penrose {
         explicit RenderGraphExecutorProvider(ResourceSet *resources);
         ~RenderGraphExecutorProvider() override = default;
 
-        RenderGraphExecutor *createFor(const RenderGraphInfo &graph);
+        [[nodiscard]] RenderGraphExecutor *createFor(const RenderGraphInfo &graph);
 
     private:
-        PresentContext *_presentContext;
         RenderSubgraphFactory *_renderSubgraphFactory;
 
         Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
+        Lazy<VkSwapchainManager> _swapchainManager;
         LazyCollection<RenderOperator> _renderOperators;
         Lazy<RenderTargetFactory> _renderTargetFactory;
     };

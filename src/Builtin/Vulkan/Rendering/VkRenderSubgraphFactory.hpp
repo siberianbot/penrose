@@ -5,9 +5,8 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/Rendering/PresentContext.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
@@ -18,11 +17,11 @@ namespace Penrose {
         explicit VkRenderSubgraphFactory(ResourceSet *resources);
         ~VkRenderSubgraphFactory() override = default;
 
-        [[nodiscard]] RenderSubgraph *makeRenderSubgraph(const RenderSubgraphInfo &subgraphInfo) override;
+        [[nodiscard]] RenderSubgraph *makeRenderSubgraph(RenderSubgraphInfo &&subgraphInfo) override;
 
     private:
         Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<PresentContext> _presentContext;
+        Lazy<VkSwapchainManager> _swapchainManager;
     };
 }
 

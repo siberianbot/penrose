@@ -8,23 +8,22 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/PresentContext.hpp"
-
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
     ImGuiDrawRenderOperator::ImGuiDrawRenderOperator(ResourceSet *resources)
             : _vulkanBackend(resources->get<VulkanBackend>()),
-              _presentContext(resources->get<PresentContext>()),
               _commandManager(resources->get<VkCommandManager>()),
               _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
+              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()) {
         //
     }
 
@@ -65,7 +64,7 @@ namespace Penrose {
     }
 
     void ImGuiDrawRenderOperator::initFor(const RenderOperator::Context &context) {
-        auto imageCount = static_cast<uint32_t>(this->_presentContext->getSwapchainImages().size());
+        auto imageCount = this->_swapchainManager->getSwapchain()->getImageCount();
 
         auto initInfo = ImGui_ImplVulkan_InitInfo{
                 .Instance = this->_vulkanBackend->getInstance(),

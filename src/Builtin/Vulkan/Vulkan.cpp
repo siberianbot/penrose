@@ -2,8 +2,6 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/PresentContext.hpp"
-
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Assets/VkImageAssetFactory.hpp"
 #include "src/Builtin/Vulkan/Assets/VkMeshAssetFactory.hpp"
@@ -20,6 +18,9 @@
 #include "src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSamplerFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkShaderFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainPreferencesProvider.hpp"
 
 namespace Penrose {
 
@@ -33,7 +34,9 @@ namespace Penrose {
         resources.add<VkCommandManager>();
         resources.add<VkDescriptorPoolManager>();
 
-        resources.add<PresentContext>();
+        resources.add<VkSwapchainPreferencesProvider>();
+        resources.add<VkSwapchainFactory>();
+        resources.add<VkSwapchainManager>();
 
         resources.add<VkImageAssetFactory, ImageAssetFactory>();
         resources.add<VkMeshAssetFactory, MeshAssetFactory>();

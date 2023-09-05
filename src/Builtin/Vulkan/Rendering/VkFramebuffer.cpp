@@ -6,10 +6,9 @@
 
 #include <Penrose/Common/EngineError.hpp>
 
-#include "src/Rendering/PresentContext.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTarget.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
@@ -31,11 +30,11 @@ namespace Penrose {
     }
 
     VkFramebuffer *makeVkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
-                                     PresentContext *presentContext,
+                                     VkSwapchainManager *swapchainManager,
                                      const std::map<std::string, VkRenderTarget *> &targets,
                                      const vk::RenderPass &renderPass,
                                      const RenderSubgraphInfo &subgraph) {
-        auto swapchainExtent = presentContext->getSwapchainExtent();
+        auto swapchainExtent = swapchainManager->getSwapchain()->getExtent();
         auto [width, height] = subgraph.getRenderArea()
                 .value_or(Size(swapchainExtent.width, swapchainExtent.height));
 
@@ -59,7 +58,7 @@ namespace Penrose {
                                                                 attachment.getClearValue().getStencil()));
         }
 
-        auto imageCount = presentContext->getSwapchainImages().size();
+        auto imageCount = swapchainManager->getSwapchain()->getImageCount();
         auto framebuffers = std::vector<vk::Framebuffer>(imageCount);
         for (std::uint32_t imageIdx = 0; imageIdx < imageCount; imageIdx++) {
             auto views = std::vector<vk::ImageView>(attachmentCount);

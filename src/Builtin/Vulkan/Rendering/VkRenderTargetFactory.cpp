@@ -1,5 +1,7 @@
 #include "VkRenderTargetFactory.hpp"
 
+#include <utility>
+
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
@@ -12,32 +14,34 @@ namespace Penrose {
     VkRenderTargetFactory::VkRenderTargetFactory(ResourceSet *resources)
             : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
               _memoryAllocator(resources->getLazy<VkMemoryAllocator>()),
-              _presentContext(resources->getLazy<PresentContext>()) {
+              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
         //
     }
 
-    RenderTarget *VkRenderTargetFactory::makeRenderTarget(const RenderTargetInfo &targetInfo) {
+    RenderTarget *VkRenderTargetFactory::makeRenderTarget(RenderTargetInfo &&targetInfo) {
         switch (targetInfo.getSource()) {
             case RenderTargetSource::None:
                 throw EngineError("Render target source should be either swapchain or image");
 
             case RenderTargetSource::Image:
-                return this->makeImageRenderTarget(targetInfo);
+                return this->makeImageRenderTarget(std::forward<decltype(targetInfo)>(targetInfo));
 
             case RenderTargetSource::Swapchain:
-                return this->makeSwapchainRenderTarget(targetInfo);
+                return this->makeSwapchainRenderTarget(std::forward<decltype(targetInfo)>(targetInfo));
 
             default:
                 throw EngineError("Not supported render target source");
         }
     }
 
-    RenderTarget *VkRenderTargetFactory::makeImageRenderTarget(const RenderTargetInfo &targetInfo) {
-        auto format = toVkFormat(targetInfo.getFormat()).value_or(this->_presentContext->getSwapchainFormat());
+    RenderTarget *VkRenderTargetFactory::makeImageRenderTarget(RenderTargetInfo &&targetInfo) {
+        auto swapchain = this->_swapchainManager->getSwapchain();
+
+        auto format = toVkFormat(targetInfo.getFormat()).value_or(swapchain->getFormat());
         auto extent = map(targetInfo.getSize(), [](Size size) {
             auto [w, h] = size;
             return vk::Extent3D(w, h, 1);
-        }).value_or(vk::Extent3D(this->_presentContext->getSwapchainExtent(), 1));
+        }).value_or(vk::Extent3D(swapchain->getExtent(), 1));
 
         auto imageCreateInfo = vk::ImageCreateInfo()
                 .setImageType(vk::ImageType::e2D)
@@ -64,10 +68,13 @@ namespace Penrose {
 
         auto imageView = this->_logicalDeviceContext->getHandle().createImageView(imageViewCreateInfo);
 
-        return new VkImageRenderTarget(targetInfo, this->_logicalDeviceContext.get(), image, imageMemory, imageView);
+        return new VkImageRenderTarget(std::forward<decltype(targetInfo)>(targetInfo),
+                                       this->_logicalDeviceContext.get(),
+                                       image, imageMemory, imageView);
     }
 
-    RenderTarget *VkRenderTargetFactory::makeSwapchainRenderTarget(const RenderTargetInfo &targetInfo) {
-        return new VkSwapchainRenderTarget(targetInfo, this->_presentContext.get());
+    RenderTarget *VkRenderTargetFactory::makeSwapchainRenderTarget(RenderTargetInfo &&targetInfo) {
+        return new VkSwapchainRenderTarget(std::forward<decltype(targetInfo)>(targetInfo),
+                                           this->_swapchainManager.get());
     }
 }

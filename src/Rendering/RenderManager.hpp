@@ -20,13 +20,13 @@ namespace Penrose {
 
     class ResourceSet;
     class EventQueue;
-    class PresentContext;
     class RenderContext;
     class RenderGraphExecutor;
     class RenderGraphExecutorProvider;
 
     class VkCommandManager;
     class VkLogicalDeviceContext;
+    class VkSwapchainManager;
 
     class RenderManager : public Resource, public Initializable, public Runnable {
     public:
@@ -43,7 +43,7 @@ namespace Penrose {
         EventQueue *_eventQueue;
         VkLogicalDeviceContext *_logicalDeviceContext;
         VkCommandManager *_commandManager;
-        PresentContext *_presentContext;
+        VkSwapchainManager *_swapchainManager;
         RenderContext *_renderContext;
         RenderGraphExecutorProvider *_renderGraphExecutorProvider;
 

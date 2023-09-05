@@ -2,34 +2,33 @@
 
 #include <utility>
 
-#include "src/Rendering/PresentContext.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
-    VkRenderTarget::VkRenderTarget(RenderTargetInfo targetInfo)
-            : _targetInfo(std::move(targetInfo)) {
+    VkRenderTarget::VkRenderTarget(RenderTargetInfo &&targetInfo)
+            : _targetInfo(targetInfo) {
         //
     }
 
-    VkSwapchainRenderTarget::VkSwapchainRenderTarget(RenderTargetInfo targetInfo,
-                                                     PresentContext *presentContext)
-            : VkRenderTarget(targetInfo),
-              _presentContext(presentContext) {
+    VkSwapchainRenderTarget::VkSwapchainRenderTarget(RenderTargetInfo &&targetInfo,
+                                                     VkSwapchainManager *swapchainManager)
+            : VkRenderTarget(std::forward<decltype(targetInfo)>(targetInfo)),
+              _swapchainManager(swapchainManager) {
         //
     }
 
     const vk::ImageView &VkSwapchainRenderTarget::getView(std::uint32_t imageIdx) const {
-        return this->_presentContext->getSwapchainImageViews().at(imageIdx);
+        return this->_swapchainManager->getSwapchain()->getImageView(imageIdx);
     }
 
-    VkImageRenderTarget::VkImageRenderTarget(RenderTargetInfo targetInfo,
+    VkImageRenderTarget::VkImageRenderTarget(RenderTargetInfo &&targetInfo,
                                              VkLogicalDeviceContext *logicalDeviceContext,
                                              vk::Image image,
                                              vk::DeviceMemory imageMemory,
                                              vk::ImageView imageView)
-            : VkRenderTarget(targetInfo),
+            : VkRenderTarget(std::forward<decltype(targetInfo)>(targetInfo)),
               _logicalDeviceContext(logicalDeviceContext),
               _image(image),
               _imageMemory(imageMemory),
