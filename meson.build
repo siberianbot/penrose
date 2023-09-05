@@ -42,7 +42,7 @@ src = [
     'src/Events/EventQueue.cpp',
 
     # Rendering
-    'src/Rendering/RenderContext.cpp',
+    'src/Rendering/RenderGraphContext.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
     'src/Rendering/RenderGraphExecutorProvider.cpp',
     'src/Rendering/RenderListBuilder.cpp',

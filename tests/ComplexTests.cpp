@@ -8,7 +8,7 @@
 #include <Penrose/Core/Engine.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
-#include <Penrose/Rendering/RenderContext.hpp>
+#include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>
@@ -102,7 +102,7 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
                                              std::string(ForwardSceneDrawRenderOperator::NAME))))
             );
 
-    auto renderContext = engine.resources().get<RenderContext>();
+    auto renderContext = engine.resources().get<RenderGraphContext>();
     renderContext->setRenderGraph(graph);
 
     auto ecsManager = engine.resources().get<ECSManager>();
@@ -231,7 +231,7 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
                                              std::string(ForwardSceneDrawRenderOperator::NAME))))
             );
 
-    auto renderContext = engine.resources().get<RenderContext>();
+    auto renderContext = engine.resources().get<RenderGraphContext>();
     renderContext->setRenderGraph(graph);
 
     auto ecsManager = engine.resources().get<ECSManager>();

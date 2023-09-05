@@ -9,7 +9,7 @@
 #include <Penrose/Core/Log.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
-#include <Penrose/Rendering/RenderContext.hpp>
+#include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
@@ -38,6 +38,7 @@ namespace Penrose {
         this->_resources.add<AssetLoader>();
         this->_resources.add<EventQueue>();
         this->_resources.add<Log>();
+        this->_resources.add<RenderGraphContext>();
         this->_resources.add<SurfaceManager>();
 
         // backends
@@ -50,10 +51,9 @@ namespace Penrose {
         this->_resources.add<SceneManager>();
 
         // rendering
-        this->_resources.add<RenderContext>();
         this->_resources.add<RenderGraphExecutorProvider>();
         this->_resources.add<RenderListBuilder>();
-        this->_resources.add<RenderManager>();
+        this->_resources.add<RenderManager, RenderGraphHook>();
 
         // builtin / ECS
         ecsManager->registerComponent<CameraComponent>();

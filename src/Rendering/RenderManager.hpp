@@ -10,6 +10,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Events/Event.hpp>
+#include <Penrose/Rendering/RenderGraphHook.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Runnable.hpp>
@@ -20,7 +21,7 @@ namespace Penrose {
 
     class ResourceSet;
     class EventQueue;
-    class RenderContext;
+    class RenderGraphContext;
     class RenderGraphExecutor;
     class RenderGraphExecutorProvider;
 
@@ -28,7 +29,7 @@ namespace Penrose {
     class VkLogicalDeviceContext;
     class VkSwapchainManager;
 
-    class RenderManager : public Resource, public Initializable, public Runnable {
+    class RenderManager : public Resource, public Initializable, public Runnable, public RenderGraphHook {
     public:
         explicit RenderManager(ResourceSet *resources);
         ~RenderManager() override = default;
@@ -39,12 +40,14 @@ namespace Penrose {
         void run() override;
         void stop() override;
 
+        void onRenderGraphModified(const std::optional<RenderGraphInfo> &graphInfo) override;
+
     private:
         EventQueue *_eventQueue;
         VkLogicalDeviceContext *_logicalDeviceContext;
         VkCommandManager *_commandManager;
         VkSwapchainManager *_swapchainManager;
-        RenderContext *_renderContext;
+        RenderGraphContext *_renderContext;
         RenderGraphExecutorProvider *_renderGraphExecutorProvider;
 
         std::uint32_t _frameIdx = 0;

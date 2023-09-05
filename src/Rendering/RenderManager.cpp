@@ -2,7 +2,7 @@
 
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Events/EventQueue.hpp>
-#include <Penrose/Rendering/RenderContext.hpp>
+#include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Rendering/RenderGraphExecutor.hpp"
@@ -21,7 +21,7 @@ namespace Penrose {
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _commandManager(resources->get<VkCommandManager>()),
               _swapchainManager(resources->get<VkSwapchainManager>()),
-              _renderContext(resources->get<RenderContext>()),
+              _renderContext(resources->get<RenderGraphContext>()),
               _renderGraphExecutorProvider(resources->get<RenderGraphExecutorProvider>()) {
         //
     }
@@ -40,10 +40,6 @@ namespace Penrose {
 
         this->_eventHandlerIdx = this->_eventQueue->addHandler([this](const Event &event) {
             switch (event.type) {
-                case EventType::RenderGraphModified:
-                    this->_renderGraphModified = true;
-                    break;
-
                 case EventType::SurfaceResized:
                     this->_swapchainModified = true;
                     break;
@@ -128,6 +124,10 @@ namespace Penrose {
         }
 
         this->_logicalDeviceContext->getHandle().waitIdle();
+    }
+
+    void RenderManager::onRenderGraphModified(const std::optional<RenderGraphInfo> &) {
+        this->_renderGraphModified = true;
     }
 
     bool RenderManager::renderFrame(const std::uint32_t &frameIdx) const {

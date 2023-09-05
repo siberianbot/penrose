@@ -19,8 +19,6 @@ namespace Penrose {
         ComponentCreated,
         ComponentDestroyed,
 
-        RenderGraphModified,
-
         SurfaceResized
     };
 
