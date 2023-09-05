@@ -1,23 +1,18 @@
 #include "VkDescriptor.hpp"
 
-#include "src/Rendering/DeviceContext.hpp"
-
-#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 
 namespace Penrose {
 
-    VkDescriptor::VkDescriptor(DeviceContext *deviceContext,
-                               VkLogicalDeviceContext *logicalDeviceContext,
-                               std::vector<vk::DescriptorSet> &&descriptorSets)
-            : _deviceContext(deviceContext),
-              _logicalDeviceContext(logicalDeviceContext),
+    VkDescriptor::VkDescriptor(VkDescriptorPoolManager *descriptorPoolManager,
+                               DescriptorSets descriptorSets)
+            : _descriptorPoolManager(descriptorPoolManager),
               _descriptorSets(descriptorSets) {
         //
     }
 
     VkDescriptor::~VkDescriptor() {
-        this->_logicalDeviceContext->getHandle().free(this->_deviceContext->getDescriptorPool(),
-                                                      this->_descriptorSets);
+        this->_descriptorPoolManager->destroyDescriptorSets(this->_descriptorSets);
     }
 
     void VkDescriptor::setBindingValues(const std::unordered_set<DescriptorBindingValue> &values) {

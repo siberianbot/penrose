@@ -5,7 +5,6 @@
 #include <Penrose/Rendering/RenderContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderGraphExecutor.hpp"
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"

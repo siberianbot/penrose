@@ -13,8 +13,7 @@
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
-
+#include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
 
@@ -40,7 +39,7 @@ namespace Penrose {
         using PipelineKey = std::tuple<std::string, const RenderSubgraph *, std::uint32_t>;
 
         Lazy<AssetManager> _assetManager;
-        Lazy<DeviceContext> _deviceContext;
+        Lazy<VkDescriptorPoolManager> _descriptorPoolManager;
         Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
 
         vk::PipelineCache _pipelineCache;

@@ -10,15 +10,15 @@
 
 namespace Penrose {
 
-    class DeviceContext;
     class VkDescriptor;
+    class VkDescriptorPoolManager;
     class VkLogicalDeviceContext;
 
     class VkPipeline : public Pipeline {
     public:
         VkPipeline(PipelineInfo pipelineInfo,
-                   DeviceContext *deviceContext,
                    VkLogicalDeviceContext *logicalDeviceContext,
+                   VkDescriptorPoolManager *descriptorPoolManager,
                    vk::DescriptorSetLayout descriptorSetLayout,
                    vk::PipelineLayout pipelineLayout,
                    vk::Pipeline pipeline);
@@ -40,8 +40,8 @@ namespace Penrose {
     private:
         PipelineInfo _pipelineInfo;
 
-        DeviceContext *_deviceContext;
         VkLogicalDeviceContext *_logicalDeviceContext;
+        VkDescriptorPoolManager *_descriptorPoolManager;
 
         vk::DescriptorSetLayout _descriptorSetLayout;
         vk::PipelineLayout _pipelineLayout;
@@ -49,7 +49,7 @@ namespace Penrose {
 
         std::map<Entity, VkDescriptor *> _descriptors;
 
-        [[nodiscard]] VkDescriptor *createDescriptor() const;
+        [[nodiscard]] VkDescriptor *createDescriptor();
     };
 }
 

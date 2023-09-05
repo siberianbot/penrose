@@ -1,22 +1,24 @@
 #ifndef PENROSE_BUILTIN_VULKAN_RENDERING_VK_DESCRIPTOR_HPP
 #define PENROSE_BUILTIN_VULKAN_RENDERING_VK_DESCRIPTOR_HPP
 
-#include <vector>
+#include <array>
 
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Rendering/Descriptor.hpp>
 
+#include "src/Builtin/Vulkan/Constants.hpp"
+
 namespace Penrose {
 
-    class DeviceContext;
-    class VkLogicalDeviceContext;
+    class VkDescriptorPoolManager;
 
     class VkDescriptor : public Descriptor {
     public:
-        VkDescriptor(DeviceContext *deviceContext,
-                     VkLogicalDeviceContext *logicalDeviceContext,
-                     std::vector<vk::DescriptorSet> &&descriptorSets);
+        using DescriptorSets = std::array<vk::DescriptorSet, INFLIGHT_FRAME_COUNT>;
+
+        VkDescriptor(VkDescriptorPoolManager *descriptorPoolManager,
+                     DescriptorSets descriptorSets);
         ~VkDescriptor() override;
 
         void setBindingValues(const std::unordered_set<DescriptorBindingValue> &values);
@@ -25,15 +27,14 @@ namespace Penrose {
             return this->_bindingValues;
         }
 
-        [[nodiscard]] const std::vector<vk::DescriptorSet> &getDescriptorSets() const { return this->_descriptorSets; }
+        [[nodiscard]] const DescriptorSets &getDescriptorSets() const { return this->_descriptorSets; }
 
     private:
         std::unordered_set<DescriptorBindingValue> _bindingValues;
 
-        DeviceContext *_deviceContext;
-        VkLogicalDeviceContext *_logicalDeviceContext;
+        VkDescriptorPoolManager *_descriptorPoolManager;
 
-        std::vector<vk::DescriptorSet> _descriptorSets;
+        DescriptorSets _descriptorSets;
     };
 }
 

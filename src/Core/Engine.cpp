@@ -23,8 +23,6 @@
 #include <Penrose/Builtin/ECS/ViewComponent.hpp>
 #include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
-#include "src/Rendering/PresentContext.hpp"
 #include "src/Rendering/RenderData.hpp"
 #include "src/Rendering/RenderGraphExecutorProvider.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"

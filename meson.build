@@ -42,7 +42,6 @@ src = [
     'src/Events/EventQueue.cpp',
 
     # Rendering
-    'src/Rendering/DeviceContext.cpp',
     'src/Rendering/PresentContext.cpp',
     'src/Rendering/RenderContext.cpp',
     'src/Rendering/RenderGraphExecutor.cpp',
@@ -84,6 +83,7 @@ src = [
     'src/Builtin/Vulkan/Rendering/VkCommandManager.cpp',
     'src/Builtin/Vulkan/Rendering/VkCommandRecording.cpp',
     'src/Builtin/Vulkan/Rendering/VkDescriptor.cpp',
+    'src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.cpp',
     'src/Builtin/Vulkan/Rendering/VkFramebuffer.cpp',
     'src/Builtin/Vulkan/Rendering/VkImage.cpp',
     'src/Builtin/Vulkan/Rendering/VkImageFactory.cpp',

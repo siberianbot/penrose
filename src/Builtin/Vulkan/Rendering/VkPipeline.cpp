@@ -6,24 +6,25 @@
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
-#include "src/Rendering/DeviceContext.hpp"
 
 #include "src/Builtin/Vulkan/Rendering/VkBuffer.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkDescriptor.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkImage.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSampler.hpp"
 
 namespace Penrose {
 
     VkPipeline::VkPipeline(PipelineInfo pipelineInfo,
-                           DeviceContext *deviceContext,
                            VkLogicalDeviceContext *logicalDeviceContext,
+                           VkDescriptorPoolManager *descriptorPoolManager,
                            vk::DescriptorSetLayout descriptorSetLayout,
                            vk::PipelineLayout pipelineLayout,
                            vk::Pipeline pipeline)
             : _pipelineInfo(std::move(pipelineInfo)),
-              _deviceContext(deviceContext),
               _logicalDeviceContext(logicalDeviceContext),
+              _descriptorPoolManager(descriptorPoolManager),
               _descriptorSetLayout(descriptorSetLayout),
               _pipelineLayout(pipelineLayout),
               _pipeline(pipeline) {
@@ -139,14 +140,9 @@ namespace Penrose {
         return descriptor;
     }
 
-    VkDescriptor *VkPipeline::createDescriptor() const {
-        auto layouts = std::vector<vk::DescriptorSetLayout>(INFLIGHT_FRAME_COUNT, this->_descriptorSetLayout);
-        auto allocateInfo = vk::DescriptorSetAllocateInfo()
-                .setSetLayouts(layouts)
-                .setDescriptorPool(this->_deviceContext->getDescriptorPool());
+    VkDescriptor *VkPipeline::createDescriptor() {
+        auto descriptorSets = this->_descriptorPoolManager->createDescriptorSets(this->_descriptorSetLayout);
 
-        auto descriptorSets = this->_logicalDeviceContext->getHandle().allocateDescriptorSets(allocateInfo);
-
-        return new VkDescriptor(this->_deviceContext, this->_logicalDeviceContext, std::move(descriptorSets));
+        return new VkDescriptor(this->_descriptorPoolManager, descriptorSets);
     }
 }

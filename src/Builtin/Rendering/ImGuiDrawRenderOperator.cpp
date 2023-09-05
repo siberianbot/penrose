@@ -8,23 +8,23 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/DeviceContext.hpp"
 #include "src/Rendering/PresentContext.hpp"
 
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
 
 namespace Penrose {
 
     ImGuiDrawRenderOperator::ImGuiDrawRenderOperator(ResourceSet *resources)
             : _vulkanBackend(resources->get<VulkanBackend>()),
-              _deviceContext(resources->get<DeviceContext>()),
               _presentContext(resources->get<PresentContext>()),
+              _commandManager(resources->get<VkCommandManager>()),
+              _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
-              _commandManager(resources->get<VkCommandManager>()) {
+              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
         //
     }
 
@@ -74,7 +74,7 @@ namespace Penrose {
                 .QueueFamily = this->_physicalDeviceContext->getGraphicsFamilyIdx(),
                 .Queue = this->_logicalDeviceContext->getGraphicsQueue(),
                 .PipelineCache = nullptr,
-                .DescriptorPool = this->_deviceContext->getDescriptorPool(),
+                .DescriptorPool = this->_descriptorPoolManager->getDescriptorPool(),
                 .Subpass = context.subgraphPassIdx,
                 .MinImageCount = imageCount,
                 .ImageCount = imageCount,

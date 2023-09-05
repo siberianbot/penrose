@@ -16,7 +16,7 @@ namespace Penrose {
 
     VkPipelineFactory::VkPipelineFactory(ResourceSet *resources)
             : _assetManager(resources->getLazy<AssetManager>()),
-              _deviceContext(resources->getLazy<DeviceContext>()),
+              _descriptorPoolManager(resources->getLazy<VkDescriptorPoolManager>()),
               _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
         //
     }
@@ -223,8 +223,8 @@ namespace Penrose {
                 .createGraphicsPipeline(this->_pipelineCache, pipelineCreateInfo);
 
         return new VkPipeline(pipelineInfo,
-                              this->_deviceContext.get(),
                               this->_logicalDeviceContext.get(),
+                              this->_descriptorPoolManager.get(),
                               descriptorSetLayout,
                               pipelineLayout,
                               pipeline);
