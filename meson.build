@@ -93,6 +93,7 @@ src = [
     'src/Builtin/Vulkan/Rendering/VkPipelineFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSubgraph.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderSystem.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderTarget.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkSampler.cpp',

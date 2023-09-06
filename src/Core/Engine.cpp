@@ -10,6 +10,7 @@
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
+#include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
@@ -24,9 +25,7 @@
 #include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
 #include "src/Rendering/RenderData.hpp"
-#include "src/Rendering/RenderGraphExecutorProvider.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
-#include "src/Rendering/RenderManager.hpp"
 
 #include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
 
@@ -48,12 +47,11 @@ namespace Penrose {
 
         this->_resources.add<AssetManager>();
         auto ecsManager = this->_resources.add<ECSManager>();
+        this->_resources.add<RenderManager>();
         this->_resources.add<SceneManager>();
 
         // rendering
-        this->_resources.add<RenderGraphExecutorProvider>();
         this->_resources.add<RenderListBuilder>();
-        this->_resources.add<RenderManager, RenderGraphHook>();
 
         // builtin / ECS
         ecsManager->registerComponent<CameraComponent>();

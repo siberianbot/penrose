@@ -2,6 +2,8 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
+#include "src/Rendering/RenderGraphExecutorProvider.hpp"
+
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Assets/VkImageAssetFactory.hpp"
 #include "src/Builtin/Vulkan/Assets/VkMeshAssetFactory.hpp"
@@ -15,6 +17,7 @@
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkRenderSystem.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSamplerFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkShaderFactory.hpp"
@@ -49,6 +52,10 @@ namespace Penrose {
         resources.add<VkRenderTargetFactory, RenderTargetFactory>();
         resources.add<VkSamplerFactory, SamplerFactory>();
         resources.add<VkShaderFactory, ShaderFactory>();
+
+        resources.add<RenderGraphExecutorProvider>(); // TODO: <---- rework RenderGraphExecutorProvider
+
+        resources.add<VkRenderSystem, RenderSystem, RenderGraphHook>();
 
         return resources;
     }

@@ -1,188 +1,33 @@
-#include "RenderManager.hpp"
+#include <Penrose/Rendering/RenderManager.hpp>
 
-#include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Events/EventQueue.hpp>
-#include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
-
-#include "src/Rendering/RenderGraphExecutor.hpp"
-#include "src/Rendering/RenderGraphExecutorProvider.hpp"
-
-#include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
-    static constexpr const std::uint64_t MAX_TIMEOUT = std::numeric_limits<std::uint64_t>::max();
-
     RenderManager::RenderManager(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()),
-              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _commandManager(resources->get<VkCommandManager>()),
-              _swapchainManager(resources->get<VkSwapchainManager>()),
-              _renderContext(resources->get<RenderGraphContext>()),
-              _renderGraphExecutorProvider(resources->get<RenderGraphExecutorProvider>()) {
+            : _renderSystem(resources->getLazy<RenderSystem>()) {
         //
-    }
-
-    void RenderManager::init() {
-        auto fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
-        auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
-
-        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            this->_fences[idx] = this->_logicalDeviceContext->getHandle().createFence(fenceCreateInfo);
-            this->_imageReadySemaphores[idx] = this->_logicalDeviceContext->getHandle()
-                    .createSemaphore(semaphoreCreateInfo);
-            this->_renderFinishedSemaphores[idx] = this->_logicalDeviceContext->getHandle()
-                    .createSemaphore(semaphoreCreateInfo);
-        }
-
-        this->_eventHandlerIdx = this->_eventQueue->addHandler([this](const Event &event) {
-            switch (event.type) {
-                case EventType::SurfaceResized:
-                    this->_swapchainModified = true;
-                    break;
-
-                default:
-                    break;
-            }
-        });
-    }
-
-    void RenderManager::destroy() {
-        this->_eventQueue->removeHandler(this->_eventHandlerIdx);
-
-        this->_currentRenderGraphExecutor = std::nullopt;
-
-        for (std::uint32_t frameIdx = 0; frameIdx < INFLIGHT_FRAME_COUNT; frameIdx++) {
-            this->_logicalDeviceContext->getHandle().destroy(this->_fences.at(frameIdx));
-            this->_logicalDeviceContext->getHandle().destroy(this->_imageReadySemaphores.at(frameIdx));
-            this->_logicalDeviceContext->getHandle().destroy(this->_renderFinishedSemaphores.at(frameIdx));
-        }
     }
 
     void RenderManager::run() {
         this->_thread = std::jthread([this](const std::stop_token &stopToken) {
-            bool swapchainInvalid = false;
-
             while (!stopToken.stop_requested()) {
-                if (swapchainInvalid || this->_swapchainModified || this->_renderGraphModified) {
-                    this->_logicalDeviceContext->getHandle().waitIdle();
-                }
-
-                if (this->_renderGraphModified) {
-                    auto newRenderGraph = this->_renderContext->getRenderGraph();
-
-                    if (newRenderGraph.has_value()) {
-                        auto newExecutor = this->_renderGraphExecutorProvider->createFor(*newRenderGraph);
-                        newExecutor->createFramebuffers();
-
-                        this->_currentRenderGraphExecutor = std::unique_ptr<RenderGraphExecutor>(newExecutor);
-                    } else {
-                        this->_currentRenderGraphExecutor = std::nullopt;
-                    }
-
-                    this->_renderGraphModified = false;
-                }
-
-                if (swapchainInvalid || this->_swapchainModified) {
-                    if (this->_currentRenderGraphExecutor.has_value()) {
-                        (*this->_currentRenderGraphExecutor)->destroyFramebuffers();
-                    }
-
-                    this->_swapchainManager->recreate();
-
-                    if (this->_currentRenderGraphExecutor.has_value()) {
-                        (*this->_currentRenderGraphExecutor)->createFramebuffers();
-                    }
-
-                    swapchainInvalid = false;
-                    this->_swapchainModified = false;
-                }
-
-                try {
-                    swapchainInvalid = this->renderFrame(this->_frameIdx);
-
-                    this->_frameIdx = (this->_frameIdx + 1) % INFLIGHT_FRAME_COUNT;
-                } catch (const vk::OutOfDateKHRError &error) {
-                    swapchainInvalid = true;
-                }
+                this->_renderSystem->renderFrame();
             }
         });
     }
 
     void RenderManager::stop() {
-        if (this->_thread.has_value()) {
-            this->_thread->request_stop();
-
-            if (this->_thread->joinable()) {
-                this->_thread->join();
-            }
-
-            this->_thread = std::nullopt;
+        if (!this->_thread.has_value()) {
+            return;
         }
 
-        this->_logicalDeviceContext->getHandle().waitIdle();
-    }
+        this->_thread->request_stop();
 
-    void RenderManager::onRenderGraphModified(const std::optional<RenderGraphInfo> &) {
-        this->_renderGraphModified = true;
-    }
-
-    bool RenderManager::renderFrame(const std::uint32_t &frameIdx) const {
-        auto logicalDevice = this->_logicalDeviceContext->getHandle();
-        auto graphicsQueue = this->_logicalDeviceContext->getGraphicsQueue();
-        auto presentQueue = this->_logicalDeviceContext->getPresentQueue();
-        auto swapchain = this->_swapchainManager->getSwapchain()->getHandle();
-
-        auto fence = this->_fences.at(frameIdx);
-        auto imageReadySemaphore = this->_imageReadySemaphores.at(frameIdx);
-        auto renderFinishedSemaphore = this->_renderFinishedSemaphores.at(frameIdx);
-
-        if (!this->_currentRenderGraphExecutor.has_value()) {
-            return false;
+        if (this->_thread->joinable()) {
+            this->_thread->join();
         }
 
-        auto fenceResult = logicalDevice.waitForFences(fence, true, MAX_TIMEOUT);
-        if (fenceResult == vk::Result::eTimeout) {
-            vk::detail::throwResultException(fenceResult, "Fence timeout");
-        }
-
-        logicalDevice.resetFences(fence);
-
-        auto [acquireResult, imageIdx] = logicalDevice.acquireNextImageKHR(swapchain, MAX_TIMEOUT,
-                                                                           imageReadySemaphore);
-
-        if (acquireResult != vk::Result::eSuccess) {
-            return true;
-        }
-
-        auto &commandBuffer = this->_commandManager->getGraphicsCommandBuffer(frameIdx);
-
-        auto submits = (*this->_currentRenderGraphExecutor)->execute(commandBuffer,
-                                                                     imageReadySemaphore,
-                                                                     renderFinishedSemaphore,
-                                                                     frameIdx,
-                                                                     imageIdx);
-
-        if (submits.empty()) {
-            return false;
-        }
-
-        graphicsQueue.submit(submits, fence);
-
-        auto presentInfo = vk::PresentInfoKHR()
-                .setWaitSemaphores(renderFinishedSemaphore)
-                .setSwapchains(swapchain)
-                .setImageIndices(imageIdx);
-
-        auto presentResult = presentQueue.presentKHR(presentInfo);
-
-        if (presentResult != vk::Result::eSuccess) {
-            return true;
-        }
-
-        return false;
+        this->_thread = std::nullopt;
     }
 }
