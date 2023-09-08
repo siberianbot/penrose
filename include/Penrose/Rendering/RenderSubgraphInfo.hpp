@@ -13,27 +13,13 @@ namespace Penrose {
 
     class RenderSubgraphInfo {
     public:
-        explicit RenderSubgraphInfo(std::vector<std::string> &&dependsOn = {},
-                                    std::vector<RenderAttachmentInfo> &&attachments = {},
+        explicit RenderSubgraphInfo(std::vector<RenderAttachmentInfo> &&attachments = {},
                                     std::vector<RenderSubgraphPassInfo> &&passes = {},
                                     std::optional<Size> &&renderArea = std::nullopt)
-                : _dependsOn(dependsOn),
-                  _attachments(attachments),
+                : _attachments(attachments),
                   _passes(passes),
                   _renderArea(renderArea) {
             //
-        }
-
-        [[nodiscard]] RenderSubgraphInfo &setDependsOn(const std::vector<std::string> &dependsOn) {
-            this->_dependsOn = dependsOn;
-
-            return *this;
-        }
-
-        [[nodiscard]] RenderSubgraphInfo &setDependsOn(std::vector<std::string> &&dependsOn) {
-            this->_dependsOn = dependsOn;
-
-            return *this;
         }
 
         [[nodiscard]] RenderSubgraphInfo &setAttachments(const std::vector<RenderAttachmentInfo> &attachments) {
@@ -72,18 +58,6 @@ namespace Penrose {
             return *this;
         }
 
-        [[nodiscard]] RenderSubgraphInfo &addDependency(const std::string &dependency) {
-            this->_dependsOn.push_back(dependency);
-
-            return *this;
-        }
-
-        [[nodiscard]] RenderSubgraphInfo &addDependency(std::string &&dependency) {
-            this->_dependsOn.push_back(dependency);
-
-            return *this;
-        }
-
         [[nodiscard]] RenderSubgraphInfo &addAttachment(const RenderAttachmentInfo &attachment) {
             this->_attachments.push_back(attachment);
 
@@ -108,8 +82,6 @@ namespace Penrose {
             return *this;
         }
 
-        [[nodiscard]] const std::vector<std::string> &getDependsOn() const { return this->_dependsOn; }
-
         [[nodiscard]] const std::vector<RenderAttachmentInfo> &getAttachments() const { return this->_attachments; }
 
         [[nodiscard]] const std::vector<RenderSubgraphPassInfo> &getPasses() const { return this->_passes; }
@@ -119,7 +91,6 @@ namespace Penrose {
         [[nodiscard]] bool operator==(const RenderSubgraphInfo &rhs) const = default;
 
     private:
-        std::vector<std::string> _dependsOn;
         std::vector<RenderAttachmentInfo> _attachments;
         std::vector<RenderSubgraphPassInfo> _passes;
         std::optional<Size> _renderArea;
