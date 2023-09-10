@@ -6,7 +6,6 @@
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
-#include "src/Builtin/Vulkan/Rendering/VkRenderTarget.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkUtils.hpp"
 
 namespace Penrose {
@@ -18,7 +17,7 @@ namespace Penrose {
         //
     }
 
-    RenderTarget *VkRenderTargetFactory::makeRenderTarget(RenderTargetInfo &&targetInfo) {
+    VkRenderTarget *VkRenderTargetFactory::makeRenderTarget(RenderTargetInfo &&targetInfo) {
         switch (targetInfo.getSource()) {
             case RenderTargetSource::None:
                 throw EngineError("Render target source should be either swapchain or image");
@@ -34,7 +33,7 @@ namespace Penrose {
         }
     }
 
-    RenderTarget *VkRenderTargetFactory::makeImageRenderTarget(RenderTargetInfo &&targetInfo) {
+    VkRenderTarget *VkRenderTargetFactory::makeImageRenderTarget(RenderTargetInfo &&targetInfo) {
         auto swapchain = this->_swapchainManager->getSwapchain();
 
         auto format = toVkFormat(targetInfo.getFormat()).value_or(swapchain->getFormat());
@@ -73,7 +72,7 @@ namespace Penrose {
                                        image, imageMemory, imageView);
     }
 
-    RenderTarget *VkRenderTargetFactory::makeSwapchainRenderTarget(RenderTargetInfo &&targetInfo) {
+    VkRenderTarget *VkRenderTargetFactory::makeSwapchainRenderTarget(RenderTargetInfo &&targetInfo) {
         return new VkSwapchainRenderTarget(std::forward<decltype(targetInfo)>(targetInfo),
                                            this->_swapchainManager.get());
     }

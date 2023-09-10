@@ -10,6 +10,8 @@ namespace Penrose {
         virtual ~Surface() = default;
 
         [[nodiscard]] virtual Size getSize() const = 0;
+
+        virtual void setSize(const Size &size) = 0;
     };
 }
 

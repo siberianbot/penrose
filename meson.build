@@ -43,8 +43,6 @@ src = [
 
     # Rendering
     'src/Rendering/RenderGraphContext.cpp',
-    'src/Rendering/RenderGraphExecutor.cpp',
-    'src/Rendering/RenderGraphExecutorProvider.cpp',
     'src/Rendering/RenderListBuilder.cpp',
     'src/Rendering/RenderManager.cpp',
     'src/Rendering/SurfaceManager.cpp',
@@ -84,6 +82,7 @@ src = [
     'src/Builtin/Vulkan/Rendering/VkDescriptor.cpp',
     'src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.cpp',
     'src/Builtin/Vulkan/Rendering/VkFramebuffer.cpp',
+    'src/Builtin/Vulkan/Rendering/VkFramebufferFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkImage.cpp',
     'src/Builtin/Vulkan/Rendering/VkImageFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.cpp',
@@ -91,6 +90,9 @@ src = [
     'src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.cpp',
     'src/Builtin/Vulkan/Rendering/VkPipeline.cpp',
     'src/Builtin/Vulkan/Rendering/VkPipelineFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderGraphContext.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderGraphContextManager.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderGraphExecutor.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSubgraph.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSystem.cpp',

@@ -17,4 +17,10 @@ namespace Penrose {
 
         return {width, height};
     }
+
+    void GlfwSurface::setSize(const Size &size) {
+        auto [width, height] = size;
+
+        glfwSetWindowSize(this->_handle, static_cast<int>(width), static_cast<int>(height));
+    }
 }

@@ -19,6 +19,8 @@ namespace Penrose {
         void onSurfaceCreate(Surface *surface) override;
 
         void onSurfaceDestroy(Surface *) override { /* nothing to do */ }
+
+        void onSurfaceInvalidated(Surface *) override { /* nothing to do */ }
     };
 }
 

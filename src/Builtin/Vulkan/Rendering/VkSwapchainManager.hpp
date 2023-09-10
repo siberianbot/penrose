@@ -2,6 +2,7 @@
 #define PENROSE_BUILTIN_VULKAN_RENDERING_VK_SWAPCHAIN_MANAGER_HPP
 
 #include <memory>
+#include <mutex>
 #include <optional>
 
 #include <Penrose/Core/Log.hpp>
@@ -25,13 +26,14 @@ namespace Penrose {
 
         void recreate();
 
-        [[nodiscard]] VkSwapchain *getSwapchain() const { return this->_swapchain->get(); }
+        [[nodiscard]] std::shared_ptr<VkSwapchain> getSwapchain();
 
     private:
         Lazy<Log> _log;
         Lazy<VkSwapchainFactory> _swapchainFactory;
 
-        std::optional<std::unique_ptr<VkSwapchain>> _swapchain;
+        std::mutex _mutex;
+        std::optional<std::shared_ptr<VkSwapchain>> _swapchain;
     };
 }
 

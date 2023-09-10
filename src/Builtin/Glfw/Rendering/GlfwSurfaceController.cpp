@@ -9,6 +9,7 @@ namespace Penrose {
 
     GlfwSurfaceController::GlfwSurfaceController(ResourceSet *resources)
             : _eventQueue(resources->getLazy<EventQueue>()),
+              _surfaceManager(resources->getLazy<SurfaceManager>()),
               _vulkanBackend(resources->getLazy<VulkanBackend>()) {
         //
     }
@@ -71,9 +72,9 @@ namespace Penrose {
         that->_eventQueue->push(makeEvent(EventType::EngineDestroyRequested));
     }
 
-    void GlfwSurfaceController::framebufferSizeCallback(GLFWwindow *handle, int width, int height) {
+    void GlfwSurfaceController::framebufferSizeCallback(GLFWwindow *handle, int, int) {
         auto that = reinterpret_cast<GlfwSurfaceController *>(glfwGetWindowUserPointer(handle));
 
-        that->_eventQueue->push(makeEvent(EventType::SurfaceResized, Size(width, height)));
+        that->_surfaceManager->invalidate();
     }
 }

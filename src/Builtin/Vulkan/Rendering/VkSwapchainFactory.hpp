@@ -9,7 +9,6 @@
 
 #include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchain.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchainPreferencesProvider.hpp"
 
@@ -26,7 +25,6 @@ namespace Penrose {
 
     private:
         Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
         Lazy<SurfaceManager> _surfaceManager;
         Lazy<VkSurfaceProvider> _surfaceProvider;
         Lazy<VkSwapchainPreferencesProvider> _swapchainPreferencesProvider;

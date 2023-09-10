@@ -1,27 +1,21 @@
 #ifndef PENROSE_BUILTIN_VULKAN_RENDERING_VK_FRAMEBUFFER_HPP
 #define PENROSE_BUILTIN_VULKAN_RENDERING_VK_FRAMEBUFFER_HPP
 
-#include <map>
-#include <memory>
-#include <string>
+#include <cstdint>
 #include <vector>
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Rendering/RenderGraphInfo.hpp>
-
 namespace Penrose {
 
     class VkLogicalDeviceContext;
-    class VkRenderTarget;
-    class VkSwapchainManager;
 
     class VkFramebuffer {
     public:
         VkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
-                      std::vector<vk::Framebuffer> framebuffers,
-                      std::vector<vk::ClearValue> clearValues,
-                      vk::Rect2D renderArea);
+                      std::vector<vk::Framebuffer> &&framebuffers,
+                      std::vector<vk::ClearValue> &&clearValues,
+                      vk::Rect2D &&renderArea);
         ~VkFramebuffer();
 
         [[nodiscard]] const vk::Framebuffer &getFramebuffer(std::uint32_t imageIdx) const {
@@ -39,12 +33,6 @@ namespace Penrose {
         std::vector<vk::ClearValue> _clearValues;
         vk::Rect2D _renderArea;
     };
-
-    [[nodiscard]] VkFramebuffer *makeVkFramebuffer(VkLogicalDeviceContext *logicalDeviceContext,
-                                                   VkSwapchainManager *swapchainManager,
-                                                   const std::map<std::string, VkRenderTarget *> &targets,
-                                                   const vk::RenderPass &renderPass,
-                                                   const RenderSubgraphInfo &subgraph);
 }
 
 #endif // PENROSE_BUILTIN_VULKAN_RENDERING_VK_FRAMEBUFFER_HPP

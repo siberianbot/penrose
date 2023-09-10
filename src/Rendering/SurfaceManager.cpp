@@ -31,4 +31,14 @@ namespace Penrose {
 
         this->_surface = std::nullopt;
     }
+
+    void SurfaceManager::invalidate() {
+        if (!this->_surface.has_value()) {
+            return;
+        }
+
+        for (const auto &hook: this->_surfaceHooks) {
+            hook->onSurfaceInvalidated(this->_surface->get());
+        }
+    }
 }

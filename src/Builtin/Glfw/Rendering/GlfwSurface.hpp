@@ -14,6 +14,8 @@ namespace Penrose {
 
         [[nodiscard]] Size getSize() const override;
 
+        void setSize(const Size &size) override;
+
         [[nodiscard]] GLFWwindow *getHandle() const { return this->_handle; }
 
     private:

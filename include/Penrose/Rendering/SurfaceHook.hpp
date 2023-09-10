@@ -11,6 +11,8 @@ namespace Penrose {
 
         virtual void onSurfaceCreate(Surface *surface) = 0;
         virtual void onSurfaceDestroy(Surface *surface) = 0;
+
+        virtual void onSurfaceInvalidated(Surface *surface) = 0;
     };
 }
 

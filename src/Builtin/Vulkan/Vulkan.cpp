@@ -2,8 +2,6 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/RenderGraphExecutorProvider.hpp"
-
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Assets/VkImageAssetFactory.hpp"
 #include "src/Builtin/Vulkan/Assets/VkMeshAssetFactory.hpp"
@@ -11,11 +9,14 @@
 #include "src/Builtin/Vulkan/Rendering/VkBufferFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkFramebufferFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkImageFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkMemoryAllocator.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkRenderGraphContextManager.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkRenderGraphExecutor.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSystem.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.hpp"
@@ -48,14 +49,17 @@ namespace Penrose {
         resources.add<VkBufferFactory, BufferFactory>();
         resources.add<VkImageFactory, ImageFactory>();
         resources.add<VkPipelineFactory, PipelineFactory>();
-        resources.add<VkRenderSubgraphFactory, RenderSubgraphFactory>();
-        resources.add<VkRenderTargetFactory, RenderTargetFactory>();
         resources.add<VkSamplerFactory, SamplerFactory>();
         resources.add<VkShaderFactory, ShaderFactory>();
 
-        resources.add<RenderGraphExecutorProvider>(); // TODO: <---- rework RenderGraphExecutorProvider
+        resources.add<VkRenderSubgraphFactory>();
+        resources.add<VkRenderTargetFactory>();
+        resources.add<VkFramebufferFactory>();
 
-        resources.add<VkRenderSystem, RenderSystem, RenderGraphHook>();
+        resources.add<VkRenderGraphContextManager, RenderGraphHook>();
+        resources.add<VkRenderGraphExecutor>();
+
+        resources.add<VkRenderSystem, RenderSystem>();
 
         return resources;
     }

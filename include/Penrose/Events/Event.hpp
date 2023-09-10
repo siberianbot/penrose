@@ -17,9 +17,7 @@ namespace Penrose {
         EntityCreated,
         EntityDestroyed,
         ComponentCreated,
-        ComponentDestroyed,
-
-        SurfaceResized
+        ComponentDestroyed
     };
 
     struct EntityEventValue {

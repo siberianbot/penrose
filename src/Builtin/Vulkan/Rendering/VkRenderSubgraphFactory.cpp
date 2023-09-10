@@ -4,7 +4,6 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkUtils.hpp"
 
 namespace Penrose {
@@ -15,7 +14,7 @@ namespace Penrose {
         //
     }
 
-    RenderSubgraph *VkRenderSubgraphFactory::makeRenderSubgraph(RenderSubgraphInfo &&subgraphInfo) {
+    VkRenderSubgraph *VkRenderSubgraphFactory::makeRenderSubgraph(RenderSubgraphInfo &&subgraphInfo) {
         auto defaultFormat = this->_swapchainManager->getSwapchain()->getFormat();
 
         auto attachments = std::vector<vk::AttachmentDescription>(subgraphInfo.getAttachments().size());

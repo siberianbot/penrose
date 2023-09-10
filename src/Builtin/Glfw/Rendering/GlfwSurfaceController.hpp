@@ -9,6 +9,7 @@
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/SurfaceFactory.hpp>
 #include <Penrose/Rendering/SurfaceHook.hpp>
+#include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
@@ -36,8 +37,11 @@ namespace Penrose {
 
         void onSurfaceDestroy(Surface *surface) override;
 
+        void onSurfaceInvalidated(Surface *) override { /* nothing to do */ }
+
     private:
         Lazy<EventQueue> _eventQueue;
+        Lazy<SurfaceManager> _surfaceManager;
         Lazy<VulkanBackend> _vulkanBackend;
 
         std::map<GLFWwindow *, vk::SurfaceKHR> _vkSurfaces;

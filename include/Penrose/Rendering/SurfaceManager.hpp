@@ -22,6 +22,8 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
+        void invalidate();
+
         [[nodiscard]] Surface *getSurface() const { return this->_surface.value().get(); }
 
     private:
