@@ -4,7 +4,7 @@
 
 namespace Penrose {
 
-    constexpr static const std::uint64_t MAX_TIMEOUT = 1000000000; // std::numeric_limits<std::uint64_t>::max();
+    constexpr static const std::uint64_t MAX_TIMEOUT = std::numeric_limits<std::uint64_t>::max();
 
     constexpr static const std::array<vk::PipelineStageFlags, 1> WAIT_DST_STAGE_MASK = {
             vk::PipelineStageFlagBits::eColorAttachmentOutput
@@ -78,6 +78,11 @@ namespace Penrose {
             vk::detail::throwResultException(fenceResult, "Fence timeout");
         }
 
+        auto graphContext = this->_renderGraphContextManager->acquireContext();
+        if (!graphContext->hasGraphInfo()) {
+            return false;
+        }
+
         logicalDevice.resetFences(fence);
 
         auto [acquireResult, imageIdx] = logicalDevice.acquireNextImageKHR(swapchain->getHandle(), MAX_TIMEOUT,
@@ -89,7 +94,6 @@ namespace Penrose {
 
         auto &commandBuffer = this->_commandManager->getGraphicsCommandBuffer(frameIdx);
 
-        auto graphContext = this->_renderGraphContextManager->acquireContext();
         auto submits = this->_renderGraphExecutor->execute(graphContext.get(),
                                                            commandBuffer,
                                                            imageReadySemaphore,

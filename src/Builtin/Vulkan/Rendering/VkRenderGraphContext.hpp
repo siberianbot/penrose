@@ -26,6 +26,8 @@ namespace Penrose {
                              std::optional<RenderGraphInfo> &&graphInfo,
                              std::map<std::string, std::shared_ptr<VkRenderSubgraph>> &&allocatedSubgraphs);
 
+        [[nodiscard]] bool hasGraphInfo() const { return this->_graphInfo.has_value(); }
+
         [[nodiscard]] const std::optional<RenderGraphInfo> &getGraphInfo() const { return this->_graphInfo; }
 
         [[nodiscard]] std::shared_ptr<VkRenderSubgraph> getOrCreateSubgraph(const std::string &name);
