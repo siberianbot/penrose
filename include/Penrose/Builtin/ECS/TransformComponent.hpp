@@ -5,7 +5,9 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include <Penrose/ECS/Component.hpp>
+#include <Penrose/ECS/ComponentFactory.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
@@ -34,12 +36,17 @@ namespace Penrose {
             view->view = glm::lookAt(this->_pos, this->_pos + target, glm::vec3(0, 1, 0));
         }
 
-        [[nodiscard]] static constexpr std::string_view name() { return "Transform"; }
+        [[nodiscard]] constexpr static std::string name() { return "Transform"; }
 
     private:
         glm::vec3 _pos = glm::vec3(0);
         glm::vec3 _rot = glm::vec3(0);
         glm::vec3 _scale = glm::vec3(1);
+    };
+
+    class TransformComponentFactory : public Resource, public GenericComponentFactory<TransformComponent> {
+    public:
+        ~TransformComponentFactory() override = default;
     };
 }
 

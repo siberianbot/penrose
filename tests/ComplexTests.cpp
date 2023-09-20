@@ -6,9 +6,14 @@
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Core/Engine.hpp>
+#include <Penrose/ECS/Component.hpp>
+#include <Penrose/ECS/ComponentFactory.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/ECS/System.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
+#include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
 #include <Penrose/Builtin/ECS/CameraComponent.hpp>
@@ -25,14 +30,19 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
     public:
         ~TestLogicTargetComponent() override = default;
 
-        [[nodiscard]] constexpr static std::string_view name() { return "TestLogicTarget"; }
+        [[nodiscard]] constexpr static std::string name() { return "TestLogicTarget"; }
     };
 
-    class TestLogicSystem : public System {
+    class TestLogicTargetComponentFactory : public Resource, public GenericComponentFactory<TestLogicTargetComponent> {
+    public:
+        ~TestLogicTargetComponentFactory() override = default;
+    };
+
+    class TestLogicSystem : public Resource, public Initializable, public System {
     public:
         explicit TestLogicSystem(ResourceSet *resources)
-                : _ecsManager(resources->get<ECSManager>()),
-                  _eventQueue(resources->get<EventQueue>()) {
+                : _ecsManager(resources->getLazy<ECSManager>()),
+                  _eventQueue(resources->getLazy<EventQueue>()) {
             //
         }
 
@@ -40,7 +50,9 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
 
         void init() override {
             this->_passed = 0;
-            this->_targetEntity = this->_ecsManager->queryComponents<TestLogicTargetComponent>().at(0);
+
+            auto query = ECSQuery().component<TestLogicTargetComponent>();
+            this->_targetEntity = this->_ecsManager->queryEntities(std::forward<decltype(query)>(query)).at(0);
         }
 
         void update(float delta) override {
@@ -54,17 +66,22 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
             }
         }
 
-        [[nodiscard]] constexpr static std::string_view name() { return "TestLogic"; }
+        void destroy() override { /* nothing to do */ }
+
+        [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
     private:
-        ECSManager *_ecsManager;
-        EventQueue *_eventQueue;
+        Lazy<ECSManager> _ecsManager;
+        Lazy<EventQueue> _eventQueue;
 
         float _passed = 0;
         Entity _targetEntity = -1;
     };
 
     Engine engine;
+
+    engine.resources().add<TestLogicTargetComponentFactory, ComponentFactory>();
+    engine.resources().add<TestLogicSystem, System>();
 
     auto assetDictionary = engine.resources().get<AssetDictionary>();
     assetDictionary->addDir("tests/data");
@@ -106,9 +123,6 @@ TEST_CASE("Starts engine with some prebuilt scene", "[complex]") {
     renderContext->setRenderGraph(graph);
 
     auto ecsManager = engine.resources().get<ECSManager>();
-    ecsManager->registerComponent<TestLogicTargetComponent>();
-    ecsManager->registerSystem<TestLogicSystem>();
-
     auto sceneManager = engine.resources().get<SceneManager>();
     auto root = sceneManager->addRoot("Default");
 
@@ -150,14 +164,19 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
     public:
         ~TestLogicTargetComponent() override = default;
 
-        [[nodiscard]] constexpr static std::string_view name() { return "TestLogicTarget"; }
+        [[nodiscard]] constexpr static std::string name() { return "TestLogicTarget"; }
     };
 
-    class TestLogicSystem : public System {
+    class TestLogicTargetComponentFactory : public Resource, public GenericComponentFactory<TestLogicTargetComponent> {
+    public:
+        ~TestLogicTargetComponentFactory() override = default;
+    };
+
+    class TestLogicSystem : public Resource, public Initializable, public System {
     public:
         explicit TestLogicSystem(ResourceSet *resources)
-                : _ecsManager(resources->get<ECSManager>()),
-                  _eventQueue(resources->get<EventQueue>()) {
+                : _ecsManager(resources->getLazy<ECSManager>()),
+                  _eventQueue(resources->getLazy<EventQueue>()) {
             //
         }
 
@@ -165,7 +184,9 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
 
         void init() override {
             this->_passed = 0;
-            this->_targetEntity = this->_ecsManager->queryComponents<TestLogicTargetComponent>().at(0);
+
+            auto query = ECSQuery().component<TestLogicTargetComponent>();
+            this->_targetEntity = this->_ecsManager->queryEntities(std::forward<decltype(query)>(query)).at(0);
         }
 
         void update(float delta) override {
@@ -183,17 +204,22 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
             }
         }
 
-        [[nodiscard]] constexpr static std::string_view name() { return "TestLogic"; }
+        void destroy() override { /* nothing to do */ }
+
+        [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
     private:
-        ECSManager *_ecsManager;
-        EventQueue *_eventQueue;
+        Lazy<ECSManager> _ecsManager;
+        Lazy<EventQueue> _eventQueue;
 
         float _passed = 0;
         Entity _targetEntity = -1;
     };
 
     Engine engine;
+
+    engine.resources().add<TestLogicTargetComponentFactory, ComponentFactory>();
+    engine.resources().add<TestLogicSystem, System>();
 
     auto assetDictionary = engine.resources().get<AssetDictionary>();
     assetDictionary->addDir("tests/data");
@@ -235,9 +261,6 @@ TEST_CASE("Scene with single cube and orbital camera", "[complex]") {
     renderContext->setRenderGraph(graph);
 
     auto ecsManager = engine.resources().get<ECSManager>();
-    ecsManager->registerComponent<TestLogicTargetComponent>();
-    ecsManager->registerSystem<TestLogicSystem>();
-
     auto sceneManager = engine.resources().get<SceneManager>();
     auto root = sceneManager->addRoot("Default");
 

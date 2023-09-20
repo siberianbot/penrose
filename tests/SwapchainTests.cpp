@@ -6,24 +6,27 @@
 
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Core/Engine.hpp>
-#include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/ECS/System.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/Surface.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 using namespace Penrose;
 
 TEST_CASE("Attempts to resize swapchain",
           "[engine][event-queue][ecs][ecs-system][surface][surface-manager]") {
-    class CountdownSystem : public System {
+    class CountdownSystem : public Resource, public System {
     public:
         explicit CountdownSystem(ResourceSet *resources)
                 : _eventQueue(resources->getLazy<EventQueue>()) {
             //
         }
 
-        ~CountdownSystem() override = default;
+        ~CountdownSystem() override {
+            this->_timerThread = std::nullopt;
+        }
 
         void update(float delta) override {
             this->_passed += delta;
@@ -46,7 +49,7 @@ TEST_CASE("Attempts to resize swapchain",
             }
         }
 
-        [[nodiscard]] static std::string_view name() { return "CountdownSystem"; }
+        [[nodiscard]] std::string getName() const override { return "CountdownSystem"; }
 
     private:
         Lazy<EventQueue> _eventQueue;
@@ -55,7 +58,7 @@ TEST_CASE("Attempts to resize swapchain",
         std::optional<std::thread> _timerThread;
     };
 
-    class SurfaceResizeSystem : public System {
+    class SurfaceResizeSystem : public Resource, public System {
     public:
         explicit SurfaceResizeSystem(ResourceSet *resources)
                 : _surfaceManager(resources->getLazy<SurfaceManager>()) {
@@ -77,7 +80,7 @@ TEST_CASE("Attempts to resize swapchain",
             }
         }
 
-        [[nodiscard]] static std::string_view name() { return "SurfaceResizeSystem"; }
+        [[nodiscard]] std::string getName() const override { return "SurfaceResizeSystem"; }
 
     private:
         Lazy<SurfaceManager> _surfaceManager;
@@ -86,6 +89,9 @@ TEST_CASE("Attempts to resize swapchain",
     };
 
     Engine engine;
+
+    engine.resources().add<CountdownSystem, System>();
+    engine.resources().add<SurfaceResizeSystem, System>();
 
     auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
@@ -99,12 +105,6 @@ TEST_CASE("Attempts to resize swapchain",
                     .addPass(RenderSubgraphPassInfo().addColorAttachmentIdx(0))
             );
     engine.resources().get<RenderGraphContext>()->setRenderGraph(graph);
-
-    auto ecsManager = engine.resources().get<ECSManager>();
-    ecsManager->registerSystem<CountdownSystem>();
-    ecsManager->registerSystem<SurfaceResizeSystem>();
-    ecsManager->enableSystem<CountdownSystem>();
-    ecsManager->enableSystem<SurfaceResizeSystem>();
 
     engine.run();
 }

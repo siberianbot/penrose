@@ -1,64 +1,82 @@
 #include <Penrose/ECS/ECSManager.hpp>
 
-#include <fmt/core.h>
+#include <ranges>
+#include <set>
+#include <string_view>
+#include <utility>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
+    constexpr static const std::string_view ECS_MANAGER_TAG = "ECSManager";
+
     ECSManager::ECSManager(ResourceSet *resources)
-            : _resources(resources),
-              _eventQueue(resources->get<EventQueue>()) {
+            : _eventQueue(resources->getLazy<EventQueue>()),
+              _log(resources->getLazy<Log>()),
+              _componentFactories(resources->getAllLazy<ComponentFactory>()),
+              _systems(resources->getAllLazy<System>()) {
         //
     }
 
     void ECSManager::init() {
-        for (auto &[_, entry]: this->_systems) {
-            if (!entry.activateImmediately || entry.enabled) {
-                continue;
-            }
-
-            entry.instance->init();
-            entry.enabled = true;
+        for (const auto &system: this->_systems) {
+            this->_systemsMap.emplace(system->getName(), system);
         }
     }
 
     void ECSManager::destroy() {
-        for (auto &[_, entry]: this->_systems) {
-            if (!entry.enabled) {
-                continue;
-            }
+        this->_entitiesAllocMap.reset();
 
-            entry.instance->destroy();
-            entry.enabled = false;
+        for (auto &entry: this->_entitiesEntries) {
+            entry.components.clear();
         }
 
-        this->_entities.clear();
+        this->_componentFactoriesMap.clear();
+    }
+
+    void ECSManager::update(float delta) {
+        for (const auto &system: this->_systems) {
+            system->update(delta);
+        }
     }
 
     Entity ECSManager::createEntity() {
-        auto entity = this->_nextEntity++;
-        this->_entities.emplace(entity, EntityEntry{});
+        std::optional<Entity> entity;
+
+        for (std::uint32_t idx = 0; idx < this->_entitiesAllocMap.size(); idx++) {
+            if (this->_entitiesAllocMap.test(idx)) {
+                continue;
+            }
+
+            entity = idx;
+        }
+
+        if (!entity.has_value()) {
+            throw EngineError("Entity allocation failed");
+        }
+
+        this->_entitiesEntries[*entity] = {};
+        this->_entitiesAllocMap.set(*entity, true);
 
         auto event = makeEvent(EventType::EntityCreated, EntityEventValue{
-                .entity = entity
+                .entity = *entity
         });
         this->_eventQueue->push(event);
 
-        return entity;
+        return *entity;
     }
 
     void ECSManager::destroyEntity(Entity &&entity) {
-        auto it = this->_entities.find(entity);
+        auto entry = this->tryGetEntity(entity);
 
-        if (it == this->_entities.end()) {
-            // TODO: notify
+        if (!entry.has_value()) {
             return;
         }
 
-        this->_entities.erase(it);
+        this->_entitiesAllocMap.set(entity, false);
+        (*entry)->components.clear();
 
         auto event = makeEvent(EventType::EntityDestroyed, EntityEventValue{
                 .entity = entity
@@ -66,55 +84,72 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
-    std::vector<std::shared_ptr<Component>> ECSManager::queryEntity(const Entity &entity) const {
-        auto entityIt = this->_entities.find(entity);
-        if (entityIt == this->_entities.end()) {
-            throw EngineError(fmt::format("Entity {} not found", entity));
+    std::vector<Entity> ECSManager::queryEntities(ECSQuery &&query) {
+        std::set<Entity> entities;
+
+        auto entries = this->query(std::forward<decltype(query)>(query));
+        for (const auto &ecsEntry: entries) {
+            entities.insert(ecsEntry.entity);
         }
 
-        auto result = std::vector<std::shared_ptr<Component>>(entityIt->second.components.size());
-        auto idx = 0;
-
-        for (const auto &[name, component]: entityIt->second.components) {
-            result[idx++] = component;
-        }
-
-        return result;
+        return {entities.begin(), entities.end()};
     }
 
-    void ECSManager::updateSystems(float delta) {
-        for (const auto &[_, entry]: this->_systems) {
-            if (!entry.enabled) {
-                continue;
+    std::vector<std::shared_ptr<Component>> ECSManager::queryComponents(ECSQuery &&query) {
+        std::vector<std::shared_ptr<Component>> components;
+
+        auto entries = this->query(std::forward<decltype(query)>(query));
+        for (const auto &ecsEntry: entries) {
+            components.push_back(ecsEntry.component);
+        }
+
+        return std::forward<decltype(components)>(components);
+    }
+
+    std::shared_ptr<Component> ECSManager::makeComponent(const std::string &name) {
+        if (this->_componentFactoriesMap.empty()) {
+            for (const auto &factory: this->_componentFactories) {
+                this->_componentFactoriesMap.emplace(factory->getName(), factory);
             }
-
-            entry.instance->update(delta);
         }
+
+        auto it = this->_componentFactoriesMap.find(name);
+
+        if (it == this->_componentFactoriesMap.end()) {
+            throw EngineError("Unknown component {}", name);
+        }
+
+        return std::shared_ptr<Component>(it->second->makeComponent());
     }
 
-    std::shared_ptr<Component> ECSManager::createComponent(const std::string &name) const {
-        auto it = this->_componentFactories.find(name);
-
-        if (it == this->_componentFactories.end()) {
-            throw EngineError(fmt::format("Unknown component {}", name));
+    std::optional<ECSManager::EntityEntry *> ECSManager::tryGetEntity(const Entity &entity) {
+        if (entity >= ALLOC_SIZE) {
+            throw EngineError("Invalid entity: greater than ALLOC_SIZE");
         }
 
-        return it->second();
+        if (!this->_entitiesAllocMap.test(entity)) {
+            this->_log->writeError(ECS_MANAGER_TAG, "Entity {} wasn't allocated", entity);
+
+            return std::nullopt;
+        }
+
+        return &this->_entitiesEntries.at(entity);
     }
 
-    void ECSManager::addComponent(const Entity &entity, std::string &&name,
-                                  const std::shared_ptr<Component> &instance) {
-        auto it = this->_entities.find(entity);
+    void ECSManager::addComponent(const Entity &entity, std::string &&name, std::shared_ptr<Component> &&instance) {
+        auto entry = this->tryGetEntity(entity);
 
-        if (it == this->_entities.end()) {
-            throw EngineError(fmt::format("Entity {} not found", entity));
+        if (!entry.has_value()) {
+            throw EngineError("Entity required");
         }
 
-        if (it->second.components.find(name) != it->second.components.end()) {
-            throw EngineError(fmt::format("Entity {} already have component {}", entity, name));
+        auto componentIt = (*entry)->components.find(name);
+
+        if (componentIt != (*entry)->components.end()) {
+            throw EngineError("Entity {} already have component {}", entity, name);
         }
 
-        it->second.components[name] = instance;
+        (*entry)->components.emplace(name, instance);
 
         auto event = makeEvent(EventType::ComponentCreated, ComponentEventValue{
                 .entity = entity,
@@ -123,18 +158,37 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
+    std::shared_ptr<Component> ECSManager::getComponent(const Entity &entity, std::string &&name) {
+        auto entry = this->tryGetEntity(entity);
+
+        if (!entry.has_value()) {
+            throw EngineError("Entity required");
+        }
+
+        auto componentIt = (*entry)->components.find(name);
+
+        if (componentIt == (*entry)->components.end()) {
+            throw EngineError("Entity {} does not have component {}", entity, name);
+        }
+
+        return componentIt->second;
+    }
+
     void ECSManager::removeComponent(const Entity &entity, std::string &&name) {
-        auto entityIt = this->_entities.find(entity);
-        if (entityIt == this->_entities.end()) {
-            throw EngineError(fmt::format("Entity {} not found", entity));
+        auto entry = this->tryGetEntity(entity);
+
+        if (!entry.has_value()) {
+            return;
         }
 
-        auto componentIt = entityIt->second.components.find(name);
-        if (componentIt == entityIt->second.components.end()) {
-            throw EngineError(fmt::format("Entity {} does not have component {}", entity, name));
+        auto componentIt = (*entry)->components.find(name);
+        if (componentIt == (*entry)->components.end()) {
+            this->_log->writeError(ECS_MANAGER_TAG, "Entity {} does not have component {}", entity, name);
+
+            return;
         }
 
-        entityIt->second.components.erase(componentIt);
+        (*entry)->components.erase(componentIt);
 
         auto event = makeEvent(EventType::ComponentDestroyed, ComponentEventValue{
                 .entity = entity,
@@ -143,64 +197,39 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
-    std::optional<std::shared_ptr<Component>> ECSManager::tryGetComponent(const Entity &entity,
-                                                                          const std::string &name) const {
-        auto entityIt = this->_entities.find(entity);
-        if (entityIt == this->_entities.end()) {
-            throw EngineError(fmt::format("Entity {} not found", entity));
-        }
+    std::vector<ECSEntry> ECSManager::query(ECSQuery &&query) {
+        std::vector<ECSEntry> entries;
 
-        auto componentIt = entityIt->second.components.find(name);
-        if (componentIt == entityIt->second.components.end()) {
-            return std::nullopt;
-        }
-
-        return componentIt->second;
-    }
-
-    std::vector<Entity> ECSManager::queryComponents(const std::string &name) const {
-        std::vector<Entity> result;
-
-        for (const auto &[entity, entry]: this->_entities) {
-            auto it = entry.components.find(name);
-
-            if (it == entry.components.end()) {
+        for (std::uint32_t idx = 0; idx < this->_entitiesEntries.size(); ++idx) {
+            if (!this->_entitiesAllocMap.test(idx)) {
                 continue;
             }
 
-            result.push_back(entity);
+            auto entityEntry = this->_entitiesEntries.at(idx);
+
+            for (const auto &[componentName, component]: entityEntry.components) {
+                auto ecsEntry = ECSEntry{
+                        .entity = idx,
+                        .componentName = componentName,
+                        .component = component
+                };
+
+                bool matched = true;
+
+                for (const auto &predicate: query.getPredicates()) {
+                    if (!predicate(ecsEntry)) {
+                        matched = false;
+
+                        break;
+                    }
+                }
+
+                if (matched) {
+                    entries.push_back(std::forward<decltype(ecsEntry)>(ecsEntry));
+                }
+            }
         }
 
-        return result;
-    }
-
-    void ECSManager::enableSystem(std::string &&name) {
-        auto it = this->_systems.find(name);
-
-        if (it == this->_systems.end()) {
-            throw EngineError(fmt::format("Unknown system {}", name));
-        }
-
-        if (it->second.enabled) {
-            return;
-        }
-
-        it->second.instance->init();
-        it->second.enabled = true;
-    }
-
-    void ECSManager::disableSystem(std::string &&name) {
-        auto it = this->_systems.find(name);
-
-        if (it == this->_systems.end()) {
-            throw EngineError(fmt::format("Unknown system {}", name));
-        }
-
-        if (!it->second.enabled) {
-            return;
-        }
-
-        it->second.instance->destroy();
-        it->second.enabled = false;
+        return std::forward<decltype(entries)>(entries);
     }
 }

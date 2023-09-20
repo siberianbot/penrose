@@ -46,7 +46,7 @@ namespace Penrose {
         addImGui(this->_resources);
 
         this->_resources.add<AssetManager>();
-        auto ecsManager = this->_resources.add<ECSManager>();
+        this->_resources.add<ECSManager>();
         this->_resources.add<RenderManager>();
         this->_resources.add<SceneManager>();
 
@@ -54,10 +54,10 @@ namespace Penrose {
         this->_resources.add<RenderListBuilder>();
 
         // builtin / ECS
-        ecsManager->registerComponent<CameraComponent>();
-        ecsManager->registerComponent<MeshRendererComponent>();
-        ecsManager->registerComponent<TransformComponent>();
-        ecsManager->registerComponent<ViewComponent>();
+        this->_resources.add<CameraComponentFactory, ComponentFactory>();
+        this->_resources.add<MeshRendererComponentFactory, ComponentFactory>();
+        this->_resources.add<TransformComponentFactory, ComponentFactory>();
+        this->_resources.add<ViewComponentFactory, ComponentFactory>();
 
         // builtin / rendering operators
         this->_resources.add<ForwardSceneDrawRenderOperator, RenderOperator>();
@@ -102,7 +102,6 @@ namespace Penrose {
         this->_resources.initAll();
 
         auto eventQueue = this->_resources.get<EventQueue>();
-        auto ecsManager = this->_resources.get<ECSManager>();
 
         auto alive = true;
         auto handlerIdx = eventQueue->addHandler([&alive](const Event &event) {
@@ -123,7 +122,6 @@ namespace Penrose {
 
             // TODO: use Updatable
             eventQueue->process();
-            ecsManager->updateSystems(delta);
 
             this->_resources.updateAll(delta);
 

@@ -4,6 +4,8 @@
 #include <string>
 
 #include <Penrose/ECS/Component.hpp>
+#include <Penrose/ECS/ComponentFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
@@ -13,10 +15,15 @@ namespace Penrose {
 
         [[nodiscard]] std::string &getRenderList() { return this->_renderList; }
 
-        [[nodiscard]] static constexpr std::string_view name() { return "View"; }
+        [[nodiscard]] constexpr static std::string name() { return "View"; }
 
     private:
         std::string _renderList = "Default";
+    };
+
+    class ViewComponentFactory : public Resource, public GenericComponentFactory<ViewComponent> {
+    public:
+        ~ViewComponentFactory() override = default;
     };
 }
 

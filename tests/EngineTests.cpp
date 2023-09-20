@@ -1,8 +1,9 @@
 #include <catch2/catch.hpp>
 
 #include <Penrose/Core/Engine.hpp>
-#include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/ECS/System.hpp>
 #include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 using namespace Penrose;
 
@@ -16,7 +17,7 @@ TEST_CASE("Start engine and immediately exit by EngineDestroyRequested event", "
 
 TEST_CASE("Start engine and exit by EngineDestroyRequested event after short period of time",
           "[engine][event-queue][ecs][ecs-system]") {
-    class CountdownSystem : public System {
+    class CountdownSystem : public Resource, public System {
     public:
         explicit CountdownSystem(ResourceSet *resources)
                 : _eventQueue(resources->get<EventQueue>()) {
@@ -33,7 +34,7 @@ TEST_CASE("Start engine and exit by EngineDestroyRequested event after short per
             }
         }
 
-        [[nodiscard]] static std::string_view name() { return "CountdownSystem"; }
+        [[nodiscard]] std::string getName() const override { return "CountdownSystem"; }
 
     private:
         EventQueue *_eventQueue;
@@ -41,10 +42,7 @@ TEST_CASE("Start engine and exit by EngineDestroyRequested event after short per
     };
 
     Engine engine;
-
-    auto ecsManager = engine.resources().get<ECSManager>();
-    ecsManager->registerSystem<CountdownSystem>();
-    ecsManager->enableSystem<CountdownSystem>();
+    engine.resources().add<CountdownSystem, System>();
 
     engine.run();
 }

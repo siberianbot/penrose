@@ -4,7 +4,9 @@
 #include <glm/trigonometric.hpp>
 
 #include <Penrose/ECS/Component.hpp>
+#include <Penrose/ECS/ComponentFactory.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
@@ -26,12 +28,17 @@ namespace Penrose {
             };
         }
 
-        [[nodiscard]] static constexpr std::string_view name() { return "Camera"; }
+        [[nodiscard]] constexpr static std::string name() { return "Camera"; }
 
     private:
         float _fov = glm::radians(90.0f);
         float _near = 0.0001f;
         float _far = 100.0f;
+    };
+
+    class CameraComponentFactory : public Resource, public GenericComponentFactory<CameraComponent> {
+    public:
+        ~CameraComponentFactory() override = default;
     };
 }
 

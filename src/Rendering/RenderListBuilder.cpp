@@ -136,7 +136,8 @@ namespace Penrose {
     }
 
     void RenderListBuilder::processDrawable(const Entity &entity, Drawable *drawable) const {
-        auto components = this->_ecsManager->queryEntity(entity);
+        auto query = ECSQuery().entity(entity);
+        auto components = this->_ecsManager->queryComponents(std::forward<decltype(query)>(query));
 
         for (const auto &component: components) {
             auto visitor = dynamic_pointer_cast<DrawableVisitor>(component);
@@ -150,7 +151,8 @@ namespace Penrose {
     }
 
     void RenderListBuilder::processView(const Entity &entity, View *view) const {
-        auto components = this->_ecsManager->queryEntity(entity);
+        auto query = ECSQuery().entity(entity);
+        auto components = this->_ecsManager->queryComponents(std::forward<decltype(query)>(query));
 
         for (const auto &component: components) {
             auto visitor = dynamic_pointer_cast<ViewVisitor>(component);
