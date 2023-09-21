@@ -40,7 +40,7 @@ namespace Penrose {
 
         auto lock = std::lock_guard<std::mutex>(this->_mutex);
 
-        std::optional<RenderGraphInfo> graphInfo;
+        RenderGraphInfo graphInfo;
         std::map<std::string, std::shared_ptr<VkRenderSubgraph>> subgraphs;
 
         if (this->_currentContext.has_value()) {
@@ -56,7 +56,7 @@ namespace Penrose {
                 std::forward<decltype(subgraphs)>(subgraphs));
     }
 
-    void VkRenderGraphContextManager::onRenderGraphModified(const std::optional<RenderGraphInfo> &graphInfo) {
+    void VkRenderGraphContextManager::onRenderGraphModified(const RenderGraphInfo &graphInfo) {
         if (!this->_initialized) {
             return;
         }
@@ -67,16 +67,14 @@ namespace Penrose {
 
         std::map<std::string, std::shared_ptr<VkRenderSubgraph>> allocatedSubgraphs;
 
-        if (oldGraphContext.has_value() && graphInfo.has_value()) {
-            for (const auto &[subgraphName, subgraph]: (*oldGraphContext)->getAllocatedSubgraphs()) {
-                auto it = graphInfo->getSubgraphs().find(subgraphName);
+        for (const auto &[subgraphName, subgraph]: (*oldGraphContext)->getAllocatedSubgraphs()) {
+            auto it = graphInfo.getSubgraphs().find(subgraphName);
 
-                if (it == graphInfo->getSubgraphs().end() || it->second != subgraph->getSubgraphInfo()) {
-                    continue;
-                }
-
-                allocatedSubgraphs.emplace(subgraphName, subgraph);
+            if (it == graphInfo.getSubgraphs().end() || it->second != subgraph->getSubgraphInfo()) {
+                continue;
             }
+
+            allocatedSubgraphs.emplace(subgraphName, subgraph);
         }
 
         auto graphInfoCopy = graphInfo;

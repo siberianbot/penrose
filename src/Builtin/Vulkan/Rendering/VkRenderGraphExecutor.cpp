@@ -35,7 +35,7 @@ namespace Penrose {
         auto commandBufferBeginInfo = vk::CommandBufferBeginInfo();
         commandBuffer.begin(commandBufferBeginInfo);
 
-        for (const auto &[subgraphName, subgraphInfo]: graphContext->getGraphInfo()->getSubgraphs()) {
+        for (const auto &[subgraphName, subgraphInfo]: graphContext->getGraphInfo().getSubgraphs()) {
             auto subgraph = graphContext->getOrCreateSubgraph(subgraphName);
             auto framebuffer = graphContext->getOrCreateFramebuffer(subgraphName);
 

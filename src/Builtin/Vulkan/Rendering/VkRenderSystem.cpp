@@ -78,11 +78,6 @@ namespace Penrose {
             vk::detail::throwResultException(fenceResult, "Fence timeout");
         }
 
-        auto graphContext = this->_renderGraphContextManager->acquireContext();
-        if (!graphContext->hasGraphInfo()) {
-            return false;
-        }
-
         logicalDevice.resetFences(fence);
 
         auto [acquireResult, imageIdx] = logicalDevice.acquireNextImageKHR(swapchain->getHandle(), MAX_TIMEOUT,
@@ -94,6 +89,7 @@ namespace Penrose {
 
         auto &commandBuffer = this->_commandManager->getGraphicsCommandBuffer(frameIdx);
 
+        auto graphContext = this->_renderGraphContextManager->acquireContext();
         auto submits = this->_renderGraphExecutor->execute(graphContext.get(),
                                                            commandBuffer,
                                                            imageReadySemaphore,

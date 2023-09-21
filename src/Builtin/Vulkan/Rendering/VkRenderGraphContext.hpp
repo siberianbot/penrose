@@ -23,12 +23,10 @@ namespace Penrose {
         VkRenderGraphContext(VkFramebufferFactory *framebufferFactory,
                              VkRenderSubgraphFactory *renderSubgraphFactory,
                              VkRenderTargetFactory *renderTargetFactory,
-                             std::optional<RenderGraphInfo> &&graphInfo,
+                             RenderGraphInfo &&graphInfo,
                              std::map<std::string, std::shared_ptr<VkRenderSubgraph>> &&allocatedSubgraphs);
 
-        [[nodiscard]] bool hasGraphInfo() const { return this->_graphInfo.has_value(); }
-
-        [[nodiscard]] const std::optional<RenderGraphInfo> &getGraphInfo() const { return this->_graphInfo; }
+        [[nodiscard]] const RenderGraphInfo &getGraphInfo() const { return this->_graphInfo; }
 
         [[nodiscard]] std::shared_ptr<VkRenderSubgraph> getOrCreateSubgraph(const std::string &name);
         [[nodiscard]] std::shared_ptr<VkFramebuffer> getOrCreateFramebuffer(const std::string &name);
@@ -42,7 +40,7 @@ namespace Penrose {
         VkRenderSubgraphFactory *_renderSubgraphFactory;
         VkRenderTargetFactory *_renderTargetFactory;
 
-        std::optional<RenderGraphInfo> _graphInfo;
+        RenderGraphInfo _graphInfo;
         std::map<std::string, std::shared_ptr<VkRenderSubgraph>> _allocatedSubgraphs;
         std::map<std::string, std::shared_ptr<VkRenderTarget>> _allocatedTargets;
         std::map<std::string, std::shared_ptr<VkFramebuffer>> _allocatedFramebuffers;

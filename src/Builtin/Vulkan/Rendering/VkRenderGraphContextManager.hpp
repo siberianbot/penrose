@@ -33,7 +33,7 @@ namespace Penrose {
 
         void invalidate();
 
-        void onRenderGraphModified(const std::optional<RenderGraphInfo> &graphInfo) override;
+        void onRenderGraphModified(const RenderGraphInfo &graphInfo) override;
 
         [[nodiscard]] std::shared_ptr<VkRenderGraphContext> acquireContext();
 

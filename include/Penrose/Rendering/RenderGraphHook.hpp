@@ -9,7 +9,7 @@ namespace Penrose {
     public:
         virtual ~RenderGraphHook() = default;
 
-        virtual void onRenderGraphModified(const std::optional<RenderGraphInfo> &graphInfo) = 0;
+        virtual void onRenderGraphModified(const RenderGraphInfo &graphInfo) = 0;
     };
 }
 

@@ -11,7 +11,7 @@ namespace Penrose {
     VkRenderGraphContext::VkRenderGraphContext(VkFramebufferFactory *framebufferFactory,
                                                VkRenderSubgraphFactory *renderSubgraphFactory,
                                                VkRenderTargetFactory *renderTargetFactory,
-                                               std::optional<RenderGraphInfo> &&graphInfo,
+                                               RenderGraphInfo &&graphInfo,
                                                std::map<std::string, std::shared_ptr<VkRenderSubgraph>> &&allocatedSubgraphs)
             : _framebufferFactory(framebufferFactory),
               _renderSubgraphFactory(renderSubgraphFactory),
@@ -28,7 +28,7 @@ namespace Penrose {
             return it->second;
         }
 
-        auto subgraphInfo = this->_graphInfo->getSubgraphs().at(name);
+        auto subgraphInfo = this->_graphInfo.getSubgraphs().at(name);
         auto ptr = std::shared_ptr<VkRenderSubgraph>(
                 this->_renderSubgraphFactory->makeRenderSubgraph(std::forward<decltype(subgraphInfo)>(subgraphInfo))
         );
@@ -71,7 +71,7 @@ namespace Penrose {
             return it->second;
         }
 
-        auto targetInfo = this->_graphInfo->getTargets().at(name);
+        auto targetInfo = this->_graphInfo.getTargets().at(name);
         auto ptr = std::shared_ptr<VkRenderTarget>(
                 this->_renderTargetFactory->makeRenderTarget(std::forward<decltype(targetInfo)>(targetInfo))
         );

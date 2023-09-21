@@ -76,6 +76,20 @@ namespace Penrose {
 
         [[nodiscard]] bool operator==(const RenderGraphInfo &rhs) const = default;
 
+        [[nodiscard]] static RenderGraphInfo makeDefault() {
+            return RenderGraphInfo()
+                    .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
+                    .setSubgraph("default", RenderSubgraphInfo()
+                            .addAttachment(RenderAttachmentInfo("swapchain")
+                                                   .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
+                                                   .setLoadOp(RenderAttachmentLoadOp::Clear)
+                                                   .setStoreOp(RenderAttachmentStoreOp::Store)
+                                                   .setInitialLayout(RenderAttachmentLayout::Undefined)
+                                                   .setFinalLayout(RenderAttachmentLayout::Present))
+                            .addPass(RenderSubgraphPassInfo().addColorAttachmentIdx(0))
+                    );
+        }
+
     private:
         std::map<std::string, RenderTargetInfo> _targets;
         std::map<std::string, RenderSubgraphInfo> _subgraphs;

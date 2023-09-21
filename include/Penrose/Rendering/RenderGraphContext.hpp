@@ -17,14 +17,14 @@ namespace Penrose {
         explicit RenderGraphContext(ResourceSet *resources);
         ~RenderGraphContext() override = default;
 
-        void setRenderGraph(const std::optional<RenderGraphInfo> &graphInfo);
+        void setRenderGraph(const RenderGraphInfo &graphInfo);
 
-        [[nodiscard]] const std::optional<RenderGraphInfo> &getRenderGraph() { return this->_graphInfo; }
+        [[nodiscard]] const RenderGraphInfo &getRenderGraph() { return this->_graphInfo; }
 
     private:
         LazyCollection<RenderGraphHook> _hooks;
 
-        std::optional<RenderGraphInfo> _graphInfo;
+        RenderGraphInfo _graphInfo = RenderGraphInfo::makeDefault();
     };
 }
 

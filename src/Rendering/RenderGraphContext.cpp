@@ -9,7 +9,7 @@ namespace Penrose {
         //
     }
 
-    void RenderGraphContext::setRenderGraph(const std::optional<RenderGraphInfo> &graphInfo) {
+    void RenderGraphContext::setRenderGraph(const RenderGraphInfo &graphInfo) {
         this->_graphInfo = graphInfo;
 
         for (const auto &hook: this->_hooks) {
