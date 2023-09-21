@@ -4,7 +4,7 @@
 
 using namespace Penrose;
 
-TEST_CASE("Hashes of two same pipeline infos should be the same", "[pipeline-info][hashing]") {
+TEST_CASE("PipelineInfo_HashEquality", "[engine-unit-test]") {
     auto a = PipelineInfo()
             .addStage(PipelineShaderStage(Penrose::PipelineShaderStageType::Vertex, "asset"))
             .addBinding(
@@ -46,7 +46,7 @@ TEST_CASE("Hashes of two same pipeline infos should be the same", "[pipeline-inf
     CHECK(std::hash<PipelineInfo>{}(a) == std::hash<PipelineInfo>{}(b));
 }
 
-TEST_CASE("Hashes of two different pipeline infos should not be the same", "[pipeline-info][hashing]") {
+TEST_CASE("PipelineInfo_HashInequality", "[engine-unit-test]") {
     auto a = PipelineInfo()
             .addStage(PipelineShaderStage(Penrose::PipelineShaderStageType::Vertex, "asset"))
             .addBinding(
@@ -88,7 +88,7 @@ TEST_CASE("Hashes of two different pipeline infos should not be the same", "[pip
     CHECK_FALSE(std::hash<PipelineInfo>{}(a) == std::hash<PipelineInfo>{}(b));
 }
 
-TEST_CASE("Order in pipeline infos affects hashes", "[pipeline-info][hashing]") {
+TEST_CASE("PipelineInfo_HashInequalityWithDifferentOrder", "[engine-unit-test]") {
     auto a = PipelineInfo()
             .addBinding(
                     PipelineBinding(Penrose::PipelineBindingInputRate::Vertex, 42)

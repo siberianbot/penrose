@@ -4,13 +4,21 @@ tests_deps = [
 ]
 
 tests_src = [
-    'TestsMain.cpp',
+    'src/Main.cpp',
 
-    # TESTS
-    'ComplexTests.cpp',
-    'EngineTests.cpp',
-    'PipelineInfoTests.cpp',
-    'SwapchainTests.cpp'
+    # ECS
+    'src/ECS/TestCountdownSystem.cpp',
+    'src/ECS/TestSurfaceResizeSystem.cpp',
+
+    # Unit Tests
+    'src/UnitTests/Rendering/PipelineInfo.cpp',
+
+    # Integration Tests
+    'src/IntTests/ComplexScenes/OrbitalCamera.cpp',
+    'src/IntTests/ComplexScenes/RotatingCamera.cpp',
+    'src/IntTests/Engine/EngineStartStop.cpp',
+    'src/IntTests/Engine/EngineStartWaitStop.cpp',
+    'src/IntTests/Rendering/SwapchainResize.cpp'
 ]
 
 tests_exe = executable(
