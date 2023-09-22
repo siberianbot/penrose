@@ -8,8 +8,8 @@
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
-#include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
-#include <Penrose/Builtin/ECS/ViewComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
 
 namespace Penrose {
 

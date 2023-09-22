@@ -18,11 +18,11 @@
 #include <Penrose/Builtin/ImGui.hpp>
 #include <Penrose/Builtin/Vulkan.hpp>
 
-#include <Penrose/Builtin/ECS/CameraComponent.hpp>
-#include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
-#include <Penrose/Builtin/ECS/TransformComponent.hpp>
-#include <Penrose/Builtin/ECS/ViewComponent.hpp>
-#include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
+#include <Penrose/Builtin/Penrose/ECS/CameraComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
+#include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
 #include "src/Rendering/RenderData.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"

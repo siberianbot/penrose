@@ -1,4 +1,4 @@
-#include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
+#include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 

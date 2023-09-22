@@ -14,11 +14,11 @@
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
-#include <Penrose/Builtin/ECS/CameraComponent.hpp>
-#include <Penrose/Builtin/ECS/MeshRendererComponent.hpp>
-#include <Penrose/Builtin/ECS/TransformComponent.hpp>
-#include <Penrose/Builtin/ECS/ViewComponent.hpp>
-#include <Penrose/Builtin/Rendering/ForwardSceneDrawRenderOperator.hpp>
+#include <Penrose/Builtin/Penrose/ECS/CameraComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
+#include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
 #include "src/ECS/TestCountdownSystem.hpp"
 #include "src/ECS/TestLogicTargetComponent.hpp"

@@ -55,9 +55,9 @@ src = [
     'src/Scene/SceneManager.cpp',
     'src/Scene/SceneNode.cpp',
 
-    # Builtin / Rendering
-    'src/Builtin/Rendering/ForwardSceneDrawRenderOperator.cpp',
-    'src/Builtin/Rendering/ImGuiDrawRenderOperator.cpp',
+    # Builtin / Penrose
+    'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',
+    'src/Builtin/Penrose/Rendering/ImGuiDrawRenderOperator.cpp',
 
     # Builtin / GLFW
     'src/Builtin/Glfw/Glfw.cpp',
