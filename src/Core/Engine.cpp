@@ -14,6 +14,7 @@
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
+#include <Penrose/Builtin/Debug/Debug.hpp>
 #include <Penrose/Builtin/Glfw.hpp>
 #include <Penrose/Builtin/ImGui.hpp>
 #include <Penrose/Builtin/Vulkan.hpp>
@@ -44,6 +45,7 @@ namespace Penrose {
         addVulkan(this->_resources);
         addGlfw(this->_resources);
         addImGui(this->_resources);
+        addDebug(this->_resources);
 
         this->_resources.add<AssetManager>();
         this->_resources.add<ECSManager>();

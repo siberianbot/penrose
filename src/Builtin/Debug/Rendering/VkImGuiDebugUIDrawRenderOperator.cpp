@@ -1,6 +1,5 @@
-#include <Penrose/Builtin/Penrose/Rendering/ImGuiDrawRenderOperator.hpp>
+#include "VkImGuiDebugUIDrawRenderOperator.hpp"
 
-#include <fmt/core.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
@@ -8,26 +7,22 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Builtin/Vulkan/VulkanBackend.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
-    ImGuiDrawRenderOperator::ImGuiDrawRenderOperator(ResourceSet *resources)
-            : _vulkanBackend(resources->get<VulkanBackend>()),
-              _commandManager(resources->get<VkCommandManager>()),
-              _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
-              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
-              _swapchainManager(resources->get<VkSwapchainManager>()) {
+    VkImGuiDebugUIDrawRenderOperator::VkImGuiDebugUIDrawRenderOperator(ResourceSet *resources)
+            : _vulkanBackend(resources->getLazy<VulkanBackend>()),
+              _commandManager(resources->getLazy<VkCommandManager>()),
+              _descriptorPoolManager(resources->getLazy<VkDescriptorPoolManager>()),
+              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
+              _physicalDeviceContext(resources->getLazy<VkPhysicalDeviceContext>()),
+              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
         //
     }
 
-    void ImGuiDrawRenderOperator::destroy() {
+    void VkImGuiDebugUIDrawRenderOperator::destroy() {
         if (!this->_state.has_value()) {
             return;
         }
@@ -37,12 +32,13 @@ namespace Penrose {
         this->_state = std::nullopt;
     }
 
-    void ImGuiDrawRenderOperator::execute(CommandRecording *commandRecording, const RenderOperator::Context &context) {
+    void VkImGuiDebugUIDrawRenderOperator::execute(CommandRecording *commandRecording,
+                                                   const RenderOperator::Context &context) {
 
         if (this->_state.has_value() && (this->_state->subgraph != context.subgraph ||
                                          this->_state->subgraphPassIdx != context.subgraphPassIdx)) {
-            throw EngineError(fmt::format("ImGui draw operator was bound to {:#x}/pass {}",
-                                          (std::size_t) this->_state->subgraph, this->_state->subgraphPassIdx));
+            throw EngineError("ImGui draw operator was bound to {:#x}/pass {}",
+                              reinterpret_cast<std::size_t>(this->_state->subgraph), this->_state->subgraphPassIdx);
         }
 
         if (!this->_state.has_value()) {
@@ -63,7 +59,7 @@ namespace Penrose {
         ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
     }
 
-    void ImGuiDrawRenderOperator::initFor(const RenderOperator::Context &context) {
+    void VkImGuiDebugUIDrawRenderOperator::initFor(const RenderOperator::Context &context) {
         auto imageCount = this->_swapchainManager->getSwapchain()->getImageCount();
 
         auto initInfo = ImGui_ImplVulkan_InitInfo{

@@ -57,7 +57,10 @@ src = [
 
     # Builtin / Penrose
     'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',
-    'src/Builtin/Penrose/Rendering/ImGuiDrawRenderOperator.cpp',
+
+    # Builtin / Debug
+    'src/Builtin/Debug/Debug.cpp',
+    'src/Builtin/Debug/Rendering/VkImGuiDebugUIDrawRenderOperator.cpp',
 
     # Builtin / GLFW
     'src/Builtin/Glfw/Glfw.cpp',
