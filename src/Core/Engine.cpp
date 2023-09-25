@@ -25,10 +25,7 @@
 #include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
 #include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
-#include "src/Rendering/RenderData.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
-
-#include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
 
 namespace Penrose {
 
@@ -63,41 +60,6 @@ namespace Penrose {
 
         // builtin / rendering operators
         this->_resources.add<ForwardSceneDrawRenderOperator, RenderOperator>();
-
-        // TODO:
-        auto defaultPipelineInfo = PipelineInfo()
-                .setLayout(
-                        PipelineLayout()
-                                .addConstant(
-                                        PipelineLayoutConstant(PipelineShaderStageType::Vertex, 0, sizeof(RenderData))
-                                )
-                                .addBinding(
-                                        PipelineLayoutBinding(PipelineShaderStageType::Fragment,
-                                                              PipelineLayoutBindingType::Sampler,
-                                                              1)
-                                )
-                )
-                .addStage(
-                        PipelineShaderStage(PipelineShaderStageType::Vertex,
-                                            "shaders/default-forward-rendering.vert.asset")
-                )
-                .addStage(
-                        PipelineShaderStage(PipelineShaderStageType::Fragment,
-                                            "shaders/default-forward-rendering.frag.asset")
-                )
-                .addBinding(
-                        PipelineBinding(PipelineBindingInputRate::Vertex, sizeof(Vertex))
-                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
-                                                                       offsetof(Vertex, pos)))
-                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
-                                                                       offsetof(Vertex, normal)))
-                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
-                                                                       offsetof(Vertex, color)))
-                                .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec2,
-                                                                       offsetof(Vertex, uv)))
-                );
-
-        this->_resources.get<PipelineFactory>()->addPipeline("Default", defaultPipelineInfo);
     }
 
     void Engine::run() {

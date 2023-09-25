@@ -28,6 +28,12 @@ namespace Penrose {
         constexpr static const std::string_view PARAM_PIPELINE = "Pipeline";
         constexpr static const std::string_view PARAM_RENDER_LIST = "RenderList";
 
+        struct RenderData {
+            alignas(16) glm::mat4 matrix;
+            alignas(16) glm::mat4 model;
+            alignas(16) glm::mat4 modelRot;
+        };
+
         explicit ForwardSceneDrawRenderOperator(ResourceSet *resources);
         ~ForwardSceneDrawRenderOperator() override = default;
 

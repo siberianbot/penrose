@@ -8,6 +8,7 @@
 
 namespace Penrose {
 
+    // TODO: looks shitty
     class ParamsCollection {
     public:
         using Key = std::string;

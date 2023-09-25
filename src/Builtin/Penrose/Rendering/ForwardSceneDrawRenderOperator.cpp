@@ -1,5 +1,7 @@
 #include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
+#include <string_view>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Assets/AssetManager.hpp>
@@ -8,15 +10,49 @@
 #include <Penrose/Rendering/CommandRecording.hpp>
 #include <Penrose/Rendering/Pipeline.hpp>
 #include <Penrose/Rendering/PipelineFactory.hpp>
+#include <Penrose/Rendering/PipelineInfo.hpp>
 #include <Penrose/Rendering/RenderSubgraph.hpp>
 #include <Penrose/Rendering/SamplerFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
-#include "src/Rendering/RenderData.hpp"
 #include "src/Rendering/RenderListBuilder.hpp"
 
 namespace Penrose {
+
+    constexpr static const std::string_view DEFAULT_PIPELINE_INFO_NAME = "DefaultForwardRendering";
+    /* TODO: constexpr */ static const PipelineInfo DEFAULT_PIPELINE_INFO = PipelineInfo()
+            .setLayout(
+                    PipelineLayout()
+                            .addConstant(
+                                    PipelineLayoutConstant(PipelineShaderStageType::Vertex, 0,
+                                                           sizeof(ForwardSceneDrawRenderOperator::RenderData))
+                            )
+                            .addBinding(
+                                    PipelineLayoutBinding(PipelineShaderStageType::Fragment,
+                                                          PipelineLayoutBindingType::Sampler,
+                                                          1)
+                            )
+            )
+            .addStage(
+                    PipelineShaderStage(PipelineShaderStageType::Vertex,
+                                        "shaders/default-forward-rendering.vert.asset")
+            )
+            .addStage(
+                    PipelineShaderStage(PipelineShaderStageType::Fragment,
+                                        "shaders/default-forward-rendering.frag.asset")
+            )
+            .addBinding(
+                    PipelineBinding(PipelineBindingInputRate::Vertex, sizeof(Vertex))
+                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
+                                                                   offsetof(Vertex, pos)))
+                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
+                                                                   offsetof(Vertex, normal)))
+                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
+                                                                   offsetof(Vertex, color)))
+                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec2,
+                                                                   offsetof(Vertex, uv)))
+            );
 
     constexpr static const SamplerInfo DEFAULT_SAMPLER_INFO = SamplerInfo()
             .setAddressMode(SamplerAddressMode::Repeat)
@@ -33,6 +69,7 @@ namespace Penrose {
     }
 
     void ForwardSceneDrawRenderOperator::init() {
+        this->_pipelineFactory->addPipeline(std::string(DEFAULT_PIPELINE_INFO_NAME), DEFAULT_PIPELINE_INFO);
         this->_sampler = std::unique_ptr<Sampler>(this->_samplerFactory->makeSampler(DEFAULT_SAMPLER_INFO));
     }
 
@@ -43,7 +80,7 @@ namespace Penrose {
     ParamsCollection ForwardSceneDrawRenderOperator::getDefaults() const {
         ParamsCollection params;
 
-        params.setString(PARAM_PIPELINE, "Default");
+        params.setString(PARAM_PIPELINE, std::string(DEFAULT_PIPELINE_INFO_NAME));
         params.setString(PARAM_RENDER_LIST, "Default");
 
         return params;
@@ -113,7 +150,7 @@ namespace Penrose {
     glm::mat4 ForwardSceneDrawRenderOperator::getProjection(const RenderOperator::Context &context, View *view) {
         auto &[renderAreaWidth, renderAreaHeight] = context.renderArea;
 
-        if (auto perspective = std::get_if<Perspective>(&*view->projection)) {
+        if (auto perspective = std::get_if<PerspectiveProjection>(&*view->projection)) {
             return glm::perspective(perspective->fov,
                                     static_cast<float>(renderAreaWidth) / static_cast<float>(renderAreaHeight),
                                     perspective->near,
