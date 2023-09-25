@@ -19,9 +19,9 @@ namespace Penrose {
 
         [[nodiscard]] glm::vec3 &getScale() { return this->_scale; }
 
-        [[nodiscard]] std::string getName() const override { return std::string(name()); }
+        [[nodiscard]] std::string getName() const override { return name(); }
 
-        [[nodiscard]] constexpr static std::string_view name() { return "Transform"; }
+        [[nodiscard]] constexpr static std::string name() { return "Transform"; }
 
     private:
         glm::vec3 _pos = glm::vec3(0);

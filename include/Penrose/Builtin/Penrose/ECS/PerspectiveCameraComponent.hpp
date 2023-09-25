@@ -19,9 +19,9 @@ namespace Penrose {
 
         [[nodiscard]] float &getFar() { return this->_far; }
 
-        [[nodiscard]] std::string getName() const override { return std::string(name()); }
+        [[nodiscard]] std::string getName() const override { return name(); }
 
-        [[nodiscard]] constexpr static std::string_view name() { return "PerspectiveCamera"; }
+        [[nodiscard]] constexpr static std::string name() { return "PerspectiveCamera"; }
 
     private:
         float _fov = glm::radians(90.0f);

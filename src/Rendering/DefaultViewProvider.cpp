@@ -29,14 +29,14 @@ namespace Penrose {
                 })
         );
 
-        if (!components.contains(std::string(ViewComponent::name()))) {
+        if (!components.contains(ViewComponent::name())) {
             return std::nullopt;
         }
 
         View view;
 
         auto maybeTransform = map(
-                tryGet(components, std::string(TransformComponent::name())),
+                tryGet(components, TransformComponent::name()),
                 [](const std::shared_ptr<Component> &component) {
                     return std::dynamic_pointer_cast<TransformComponent>(component);
                 });
@@ -49,7 +49,7 @@ namespace Penrose {
         }
 
         auto maybeOrthographicCamera = map(
-                tryGet(components, std::string(OrthographicCameraComponent::name())),
+                tryGet(components, OrthographicCameraComponent::name()),
                 [](const std::shared_ptr<Component> &component) {
                     return std::dynamic_pointer_cast<OrthographicCameraComponent>(component);
                 });
@@ -68,7 +68,7 @@ namespace Penrose {
         }
 
         auto maybePerspectiveCamera = map(
-                tryGet(components, std::string(PerspectiveCameraComponent::name())),
+                tryGet(components, PerspectiveCameraComponent::name()),
                 [](const std::shared_ptr<Component> &component) {
                     return std::dynamic_pointer_cast<PerspectiveCameraComponent>(component);
                 });

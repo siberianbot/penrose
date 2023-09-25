@@ -10,9 +10,9 @@ class TestLogicTargetComponent : public Component {
 public:
     ~TestLogicTargetComponent() override = default;
 
-    [[nodiscard]] std::string getName() const override { return std::string(name()); }
+    [[nodiscard]] std::string getName() const override { return name(); }
 
-    [[nodiscard]] constexpr static std::string_view name() { return "TestLogicTarget"; }
+    [[nodiscard]] constexpr static std::string name() { return "TestLogicTarget"; }
 };
 
 class TestLogicTargetComponentFactory : public Resource, public GenericComponentFactory<TestLogicTargetComponent> {

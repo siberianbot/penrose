@@ -23,9 +23,9 @@ namespace Penrose {
 
         [[nodiscard]] float &getFar() { return this->_far; }
 
-        [[nodiscard]] std::string getName() const override { return std::string(name()); }
+        [[nodiscard]] std::string getName() const override { return name(); }
 
-        [[nodiscard]] constexpr static std::string_view name() { return "OrthographicCamera"; }
+        [[nodiscard]] constexpr static std::string name() { return "OrthographicCamera"; }
 
     private:
         float _top = 1.0f;

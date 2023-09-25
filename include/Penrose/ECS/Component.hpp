@@ -2,7 +2,6 @@
 #define PENROSE_ECS_COMPONENT_HPP
 
 #include <string>
-#include <string_view>
 #include <type_traits>
 
 namespace Penrose {
@@ -16,7 +15,7 @@ namespace Penrose {
 
     template<typename T>
     concept IsComponent = std::is_base_of<Component, T>::value &&
-                          requires(T) {{ T::name() } -> std::same_as<std::string_view>; };
+                          requires(T) {{ T::name() } -> std::same_as<std::string>; };
 }
 
 #endif // PENROSE_ECS_COMPONENT_HPP

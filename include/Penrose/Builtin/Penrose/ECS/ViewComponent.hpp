@@ -15,9 +15,9 @@ namespace Penrose {
 
         [[nodiscard]] std::string &getRenderList() { return this->_renderList; }
 
-        [[nodiscard]] std::string getName() const override { return std::string(name()); }
+        [[nodiscard]] std::string getName() const override { return name(); }
 
-        [[nodiscard]] constexpr static std::string_view name() { return "View"; }
+        [[nodiscard]] constexpr static std::string name() { return "View"; }
 
     private:
         std::string _renderList = "Default";

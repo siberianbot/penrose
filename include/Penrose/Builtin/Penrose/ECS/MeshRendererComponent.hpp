@@ -26,9 +26,9 @@ namespace Penrose {
             this->_albedoTextureAsset = albedo;
         }
 
-        [[nodiscard]] std::string getName() const override { return std::string(name()); }
+        [[nodiscard]] std::string getName() const override { return name(); }
 
-        [[nodiscard]] constexpr static std::string_view name() { return "MeshRenderer"; }
+        [[nodiscard]] constexpr static std::string name() { return "MeshRenderer"; }
 
     private:
         std::optional<std::string> _meshAsset = std::nullopt;

@@ -28,7 +28,7 @@ namespace Penrose {
         );
 
         auto maybeMeshRenderer = map(
-                tryGet(components, std::string(MeshRendererComponent::name())),
+                tryGet(components, MeshRendererComponent::name()),
                 [](const std::shared_ptr<Component> &component) {
                     return std::dynamic_pointer_cast<MeshRendererComponent>(component);
                 });
@@ -50,7 +50,7 @@ namespace Penrose {
         };
 
         auto maybeTransform = map(
-                tryGet(components, std::string(TransformComponent::name())),
+                tryGet(components, TransformComponent::name()),
                 [](const std::shared_ptr<Component> &component) {
                     return std::dynamic_pointer_cast<TransformComponent>(component);
                 });
