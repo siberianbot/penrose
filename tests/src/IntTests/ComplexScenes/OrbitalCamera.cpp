@@ -12,8 +12,8 @@
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
-#include <Penrose/Builtin/Penrose/ECS/CameraComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
+#include <Penrose/Builtin/Penrose/ECS/PerspectiveCameraComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
 #include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
@@ -38,7 +38,7 @@ TEST_CASE("ComplexScenes_OrbitalCamera", "[engine-int-test]") {
             this->_passed = 0;
 
             auto query = ECSQuery().component<TestLogicTargetComponent>();
-            this->_targetEntity = this->_ecsManager->queryEntities(std::forward<decltype(query)>(query)).at(0);
+            this->_targetEntity = this->_ecsManager->query(query).at(0).entity;
         }
 
         void update(float delta) override {
@@ -132,7 +132,7 @@ TEST_CASE("ComplexScenes_OrbitalCamera", "[engine-int-test]") {
         ecsManager->addComponent<TestLogicTargetComponent>(entity);
         ecsManager->addComponent<ViewComponent>(entity);
 
-        auto camera = ecsManager->addComponent<CameraComponent>(entity);
+        auto camera = ecsManager->addComponent<PerspectiveCameraComponent>(entity);
         camera->getFov() = glm::radians(90.0f);
 
         auto transform = ecsManager->addComponent<TransformComponent>(entity);

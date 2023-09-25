@@ -22,7 +22,7 @@ namespace Penrose {
     public:
         ~GenericComponentFactory() override = default;
 
-        [[nodiscard]] std::string getName() const override { return T::name(); }
+        [[nodiscard]] std::string getName() const override { return std::string(T::name()); }
 
         [[nodiscard]] Component *makeComponent() override { return new T(); }
     };

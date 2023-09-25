@@ -6,12 +6,11 @@
 
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ComponentFactory.hpp>
-#include <Penrose/Rendering/RenderList.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class MeshRendererComponent : public Component, public DrawableVisitor {
+    class MeshRendererComponent : public Component {
     public:
         ~MeshRendererComponent() override = default;
 
@@ -27,12 +26,9 @@ namespace Penrose {
             this->_albedoTextureAsset = albedo;
         }
 
-        void visit(Drawable *drawable) const override {
-            drawable->meshAsset = this->_meshAsset;
-            drawable->albedoTextureAsset = this->_albedoTextureAsset;
-        }
+        [[nodiscard]] std::string getName() const override { return std::string(name()); }
 
-        [[nodiscard]] constexpr static std::string name() { return "MeshRenderer"; }
+        [[nodiscard]] constexpr static std::string_view name() { return "MeshRenderer"; }
 
     private:
         std::optional<std::string> _meshAsset = std::nullopt;

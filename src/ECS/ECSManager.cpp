@@ -84,26 +84,40 @@ namespace Penrose {
         this->_eventQueue->push(event);
     }
 
-    std::vector<Entity> ECSManager::queryEntities(ECSQuery &&query) {
-        std::set<Entity> entities;
+    std::vector<ECSEntry> ECSManager::query(const ECSQuery &query) {
+        std::vector<ECSEntry> entries;
 
-        auto entries = this->query(std::forward<decltype(query)>(query));
-        for (const auto &ecsEntry: entries) {
-            entities.insert(ecsEntry.entity);
+        for (std::uint32_t idx = 0; idx < this->_entitiesEntries.size(); ++idx) {
+            if (!this->_entitiesAllocMap.test(idx)) {
+                continue;
+            }
+
+            auto entityEntry = this->_entitiesEntries.at(idx);
+
+            for (const auto &[componentName, component]: entityEntry.components) {
+                auto ecsEntry = ECSEntry{
+                        .entity = idx,
+                        .componentName = componentName,
+                        .component = component
+                };
+
+                bool matched = true;
+
+                for (const auto &predicate: query.getPredicates()) {
+                    if (!predicate(ecsEntry)) {
+                        matched = false;
+
+                        break;
+                    }
+                }
+
+                if (matched) {
+                    entries.push_back(std::forward<decltype(ecsEntry)>(ecsEntry));
+                }
+            }
         }
 
-        return {entities.begin(), entities.end()};
-    }
-
-    std::vector<std::shared_ptr<Component>> ECSManager::queryComponents(ECSQuery &&query) {
-        std::vector<std::shared_ptr<Component>> components;
-
-        auto entries = this->query(std::forward<decltype(query)>(query));
-        for (const auto &ecsEntry: entries) {
-            components.push_back(ecsEntry.component);
-        }
-
-        return std::forward<decltype(components)>(components);
+        return std::forward<decltype(entries)>(entries);
     }
 
     std::shared_ptr<Component> ECSManager::makeComponent(const std::string &name) {
@@ -195,41 +209,5 @@ namespace Penrose {
                 .componentName = name
         });
         this->_eventQueue->push(event);
-    }
-
-    std::vector<ECSEntry> ECSManager::query(ECSQuery &&query) {
-        std::vector<ECSEntry> entries;
-
-        for (std::uint32_t idx = 0; idx < this->_entitiesEntries.size(); ++idx) {
-            if (!this->_entitiesAllocMap.test(idx)) {
-                continue;
-            }
-
-            auto entityEntry = this->_entitiesEntries.at(idx);
-
-            for (const auto &[componentName, component]: entityEntry.components) {
-                auto ecsEntry = ECSEntry{
-                        .entity = idx,
-                        .componentName = componentName,
-                        .component = component
-                };
-
-                bool matched = true;
-
-                for (const auto &predicate: query.getPredicates()) {
-                    if (!predicate(ecsEntry)) {
-                        matched = false;
-
-                        break;
-                    }
-                }
-
-                if (matched) {
-                    entries.push_back(std::forward<decltype(ecsEntry)>(ecsEntry));
-                }
-            }
-        }
-
-        return std::forward<decltype(entries)>(entries);
     }
 }

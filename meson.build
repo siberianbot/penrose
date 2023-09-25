@@ -42,6 +42,8 @@ src = [
     'src/Events/EventQueue.cpp',
 
     # Rendering
+    'src/Rendering/DefaultDrawableProvider.cpp',
+    'src/Rendering/DefaultViewProvider.cpp',
     'src/Rendering/RenderGraphContext.cpp',
     'src/Rendering/RenderListBuilder.cpp',
     'src/Rendering/RenderManager.cpp',

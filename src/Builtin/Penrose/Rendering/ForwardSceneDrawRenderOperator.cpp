@@ -4,19 +4,14 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Assets/ImageAsset.hpp>
 #include <Penrose/Assets/MeshAsset.hpp>
 #include <Penrose/Rendering/CommandRecording.hpp>
 #include <Penrose/Rendering/Pipeline.hpp>
-#include <Penrose/Rendering/PipelineFactory.hpp>
 #include <Penrose/Rendering/PipelineInfo.hpp>
 #include <Penrose/Rendering/RenderSubgraph.hpp>
-#include <Penrose/Rendering/SamplerFactory.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
-
-#include "src/Rendering/RenderListBuilder.hpp"
 
 namespace Penrose {
 
@@ -61,10 +56,10 @@ namespace Penrose {
             .setBorderColor(SamplerBorderColor::Black);
 
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(ResourceSet *resources)
-            : _assetManager(resources->get<AssetManager>()),
-              _pipelineFactory(resources->get<PipelineFactory>()),
-              _renderListBuilder(resources->get<RenderListBuilder>()),
-              _samplerFactory(resources->get<SamplerFactory>()) {
+            : _assetManager(resources->getLazy<AssetManager>()),
+              _pipelineFactory(resources->getLazy<PipelineFactory>()),
+              _renderListBuilder(resources->getLazy<RenderListBuilder>()),
+              _samplerFactory(resources->getLazy<SamplerFactory>()) {
         //
     }
 
@@ -109,24 +104,15 @@ namespace Penrose {
         auto pipeline = this->_pipelineFactory->getPipeline(pipelineName, context.subgraph, context.subgraphPassIdx);
         commandRecording->bindGraphicsPipeline(pipeline);
 
-        for (const auto &[entity, drawable]: renderList->drawables) {
-            auto maybeMesh = flatMap(drawable.meshAsset, [this](const std::string &asset) {
-                return this->_assetManager->tryGetAsset<MeshAsset>(asset);
-            });
+        for (const auto &drawable: renderList->drawables) {
+            auto maybeMesh = this->_assetManager->tryGetAsset<MeshAsset>(drawable.meshAsset);
+            auto maybeImage = this->_assetManager->tryGetAsset<ImageAsset>(drawable.albedoTextureAsset);
 
-            if (!maybeMesh.has_value()) {
+            if (!maybeMesh.has_value() || !maybeImage.has_value()) {
                 continue;
             }
 
-            auto maybeImage = flatMap(drawable.albedoTextureAsset,
-                                      [this](const std::string &asset) {
-                                          return this->_assetManager->tryGetAsset<ImageAsset>(asset);
-                                      });
-            if (!maybeImage.has_value()) {
-                continue;
-            }
-
-            auto descriptor = pipeline->getDescriptorFor(entity, {
+            auto descriptor = pipeline->getDescriptorFor(drawable.entity, {
                     DescriptorBindingValue(0)
                             .setImage(maybeImage->get()->getImage())
                             .setSampler(this->_sampler->get())
@@ -150,11 +136,17 @@ namespace Penrose {
     glm::mat4 ForwardSceneDrawRenderOperator::getProjection(const RenderOperator::Context &context, View *view) {
         auto &[renderAreaWidth, renderAreaHeight] = context.renderArea;
 
-        if (auto perspective = std::get_if<PerspectiveProjection>(&*view->projection)) {
+        if (auto perspective = std::get_if<PerspectiveProjection>(&view->projection)) {
             return glm::perspective(perspective->fov,
                                     static_cast<float>(renderAreaWidth) / static_cast<float>(renderAreaHeight),
                                     perspective->near,
                                     perspective->far);
+        }
+
+        if (auto orthographic = std::get_if<OrthographicProjection>(&view->projection)) {
+            return glm::ortho(orthographic->left, orthographic->right,
+                              orthographic->bottom, orthographic->top,
+                              orthographic->near, orthographic->far);
         }
 
         return glm::mat4(1);

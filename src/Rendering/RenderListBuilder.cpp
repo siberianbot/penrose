@@ -1,22 +1,21 @@
-#include "RenderListBuilder.hpp"
+#include <Penrose/Rendering/RenderListBuilder.hpp>
 
 #include <queue>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/ECS/ECSManager.hpp>
-#include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Scene/SceneManager.hpp>
+#include <Penrose/Utils/OptionalUtils.hpp>
 
-#include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
 
 namespace Penrose {
 
     RenderListBuilder::RenderListBuilder(ResourceSet *resources)
-            : _ecsManager(resources->get<ECSManager>()),
-              _eventQueue(resources->get<EventQueue>()),
-              _sceneManager(resources->get<SceneManager>()) {
+            : _ecsManager(resources->getLazy<ECSManager>()),
+              _eventQueue(resources->getLazy<EventQueue>()),
+              _sceneManager(resources->getLazy<SceneManager>()),
+              _drawableProviders(resources->getAllLazy<DrawableProvider>()),
+              _viewProviders(resources->getAllLazy<ViewProvider>()) {
         //
     }
 
@@ -52,60 +51,73 @@ namespace Penrose {
     std::optional<RenderList> RenderListBuilder::tryBuildRenderList(const std::string &name) {
         auto lock = std::lock_guard<std::mutex>(this->_mutex);
 
-        auto it = this->_renderListViewMap.find(name);
+        auto viewEntity = tryGet(this->_renderListViewMap, name);
 
-        if (it == this->_renderListViewMap.end()) {
+        if (!viewEntity.has_value()) {
             return std::nullopt;
         }
 
-        auto viewEntity = it->second;
-        View view;
+        std::optional<View> view;
 
-        this->processView(viewEntity, &view);
+        for (const auto &viewProvider: this->_viewProviders) {
+            view = viewProvider->tryGetViewFor(*viewEntity);
 
-        auto maybeDrawables = this->discoverDrawables(viewEntity);
-        if (!maybeDrawables.has_value()) {
+            if (view.has_value()) {
+                break;
+            }
+        }
+
+        if (!view.has_value()) {
             return std::nullopt;
+        }
+
+        auto maybeDrawableEntities = this->discoverDrawables(*viewEntity);
+        std::list<Drawable> drawables;
+
+        if (!maybeDrawableEntities.has_value()) {
+            return std::nullopt;
+        }
+
+        for (const auto &entity: (*maybeDrawableEntities)) {
+            for (const auto &drawableProvider: this->_drawableProviders) {
+                auto resultDrawables = drawableProvider->getDrawablesFor(entity);
+
+                drawables.insert(drawables.end(), resultDrawables.begin(), resultDrawables.end());
+            }
         }
 
         return RenderList{
-                .view = view,
-                .drawables = *maybeDrawables
+                .view = *view,
+                .drawables = std::forward<decltype(drawables)>(drawables)
         };
     }
 
     void RenderListBuilder::handleComponentCreate(const ComponentEventValue *event) {
-        if (event->componentName == MeshRendererComponent::name()) {
-            this->_drawables.insert(event->entity);
+        if (event->componentName != ViewComponent::name()) {
+            return;
         }
 
-        if (event->componentName == ViewComponent::name()) {
-            auto view = this->_ecsManager->getComponent<ViewComponent>(event->entity);
-
-            this->_renderListViewMap.insert_or_assign(view->getRenderList(), event->entity);
-        }
+        auto view = this->_ecsManager->getComponent<ViewComponent>(event->entity);
+        this->_renderListViewMap.insert_or_assign(view->getRenderList(), event->entity);
     }
 
     void RenderListBuilder::handleComponentDestroy(const ComponentEventValue *event) {
-        if (event->componentName == MeshRendererComponent::name()) {
-            this->_drawables.erase(event->entity);
+        if (event->componentName != ViewComponent::name()) {
+            return;
         }
 
-        if (event->componentName == ViewComponent::name()) {
-            auto entity = event->entity;
+        auto entity = event->entity;
+        auto it = std::find_if(this->_renderListViewMap.begin(), this->_renderListViewMap.end(),
+                               [&entity](const auto &entry) {
+                                   return entry.second == entity;
+                               });
 
-            auto it = std::find_if(this->_renderListViewMap.begin(), this->_renderListViewMap.end(),
-                                   [&entity](const auto &entry) {
-                                       return entry.second == entity;
-                                   });
-
-            if (it != this->_renderListViewMap.end()) {
-                this->_renderListViewMap.erase(it);
-            }
+        if (it != this->_renderListViewMap.end()) {
+            this->_renderListViewMap.erase(it);
         }
     }
 
-    std::optional<std::map<Entity, Drawable>> RenderListBuilder::discoverDrawables(const Entity &viewEntity) const {
+    std::optional<std::set<Entity>> RenderListBuilder::discoverDrawables(const Entity &viewEntity) {
         auto maybeNode = this->_sceneManager->tryFindEntityNode(viewEntity);
         if (!maybeNode.has_value()) {
             return std::nullopt;
@@ -113,7 +125,7 @@ namespace Penrose {
 
         auto root = this->_sceneManager->getRoot(*maybeNode);
 
-        std::map<Entity, Drawable> drawables;
+        std::set<Entity> drawableEntities;
         std::queue<SceneNodePtr> queue;
         queue.push(root);
 
@@ -125,43 +137,11 @@ namespace Penrose {
                 queue.push(descendant);
             }
 
-            if (current->getEntity().has_value() && this->_drawables.contains(*current->getEntity())) {
-                auto [it, _] = drawables.insert_or_assign(*current->getEntity(), Drawable{});
-
-                this->processDrawable(it->first, &it->second);
+            if (current->getEntity().has_value()) {
+                drawableEntities.insert(*current->getEntity());
             }
         }
 
-        return drawables;
-    }
-
-    void RenderListBuilder::processDrawable(const Entity &entity, Drawable *drawable) const {
-        auto query = ECSQuery().entity(entity);
-        auto components = this->_ecsManager->queryComponents(std::forward<decltype(query)>(query));
-
-        for (const auto &component: components) {
-            auto visitor = dynamic_pointer_cast<DrawableVisitor>(component);
-
-            if (visitor == nullptr) {
-                continue;
-            }
-
-            visitor->visit(drawable);
-        }
-    }
-
-    void RenderListBuilder::processView(const Entity &entity, View *view) const {
-        auto query = ECSQuery().entity(entity);
-        auto components = this->_ecsManager->queryComponents(std::forward<decltype(query)>(query));
-
-        for (const auto &component: components) {
-            auto visitor = dynamic_pointer_cast<ViewVisitor>(component);
-
-            if (visitor == nullptr) {
-                continue;
-            }
-
-            visitor->visit(view);
-        }
+        return drawableEntities;
     }
 }

@@ -7,19 +7,20 @@
 
 #include <glm/mat4x4.hpp>
 
+#include <Penrose/Assets/AssetManager.hpp>
+#include <Penrose/Rendering/PipelineFactory.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
+#include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/Sampler.hpp>
+#include <Penrose/Rendering/SamplerFactory.hpp>
+#include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
-    class AssetManager;
-    class PipelineFactory;
-    class RenderListBuilder;
-    class SamplerFactory;
 
     class ForwardSceneDrawRenderOperator : public Resource, public Initializable, public RenderOperator {
     public:
@@ -47,10 +48,10 @@ namespace Penrose {
         void execute(CommandRecording *commandRecording, const RenderOperator::Context &context) override;
 
     private:
-        AssetManager *_assetManager;
-        PipelineFactory *_pipelineFactory;
-        RenderListBuilder *_renderListBuilder;
-        SamplerFactory *_samplerFactory;
+        Lazy<AssetManager> _assetManager;
+        Lazy<PipelineFactory> _pipelineFactory;
+        Lazy<RenderListBuilder> _renderListBuilder;
+        Lazy<SamplerFactory> _samplerFactory;
 
         std::optional<std::unique_ptr<Sampler>> _sampler;
 

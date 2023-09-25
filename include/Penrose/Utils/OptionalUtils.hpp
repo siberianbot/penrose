@@ -1,6 +1,7 @@
 #ifndef PENROSE_UTILS_OPTIONAL_UTILS_HPP
 #define PENROSE_UTILS_OPTIONAL_UTILS_HPP
 
+#include <map>
 #include <optional>
 
 namespace Penrose {
@@ -38,6 +39,17 @@ namespace Penrose {
         } else {
             return std::optional<Result>{};
         }
+    }
+
+    template<typename K, typename V>
+    constexpr std::optional<V> tryGet(const std::map<K, V> &map, const K &key) {
+        auto it = map.find(key);
+
+        if (it == map.end()) {
+            return std::nullopt;
+        }
+
+        return it->second;
     }
 }
 

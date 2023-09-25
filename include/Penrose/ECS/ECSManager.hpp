@@ -49,8 +49,7 @@ namespace Penrose {
         template<IsComponent T>
         void removeComponent(const Entity &entity);
 
-        [[nodiscard]] std::vector<Entity> queryEntities(ECSQuery &&query);
-        [[nodiscard]] std::vector<std::shared_ptr<Component>> queryComponents(ECSQuery &&query);
+        [[nodiscard]] std::vector<ECSEntry> query(const ECSQuery &query);
 
     private:
         struct EntityEntry {
@@ -75,8 +74,6 @@ namespace Penrose {
         void addComponent(const Entity &entity, std::string &&name, std::shared_ptr<Component> &&instance);
         [[nodiscard]] std::shared_ptr<Component> getComponent(const Entity &entity, std::string &&name);
         void removeComponent(const Entity &entity, std::string &&name);
-
-        [[nodiscard]] std::vector<ECSEntry> query(ECSQuery &&query);
     };
 }
 

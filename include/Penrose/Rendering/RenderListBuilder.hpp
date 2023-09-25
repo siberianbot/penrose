@@ -5,20 +5,22 @@
 #include <mutex>
 #include <optional>
 #include <set>
-#include <string>
 
 #include <Penrose/ECS/Entity.hpp>
+#include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/Event.hpp>
+#include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Rendering/DrawableProvider.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
+#include <Penrose/Rendering/ViewProvider.hpp>
 #include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Scene/SceneManager.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
-    class ECSManager;
-    class EventQueue;
-    class SceneManager;
 
     class RenderListBuilder : public Resource, public Initializable {
     public:
@@ -31,22 +33,21 @@ namespace Penrose {
         [[nodiscard]] std::optional<RenderList> tryBuildRenderList(const std::string &name);
 
     private:
-        ECSManager *_ecsManager;
-        EventQueue *_eventQueue;
-        SceneManager *_sceneManager;
+        Lazy<ECSManager> _ecsManager;
+        Lazy<EventQueue> _eventQueue;
+        Lazy<SceneManager> _sceneManager;
+        LazyCollection<DrawableProvider> _drawableProviders;
+        LazyCollection<ViewProvider> _viewProviders;
 
         EventHandlerIndex _eventHandlerIdx = -1;
         std::mutex _mutex;
 
-        std::set<Entity> _drawables;
         std::map<std::string, Entity> _renderListViewMap;
 
         void handleComponentCreate(const ComponentEventValue *event);
         void handleComponentDestroy(const ComponentEventValue *event);
 
-        [[nodiscard]] std::optional<std::map<Entity, Drawable>> discoverDrawables(const Entity &viewEntity) const;
-        void processDrawable(const Entity &entity, Drawable *drawable) const;
-        void processView(const Entity &entity, View *view) const;
+        [[nodiscard]] std::optional<std::set<Entity>> discoverDrawables(const Entity &viewEntity);
     };
 }
 
