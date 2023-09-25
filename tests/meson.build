@@ -27,3 +27,8 @@ tests_exe = executable(
     dependencies: tests_deps,
     include_directories: incdir
 )
+
+tests_workdir = meson.project_source_root()
+
+test('All unit tests', tests_exe, args: ['[engine-unit-test]'], workdir: tests_workdir)
+test('All integration tests', tests_exe, args: ['[engine-int-test]'], workdir: tests_workdir)
