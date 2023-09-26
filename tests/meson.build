@@ -16,6 +16,7 @@ tests_src = [
     # Integration Tests
     'src/IntTests/ComplexScenes/OrbitalCamera.cpp',
     'src/IntTests/ComplexScenes/RotatingCamera.cpp',
+    'src/IntTests/DebugUI/DebugUI.cpp',
     'src/IntTests/Engine/EngineStartStop.cpp',
     'src/IntTests/Engine/EngineStartWaitStop.cpp',
     'src/IntTests/Rendering/SwapchainResize.cpp'

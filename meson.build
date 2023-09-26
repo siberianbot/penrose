@@ -63,6 +63,7 @@ src = [
     # Builtin / Debug
     'src/Builtin/Debug/Debug.cpp',
     'src/Builtin/Debug/Rendering/VkImGuiDebugUIDrawRenderOperator.cpp',
+    'src/Builtin/Debug/UI/UIContext.cpp',
 
     # Builtin / GLFW
     'src/Builtin/Glfw/Glfw.cpp',

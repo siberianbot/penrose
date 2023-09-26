@@ -18,7 +18,8 @@ namespace Penrose {
               _descriptorPoolManager(resources->getLazy<VkDescriptorPoolManager>()),
               _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
               _physicalDeviceContext(resources->getLazy<VkPhysicalDeviceContext>()),
-              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
+              _swapchainManager(resources->getLazy<VkSwapchainManager>()),
+              _uiContext(resources->getLazy<UIContext>()) {
         //
     }
 
@@ -51,8 +52,9 @@ namespace Penrose {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // TODO: draw here
-        ImGui::ShowDemoWindow();
+        for (const auto &[_, root]: this->_uiContext->getRoots()) {
+            this->drawWidget(root);
+        }
 
         ImGui::Render();
         ImDrawData *drawData = ImGui::GetDrawData();
@@ -91,5 +93,35 @@ namespace Penrose {
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
         this->_state = {context.subgraph, context.subgraphPassIdx};
+    }
+
+    void VkImGuiDebugUIDrawRenderOperator::drawWidget(const std::shared_ptr<Widget> &widget) {
+        switch (widget->getType()) {
+            case WidgetType::Window: {
+                auto window = std::dynamic_pointer_cast<Window>(widget);
+
+                if (ImGui::Begin(window->getTitle().c_str())) {
+
+                    for (const auto &child: window->getChilds()) {
+                        this->drawWidget(child);
+                    }
+
+                    ImGui::End();
+                }
+
+                break;
+            }
+
+            case WidgetType::Label: {
+                auto label = std::dynamic_pointer_cast<Label>(widget);
+
+                ImGui::Text("%s", label->getText().c_str());
+
+                break;
+            }
+
+            default:
+                throw EngineError("Widget is not supported");
+        }
     }
 }
