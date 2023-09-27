@@ -24,13 +24,13 @@ namespace Penrose {
 
         void invalidate();
 
-        [[nodiscard]] Surface *getSurface() const { return this->_surface.value().get(); }
+        [[nodiscard]] std::shared_ptr<Surface> getSurface() const { return this->_surface.value(); }
 
     private:
         Lazy<SurfaceFactory> _surfaceFactory;
         LazyCollection<SurfaceHook> _surfaceHooks;
 
-        std::optional<std::unique_ptr<Surface>> _surface;
+        std::optional<std::shared_ptr<Surface>> _surface;
     };
 }
 

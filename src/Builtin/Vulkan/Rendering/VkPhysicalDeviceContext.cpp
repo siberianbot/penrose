@@ -41,7 +41,7 @@ namespace Penrose {
 
     VkPhysicalDeviceContext::State VkPhysicalDeviceContext::selectPhysicalDevice() {
         auto devices = this->_vulkanBackend->getInstance().enumeratePhysicalDevices();
-        auto surface = this->_vkSurfaceProvider->getVkSurfaceFor(this->_surfaceManager->getSurface());
+        auto surface = this->_vkSurfaceProvider->getVkSurfaceFor(this->_surfaceManager->getSurface().get());
 
         for (const auto &device: devices) {
             auto properties = device.getProperties();

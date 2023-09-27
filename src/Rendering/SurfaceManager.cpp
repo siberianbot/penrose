@@ -17,7 +17,7 @@ namespace Penrose {
             hook->onSurfaceCreate(surface);
         }
 
-        this->_surface = std::unique_ptr<Surface>(surface);
+        this->_surface = std::shared_ptr<Surface>(surface);
     }
 
     void SurfaceManager::destroy() {

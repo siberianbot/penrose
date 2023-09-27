@@ -14,9 +14,9 @@ namespace Penrose {
 
     VkSwapchain *VkSwapchainFactory::makeSwapchain(std::optional<VkSwapchain *> oldSwapchain) {
         auto surface = this->_surfaceManager->getSurface();
-        auto vkSurface = this->_surfaceProvider->getVkSurfaceFor(surface);
+        auto vkSurface = this->_surfaceProvider->getVkSurfaceFor(surface.get());
 
-        auto preferences = this->_swapchainPreferencesProvider->getPreferencesFor(surface, vkSurface);
+        auto preferences = this->_swapchainPreferencesProvider->getPreferencesFor(surface.get(), vkSurface);
 
         auto createInfo = vk::SwapchainCreateInfoKHR()
                 .setSurface(vkSurface)
