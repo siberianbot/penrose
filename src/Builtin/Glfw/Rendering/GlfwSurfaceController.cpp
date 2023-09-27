@@ -1,6 +1,7 @@
 #include "GlfwSurfaceController.hpp"
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Events/SurfaceEvent.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Glfw/Rendering/GlfwSurface.hpp"
@@ -69,7 +70,12 @@ namespace Penrose {
     void GlfwSurfaceController::windowCloseCallback(GLFWwindow *handle) {
         auto that = reinterpret_cast<GlfwSurfaceController *>(glfwGetWindowUserPointer(handle));
 
-        that->_eventQueue->push(makeEvent(EventType::EngineDestroyRequested));
+        auto data = SurfaceEventArgs{
+                .type = SurfaceEventType::CloseRequested,
+                .surface = that->_surfaceManager->getSurface()
+        };
+
+        that->_eventQueue->pushEvent<EventType::SurfaceEvent>(data);
     }
 
     void GlfwSurfaceController::framebufferSizeCallback(GLFWwindow *handle, int, int) {

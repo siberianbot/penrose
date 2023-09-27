@@ -1,37 +1,49 @@
 #include <Penrose/Events/EventQueue.hpp>
 
+#include <utility>
+
 namespace Penrose {
 
-    void EventQueue::push(Event event) {
-        this->_events.front().push_back(event);
+    void EventQueue::destroy() {
+        for (auto &eventQueue: this->_eventQueues) {
+            eventQueue.clear();
+        }
     }
 
-    void EventQueue::process() {
-        this->_events.swap();
+    void EventQueue::update(float) {
+        auto &previousEventQueue = this->_eventQueues.at(this->_currentEventQueueIdx);
+        this->_currentEventQueueIdx = (this->_currentEventQueueIdx + 1) % EVENT_QUEUE_SIZE;
 
-        for (const auto &event: this->_events.back()) {
-            for (const auto &[_, handler]: this->_handlers) {
-                handler(event);
+        for (const auto &event: previousEventQueue) {
+            for (const auto &[_, entry]: this->_handlers) {
+                if ((entry.mask & event->getType()) == 0) {
+                    continue;
+                }
+
+                entry.handler(event.get());
             }
         }
 
-        this->_events.back().clear();
+        previousEventQueue.clear();
     }
 
-    EventHandlerIndex EventQueue::addHandler(const EventHandler &handler) {
-        auto idx = this->_nextHandlerIdx++;
-        this->_handlers.emplace(idx, handler);
+    EventQueue::HandlerIdx EventQueue::addHandler(EventTypeMask mask, EventQueue::Handler &&handler) {
+        auto idx = this->_lastHandlerIdx++;
+        auto entry = HandlerEntry{
+                .mask = mask,
+                .handler = handler
+        };
+
+        this->_handlers.insert_or_assign(idx, entry);
 
         return idx;
     }
 
-    void EventQueue::removeHandler(const EventHandlerIndex &idx) {
-        auto it = this->_handlers.find(idx);
+    void EventQueue::removeHandler(EventQueue::HandlerIdx idx) {
+        this->_handlers.erase(idx);
+    }
 
-        if (it == this->_handlers.end()) {
-            return;
-        }
-
-        this->_handlers.erase(it);
+    void EventQueue::pushEvent(std::unique_ptr<EventBase> &&event) {
+        this->_eventQueues.at(this->_currentEventQueueIdx).push_back(std::forward<decltype(event)>(event));
     }
 }

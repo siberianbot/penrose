@@ -11,8 +11,7 @@
 namespace Penrose {
 
     RenderListBuilder::RenderListBuilder(ResourceSet *resources)
-            : _ecsManager(resources->getLazy<ECSManager>()),
-              _eventQueue(resources->getLazy<EventQueue>()),
+            : _eventQueue(resources->getLazy<EventQueue>()),
               _sceneManager(resources->getLazy<SceneManager>()),
               _drawableProviders(resources->getAllLazy<DrawableProvider>()),
               _viewProviders(resources->getAllLazy<ViewProvider>()) {
@@ -20,28 +19,26 @@ namespace Penrose {
     }
 
     void RenderListBuilder::init() {
-        this->_eventHandlerIdx = this->_eventQueue->addHandler([this](const Event &event) {
-            auto componentEvent = event.tryGetComponentEvent();
+        this->_eventHandlerIdx = this->_eventQueue->addHandler<EventType::ECSEvent, ECSEventArgs>(
+                [this](const ECSEvent *event) {
+                    auto lock = std::lock_guard<std::mutex>(this->_mutex);
 
-            if (!componentEvent.has_value()) {
-                return;
-            }
+                    switch (event->getArgs().type) {
+                        case ECSEventType::ComponentCreated: {
+                            this->handleComponentCreate(event->getArgs());
+                            break;
+                        }
 
-            auto lock = std::lock_guard<std::mutex>(this->_mutex);
+                        case ECSEventType::ComponentDestroyed: {
+                            this->handleComponentDestroy(event->getArgs());
+                            break;
+                        }
 
-            switch (event.type) {
-                case EventType::ComponentCreated:
-                    this->handleComponentCreate(*componentEvent);
-                    break;
-
-                case EventType::ComponentDestroyed:
-                    this->handleComponentDestroy(*componentEvent);
-                    break;
-
-                default:
-                    throw EngineError("Not supported event");
-            }
-        });
+                        default:
+                            /* nothing to do */
+                            break;
+                    }
+                });
     }
 
     void RenderListBuilder::destroy() {
@@ -92,21 +89,21 @@ namespace Penrose {
         };
     }
 
-    void RenderListBuilder::handleComponentCreate(const ComponentEventValue *event) {
-        if (event->componentName != ViewComponent::name()) {
+    void RenderListBuilder::handleComponentCreate(const ECSEventArgs &eventArgs) {
+        if (eventArgs.componentName != ViewComponent::name()) {
             return;
         }
 
-        auto view = this->_ecsManager->getComponent<ViewComponent>(event->entity);
-        this->_renderListViewMap.insert_or_assign(view->getRenderList(), event->entity);
+        auto view = std::dynamic_pointer_cast<ViewComponent>(eventArgs.component);
+        this->_renderListViewMap.insert_or_assign(view->getRenderList(), eventArgs.entity);
     }
 
-    void RenderListBuilder::handleComponentDestroy(const ComponentEventValue *event) {
-        if (event->componentName != ViewComponent::name()) {
+    void RenderListBuilder::handleComponentDestroy(const ECSEventArgs &eventArgs) {
+        if (eventArgs.componentName != ViewComponent::name()) {
             return;
         }
 
-        auto entity = event->entity;
+        auto entity = eventArgs.entity;
         auto it = std::find_if(this->_renderListViewMap.begin(), this->_renderListViewMap.end(),
                                [&entity](const auto &entry) {
                                    return entry.second == entity;

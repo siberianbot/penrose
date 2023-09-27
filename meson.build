@@ -38,7 +38,6 @@ src = [
     'src/ECS/ECSManager.cpp',
 
     # Events
-    'src/Events/Event.cpp',
     'src/Events/EventQueue.cpp',
 
     # Rendering

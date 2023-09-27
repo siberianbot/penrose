@@ -7,7 +7,9 @@
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Core/Log.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/Events/EngineEvent.hpp>
 #include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Events/SurfaceEvent.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderManager.hpp>
@@ -72,13 +74,36 @@ namespace Penrose {
         auto eventQueue = this->_resources.get<EventQueue>();
 
         auto alive = true;
-        auto handlerIdx = eventQueue->addHandler([&alive](const Event &event) {
-            if (event.type != EventType::EngineDestroyRequested) {
-                return;
-            }
+        auto handlerIdx = eventQueue->addHandler(
+                EventType::EngineEvent | EventType::SurfaceEvent,
+                [&alive](const EventBase *event) {
+                    switch (event->getType()) {
+                        case EventType::EngineEvent: {
+                            auto engineEvent = dynamic_cast<const EngineEvent *>(event);
 
-            alive = false;
-        });
+                            if (engineEvent->getArgs().type ==
+                                EngineEventType::DestroyRequested) {
+                                alive = false;
+                            }
+
+                            break;
+                        }
+
+                        case EventType::SurfaceEvent: {
+                            auto surfaceEvent = dynamic_cast<const SurfaceEvent *>(event);
+
+                            if (surfaceEvent->getArgs().type ==
+                                SurfaceEventType::CloseRequested) {
+                                alive = false;
+                            }
+
+                            break;
+                        }
+
+                        default:
+                            throw EngineError("Not supported event");
+                    }
+                });
 
         this->_resources.runAll();
 
@@ -87,9 +112,6 @@ namespace Penrose {
 
         while (alive) {
             start = std::chrono::high_resolution_clock::now();
-
-            // TODO: use Updatable
-            eventQueue->process();
 
             this->_resources.updateAll(delta);
 

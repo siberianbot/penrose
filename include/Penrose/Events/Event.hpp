@@ -1,52 +1,37 @@
 #ifndef PENROSE_EVENTS_EVENT_HPP
 #define PENROSE_EVENTS_EVENT_HPP
 
-#include <functional>
-#include <optional>
-#include <string>
-#include <variant>
+#include <type_traits>
 
-#include <Penrose/Common/Size.hpp>
-#include <Penrose/ECS/Entity.hpp>
+#include <Penrose/Events/EventType.hpp>
 
 namespace Penrose {
 
-    enum class EventType {
-        EngineDestroyRequested,
+    class EventBase {
+    public:
+        virtual ~EventBase() = default;
 
-        EntityCreated,
-        EntityDestroyed,
-        ComponentCreated,
-        ComponentDestroyed
+        [[nodiscard]] virtual EventType getType() const = 0;
     };
 
-    struct EntityEventValue {
-        Entity entity;
+    template<EventType Type, typename Data>
+    class Event : public EventBase {
+    public:
+        explicit Event(Data &&data) : _data(data) {
+            //
+        }
+
+        [[nodiscard]] EventType getType() const override { return Type; }
+
+        [[nodiscard]] const Data &getArgs() const { return this->_data; }
+
+        [[nodiscard]] static Event<Type, Data> construct(Data &&data) {
+            return Event<Type, Data>(data);
+        }
+
+    private:
+        Data _data;
     };
-
-    struct ComponentEventValue {
-        Entity entity;
-        std::string componentName;
-    };
-
-    using EventValue = std::variant<
-            Size,
-            EntityEventValue,
-            ComponentEventValue
-    >;
-
-    struct Event {
-        EventType type;
-        std::optional<EventValue> value;
-
-        [[nodiscard]] std::optional<const ComponentEventValue *> tryGetComponentEvent() const;
-    };
-
-    [[nodiscard]] Event makeEvent(const EventType &type);
-    [[nodiscard]] Event makeEvent(const EventType &type, const EventValue &value);
-
-    using EventHandler = std::function<void(const Event &)>;
-    using EventHandlerIndex = std::uint32_t;
 }
 
 #endif // PENROSE_EVENTS_EVENT_HPP

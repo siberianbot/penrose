@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Events/EngineEvent.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 TestCountdownSystem::TestCountdownSystem(ResourceSet *resources)
@@ -25,7 +26,11 @@ void TestCountdownSystem::update(float delta) {
     this->_passed += delta;
 
     if (this->_passed > this->_testTimeout) {
-        this->_eventQueue->push(makeEvent(EventType::EngineDestroyRequested));
+        auto data = EngineEventArgs{
+                .type = EngineEventType::DestroyRequested
+        };
+
+        this->_eventQueue->pushEvent<EventType::EngineEvent>(data);
 
         if (!this->_timeoutThread.has_value()) {
             this->_timeoutThread = std::jthread([this](const std::stop_token &token) {
