@@ -9,13 +9,12 @@ namespace Penrose {
 
     enum class EventType : EventTypeMask {
 
-        EngineEvent = 0x01,
-        ECSEvent = 0x02,
-        SurfaceEvent = 0x04,
+        EngineEvent = 1,
+        ECSEvent = EngineEvent << 1,
+        SurfaceEvent = ECSEvent << 1,
+        InputEvent = SurfaceEvent << 1,
 
-        All = EngineEvent |
-              ECSEvent |
-              SurfaceEvent
+        All = EngineEvent | ECSEvent | SurfaceEvent | InputEvent
     };
 
     constexpr EventTypeMask operator&(const EventTypeMask &a, const EventType &b) {

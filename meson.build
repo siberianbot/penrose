@@ -40,6 +40,9 @@ src = [
     # Events
     'src/Events/EventQueue.cpp',
 
+    # Input
+    'src/Input/InputHandler.cpp',
+
     # Rendering
     'src/Rendering/DefaultDrawableProvider.cpp',
     'src/Rendering/DefaultViewProvider.cpp',
@@ -69,6 +72,7 @@ src = [
     'src/Builtin/Glfw/GlfwBackend.cpp',
     'src/Builtin/Glfw/Rendering/GlfwSurface.cpp',
     'src/Builtin/Glfw/Rendering/GlfwSurfaceController.cpp',
+    'src/Builtin/Glfw/Utils/InputUtils.cpp',
 
     # Builtin / ImGui
     'src/Builtin/ImGui/ImGui.cpp',

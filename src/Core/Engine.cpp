@@ -10,6 +10,7 @@
 #include <Penrose/Events/EngineEvent.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Events/SurfaceEvent.hpp>
+#include <Penrose/Input/InputHandler.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderManager.hpp>
@@ -38,6 +39,7 @@ namespace Penrose {
         this->_resources.add<AssetDictionary>();
         this->_resources.add<AssetLoader>();
         this->_resources.add<EventQueue>();
+        this->_resources.add<InputHandler>();
         this->_resources.add<Log>();
         this->_resources.add<RenderGraphContext>();
         this->_resources.add<SurfaceManager>();

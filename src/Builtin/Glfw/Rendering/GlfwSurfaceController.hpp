@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Input/InputHandler.hpp>
 #include <Penrose/Rendering/SurfaceFactory.hpp>
 #include <Penrose/Rendering/SurfaceHook.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
@@ -41,6 +42,7 @@ namespace Penrose {
 
     private:
         Lazy<EventQueue> _eventQueue;
+        Lazy<InputHandler> _inputHandler;
         Lazy<SurfaceManager> _surfaceManager;
         Lazy<VulkanBackend> _vulkanBackend;
 
@@ -48,6 +50,10 @@ namespace Penrose {
 
         static void windowCloseCallback(GLFWwindow *handle);
         static void framebufferSizeCallback(GLFWwindow *handle, int width, int height);
+        static void keyCallback(GLFWwindow *handle, int key, int scancode, int action, int mods);
+        static void mouseButtonCallback(GLFWwindow *handle, int button, int action, int mods);
+        static void cursorPosCallback(GLFWwindow *handle, double xpos, double ypos);
+        static void scrollCallback(GLFWwindow *handle, double xoffset, double yoffset);
     };
 }
 

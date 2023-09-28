@@ -14,12 +14,15 @@ tests_src = [
     'src/UnitTests/Rendering/PipelineInfo.cpp',
 
     # Integration Tests
-    'src/IntTests/ComplexScenes/OrbitalCamera.cpp',
-    'src/IntTests/ComplexScenes/RotatingCamera.cpp',
-    'src/IntTests/DebugUI/DebugUI.cpp',
-    'src/IntTests/Engine/EngineStartStop.cpp',
-    'src/IntTests/Engine/EngineStartWaitStop.cpp',
-    'src/IntTests/Rendering/SwapchainResize.cpp'
+    'src/IntegrationTests/ComplexScenes/OrbitalCamera.cpp',
+    'src/IntegrationTests/ComplexScenes/RotatingCamera.cpp',
+    'src/IntegrationTests/DebugUI/DebugUI.cpp',
+    'src/IntegrationTests/Engine/EngineStartStop.cpp',
+    'src/IntegrationTests/Engine/EngineStartWaitStop.cpp',
+    'src/IntegrationTests/Rendering/SwapchainResize.cpp',
+
+    # Interactive Tests
+    'src/InteractiveTests/Input/InputReceiving.cpp',
 ]
 
 tests_exe = executable(
