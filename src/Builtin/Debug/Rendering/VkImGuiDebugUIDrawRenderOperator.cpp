@@ -12,6 +12,20 @@
 
 namespace Penrose {
 
+    int textInputCallback(ImGuiInputTextCallbackData *data) {
+        auto textInput = reinterpret_cast<TextInput *>(data->UserData);
+        auto thresholdSize = static_cast<int>(textInput->getSize()) - 1;
+
+        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize && data->BufTextLen >= thresholdSize) {
+            textInput->grow();
+
+            data->Buf = const_cast<char *>(textInput->getText().c_str());
+            data->BufSize = static_cast<int>(textInput->getSize());
+        }
+
+        return 0;
+    }
+
     VkImGuiDebugUIDrawRenderOperator::VkImGuiDebugUIDrawRenderOperator(ResourceSet *resources)
             : _vulkanBackend(resources->getLazy<VulkanBackend>()),
               _commandManager(resources->getLazy<VkCommandManager>()),
@@ -116,6 +130,16 @@ namespace Penrose {
                 auto label = std::dynamic_pointer_cast<Label>(widget);
 
                 ImGui::Text("%s", label->getText().c_str());
+
+                break;
+            }
+
+            case WidgetType::TextInput: {
+                auto textInput = std::dynamic_pointer_cast<TextInput>(widget);
+                auto buffer = const_cast<char *>(textInput->getText().c_str());
+
+                ImGui::InputText("SomeTextInput", buffer, textInput->getSize(), ImGuiInputTextFlags_CallbackResize,
+                                 textInputCallback, textInput.get());
 
                 break;
             }

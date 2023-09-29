@@ -1,7 +1,9 @@
 #ifndef PENROSE_BUILTIN_DEBUG_UI_WIDGETS_HPP
 #define PENROSE_BUILTIN_DEBUG_UI_WIDGETS_HPP
 
+#include <algorithm>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -10,6 +12,7 @@ namespace Penrose {
     enum class WidgetType {
         Window,
         Label,
+        TextInput,
     };
 
     class Widget {
@@ -68,6 +71,43 @@ namespace Penrose {
         void setText(const std::string &text) { this->_text = text; }
 
     private:
+        std::string _text;
+    };
+
+    class TextInput : public Widget {
+    public:
+        constexpr static const std::size_t DEFAULT_BUFFER_SIZE = 128;
+
+        explicit TextInput(std::size_t size, std::optional<std::string> &&text = std::nullopt)
+                : _size(size) {
+            this->_text.resize(size);
+
+            if (text.has_value()) {
+                std::copy_n(text->begin(), std::min(size, text->size()), this->_text.begin());
+            }
+        }
+
+        explicit TextInput(std::optional<std::string> &&text)
+                : TextInput(text.has_value() ? text->size() : DEFAULT_BUFFER_SIZE,
+                            std::forward<decltype(text)>(text)) {
+            //
+        }
+
+        ~TextInput() override = default;
+
+        [[nodiscard]] WidgetType getType() const override { return WidgetType::TextInput; }
+
+        [[nodiscard]] const std::size_t &getSize() const { return this->_size; }
+
+        [[nodiscard]] const std::string &getText() const { return this->_text; }
+
+        void grow() {
+            this->_size = this->_size * 2;
+            this->_text.resize(this->_size);
+        }
+
+    private:
+        std::size_t _size;
         std::string _text;
     };
 }
