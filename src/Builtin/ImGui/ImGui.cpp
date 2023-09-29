@@ -8,7 +8,7 @@ namespace Penrose {
 
     ResourceSet &addImGui(ResourceSet &resources) {
 
-        resources.add<ImGuiBackend, SurfaceHook>(resources.getBeginIterator());
+        resources.add<ImGuiBackend, SurfaceHook, InputHook>(resources.getBeginIterator());
 
         return resources;
     }

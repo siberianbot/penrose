@@ -6,6 +6,7 @@
 
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Input/Input.hpp>
+#include <Penrose/Input/InputHook.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
@@ -26,6 +27,7 @@ namespace Penrose {
 
     private:
         Lazy<EventQueue> _eventQueue;
+        LazyCollection<InputHook> _inputHooks;
 
         std::map<InputKey, InputState> _states;
     };

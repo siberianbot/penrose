@@ -41,6 +41,7 @@ src = [
     'src/Events/EventQueue.cpp',
 
     # Input
+    'src/Input/Input.cpp',
     'src/Input/InputHandler.cpp',
 
     # Rendering

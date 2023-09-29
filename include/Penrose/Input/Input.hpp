@@ -63,6 +63,9 @@ namespace Penrose {
         MB0, MB1, MB2,
         MB3, MB4, MB5, MB6, MB7
     };
+
+    [[nodiscard]] bool isKeyboardKey(InputKey key);
+    [[nodiscard]] bool isMouseKey(InputKey key);
 }
 
 #endif // PENROSE_INPUT_INPUT_HPP

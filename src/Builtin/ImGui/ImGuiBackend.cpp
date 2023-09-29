@@ -21,4 +21,16 @@ namespace Penrose {
 
         ImGui_ImplGlfw_InitForVulkan(glfwSurface->getHandle(), true);
     }
+
+    bool ImGuiBackend::onKeyStateUpdate(InputKey key, InputState) {
+        if (isKeyboardKey(key)) {
+            return !ImGui::GetIO().WantCaptureKeyboard;
+        }
+
+        if (isMouseKey(key)) {
+            return !ImGui::GetIO().WantCaptureMouse;
+        }
+
+        return true;
+    }
 }

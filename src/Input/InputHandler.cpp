@@ -7,11 +7,18 @@
 namespace Penrose {
 
     InputHandler::InputHandler(ResourceSet *resources)
-            : _eventQueue(resources->getLazy<EventQueue>()) {
+            : _eventQueue(resources->getLazy<EventQueue>()),
+              _inputHooks(resources->getAllLazy<InputHook>()) {
         //
     }
 
     void InputHandler::pushKeyStateUpdate(InputKey key, InputState state) {
+        for (const auto &hook: this->_inputHooks) {
+            if (!hook->onKeyStateUpdate(key, state)) {
+                return;
+            }
+        }
+
         this->_states.insert_or_assign(key, state);
 
         auto data = InputEventArgs{

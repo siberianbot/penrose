@@ -22,6 +22,7 @@ tests_src = [
     'src/IntegrationTests/Rendering/SwapchainResize.cpp',
 
     # Interactive Tests
+    'src/InteractiveTests/Input/ImGuiInputHook.cpp',
     'src/InteractiveTests/Input/InputReceiving.cpp',
 ]
 
