@@ -1,28 +1,12 @@
-#include <Penrose/Core/Log.hpp>
+#include <Penrose/Common/Log.hpp>
 
-#include <iostream>
-
-#include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
-    std::string_view toString(LogLevel level) {
-        switch (level) {
-            case LogLevel::Debug:
-                return "Debug";
-
-            case LogLevel::Info:
-                return "Info";
-
-            case LogLevel::Warning:
-                return "Warning";
-
-            case LogLevel::Error:
-                return "Error";
-
-            default:
-                throw EngineError("Log level is not supported");
-        }
+    Log::Log(ResourceSet *resources)
+            : _sinks(resources->getAllLazy<LogSink>()) {
+        //
     }
 
     void Log::writeDebug(std::string_view tag, std::string_view msg) {
@@ -42,6 +26,8 @@ namespace Penrose {
     }
 
     void Log::write(LogLevel level, std::string_view tag, std::string_view msg) {
-        std::cout << toString(level) << "/" << tag << ":\t" << msg << std::endl;
+        for (const auto &sink: this->_sinks) {
+            sink->write(level, tag, msg);
+        }
     }
 }

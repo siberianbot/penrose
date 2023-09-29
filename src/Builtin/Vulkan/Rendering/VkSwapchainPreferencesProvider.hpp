@@ -7,8 +7,8 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <Penrose/Common/Log.hpp>
 #include <Penrose/Common/Size.hpp>
-#include <Penrose/Core/Log.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 

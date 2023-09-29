@@ -6,7 +6,7 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Core/Log.hpp>
+#include <Penrose/Common/Log.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Lazy.hpp>

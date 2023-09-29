@@ -1,5 +1,5 @@
-#ifndef PENROSE_CORE_LOG_INL
-#define PENROSE_CORE_LOG_INL
+#ifndef PENROSE_COMMON_LOG_INL
+#define PENROSE_COMMON_LOG_INL
 
 #include <utility>
 
@@ -30,4 +30,4 @@ namespace Penrose {
     }
 }
 
-#endif // PENROSE_CORE_LOG_INL
+#endif // PENROSE_COMMON_LOG_INL

@@ -1,5 +1,5 @@
-#ifndef PENROSE_CORE_ENGINE_HPP
-#define PENROSE_CORE_ENGINE_HPP
+#ifndef PENROSE_ENGINE_HPP
+#define PENROSE_ENGINE_HPP
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -18,4 +18,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_CORE_ENGINE_HPP
+#endif // PENROSE_ENGINE_HPP

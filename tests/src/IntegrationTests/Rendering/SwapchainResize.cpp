@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <Penrose/Core/Engine.hpp>
+#include <Penrose/Engine.hpp>
 
 #include "src/ECS/TestCountdownSystem.hpp"
 #include "src/ECS/TestSurfaceResizeSystem.hpp"

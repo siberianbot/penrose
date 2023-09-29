@@ -1,11 +1,12 @@
-#include <Penrose/Core/Engine.hpp>
+#include <Penrose/Engine.hpp>
 
 #include <chrono>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetLoader.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
-#include <Penrose/Core/Log.hpp>
+#include <Penrose/Common/Log.hpp>
+#include <Penrose/Common/StdOutLogSink.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Events/EngineEvent.hpp>
 #include <Penrose/Events/EventQueue.hpp>
@@ -40,6 +41,7 @@ namespace Penrose {
         this->_resources.add<AssetLoader>();
         this->_resources.add<EventQueue>();
         this->_resources.add<InputHandler>();
+        this->_resources.add<StdOutLogSink, LogSink>();
         this->_resources.add<Log>();
         this->_resources.add<RenderGraphContext>();
         this->_resources.add<SurfaceManager>();

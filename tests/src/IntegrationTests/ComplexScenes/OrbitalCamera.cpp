@@ -1,8 +1,8 @@
 #include <catch2/catch.hpp>
 
+#include <Penrose/Engine.hpp>
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
-#include <Penrose/Core/Engine.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>

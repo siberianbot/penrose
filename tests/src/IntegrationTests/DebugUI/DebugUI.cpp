@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <Penrose/Core/Engine.hpp>
+#include <Penrose/Engine.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 

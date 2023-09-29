@@ -14,7 +14,7 @@
 #include <Penrose/Assets/Asset.hpp>
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetLoader.hpp>
-#include <Penrose/Core/Log.hpp>
+#include <Penrose/Common/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>

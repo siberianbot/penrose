@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <Penrose/Core/Engine.hpp>
+#include <Penrose/Engine.hpp>
 #include <Penrose/Events/EngineEvent.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 

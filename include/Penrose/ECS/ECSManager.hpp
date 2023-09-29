@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include <Penrose/Core/Log.hpp>
+#include <Penrose/Common/Log.hpp>
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ComponentFactory.hpp>
 #include <Penrose/ECS/ECSEntry.hpp>

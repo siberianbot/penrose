@@ -18,6 +18,9 @@ deps = [
 incdir = include_directories('include')
 
 src = [
+    # Core
+    'src/Engine.cpp',
+
     # Assets
     'src/Assets/AssetDictionary.cpp',
     'src/Assets/AssetLoader.cpp',
@@ -28,11 +31,9 @@ src = [
     'src/Assets/ShaderAsset.cpp',
 
     # Common
+    'src/Common/Log.cpp',
     'src/Common/ParamsCollection.cpp',
-
-    # Core
-    'src/Core/Engine.cpp',
-    'src/Core/Log.cpp',
+    'src/Common/StdOutLogSink.cpp',
 
     # ECS
     'src/ECS/ECSManager.cpp',
