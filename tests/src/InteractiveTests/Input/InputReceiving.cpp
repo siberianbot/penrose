@@ -42,10 +42,11 @@ TEST_CASE("InputReceiving", "[engine-interactive-test]") {
                             }
 
                             case InputEventType::MouseMoved: {
-                                auto [x, y] = event->getArgs().mouseMove;
+                                auto [x, y] = event->getArgs().mousePos;
+                                auto [dx, dy] = event->getArgs().mousePosDelta;
 
                                 this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG,
-                                                       "Mouse moved - x = {}, y = {}", x, y);
+                                                       "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy);
                                 break;
                             }
 

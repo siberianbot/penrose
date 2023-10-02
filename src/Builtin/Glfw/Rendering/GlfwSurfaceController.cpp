@@ -110,18 +110,23 @@ namespace Penrose {
         that->_inputHandler->pushKeyStateUpdate(inputKey, inputState);
     }
 
-    void GlfwSurfaceController::cursorPosCallback(GLFWwindow *handle, double xpos, double ypos) {
+    void GlfwSurfaceController::cursorPosCallback(GLFWwindow *handle, double x, double y) {
         auto that = reinterpret_cast<GlfwSurfaceController *>(glfwGetWindowUserPointer(handle));
 
         int w, h;
         glfwGetWindowSize(handle, &w, &h);
 
-        that->_inputHandler->pushMouseMove(static_cast<float>(xpos / w), static_cast<float>(ypos / h));
+        that->_inputHandler->pushMouseMove(static_cast<float>(x / w),
+                                           static_cast<float>(y / h));
+
+        glfwSetCursorPos(handle,
+                         std::clamp(x, 0., static_cast<double>(w)),
+                         std::clamp(y, 0., static_cast<double>(h)));
     }
 
-    void GlfwSurfaceController::scrollCallback(GLFWwindow *handle, double xoffset, double yoffset) {
+    void GlfwSurfaceController::scrollCallback(GLFWwindow *handle, double dx, double dy) {
         auto that = reinterpret_cast<GlfwSurfaceController *>(glfwGetWindowUserPointer(handle));
 
-        that->_inputHandler->pushScroll(static_cast<float>(xoffset), static_cast<float>(yoffset));
+        that->_inputHandler->pushScroll(static_cast<float>(dx), static_cast<float>(dy));
     }
 }

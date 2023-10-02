@@ -23,4 +23,12 @@ namespace Penrose {
 
         glfwSetWindowSize(this->_handle, static_cast<int>(width), static_cast<int>(height));
     }
+
+    void GlfwSurface::lockCursor() {
+        glfwSetInputMode(this->_handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
+    void GlfwSurface::unlockCursor() {
+        glfwSetInputMode(this->_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
 }

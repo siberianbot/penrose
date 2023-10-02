@@ -52,8 +52,8 @@ namespace Penrose {
         static void framebufferSizeCallback(GLFWwindow *handle, int width, int height);
         static void keyCallback(GLFWwindow *handle, int key, int scancode, int action, int mods);
         static void mouseButtonCallback(GLFWwindow *handle, int button, int action, int mods);
-        static void cursorPosCallback(GLFWwindow *handle, double xpos, double ypos);
-        static void scrollCallback(GLFWwindow *handle, double xoffset, double yoffset);
+        static void cursorPosCallback(GLFWwindow *handle, double x, double y);
+        static void scrollCallback(GLFWwindow *handle, double dx, double dy);
     };
 }
 

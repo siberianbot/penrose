@@ -16,13 +16,14 @@ namespace Penrose {
     };
 
     using InputKeyState = std::tuple<InputKey, InputState>;
-    using InputMouseMove = std::tuple<float, float>;
+    using InputMousePos = std::tuple<float, float>;
     using InputScroll = std::tuple<float, float>;
 
     struct InputEventArgs {
         InputEventType type;
         InputKeyState keyState;
-        InputMouseMove mouseMove;
+        InputMousePos mousePos;
+        InputMousePos mousePosDelta;
         InputScroll scroll;
     };
 

@@ -29,10 +29,21 @@ namespace Penrose {
         this->_eventQueue->pushEvent<EventType::InputEvent>(data);
     }
 
-    void InputHandler::pushMouseMove(float xpos, float ypos) {
+    void InputHandler::pushMouseMove(float x, float y) {
+        auto [xOld, yOld] = this->_mousePos;
+
+        this->_mousePos = {
+                std::clamp(x, 0.0f, 1.0f),
+                std::clamp(y, 0.0f, 1.0f)
+        };
+
         auto data = InputEventArgs{
                 .type = InputEventType::MouseMoved,
-                .mouseMove = InputMouseMove{xpos, ypos}
+                .mousePos = this->_mousePos,
+                .mousePosDelta = InputMousePos{
+                        x - xOld,
+                        y - yOld
+                }
         };
 
         this->_eventQueue->pushEvent<EventType::InputEvent>(data);

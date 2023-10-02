@@ -12,6 +12,9 @@ namespace Penrose {
         [[nodiscard]] virtual Size getSize() const = 0;
 
         virtual void setSize(const Size &size) = 0;
+
+        virtual void lockCursor() = 0;
+        virtual void unlockCursor() = 0;
     };
 }
 

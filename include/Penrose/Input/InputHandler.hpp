@@ -20,7 +20,7 @@ namespace Penrose {
         ~InputHandler() override = default;
 
         void pushKeyStateUpdate(InputKey key, InputState state);
-        void pushMouseMove(float xpos, float ypos);
+        void pushMouseMove(float x, float y);
         void pushScroll(float dx, float dy);
 
         [[nodiscard]] InputState getCurrentStateOf(InputKey key) const;
@@ -30,6 +30,7 @@ namespace Penrose {
         LazyCollection<InputHook> _inputHooks;
 
         std::map<InputKey, InputState> _states;
+        std::tuple<float, float> _mousePos;
     };
 }
 
