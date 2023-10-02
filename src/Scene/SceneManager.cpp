@@ -36,6 +36,16 @@ namespace Penrose {
         this->_roots.erase(it);
     }
 
+    SceneNodePtr SceneManager::getOrAddRoot(std::string &&name) {
+        auto maybeRoot = this->tryGetRoot(name);
+
+        if (maybeRoot.has_value()) {
+            return *maybeRoot;
+        }
+
+        return this->addRoot(std::forward<decltype(name)>(name));
+    }
+
     std::optional<SceneNodePtr> SceneManager::tryGetRoot(const std::string &name) const {
         auto it = this->_roots.find(name);
 

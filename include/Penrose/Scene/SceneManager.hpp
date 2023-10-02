@@ -24,6 +24,8 @@ namespace Penrose {
         [[nodiscard]] SceneNodePtr addRoot(std::string &&name);
         void removeRoot(std::string &&name);
 
+        [[nodiscard]] SceneNodePtr getOrAddRoot(std::string &&name);
+
         [[nodiscard]] std::optional<SceneNodePtr> tryGetRoot(const std::string &name) const;
         [[nodiscard]] std::optional<SceneNodePtr> tryGetRoot(const SceneNodePtr &node) const;
         [[nodiscard]] SceneNodePtr getRoot(const std::string &name) const;
