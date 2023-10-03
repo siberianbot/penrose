@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Rendering/PipelineFactory.hpp>
@@ -33,6 +34,7 @@ namespace Penrose {
             alignas(16) glm::mat4 matrix;
             alignas(16) glm::mat4 model;
             alignas(16) glm::mat4 modelRot;
+            alignas(16) glm::vec3 color;
         };
 
         explicit ForwardSceneDrawRenderOperator(ResourceSet *resources);

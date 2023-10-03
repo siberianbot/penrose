@@ -2,7 +2,8 @@
 
 #include <ranges>
 
-#include <glm/gtc/quaternion.hpp>
+#include <glm/vec3.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
@@ -43,9 +44,15 @@ namespace Penrose {
 
         if (maybeTransform.has_value()) {
             auto transform = *maybeTransform;
-            auto target = glm::mat3_cast(glm::quat(transform->getRot())) * glm::vec3(1, 0, 0);
 
-            view.view = glm::lookAt(transform->getPos(), transform->getPos() + target, glm::vec3(0, 1, 0));
+            auto rotation = glm::rotate(glm::mat4(1), transform->getRot().y, glm::vec3(0, 1, 0)) *
+                            glm::rotate(glm::mat4(1), transform->getRot().x, glm::vec3(1, 0, 0)) *
+                            glm::rotate(glm::mat4(1), transform->getRot().z, glm::vec3(0, 0, 1));
+
+            auto forward = glm::vec3(rotation * glm::vec4(1, 0, 0, 1));
+            auto up = glm::vec3(rotation * glm::vec4(0, 1, 0, 1));
+
+            view.view = glm::lookAt(transform->getPos(), transform->getPos() + forward, up);
         }
 
         auto maybeOrthographicCamera = map(

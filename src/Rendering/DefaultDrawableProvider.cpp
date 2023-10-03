@@ -2,7 +2,7 @@
 
 #include <ranges>
 
-#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
@@ -46,7 +46,8 @@ namespace Penrose {
         auto drawable = Drawable{
                 .entity = entity,
                 .meshAsset = *meshRenderer->getMeshAsset(),
-                .albedoTextureAsset = *meshRenderer->getAlbedoTextureAsset()
+                .albedoTextureAsset = *meshRenderer->getAlbedoTextureAsset(),
+                .color = meshRenderer->getColor()
         };
 
         auto maybeTransform = map(
@@ -59,7 +60,9 @@ namespace Penrose {
             auto transform = *maybeTransform;
 
             auto pos = glm::translate(glm::mat4(1), transform->getPos());
-            auto rot = glm::mat4_cast(glm::quat(transform->getRot()));
+            auto rot = glm::rotate(glm::mat4(1), transform->getRot().y, glm::vec3(0, 1, 0)) *
+                       glm::rotate(glm::mat4(1), transform->getRot().x, glm::vec3(1, 0, 0)) *
+                       glm::rotate(glm::mat4(1), transform->getRot().z, glm::vec3(0, 0, 1));
             auto scale = glm::scale(glm::mat4(1), transform->getScale());
 
             drawable.model = pos * rot * scale;

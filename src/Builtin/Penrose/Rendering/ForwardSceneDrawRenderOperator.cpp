@@ -123,7 +123,8 @@ namespace Penrose {
             auto renderData = RenderData{
                     .matrix = projection * renderList->view.view * drawable.model,
                     .model = drawable.model,
-                    .modelRot = drawable.modelRot
+                    .modelRot = drawable.modelRot,
+                    .color = drawable.color
             };
 
             commandRecording->bindPushConstants(pipeline, 0, &renderData);
