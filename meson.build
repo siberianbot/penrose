@@ -52,7 +52,6 @@ src = [
     'src/Rendering/RenderListBuilder.cpp',
     'src/Rendering/RenderManager.cpp',
     'src/Rendering/SurfaceManager.cpp',
-    'src/Rendering/Utils.cpp',
 
     # Resources
     'src/Resources/ResourceSet.cpp',

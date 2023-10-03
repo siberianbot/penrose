@@ -42,7 +42,7 @@ namespace Penrose {
             auto data = std::vector<std::byte>(info.size);
             reader.read(info.size, data.data());
 
-            return this->_imageAssetFactory->makeImage(ImageFormat::RGBA, info.width, info.height, data.data());
+            return this->_imageAssetFactory->makeImage(info.format, info.width, info.height, data.data());
         };
 
         this->_providers[AssetType::Shader] = [this](AssetReader &reader) {

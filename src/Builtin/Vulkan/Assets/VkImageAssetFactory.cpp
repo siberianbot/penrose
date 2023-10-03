@@ -2,8 +2,6 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Rendering/Utils.hpp"
-
 #include "src/Builtin/Vulkan/Rendering/VkBuffer.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkImage.hpp"
 
@@ -18,7 +16,7 @@ namespace Penrose {
 
     ImageAsset *VkImageAssetFactory::makeImage(ImageFormat format, std::uint32_t width, std::uint32_t height,
                                                void *data) {
-        auto size = width * height * getChannels(format);
+        auto size = width * height * static_cast<std::uint8_t>(format);
 
         auto buffer = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(BufferType::Staging, size, 0, true));
         auto image = dynamic_cast<VkImage *>(this->_imageFactory->makeImage(format, width, height));

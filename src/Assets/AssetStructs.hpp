@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include <Penrose/Assets/AssetType.hpp>
+#include <Penrose/Rendering/ImageFormat.hpp>
 
 namespace Penrose {
 
@@ -32,7 +33,7 @@ namespace Penrose {
     struct ImageInfo {
         std::uint32_t width;
         std::uint32_t height;
-        std::uint8_t channels;
+        ImageFormat format;
         std::uint32_t size;
     };
 

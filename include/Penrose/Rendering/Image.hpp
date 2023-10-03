@@ -3,11 +3,9 @@
 
 #include <cstdint>
 
-namespace Penrose {
+#include <Penrose/Rendering/ImageFormat.hpp>
 
-    enum class ImageFormat {
-        RGBA
-    };
+namespace Penrose {
 
     class Image {
     public:
