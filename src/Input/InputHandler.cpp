@@ -33,8 +33,8 @@ namespace Penrose {
         auto [xOld, yOld] = this->_mousePos;
 
         this->_mousePos = {
-                std::clamp(x, 0.0f, 1.0f),
-                std::clamp(y, 0.0f, 1.0f)
+                std::clamp(x, -1.0f, 1.0f),
+                std::clamp(y, -1.0f, 1.0f)
         };
 
         auto data = InputEventArgs{

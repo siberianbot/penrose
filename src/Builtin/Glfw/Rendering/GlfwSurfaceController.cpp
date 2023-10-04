@@ -116,8 +116,10 @@ namespace Penrose {
         int w, h;
         glfwGetWindowSize(handle, &w, &h);
 
-        that->_inputHandler->pushMouseMove(static_cast<float>(x / w),
-                                           static_cast<float>(y / h));
+        auto ndcX = static_cast<float>(x) / (static_cast<float >(w) / 2) - 1;
+        auto ndcY = 1 - static_cast<float>(y) / (static_cast<float >(h) / 2);
+
+        that->_inputHandler->pushMouseMove(ndcX, ndcY);
 
         glfwSetCursorPos(handle,
                          std::clamp(x, 0., static_cast<double>(w)),

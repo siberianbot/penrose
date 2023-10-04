@@ -25,6 +25,8 @@ namespace Penrose {
 
         [[nodiscard]] InputState getCurrentStateOf(InputKey key) const;
 
+        [[nodiscard]] std::tuple<float, float> getCurrentMousePosition() const { return this->_mousePos; }
+
     private:
         Lazy<EventQueue> _eventQueue;
         LazyCollection<InputHook> _inputHooks;
