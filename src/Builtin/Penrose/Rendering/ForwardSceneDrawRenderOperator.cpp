@@ -112,11 +112,11 @@ namespace Penrose {
                 continue;
             }
 
-            auto descriptor = pipeline->getDescriptorFor(drawable.entity, {
-                    DescriptorBindingValue(0)
-                            .setImage(maybeImage->get()->getImage())
-                            .setSampler(this->_sampler->get())
-            });
+            auto descriptor = pipeline->getDescriptorFor({
+                                                                 DescriptorBindingValue(0)
+                                                                         .setImage(maybeImage->get()->getImage())
+                                                                         .setSampler(this->_sampler->get())
+                                                         });
 
             commandRecording->bindDescriptor(pipeline, descriptor);
 

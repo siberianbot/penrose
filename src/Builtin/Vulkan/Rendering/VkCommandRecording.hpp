@@ -9,6 +9,10 @@
 
 namespace Penrose {
 
+    class VkBuffer;
+    class VkDescriptor;
+    class VkPipeline;
+
     class VkCommandRecording : public CommandRecording {
     public:
         explicit VkCommandRecording(std::uint32_t frameIdx,
@@ -31,6 +35,11 @@ namespace Penrose {
         std::uint32_t _frameIdx;
 
         vk::CommandBuffer _commandBuffer;
+
+        VkPipeline *_boundPipeline = nullptr;
+        VkDescriptor *_boundDescriptor = nullptr;
+        VkBuffer *_boundVertexBuffer = nullptr;
+        VkBuffer *_boundIndexBuffer = nullptr;
     };
 }
 

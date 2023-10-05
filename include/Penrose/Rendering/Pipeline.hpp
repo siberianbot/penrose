@@ -17,8 +17,8 @@ namespace Penrose {
 
         [[nodiscard]] virtual const PipelineInfo &getPipelineInfo() const = 0;
 
-        [[nodiscard]] virtual Descriptor *getDescriptorFor(const Entity &entity,
-                                                           const std::unordered_set<DescriptorBindingValue> &values) = 0;
+        [[nodiscard]] virtual Descriptor *getDescriptorFor(
+                const std::unordered_set<DescriptorBindingValue> &values) = 0;
     };
 }
 

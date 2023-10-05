@@ -3,6 +3,7 @@
 #include <fmt/core.h>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Utils/HashUtils.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
@@ -37,9 +38,9 @@ namespace Penrose {
         this->_logicalDeviceContext->getHandle().destroy(this->_descriptorSetLayout);
     }
 
-    Descriptor *VkPipeline::getDescriptorFor(const Entity &entity,
-                                             const std::unordered_set<DescriptorBindingValue> &values) {
-        auto descriptorIt = this->_descriptors.find(entity);
+    Descriptor *VkPipeline::getDescriptorFor(const std::unordered_set<DescriptorBindingValue> &values) {
+        auto hash = hashOf(values);
+        auto descriptorIt = this->_descriptors.find(hash);
 
         if (descriptorIt != this->_descriptors.end() && descriptorIt->second->getBindingValues() == values) {
             return descriptorIt->second;
@@ -135,7 +136,7 @@ namespace Penrose {
 
         descriptor->setBindingValues(values);
 
-        this->_descriptors.emplace(entity, descriptor);
+        this->_descriptors.emplace(hash, descriptor);
 
         return descriptor;
     }
