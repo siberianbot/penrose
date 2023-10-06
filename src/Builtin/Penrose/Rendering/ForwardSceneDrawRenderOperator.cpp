@@ -1,5 +1,7 @@
 #include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
+#include <array>
+#include <cstdint>
 #include <string_view>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,6 +18,13 @@
 
 namespace Penrose {
 
+    constexpr static const std::array<std::byte, 4 * 2 * 2> PLACEHOLDER_TEXTURE_DATA = {
+            (std::byte) 0x00, (std::byte) 0x00, (std::byte) 0x00, (std::byte) 0xFF,
+            (std::byte) 0xFF, (std::byte) 0x00, (std::byte) 0xFF, (std::byte) 0xFF,
+            (std::byte) 0xFF, (std::byte) 0x00, (std::byte) 0xFF, (std::byte) 0xFF,
+            (std::byte) 0x00, (std::byte) 0x00, (std::byte) 0x00, (std::byte) 0xFF,
+    };
+
     constexpr static const std::string_view DEFAULT_PIPELINE_INFO_NAME = "DefaultForwardRendering";
     /* TODO: constexpr */ static const PipelineInfo DEFAULT_PIPELINE_INFO = PipelineInfo()
             .setLayout(
@@ -26,7 +35,7 @@ namespace Penrose {
                             )
                             .addBinding(
                                     PipelineLayoutBinding(PipelineShaderStageType::Fragment,
-                                                          PipelineLayoutBindingType::Sampler, /*TODO: TEXTURE_COUNT*/ 1)
+                                                          PipelineLayoutBindingType::Sampler, TEXTURE_COUNT)
                             )
             )
             .addStage(
@@ -86,8 +95,8 @@ namespace Penrose {
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(ResourceSet *resources)
             : _assetManager(resources->getLazy<AssetManager>()),
               _bufferFactory(resources->getLazy<BufferFactory>()),
-              _imageFactory(resources->getLazy<ImageFactory>()),
               _pipelineFactory(resources->getLazy<PipelineFactory>()),
+              _renderingObjectManager(resources->getLazy<RenderingObjectManager>()),
               _renderListBuilder(resources->getLazy<RenderListBuilder>()),
               _samplerFactory(resources->getLazy<SamplerFactory>()) {
         //
@@ -104,12 +113,15 @@ namespace Penrose {
         this->_instanceDataBuffer = std::unique_ptr<Buffer>(instanceDataBuffer);
         this->_sampler = std::unique_ptr<Sampler>(this->_samplerFactory->makeSampler(DEFAULT_SAMPLER_INFO));
 
-        // TODO: prepare dummy image
-        this->_dummyImage = std::unique_ptr<Image>(this->_imageFactory->makeImage(ImageFormat::RGBA, 1, 1));
+        auto placeholderTexture = this->_renderingObjectManager->makeImage(ImageFormat::RGBA, 2, 2,
+                                                                           {PLACEHOLDER_TEXTURE_DATA.begin(),
+                                                                            PLACEHOLDER_TEXTURE_DATA.end()});
+
+        this->_placeholderTexture = std::unique_ptr<Image>(placeholderTexture);
     }
 
     void ForwardSceneDrawRenderOperator::destroy() {
-        this->_dummyImage = std::nullopt;
+        this->_placeholderTexture = std::nullopt;
         this->_sampler = std::nullopt;
         this->_instanceDataBuffer = std::nullopt;
         this->_descriptorMap.clear();
@@ -162,7 +174,7 @@ namespace Penrose {
             descriptor = this->_descriptorMap.emplace(pipeline, pipeline->allocateDescriptor()).first->second.get();
         }
 
-        auto images = std::vector<Image *>(TEXTURE_COUNT, this->_dummyImage->get());
+        auto images = std::vector<Image *>(TEXTURE_COUNT, this->_placeholderTexture->get());
         auto samplers = std::vector<Sampler *>(TEXTURE_COUNT, this->_sampler->get());
         for (std::uint32_t idx = 0; idx < renderList->textureCount; idx++) {
             auto &texture = renderList->textures.at(idx);
@@ -172,7 +184,7 @@ namespace Penrose {
                                       return asset->getImage();
                                   });
 
-            images.at(idx) = maybeImage.value_or(this->_dummyImage->get());
+            images.at(idx) = maybeImage.value_or(this->_placeholderTexture->get());
         }
 
         descriptor->updateBindingValues({

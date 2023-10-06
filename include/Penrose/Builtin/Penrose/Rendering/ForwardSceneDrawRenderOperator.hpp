@@ -17,6 +17,7 @@
 #include <Penrose/Rendering/ImageFactory.hpp>
 #include <Penrose/Rendering/Pipeline.hpp>
 #include <Penrose/Rendering/PipelineFactory.hpp>
+#include <Penrose/Rendering/RenderingObjectManager.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
 #include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderOperator.hpp>
@@ -63,13 +64,13 @@ namespace Penrose {
     private:
         Lazy<AssetManager> _assetManager;
         Lazy<BufferFactory> _bufferFactory;
-        Lazy<ImageFactory> _imageFactory;
         Lazy<PipelineFactory> _pipelineFactory;
+        Lazy<RenderingObjectManager> _renderingObjectManager;
         Lazy<RenderListBuilder> _renderListBuilder;
         Lazy<SamplerFactory> _samplerFactory;
 
         std::optional<std::unique_ptr<Buffer>> _instanceDataBuffer;
-        std::optional<std::unique_ptr<Image>> _dummyImage;
+        std::optional<std::unique_ptr<Image>> _placeholderTexture;
         std::optional<std::unique_ptr<Sampler>> _sampler;
 
         std::map<Pipeline *, std::unique_ptr<Descriptor>> _descriptorMap;
