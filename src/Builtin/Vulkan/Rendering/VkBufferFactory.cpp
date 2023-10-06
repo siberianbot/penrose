@@ -20,11 +20,8 @@ namespace Penrose {
                 .setUsage(usage)
                 .setSize(size);
 
-        bool isVisible = (usage & vk::BufferUsageFlagBits::eTransferSrc) == vk::BufferUsageFlagBits::eTransferSrc ||
-                         (usage & vk::BufferUsageFlagBits::eUniformBuffer) == vk::BufferUsageFlagBits::eUniformBuffer;
-
         auto buffer = this->_logicalDeviceContext->getHandle().createBuffer(createInfo);
-        auto bufferMemory = this->_memoryAllocator->allocate(buffer, !isVisible);
+        auto bufferMemory = this->_memoryAllocator->allocate(buffer, !map);
 
         std::optional<BufferPtr> ptr;
         if (map) {

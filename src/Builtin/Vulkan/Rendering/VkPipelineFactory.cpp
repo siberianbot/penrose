@@ -121,16 +121,41 @@ namespace Penrose {
 
         std::vector<vk::VertexInputBindingDescription> bindings;
         std::vector<vk::VertexInputAttributeDescription> attributes;
+        std::uint32_t attributeIdx = 0;
         for (std::uint32_t bindingIdx = 0; bindingIdx < pipelineInfo.getBindings().size(); bindingIdx++) {
             auto binding = pipelineInfo.getBindings().at(bindingIdx);
 
             bindings.emplace_back(bindingIdx, binding.getStride(), toVkVertexInputRate(binding.getInputRate()));
 
-            for (std::uint32_t attributeIdx = 0; attributeIdx < binding.getAttributes().size(); attributeIdx++) {
-                auto attribute = binding.getAttributes().at(attributeIdx);
+            for (const auto &attribute: binding.getAttributes()) {
+                auto vkFormat = toVkFormat(attribute.getFormat());
 
-                attributes.emplace_back(attributeIdx, bindingIdx, toVkFormat(attribute.getFormat()),
-                                        attribute.getOffset());
+                switch (attribute.getFormat()) {
+                    case PipelineBindingAttributeFormat::UInt:
+                    case PipelineBindingAttributeFormat::Vec2:
+                    case PipelineBindingAttributeFormat::Vec3:
+                        attributes.emplace_back(attributeIdx++, bindingIdx, vkFormat, attribute.getOffset());
+
+                        break;
+
+                    case PipelineBindingAttributeFormat::Mat4: {
+                        const std::uint32_t vecSize = 16;
+                        const std::uint32_t matSize = 4 * vecSize;
+
+                        auto baseOffset = attribute.getOffset();
+                        auto targetOffset = baseOffset + matSize;
+
+                        for (std::uint32_t offset = baseOffset; offset < targetOffset; offset += vecSize) {
+                            attributes.emplace_back(attributeIdx++, bindingIdx, vkFormat, offset);
+                        }
+
+                        break;
+                    }
+
+                    default:
+                        throw EngineError("Binding attribute format is not supported");
+
+                }
             }
         }
 

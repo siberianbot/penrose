@@ -1,13 +1,10 @@
 #include "DefaultViewProvider.hpp"
 
-#include <ranges>
-
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
-#include <Penrose/Utils/RangesUtils.hpp>
 
 #include <Penrose/Builtin/Penrose/ECS/OrthographicCameraComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/PerspectiveCameraComponent.hpp>
@@ -22,13 +19,7 @@ namespace Penrose {
     }
 
     std::optional<View> DefaultViewProvider::tryGetViewFor(const Entity &entity) {
-        auto ecsQuery = ECSQuery().entity(entity);
-        auto components = toMap<std::string, std::shared_ptr<Component>>(
-                this->_ecsManager->query(ecsQuery)
-                | std::views::transform([](const ECSEntry &entry) {
-                    return std::make_pair(entry.componentName, entry.component);
-                })
-        );
+        auto &components = this->_ecsManager->getComponents(entity);
 
         if (!components.contains(ViewComponent::name())) {
             return std::nullopt;

@@ -1,12 +1,9 @@
 #include "DefaultDrawableProvider.hpp"
 
-#include <ranges>
-
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
-#include <Penrose/Utils/RangesUtils.hpp>
 
 #include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
@@ -19,13 +16,7 @@ namespace Penrose {
     }
 
     std::vector<Drawable> DefaultDrawableProvider::getDrawablesFor(const Entity &entity) {
-        auto ecsQuery = ECSQuery().entity(entity);
-        auto components = toMap<std::string, std::shared_ptr<Component>>(
-                this->_ecsManager->query(ecsQuery)
-                | std::views::transform([](const ECSEntry &entry) {
-                    return std::make_pair(entry.componentName, entry.component);
-                })
-        );
+        auto &components = this->_ecsManager->getComponents(entity);
 
         auto maybeMeshRenderer = map(
                 tryGet(components, MeshRendererComponent::name()),

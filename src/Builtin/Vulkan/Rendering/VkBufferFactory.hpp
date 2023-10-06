@@ -17,7 +17,7 @@ namespace Penrose {
         explicit VkBufferFactory(ResourceSet *resources);
         ~VkBufferFactory() override = default;
 
-        Buffer *makeBuffer(BufferType type, std::uint64_t size, std::uint32_t count, bool map) override;
+        [[nodiscard]] Buffer *makeBuffer(BufferType type, std::uint64_t size, std::uint32_t count, bool map) override;
 
     private:
         Lazy<VkLogicalDeviceContext> _logicalDeviceContext;

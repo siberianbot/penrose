@@ -21,6 +21,12 @@ namespace Penrose {
 
     class ResourceSet;
 
+    // TODO: Still requires a lot of reworking
+    //
+    // 1. building render list every frame is not efficient
+    //    -> receive EntityCreated / ComponentCreated / SceneModified events and handle them properly
+    // 2. ...
+
     class RenderListBuilder : public Resource, public Initializable {
     public:
         explicit RenderListBuilder(ResourceSet *resources);

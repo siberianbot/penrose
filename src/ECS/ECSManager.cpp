@@ -93,6 +93,16 @@ namespace Penrose {
         this->_eventQueue->pushEvent<EventType::ECSEvent>(data);
     }
 
+    const ECSManager::ComponentMap &ECSManager::getComponents(const Entity &entity) {
+        auto entry = this->tryGetEntity(entity);
+
+        if (!entry.has_value()) {
+            throw EngineError("Entity required");
+        }
+
+        return (*entry)->components;
+    }
+
     std::vector<ECSEntry> ECSManager::query(const ECSQuery &query) {
         std::vector<ECSEntry> entries;
 

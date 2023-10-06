@@ -64,22 +64,19 @@ namespace Penrose {
         this->_boundDescriptor = vkDescriptor;
     }
 
-    void VkCommandRecording::draw(Buffer *vertexBuffer, Buffer *indexBuffer) {
-        auto vkVertexBuffer = dynamic_cast<VkBuffer *>(vertexBuffer);
+    void VkCommandRecording::bindBuffer(std::uint32_t bindingIdx, Buffer *buffer, std::uint32_t offset) {
+        auto vkBuffer = dynamic_cast<VkBuffer *>(buffer);
 
-        if (this->_boundVertexBuffer != vkVertexBuffer) {
-            this->_commandBuffer.bindVertexBuffers(0, vkVertexBuffer->getBuffer(), {0});
-            this->_boundVertexBuffer = vkVertexBuffer;
-        }
+        this->_commandBuffer.bindVertexBuffers(bindingIdx, vkBuffer->getBuffer(), {offset});
+    }
 
-        auto vkIndexBuffer = dynamic_cast<VkBuffer *>(indexBuffer);
+    void VkCommandRecording::bindIndexBuffer(Buffer *buffer, std::uint32_t offset) {
+        auto vkBuffer = dynamic_cast<VkBuffer *>(buffer);
 
-        if (this->_boundIndexBuffer != vkIndexBuffer) {
-            this->_commandBuffer.bindIndexBuffer(vkIndexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
-            this->_boundIndexBuffer = vkIndexBuffer;
-        }
+        this->_commandBuffer.bindIndexBuffer(vkBuffer->getBuffer(), offset, vk::IndexType::eUint32);
+    }
 
-        // TODO: instancing
-        this->_commandBuffer.drawIndexed(vkIndexBuffer->getCount(), 1, 0, 0, 0);
+    void VkCommandRecording::draw(std::uint32_t indexCount, std::uint32_t instanceCount) {
+        this->_commandBuffer.drawIndexed(indexCount, instanceCount, 0, 0, 0);
     }
 }

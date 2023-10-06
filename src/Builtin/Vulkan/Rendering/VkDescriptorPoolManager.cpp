@@ -73,6 +73,7 @@ namespace Penrose {
         };
 
         auto createInfo = vk::DescriptorPoolCreateInfo()
+                .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet)
                 .setMaxSets(maxSets)
                 .setPoolSizes(descriptorPoolSizes);
 

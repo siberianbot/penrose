@@ -19,8 +19,10 @@ namespace Penrose {
     };
 
     enum class PipelineBindingAttributeFormat {
+        UInt,
         Vec2,
-        Vec3
+        Vec3,
+        Mat4
     };
 
     enum class PipelineLayoutBindingType {

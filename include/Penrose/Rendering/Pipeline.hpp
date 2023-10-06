@@ -1,10 +1,7 @@
 #ifndef PENROSE_RENDERING_PIPELINE_HPP
 #define PENROSE_RENDERING_PIPELINE_HPP
 
-#include <unordered_set>
-
 #include <Penrose/ECS/Entity.hpp>
-#include <Penrose/Rendering/DescriptorBindingValue.hpp>
 #include <Penrose/Rendering/PipelineInfo.hpp>
 
 namespace Penrose {
@@ -17,8 +14,7 @@ namespace Penrose {
 
         [[nodiscard]] virtual const PipelineInfo &getPipelineInfo() const = 0;
 
-        [[nodiscard]] virtual Descriptor *getDescriptorFor(
-                const std::unordered_set<DescriptorBindingValue> &values) = 0;
+        [[nodiscard]] virtual Descriptor *allocateDescriptor() = 0;
     };
 }
 

@@ -112,11 +112,17 @@ namespace Penrose {
 
     vk::Format toVkFormat(const PipelineBindingAttributeFormat &format) {
         switch (format) {
+            case PipelineBindingAttributeFormat::UInt:
+                return vk::Format::eR32Uint;
+
             case PipelineBindingAttributeFormat::Vec2:
                 return vk::Format::eR32G32Sfloat;
 
             case PipelineBindingAttributeFormat::Vec3:
                 return vk::Format::eR32G32B32Sfloat;
+
+            case PipelineBindingAttributeFormat::Mat4:
+                return vk::Format::eR32G32B32A32Sfloat;
 
             default:
                 throw EngineError("Binding attribute format is not supported");

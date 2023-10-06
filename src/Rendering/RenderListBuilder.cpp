@@ -75,18 +75,58 @@ namespace Penrose {
             return std::nullopt;
         }
 
+        auto renderList = RenderList{
+                .view = *view,
+                .textureCount = 0,
+                .textures = {},
+                .meshes = {}
+        };
+
+        auto getTextureIdOf = [](RenderList &list, const std::string &asset) -> std::uint32_t {
+            for (std::uint32_t id = 0; id < list.textureCount; ++id) {
+                if (list.textures.at(id).asset == asset) {
+                    return id;
+                }
+            }
+
+            if (list.textureCount == TEXTURE_COUNT) {
+                throw EngineError("Texture count overrun");
+            }
+
+            list.textures.at(list.textureCount).asset = asset;
+
+            return list.textureCount++;
+        };
+
+        auto getMeshOf = [](RenderList &list, const std::string &asset) -> Mesh * {
+            for (auto &mesh: list.meshes) {
+                if (mesh.asset == asset) {
+                    return &mesh;
+                }
+            }
+
+            auto &mesh = list.meshes.emplace_back();
+            mesh.asset = asset;
+
+            return &mesh;
+        };
+
         for (const auto &entity: (*maybeDrawableEntities)) {
             for (const auto &drawableProvider: this->_drawableProviders) {
-                auto resultDrawables = drawableProvider->getDrawablesFor(entity);
+                for (const auto &drawable: drawableProvider->getDrawablesFor(entity)) {
+                    auto mesh = getMeshOf(renderList, drawable.meshAsset);
 
-                drawables.insert(drawables.end(), resultDrawables.begin(), resultDrawables.end());
+                    mesh->instances.emplace_back(MeshInstance{
+                            .model = drawable.model,
+                            .modelRot = drawable.modelRot,
+                            .color = drawable.color,
+                            .albedoTextureId = getTextureIdOf(renderList, drawable.albedoTextureAsset)
+                    });
+                }
             }
         }
 
-        return RenderList{
-                .view = *view,
-                .drawables = std::forward<decltype(drawables)>(drawables)
-        };
+        return renderList;
     }
 
     void RenderListBuilder::handleComponentCreate(const ECSEventArgs &eventArgs) {

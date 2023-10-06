@@ -14,6 +14,7 @@ tests_src = [
     'src/UnitTests/Rendering/PipelineInfo.cpp',
 
     # Integration Tests
+    'src/IntegrationTests/ComplexScenes/LottaObjects.cpp',
     'src/IntegrationTests/ComplexScenes/OrbitalCamera.cpp',
     'src/IntegrationTests/ComplexScenes/Projection.cpp',
     'src/IntegrationTests/ComplexScenes/RotatingCamera.cpp',

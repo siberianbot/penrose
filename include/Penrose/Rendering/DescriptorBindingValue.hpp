@@ -3,6 +3,9 @@
 
 #include <cstdint>
 #include <optional>
+#include <vector>
+
+#include <Penrose/Utils/HashUtils.hpp>
 
 namespace Penrose {
 
@@ -13,67 +16,67 @@ namespace Penrose {
     class DescriptorBindingValue {
     public:
         explicit constexpr DescriptorBindingValue(std::uint32_t bindingIdx,
-                                                  std::optional<Buffer *> buffer = std::nullopt,
-                                                  std::optional<Image *> image = std::nullopt,
-                                                  std::optional<Sampler *> sampler = std::nullopt)
+                                                  std::vector<Buffer *> &&buffers = {},
+                                                  std::vector<Image *> &&images = {},
+                                                  std::vector<Sampler *> &&samplers = {})
                 : _bindingIdx(bindingIdx),
-                  _buffer(buffer),
-                  _image(image),
-                  _sampler(sampler) {
+                  _buffers(buffers),
+                  _images(images),
+                  _samplers(samplers) {
             //
         }
 
-        [[nodiscard]] constexpr DescriptorBindingValue &setBuffer(std::optional<Buffer *> &&buffer) {
-            this->_buffer = buffer;
+        [[nodiscard]] constexpr DescriptorBindingValue &setBuffers(std::vector<Buffer *> &&buffers) {
+            this->_buffers = buffers;
 
             return *this;
         }
 
-        [[nodiscard]] constexpr DescriptorBindingValue &setBuffer(const std::optional<Buffer *> &buffer) {
-            this->_buffer = buffer;
+        [[nodiscard]] constexpr DescriptorBindingValue &setBuffers(const std::vector<Buffer *> &buffers) {
+            this->_buffers = buffers;
 
             return *this;
         }
 
-        [[nodiscard]] constexpr DescriptorBindingValue &setImage(std::optional<Image *> &&image) {
-            this->_image = image;
+        [[nodiscard]] constexpr DescriptorBindingValue &setImages(std::vector<Image *> &&images) {
+            this->_images = images;
 
             return *this;
         }
 
-        [[nodiscard]] constexpr DescriptorBindingValue &setImage(const std::optional<Image *> &image) {
-            this->_image = image;
+        [[nodiscard]] constexpr DescriptorBindingValue &setImages(const std::vector<Image *> &images) {
+            this->_images = images;
 
             return *this;
         }
 
-        [[nodiscard]] constexpr DescriptorBindingValue &setSampler(std::optional<Sampler *> &&sampler) {
-            this->_sampler = sampler;
+        [[nodiscard]] constexpr DescriptorBindingValue &setSamplers(std::vector<Sampler *> &&samplers) {
+            this->_samplers = samplers;
 
             return *this;
         }
 
-        [[nodiscard]] constexpr DescriptorBindingValue &setSampler(const std::optional<Sampler *> &sampler) {
-            this->_sampler = sampler;
+        [[nodiscard]] constexpr DescriptorBindingValue &setSamplers(const std::vector<Sampler *> &samplers) {
+            this->_samplers = samplers;
 
             return *this;
         }
 
         [[nodiscard]] constexpr const std::uint32_t &getBindingIdx() const { return this->_bindingIdx; }
 
-        [[nodiscard]] constexpr const std::optional<Buffer *> &getBuffer() const { return this->_buffer; }
+        [[nodiscard]] constexpr const std::vector<Buffer *> &getBuffers() const { return this->_buffers; }
 
-        [[nodiscard]] constexpr const std::optional<Image *> &getImage() const { return this->_image; }
+        [[nodiscard]] constexpr const std::vector<Image *> &getImages() const { return this->_images; }
 
-        [[nodiscard]] constexpr const std::optional<Sampler *> &getSampler() const { return this->_sampler; }
+        [[nodiscard]] constexpr const std::vector<Sampler *> &getSamplers() const { return this->_samplers; }
 
         [[nodiscard]] constexpr bool operator==(const DescriptorBindingValue &) const = default;
 
     private:
         std::uint32_t _bindingIdx;
-        std::optional<Buffer *> _buffer;
-        std::optional<Image *> _image;
-        std::optional<Sampler *> _sampler;
+        std::vector<Buffer *> _buffers;
+        std::vector<Image *> _images;
+        std::vector<Sampler *> _samplers;
     };
 }
 
@@ -83,9 +86,9 @@ namespace std {
     struct hash<Penrose::DescriptorBindingValue> {
         size_t operator()(const Penrose::DescriptorBindingValue &bindingValue) const {
             return hash<std::uint32_t>{}(bindingValue.getBindingIdx())
-                   ^ (hash<std::optional<Penrose::Buffer *>>{}(bindingValue.getBuffer()) << 1)
-                   ^ (hash<std::optional<Penrose::Image *>>{}(bindingValue.getImage()) << 2)
-                   ^ (hash<std::optional<Penrose::Sampler *>>{}(bindingValue.getSampler()) << 3);
+                   ^ (Penrose::hashOf(bindingValue.getBuffers()) << 1)
+                   ^ (Penrose::hashOf(bindingValue.getImages()) << 2)
+                   ^ (Penrose::hashOf(bindingValue.getSamplers()) << 3);
         }
     };
 }

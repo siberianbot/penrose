@@ -23,7 +23,10 @@ namespace Penrose {
         virtual void bindPushConstants(Pipeline *pipeline, std::uint32_t constantIdx, void *data) = 0;
         virtual void bindDescriptor(Pipeline *pipeline, Descriptor *descriptor) = 0;
 
-        virtual void draw(Buffer *vertexBuffer, Buffer *indexBuffer) = 0;
+        virtual void bindBuffer(std::uint32_t bindingIdx, Buffer *buffer, std::uint32_t offset) = 0;
+        virtual void bindIndexBuffer(Buffer *buffer, std::uint32_t offset) = 0;
+
+        virtual void draw(std::uint32_t indexCount, std::uint32_t instanceCount) = 0;
     };
 }
 

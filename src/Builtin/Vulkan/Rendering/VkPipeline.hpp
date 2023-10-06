@@ -34,7 +34,7 @@ namespace Penrose {
 
         [[nodiscard]] const vk::Pipeline &getPipeline() const { return this->_pipeline; }
 
-        [[nodiscard]] Descriptor *getDescriptorFor(const std::unordered_set<DescriptorBindingValue> &values) override;
+        [[nodiscard]] Descriptor *allocateDescriptor() override;
 
     private:
         PipelineInfo _pipelineInfo;
@@ -45,10 +45,6 @@ namespace Penrose {
         vk::DescriptorSetLayout _descriptorSetLayout;
         vk::PipelineLayout _pipelineLayout;
         vk::Pipeline _pipeline;
-
-        std::map<std::size_t, VkDescriptor *> _descriptors;
-
-        [[nodiscard]] VkDescriptor *createDescriptor();
     };
 }
 

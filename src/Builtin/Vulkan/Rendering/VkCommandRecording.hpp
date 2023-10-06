@@ -29,7 +29,10 @@ namespace Penrose {
         void bindPushConstants(Pipeline *pipeline, std::uint32_t constantIdx, void *data) override;
         void bindDescriptor(Pipeline *pipeline, Descriptor *descriptor) override;
 
-        void draw(Buffer *vertexBuffer, Buffer *indexBuffer) override;
+        void bindBuffer(std::uint32_t bindingIdx, Buffer *buffer, std::uint32_t offset) override;
+        void bindIndexBuffer(Buffer *buffer, std::uint32_t offset) override;
+
+        void draw(std::uint32_t indexCount, std::uint32_t instanceCount) override;
 
     private:
         std::uint32_t _frameIdx;
@@ -38,8 +41,6 @@ namespace Penrose {
 
         VkPipeline *_boundPipeline = nullptr;
         VkDescriptor *_boundDescriptor = nullptr;
-        VkBuffer *_boundVertexBuffer = nullptr;
-        VkBuffer *_boundIndexBuffer = nullptr;
     };
 }
 

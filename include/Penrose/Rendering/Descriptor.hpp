@@ -11,6 +11,8 @@ namespace Penrose {
     public:
         virtual ~Descriptor() = default;
 
+        virtual void updateBindingValues(const std::unordered_set<DescriptorBindingValue> &values) = 0;
+
         [[nodiscard]] virtual const std::unordered_set<DescriptorBindingValue> &getBindingValues() const = 0;
     };
 }

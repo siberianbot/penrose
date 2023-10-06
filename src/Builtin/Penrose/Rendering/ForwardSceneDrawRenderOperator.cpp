@@ -7,7 +7,7 @@
 #include <Penrose/Assets/ImageAsset.hpp>
 #include <Penrose/Assets/MeshAsset.hpp>
 #include <Penrose/Rendering/CommandRecording.hpp>
-#include <Penrose/Rendering/Pipeline.hpp>
+#include <Penrose/Rendering/DescriptorBindingValue.hpp>
 #include <Penrose/Rendering/PipelineInfo.hpp>
 #include <Penrose/Rendering/RenderSubgraph.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
@@ -21,12 +21,11 @@ namespace Penrose {
                     PipelineLayout()
                             .addConstant(
                                     PipelineLayoutConstant(PipelineShaderStageType::Vertex, 0,
-                                                           sizeof(ForwardSceneDrawRenderOperator::RenderData))
+                                                           sizeof(ForwardSceneDrawRenderOperator::PerRenderData))
                             )
                             .addBinding(
                                     PipelineLayoutBinding(PipelineShaderStageType::Fragment,
-                                                          PipelineLayoutBindingType::Sampler,
-                                                          1)
+                                                          PipelineLayoutBindingType::Sampler, /*TODO: TEXTURE_COUNT*/ 1)
                             )
             )
             .addStage(
@@ -38,15 +37,43 @@ namespace Penrose {
                                         "shaders/default-forward-rendering.frag.asset")
             )
             .addBinding(
+                    PipelineBinding(PipelineBindingInputRate::Instance,
+                                    sizeof(ForwardSceneDrawRenderOperator::PerInstanceData))
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::Mat4,
+                                    offsetof(ForwardSceneDrawRenderOperator::PerInstanceData, model))
+                            )
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::Mat4,
+                                    offsetof(ForwardSceneDrawRenderOperator::PerInstanceData, modelRot))
+                            )
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::Vec3,
+                                    offsetof(ForwardSceneDrawRenderOperator::PerInstanceData, color))
+                            )
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::UInt,
+                                    offsetof(ForwardSceneDrawRenderOperator::PerInstanceData, textureId))
+                            )
+            )
+            .addBinding(
                     PipelineBinding(PipelineBindingInputRate::Vertex, sizeof(Vertex))
-                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
-                                                                   offsetof(Vertex, pos)))
-                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
-                                                                   offsetof(Vertex, normal)))
-                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec3,
-                                                                   offsetof(Vertex, color)))
-                            .addAttribute(PipelineBindingAttribute(PipelineBindingAttributeFormat::Vec2,
-                                                                   offsetof(Vertex, uv)))
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::Vec3,
+                                    offsetof(Vertex, pos))
+                            )
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::Vec3,
+                                    offsetof(Vertex, normal))
+                            )
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::Vec3,
+                                    offsetof(Vertex, color))
+                            )
+                            .addAttribute(PipelineBindingAttribute(
+                                    PipelineBindingAttributeFormat::Vec2,
+                                    offsetof(Vertex, uv))
+                            )
             );
 
     constexpr static const SamplerInfo DEFAULT_SAMPLER_INFO = SamplerInfo()
@@ -57,6 +84,8 @@ namespace Penrose {
 
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(ResourceSet *resources)
             : _assetManager(resources->getLazy<AssetManager>()),
+              _bufferFactory(resources->getLazy<BufferFactory>()),
+              _imageFactory(resources->getLazy<ImageFactory>()),
               _pipelineFactory(resources->getLazy<PipelineFactory>()),
               _renderListBuilder(resources->getLazy<RenderListBuilder>()),
               _samplerFactory(resources->getLazy<SamplerFactory>()) {
@@ -65,11 +94,24 @@ namespace Penrose {
 
     void ForwardSceneDrawRenderOperator::init() {
         this->_pipelineFactory->addPipeline(std::string(DEFAULT_PIPELINE_INFO_NAME), DEFAULT_PIPELINE_INFO);
+
+        // TODO: should be configurable
+        const std::uint32_t count = 16 * 1024;
+        const std::uint32_t size = sizeof(ForwardSceneDrawRenderOperator::PerInstanceData) * count;
+        auto instanceDataBuffer = this->_bufferFactory->makeBuffer(BufferType::Vertex, size, count, true);
+
+        this->_instanceDataBuffer = std::unique_ptr<Buffer>(instanceDataBuffer);
         this->_sampler = std::unique_ptr<Sampler>(this->_samplerFactory->makeSampler(DEFAULT_SAMPLER_INFO));
+
+        // TODO: prepare dummy image
+        this->_dummyImage = std::unique_ptr<Image>(this->_imageFactory->makeImage(ImageFormat::RGBA, 1, 1));
     }
 
     void ForwardSceneDrawRenderOperator::destroy() {
+        this->_dummyImage = std::nullopt;
         this->_sampler = std::nullopt;
+        this->_instanceDataBuffer = std::nullopt;
+        this->_descriptorMap.clear();
     }
 
     ParamsCollection ForwardSceneDrawRenderOperator::getDefaults() const {
@@ -104,33 +146,67 @@ namespace Penrose {
         auto pipeline = this->_pipelineFactory->getPipeline(pipelineName, context.subgraph, context.subgraphPassIdx);
         commandRecording->bindGraphicsPipeline(pipeline);
 
-        for (const auto &drawable: renderList->drawables) {
-            auto maybeMesh = this->_assetManager->tryGetAsset<MeshAsset>(drawable.meshAsset);
-            auto maybeImage = this->_assetManager->tryGetAsset<ImageAsset>(drawable.albedoTextureAsset);
+        auto perRenderData = PerRenderData{
+                .projectionView = projection * renderList->view.view
+        };
 
-            if (!maybeMesh.has_value() || !maybeImage.has_value()) {
+        commandRecording->bindPushConstants(pipeline, 0, &perRenderData);
+
+        Descriptor *descriptor;
+        auto descriptorIt = this->_descriptorMap.find(pipeline);
+
+        if (descriptorIt != this->_descriptorMap.end()) {
+            descriptor = descriptorIt->second.get();
+        } else {
+            descriptor = this->_descriptorMap.emplace(pipeline, pipeline->allocateDescriptor()).first->second.get();
+        }
+
+        auto images = std::vector<Image *>(TEXTURE_COUNT, this->_dummyImage->get());
+        auto samplers = std::vector<Sampler *>(TEXTURE_COUNT, this->_sampler->get());
+        for (std::uint32_t idx = 0; idx < renderList->textureCount; idx++) {
+            auto &texture = renderList->textures.at(idx);
+
+            auto maybeImage = map(this->_assetManager->tryGetAsset<ImageAsset>(texture.asset),
+                                  [](const std::shared_ptr<ImageAsset> &asset) {
+                                      return asset->getImage();
+                                  });
+
+            images.at(idx) = maybeImage.value_or(this->_dummyImage->get());
+        }
+
+        descriptor->updateBindingValues({
+                                                DescriptorBindingValue(0)
+                                                        .setImages(images)
+                                                        .setSamplers(samplers)
+                                        });
+
+        commandRecording->bindDescriptor(pipeline, descriptor);
+
+        std::uint32_t totalInstanceIdx = 0;
+        for (const auto &mesh: renderList->meshes) {
+            auto maybeMesh = this->_assetManager->tryGetAsset<MeshAsset>(mesh.asset);
+
+            if (!maybeMesh.has_value()) {
                 continue;
             }
 
-            auto descriptor = pipeline->getDescriptorFor({
-                                                                 DescriptorBindingValue(0)
-                                                                         .setImage(maybeImage->get()->getImage())
-                                                                         .setSampler(this->_sampler->get())
-                                                         });
+            auto data = reinterpret_cast<PerInstanceData *>((*this->_instanceDataBuffer)->getPointer());
 
-            commandRecording->bindDescriptor(pipeline, descriptor);
+            commandRecording->bindBuffer(0, (*this->_instanceDataBuffer).get(), totalInstanceIdx);
 
-            auto renderData = RenderData{
-                    .matrix = projection * renderList->view.view * drawable.model,
-                    .model = drawable.model,
-                    .modelRot = drawable.modelRot,
-                    .color = drawable.color
-            };
+            for (const auto &meshInstance: mesh.instances) {
+                data[totalInstanceIdx].model = meshInstance.model;
+                data[totalInstanceIdx].modelRot = meshInstance.modelRot;
+                data[totalInstanceIdx].color = meshInstance.color;
+                data[totalInstanceIdx].textureId = meshInstance.albedoTextureId;
 
-            commandRecording->bindPushConstants(pipeline, 0, &renderData);
+                totalInstanceIdx++;
+            }
 
-            commandRecording->draw(maybeMesh->get()->getVertexBuffer(),
-                                   maybeMesh->get()->getIndexBuffer());
+            commandRecording->bindBuffer(1, maybeMesh->get()->getVertexBuffer(), 0);
+            commandRecording->bindIndexBuffer(maybeMesh->get()->getIndexBuffer(), 0);
+
+            commandRecording->draw(maybeMesh->get()->getIndexBuffer()->getCount(), mesh.instances.size());
         }
     }
 

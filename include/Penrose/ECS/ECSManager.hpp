@@ -29,6 +29,8 @@ namespace Penrose {
     public:
         constexpr static const std::size_t ALLOC_SIZE = 64 * 1024;
 
+        using ComponentMap = std::map<std::string, std::shared_ptr<Component>>;
+
         explicit ECSManager(ResourceSet *resources);
         ~ECSManager() override = default;
 
@@ -46,14 +48,17 @@ namespace Penrose {
         template<IsComponent T>
         std::shared_ptr<T> getComponent(const Entity &entity);
 
+        const ComponentMap &getComponents(const Entity &entity);
+
         template<IsComponent T>
         void removeComponent(const Entity &entity);
 
+        // TODO: VERY inefficient way to retrieve singular entity data
         [[nodiscard]] std::vector<ECSEntry> query(const ECSQuery &query);
 
     private:
         struct EntityEntry {
-            std::map<std::string, std::shared_ptr<Component>> components;
+            ComponentMap components;
         };
 
         Lazy<EventQueue> _eventQueue;
