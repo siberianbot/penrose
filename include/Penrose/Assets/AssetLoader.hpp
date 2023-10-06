@@ -8,9 +8,7 @@
 #include <Penrose/Assets/Asset.hpp>
 #include <Penrose/Assets/AssetReader.hpp>
 #include <Penrose/Assets/AssetType.hpp>
-#include <Penrose/Assets/ImageAssetFactory.hpp>
-#include <Penrose/Assets/MeshAssetFactory.hpp>
-#include <Penrose/Assets/ShaderAssetFactory.hpp>
+#include <Penrose/Rendering/RenderingObjectManager.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
@@ -28,9 +26,7 @@ namespace Penrose {
     private:
         using Provider = std::function<Asset *(AssetReader &)>;
 
-        Lazy<ImageAssetFactory> _imageAssetFactory;
-        Lazy<MeshAssetFactory> _meshAssetFactory;
-        Lazy<ShaderAssetFactory> _shaderAssetFactory;
+        Lazy<RenderingObjectManager> _renderingObjectManager;
 
         std::map<AssetType, Provider> _providers;
     };

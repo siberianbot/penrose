@@ -1,8 +1,10 @@
 #include <Penrose/Assets/AssetLoader.hpp>
 
-#include <fmt/core.h>
-
+#include <Penrose/Assets/ImageAsset.hpp>
+#include <Penrose/Assets/MeshAsset.hpp>
+#include <Penrose/Assets/ShaderAsset.hpp>
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Assets/AssetStructs.hpp"
@@ -20,39 +22,56 @@ namespace Penrose {
     }
 
     AssetLoader::AssetLoader(ResourceSet *resources)
-            : _imageAssetFactory(resources->getLazy<ImageAssetFactory>()),
-              _meshAssetFactory(resources->getLazy<MeshAssetFactory>()),
-              _shaderAssetFactory(resources->getLazy<ShaderAssetFactory>()) {
+            : _renderingObjectManager(resources->getLazy<RenderingObjectManager>()) {
 
         this->_providers[AssetType::Mesh] = [this](AssetReader &reader) {
+
             auto info = reader.read<MeshInfo>();
+
+            auto verticesSize = sizeof(Vertex) * info.verticesCount;
+            auto indicesSize = sizeof(std::uint32_t) * info.indicesCount;
 
             auto vertices = std::vector<Vertex>(info.verticesCount);
             auto indices = std::vector<std::uint32_t>(info.indicesCount);
 
-            reader.read(sizeof(Vertex) * info.verticesCount, vertices.data());
-            reader.read(sizeof(std::uint32_t) * info.indicesCount, indices.data());
+            reader.read(verticesSize, vertices.data());
+            reader.read(indicesSize, indices.data());
 
-            return this->_meshAssetFactory->makeMesh(std::move(vertices), std::move(indices));
+            auto vertexBuffer = this->_renderingObjectManager->makeBuffer(BufferType::Vertex,
+                                                                          verticesSize,
+                                                                          info.verticesCount,
+                                                                          vertices.data());
+
+            auto indexBuffer = this->_renderingObjectManager->makeBuffer(BufferType::Index,
+                                                                         indicesSize,
+                                                                         info.indicesCount,
+                                                                         indices.data());
+
+            return new MeshAsset(std::unique_ptr<Buffer>(vertexBuffer),
+                                 std::unique_ptr<Buffer>(indexBuffer));
         };
 
         this->_providers[AssetType::Image] = [this](AssetReader &reader) {
             auto info = reader.read<ImageInfo>();
 
-            auto data = std::vector<std::byte>(info.size);
-            reader.read(info.size, data.data());
+            auto rawData = std::vector<std::byte>(info.size);
+            reader.read(info.size, rawData.data());
 
-            return this->_imageAssetFactory->makeImage(info.format, info.width, info.height, data.data());
+            auto image = this->_renderingObjectManager->makeImage(info.format, info.width, info.height,
+                                                                  std::forward<decltype(rawData)>(rawData));
+
+            return new ImageAsset(std::unique_ptr<Image>(image));
         };
 
         this->_providers[AssetType::Shader] = [this](AssetReader &reader) {
             auto info = reader.read<ShaderInfo>();
 
-            auto data = std::vector<std::byte>(info.size);
-            reader.read(info.size, data.data());
+            auto rawData = std::vector<std::byte>(info.size);
+            reader.read(info.size, rawData.data());
 
-            return this->_shaderAssetFactory->makeShader(reinterpret_cast<const std::uint32_t *>(data.data()),
-                                                         info.size);
+            auto shader = this->_renderingObjectManager->makeShader(std::forward<decltype(rawData)>(rawData));
+
+            return new ShaderAsset(std::unique_ptr<Shader>(shader));
         };
     }
 
@@ -68,9 +87,7 @@ namespace Penrose {
 
         auto version = reader.read<VersionHeader>();
         if (version.value != ASSET_VERSION) {
-            throw EngineError(
-                    fmt::format("Version mismatch: required v{}, v{} is not supported", ASSET_VERSION, version.value)
-            );
+            throw EngineError("Version mismatch: required v{}, v{} is not supported", ASSET_VERSION, version.value);
         }
 
         auto header = reader.read<V1Header>();

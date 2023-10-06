@@ -1,4 +1,6 @@
-#include "VkImageAssetFactory.hpp"
+#include "VkRenderingObjectManager.hpp"
+
+#include <vulkan/vulkan.hpp>
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -7,21 +9,44 @@
 
 namespace Penrose {
 
-    VkImageAssetFactory::VkImageAssetFactory(ResourceSet *resources)
-            : _bufferFactory(resources->getLazy<BufferFactory>()),
-              _imageFactory(resources->getLazy<ImageFactory>()),
+    VkRenderingObjectManager::VkRenderingObjectManager(ResourceSet *resources)
+            : _bufferFactory(resources->getLazy<VkBufferFactory>()),
+              _imageFactory(resources->getLazy<VkImageFactory>()),
+              _shaderFactory(resources->getLazy<VkShaderFactory>()),
               _commandManager(resources->getLazy<VkCommandManager>()) {
         //
     }
 
-    ImageAsset *VkImageAssetFactory::makeImage(ImageFormat format, std::uint32_t width, std::uint32_t height,
-                                               void *data) {
+    Buffer *VkRenderingObjectManager::makeBuffer(BufferType type, std::uint64_t size, std::uint32_t count, void *data) {
+
+        auto staging = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(BufferType::Staging,
+                                                                                 size, count, true));
+        std::memcpy(staging->getPointer(), data, size);
+
+        auto target = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(type, size, count, false));
+
+        this->_commandManager->executeTransferOnce(
+                [&staging, &target, size](vk::CommandBuffer &commandBuffer) {
+                    commandBuffer.copyBuffer(staging->getBuffer(),
+                                             target->getBuffer(),
+                                             vk::BufferCopy(0, 0, size));
+
+                });
+
+        delete staging;
+
+        return target;
+    }
+
+    Image *VkRenderingObjectManager::makeImage(ImageFormat format, std::uint32_t width, std::uint32_t height,
+                                               std::vector<std::byte> &&rawData) {
+
         auto size = width * height * static_cast<std::uint8_t>(format);
 
         auto buffer = dynamic_cast<VkBuffer *>(this->_bufferFactory->makeBuffer(BufferType::Staging, size, 0, true));
         auto image = dynamic_cast<VkImage *>(this->_imageFactory->makeImage(format, width, height));
 
-        std::memcpy(buffer->getPointer(), data, size);
+        std::memcpy(buffer->getPointer(), rawData.data(), size);
 
         this->_commandManager->executeTransferOnce(
                 [&image, &buffer, width, height](vk::CommandBuffer &commandBuffer) {
@@ -71,6 +96,11 @@ namespace Penrose {
 
         delete buffer;
 
-        return new ImageAsset(std::unique_ptr<Image>(image));
+        return image;
+    }
+
+    Shader *VkRenderingObjectManager::makeShader(std::vector<std::byte> &&rawData) {
+        return this->_shaderFactory->makeShader(reinterpret_cast<const std::uint32_t *>(rawData.data()),
+                                                rawData.size());
     }
 }

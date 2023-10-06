@@ -6,6 +6,7 @@
 
 #include <Penrose/Assets/ImageAsset.hpp>
 #include <Penrose/Assets/MeshAsset.hpp>
+#include <Penrose/Common/Vertex.hpp>
 #include <Penrose/Rendering/CommandRecording.hpp>
 #include <Penrose/Rendering/DescriptorBindingValue.hpp>
 #include <Penrose/Rendering/PipelineInfo.hpp>

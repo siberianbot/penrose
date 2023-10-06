@@ -82,9 +82,6 @@ src = [
     # Builtin / Vulkan
     'src/Builtin/Vulkan/Vulkan.cpp',
     'src/Builtin/Vulkan/VulkanBackend.cpp',
-    'src/Builtin/Vulkan/Assets/VkImageAssetFactory.cpp',
-    'src/Builtin/Vulkan/Assets/VkMeshAssetFactory.cpp',
-    'src/Builtin/Vulkan/Assets/VkShaderAssetFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkBuffer.cpp',
     'src/Builtin/Vulkan/Rendering/VkBufferFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkCommandManager.cpp',
@@ -103,6 +100,7 @@ src = [
     'src/Builtin/Vulkan/Rendering/VkRenderGraphContext.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderGraphContextManager.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderGraphExecutor.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderingObjectManager.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSubgraph.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSystem.cpp',
