@@ -2,6 +2,7 @@
 #define PENROSE_BUILTIN_DEBUG_UI_WIDGETS_HPP
 
 #include <algorithm>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -13,6 +14,7 @@ namespace Penrose {
         Window,
         Label,
         TextInput,
+        Button,
     };
 
     class Widget {
@@ -109,6 +111,31 @@ namespace Penrose {
     private:
         std::size_t _size;
         std::string _text;
+    };
+
+    class Button : public Widget {
+    public:
+        using Callback = std::function<void()>;
+
+        explicit Button(std::string &&title, Callback &&callback)
+                : _title(title),
+                  _callback(callback) {
+            //
+        }
+
+        ~Button() override = default;
+
+        [[nodiscard]] WidgetType getType() const override { return WidgetType::Button; }
+
+        [[nodiscard]] const std::string &getTitle() const { return this->_title; }
+
+        void invoke() {
+            this->_callback();
+        }
+
+    private:
+        std::string _title;
+        Callback _callback;
     };
 }
 

@@ -8,6 +8,8 @@
 #include <Penrose/Builtin/Debug/Rendering/DebugUIDrawRenderOperator.hpp>
 #include <Penrose/Builtin/Debug/UI/UIContext.hpp>
 
+#include "src/Builtin/Debug/UI/UIDrawVisitor.hpp"
+
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
@@ -46,12 +48,11 @@ namespace Penrose {
         Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
         Lazy<VkSwapchainManager> _swapchainManager;
         Lazy<UIContext> _uiContext;
+        Lazy<UIDrawVisitor> _uiDrawVisitor;
 
         std::optional<State> _state;
 
         void initFor(const RenderOperator::Context &context);
-
-        void drawWidget(const std::shared_ptr<Widget> &widget);
     };
 }
 

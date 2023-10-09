@@ -12,20 +12,6 @@
 
 namespace Penrose {
 
-    int textInputCallback(ImGuiInputTextCallbackData *data) {
-        auto textInput = reinterpret_cast<TextInput *>(data->UserData);
-        auto thresholdSize = static_cast<int>(textInput->getSize()) - 1;
-
-        if (data->EventFlag == ImGuiInputTextFlags_CallbackResize && data->BufTextLen >= thresholdSize) {
-            textInput->grow();
-
-            data->Buf = const_cast<char *>(textInput->getText().c_str());
-            data->BufSize = static_cast<int>(textInput->getSize());
-        }
-
-        return 0;
-    }
-
     VkImGuiDebugUIDrawRenderOperator::VkImGuiDebugUIDrawRenderOperator(ResourceSet *resources)
             : _vulkanBackend(resources->getLazy<VulkanBackend>()),
               _commandManager(resources->getLazy<VkCommandManager>()),
@@ -33,7 +19,8 @@ namespace Penrose {
               _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
               _physicalDeviceContext(resources->getLazy<VkPhysicalDeviceContext>()),
               _swapchainManager(resources->getLazy<VkSwapchainManager>()),
-              _uiContext(resources->getLazy<UIContext>()) {
+              _uiContext(resources->getLazy<UIContext>()),
+              _uiDrawVisitor(resources->getLazy<UIDrawVisitor>()) {
         //
     }
 
@@ -67,7 +54,7 @@ namespace Penrose {
         ImGui::NewFrame();
 
         for (const auto &[_, root]: this->_uiContext->getRoots()) {
-            this->drawWidget(root);
+            this->_uiDrawVisitor->visit(root);
         }
 
         ImGui::Render();
@@ -107,45 +94,5 @@ namespace Penrose {
         ImGui_ImplVulkan_DestroyFontUploadObjects();
 
         this->_state = {context.subgraph, context.subgraphPassIdx};
-    }
-
-    void VkImGuiDebugUIDrawRenderOperator::drawWidget(const std::shared_ptr<Widget> &widget) {
-        switch (widget->getType()) {
-            case WidgetType::Window: {
-                auto window = std::dynamic_pointer_cast<Window>(widget);
-
-                if (ImGui::Begin(window->getTitle().c_str())) {
-
-                    for (const auto &child: window->getChilds()) {
-                        this->drawWidget(child);
-                    }
-
-                    ImGui::End();
-                }
-
-                break;
-            }
-
-            case WidgetType::Label: {
-                auto label = std::dynamic_pointer_cast<Label>(widget);
-
-                ImGui::Text("%s", label->getText().c_str());
-
-                break;
-            }
-
-            case WidgetType::TextInput: {
-                auto textInput = std::dynamic_pointer_cast<TextInput>(widget);
-                auto buffer = const_cast<char *>(textInput->getText().c_str());
-
-                ImGui::InputText("SomeTextInput", buffer, textInput->getSize(), ImGuiInputTextFlags_CallbackResize,
-                                 textInputCallback, textInput.get());
-
-                break;
-            }
-
-            default:
-                throw EngineError("Widget is not supported");
-        }
     }
 }

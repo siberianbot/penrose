@@ -85,10 +85,16 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
 
     engine.resources().add<TestLogicSystem, System>();
 
+    auto buttonLabel = std::make_shared<Label>("Not clicked yet");
+
     auto window = std::shared_ptr<Window>( // NOLINT(modernize-make-shared)
             new Window("Debug UI Window", {
                     std::make_shared<Label>("It's a label"),
-                    std::make_shared<TextInput>("It's a text input")
+                    std::make_shared<TextInput>("It's a text input"),
+                    buttonLabel,
+                    std::make_shared<Button>("Click me", [&]() {
+                        buttonLabel->setText("Clicked!");
+                    })
             })
     );
 

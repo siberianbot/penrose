@@ -67,6 +67,7 @@ src = [
     'src/Builtin/Debug/Debug.cpp',
     'src/Builtin/Debug/Rendering/VkImGuiDebugUIDrawRenderOperator.cpp',
     'src/Builtin/Debug/UI/UIContext.cpp',
+    'src/Builtin/Debug/UI/UIDrawVisitor.cpp',
 
     # Builtin / GLFW
     'src/Builtin/Glfw/Glfw.cpp',
