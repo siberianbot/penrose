@@ -8,6 +8,7 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Events/ECSEvent.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 
@@ -194,20 +195,22 @@ namespace Penrose {
         this->_eventQueue->pushEvent<EventType::ECSEvent>(data);
     }
 
-    std::shared_ptr<Component> ECSManager::getComponent(const Entity &entity, std::string &&name) {
+    std::optional<std::shared_ptr<Component>> ECSManager::tryGetComponent(const Entity &entity,
+                                                                          const std::string &name) {
         auto entry = this->tryGetEntity(entity);
 
         if (!entry.has_value()) {
             throw EngineError("Entity required");
         }
 
-        auto componentIt = (*entry)->components.find(name);
+        return tryGet((*entry)->components, name);
+    }
 
-        if (componentIt == (*entry)->components.end()) {
-            throw EngineError("Entity {} does not have component {}", entity, name);
-        }
-
-        return componentIt->second;
+    std::shared_ptr<Component> ECSManager::getComponent(const Entity &entity, std::string &&name) {
+        return orElseThrow(
+                this->tryGetComponent(entity, std::forward<decltype(name)>(name)),
+                EngineError("Entity {} does not have component {}", entity, name)
+        );
     }
 
     void ECSManager::removeComponent(const Entity &entity, std::string &&name) {

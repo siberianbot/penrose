@@ -46,7 +46,10 @@ namespace Penrose {
         std::shared_ptr<T> addComponent(const Entity &entity);
 
         template<IsComponent T>
-        std::shared_ptr<T> getComponent(const Entity &entity);
+        [[nodiscard]] std::shared_ptr<T> getComponent(const Entity &entity);
+
+        template<IsComponent T>
+        [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetComponent(const Entity &entity);
 
         const ComponentMap &getComponents(const Entity &entity);
 
@@ -77,6 +80,8 @@ namespace Penrose {
         [[nodiscard]] std::optional<EntityEntry *> tryGetEntity(const Entity &entity);
 
         void addComponent(const Entity &entity, std::string &&name, std::shared_ptr<Component> &&instance);
+        [[nodiscard]] std::optional<std::shared_ptr<Component>> tryGetComponent(const Entity &entity,
+                                                                                const std::string &name);
         [[nodiscard]] std::shared_ptr<Component> getComponent(const Entity &entity, std::string &&name);
         void removeComponent(const Entity &entity, std::string &&name);
     };
