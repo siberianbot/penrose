@@ -13,8 +13,9 @@ namespace Penrose {
         ECSEvent = EngineEvent << 1,
         SurfaceEvent = ECSEvent << 1,
         InputEvent = SurfaceEvent << 1,
+        CustomEvent = InputEvent << 1,
 
-        All = EngineEvent | ECSEvent | SurfaceEvent | InputEvent
+        All = EngineEvent | ECSEvent | SurfaceEvent | InputEvent | CustomEvent
     };
 
     constexpr EventTypeMask operator&(const EventTypeMask &a, const EventType &b) {
