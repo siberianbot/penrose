@@ -21,6 +21,11 @@ namespace Penrose {
     }
 
     void UIDrawVisitor::visit(const std::shared_ptr<Widget> &widget) { // NOLINT(misc-no-recursion)
+
+        if (!widget->getVisible()) {
+            return;
+        }
+
         switch (widget->getType()) {
             case WidgetType::Window:
                 this->visitWindow(std::dynamic_pointer_cast<Window>(widget));

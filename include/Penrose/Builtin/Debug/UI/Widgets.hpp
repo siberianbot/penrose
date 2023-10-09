@@ -22,6 +22,13 @@ namespace Penrose {
         virtual ~Widget() = default;
 
         [[nodiscard]] virtual WidgetType getType() const = 0;
+
+        [[nodiscard]] const bool &getVisible() const { return this->_visible; }
+
+        void setVisible(bool visible) { this->_visible = visible; }
+
+    private:
+        bool _visible = true;
     };
 
     class WidgetRoot {
