@@ -51,6 +51,9 @@ namespace Penrose {
         template<IsComponent T>
         [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetComponent(const Entity &entity);
 
+        template<IsComponent T>
+        [[nodiscard]] bool hasComponent(const Entity &entity);
+
         const ComponentMap &getComponents(const Entity &entity);
 
         template<IsComponent T>

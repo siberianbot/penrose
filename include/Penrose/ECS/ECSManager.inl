@@ -36,6 +36,11 @@ namespace Penrose {
     }
 
     template<IsComponent T>
+    bool ECSManager::hasComponent(const Entity &entity) {
+        return this->tryGetComponent<T>(entity).has_value();
+    }
+
+    template<IsComponent T>
     void ECSManager::removeComponent(const Entity &entity) {
         auto name = T::name();
 
