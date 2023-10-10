@@ -13,6 +13,8 @@ namespace Penrose {
 
         virtual void setSize(const Size &size) = 0;
 
+        [[nodiscard]] virtual bool isCursorLocked() const = 0;
+
         virtual void lockCursor() = 0;
         virtual void unlockCursor() = 0;
     };

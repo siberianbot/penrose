@@ -121,6 +121,10 @@ namespace Penrose {
 
         that->_inputHandler->pushMouseMove(ndcX, ndcY);
 
+        if (glfwGetInputMode(handle, GLFW_CURSOR) != GLFW_CURSOR_DISABLED) {
+            return;
+        }
+
         glfwSetCursorPos(handle,
                          std::clamp(x, 0., static_cast<double>(w)),
                          std::clamp(y, 0., static_cast<double>(h)));

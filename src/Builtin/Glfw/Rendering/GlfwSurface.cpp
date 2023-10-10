@@ -1,5 +1,7 @@
 #include "GlfwSurface.hpp"
 
+#include <Penrose/Common/EngineError.hpp>
+
 namespace Penrose {
 
     GlfwSurface::GlfwSurface(GLFWwindow *handle)
@@ -22,6 +24,21 @@ namespace Penrose {
         auto [width, height] = size;
 
         glfwSetWindowSize(this->_handle, static_cast<int>(width), static_cast<int>(height));
+    }
+
+    bool GlfwSurface::isCursorLocked() const {
+        auto currentMode = glfwGetInputMode(this->_handle, GLFW_CURSOR);
+
+        switch (currentMode) {
+            case GLFW_CURSOR_NORMAL:
+                return false;
+
+            case GLFW_CURSOR_DISABLED:
+                return true;
+
+            default:
+                throw EngineError("GLFW cursor mode {:#x} not supported", currentMode);
+        }
     }
 
     void GlfwSurface::lockCursor() {

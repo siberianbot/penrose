@@ -16,6 +16,8 @@ namespace Penrose {
 
         void setSize(const Size &size) override;
 
+        [[nodiscard]] bool isCursorLocked() const override;
+
         void lockCursor() override;
         void unlockCursor() override;
 
