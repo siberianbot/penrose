@@ -2,10 +2,12 @@
 #define PENROSE_BUILTIN_DEBUG_UI_WIDGETS_HPP
 
 #include <algorithm>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace Penrose {
@@ -15,6 +17,8 @@ namespace Penrose {
         Label,
         TextInput,
         Button,
+        DropDown,
+        Container
     };
 
     class Widget {
@@ -143,6 +147,54 @@ namespace Penrose {
     private:
         std::string _title;
         Callback _callback;
+    };
+
+    class DropDown : public Widget {
+    public:
+        using Key = std::uint64_t;
+        using Item = std::tuple<Key, std::string>;
+
+        explicit DropDown(std::string &&title, std::initializer_list<Item> &&items)
+                : _title(title),
+                  _items(items) {
+            //
+        }
+
+        ~DropDown() override = default;
+
+        [[nodiscard]] WidgetType getType() const override { return WidgetType::DropDown; }
+
+        [[nodiscard]] const std::string &getTitle() const { return this->_title; }
+
+        [[nodiscard]] const std::vector<Item> &getItems() const { return this->_items; }
+
+        [[nodiscard]] const std::optional<Key> &getSelected() const { return this->_selected; }
+
+        [[nodiscard]] std::optional<Key> &selected() { return this->_selected; }
+
+    private:
+        std::string _title;
+        std::vector<Item> _items;
+        std::optional<Key> _selected;
+    };
+
+    class Container : public Widget, public WidgetRoot {
+    public:
+        Container(std::initializer_list<std::shared_ptr<Widget>> &&childs = {})
+                : _childs(childs) {
+            //
+        }
+
+        ~Container() override = default;
+
+        [[nodiscard]] WidgetType getType() const override { return WidgetType::Container; }
+
+        [[nodiscard]] const std::vector<std::shared_ptr<Widget>> &getChilds() const override { return this->_childs; }
+
+        [[nodiscard]] std::vector<std::shared_ptr<Widget>> &getChilds() override { return this->_childs; }
+
+    private:
+        std::vector<std::shared_ptr<Widget>> _childs;
     };
 }
 

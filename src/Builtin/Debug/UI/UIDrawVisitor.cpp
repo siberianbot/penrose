@@ -43,6 +43,14 @@ namespace Penrose {
                 this->visitButton(std::dynamic_pointer_cast<Button>(widget));
                 break;
 
+            case WidgetType::DropDown:
+                this->visitDropDown(std::dynamic_pointer_cast<DropDown>(widget));
+                break;
+
+            case WidgetType::Container:
+                this->visitContainer(std::dynamic_pointer_cast<Container>(widget));
+                break;
+
             default:
                 throw EngineError("Widget is not supported");
         }
@@ -73,6 +81,47 @@ namespace Penrose {
     void UIDrawVisitor::visitButton(const std::shared_ptr<Button> &button) {
         if (ImGui::Button(button->getTitle().c_str())) {
             button->invoke();
+        }
+    }
+
+    void UIDrawVisitor::visitDropDown(const std::shared_ptr<DropDown> &dropDown) {
+
+        const char *preview = "None";
+
+        if (dropDown->getSelected().has_value()) {
+            for (const auto &[key, value]: dropDown->getItems()) {
+                if (!(key == dropDown->getSelected())) {
+                    continue;
+                }
+
+                preview = value.c_str();
+
+                break;
+            }
+        }
+
+        if (ImGui::BeginCombo(dropDown->getTitle().c_str(), preview)) {
+
+            for (const auto &[key, value]: dropDown->getItems()) {
+
+                bool selected = dropDown->getSelected() == key;
+
+                if (ImGui::Selectable(value.c_str(), selected)) {
+                    dropDown->selected() = key;
+                }
+
+                if (selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+
+            ImGui::EndCombo();
+        }
+    }
+
+    void UIDrawVisitor::visitContainer(const std::shared_ptr<Container> &container) {
+        for (const auto &child: container->getChilds()) {
+            this->visit(child);
         }
     }
 }

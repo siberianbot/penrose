@@ -94,7 +94,19 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                     buttonLabel,
                     std::make_shared<Button>("Click me", [&]() {
                         buttonLabel->setText("Clicked!");
-                    })
+                    }),
+                    std::shared_ptr<DropDown>(new DropDown( // NOLINT(modernize-make-shared)
+                            "Select inside of me", {
+                                    {1, "Item 1"},
+                                    {2, "Item 2"},
+                                    {3, "Item 3"},
+                                    {4, "Item 4"}
+                            })),
+                    std::shared_ptr<Container>( // NOLINT(modernize-make-shared)
+                            new Container({
+                                                  std::make_shared<Label>("inside container")
+                                          })
+                    )
             })
     );
 
