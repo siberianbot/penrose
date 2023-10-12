@@ -1,5 +1,8 @@
 #include <catch2/catch_all.hpp>
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include <Penrose/Engine.hpp>
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
