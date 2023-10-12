@@ -10,9 +10,9 @@ project(
 deps = [
     dependency('fmt'),
     dependency('glfw3'),
-    dependency('vulkan'),
-    dependency('imgui'),
     dependency('glm'),
+    dependency('imgui'),
+    dependency('vulkan'),
 ]
 
 incdir = include_directories('include')

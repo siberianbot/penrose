@@ -115,8 +115,7 @@ namespace Penrose {
         this->_log->writeInfo(ASSET_MANAGER_TAG, fmt::format("Loaded asset {}", asset));
     }
 
-    template<>
-    std::optional<std::shared_ptr<Asset>> AssetManager::tryGetAsset<Asset>(const std::string &asset, bool wait) const {
+    std::optional<std::shared_ptr<Asset>> AssetManager::tryGetAsset(const std::string &asset, bool wait) const {
         auto it = this->_assets.find(asset);
 
         if (it == this->_assets.end()) {

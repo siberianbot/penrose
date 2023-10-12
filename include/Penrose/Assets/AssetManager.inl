@@ -21,7 +21,7 @@ namespace Penrose {
 
     template<IsAsset T>
     std::optional<std::shared_ptr<T>> AssetManager::tryGetAsset(const std::string &asset, bool wait) const {
-        auto maybeAsset = this->tryGetAsset<Asset>(asset, wait);
+        auto maybeAsset = this->tryGetAsset(asset, wait);
 
         if (!maybeAsset.has_value()) {
             return std::nullopt;

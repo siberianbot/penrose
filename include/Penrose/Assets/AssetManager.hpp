@@ -33,6 +33,7 @@ namespace Penrose {
         ~AssetManager() override = default;
 
         void init() override { /* nothing to do */ }
+
         void destroy() override;
 
         void run() override;
@@ -73,6 +74,7 @@ namespace Penrose {
         std::queue<std::string> _loadingQueue;
 
         void tryLoadAsset(const std::string &asset);
+        [[nodiscard]] std::optional<std::shared_ptr<Asset>> tryGetAsset(const std::string &asset, bool wait) const;
     };
 }
 
