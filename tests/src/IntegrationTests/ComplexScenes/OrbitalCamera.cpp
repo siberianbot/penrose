@@ -1,13 +1,11 @@
 #include <catch2/catch_all.hpp>
 
-#define _USE_MATH_DEFINES
-#include <cmath>
-
 #include <Penrose/Engine.hpp>
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/ECS/System.hpp>
+#include <Penrose/Math/Constants.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Initializable.hpp>
@@ -52,7 +50,7 @@ TEST_CASE("ComplexScenes_OrbitalCamera", "[engine-int-test]") {
 
             auto transform = this->_ecsManager->getComponent<TransformComponent>(this->_targetEntity);
             transform->getPos() = glm::vec3(r * cos(angle), 0, r * sin(angle));
-            transform->getRot().y = M_PI - angle;
+            transform->getRot().y = PI_F - angle;
         }
 
         void destroy() override { /* nothing to do */ }

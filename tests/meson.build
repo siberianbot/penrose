@@ -11,6 +11,7 @@ tests_src = [
     'src/ECS/TestSurfaceResizeSystem.cpp',
 
     # Unit Tests
+    'src/UnitTests/Math/NumericFuncs.cpp',
     'src/UnitTests/Rendering/PipelineInfo.cpp',
 
     # Integration Tests
