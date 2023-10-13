@@ -31,6 +31,12 @@ namespace Penrose {
     public:
         using ResourceList = std::list<std::unique_ptr<Resource>>;
 
+        ResourceSet() = default;
+        ResourceSet(const ResourceSet &) = delete;
+        ResourceSet(ResourceSet &&) = delete;
+        ResourceSet &operator=(const ResourceSet &) = delete;
+        ResourceSet &operator=(ResourceSet &&) = delete;
+
         void initAll();
         void destroyAll();
 

@@ -82,7 +82,7 @@ namespace Penrose {
         return this->_resources.emplace(position, resource);
     }
 
-    void ResourceSet::addToMap(std::type_index idx, std::list<std::unique_ptr<Resource>>::iterator it) {
+    void ResourceSet::addToMap(std::type_index idx, ResourceList::iterator it) {
         this->_resourceMap.emplace(idx, it);
     }
 

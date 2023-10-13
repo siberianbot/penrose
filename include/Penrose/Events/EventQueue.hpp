@@ -22,6 +22,12 @@ namespace Penrose {
         using Handler = std::function<HandlerSignature>;
         using HandlerIdx = std::size_t;
 
+        EventQueue() = default;
+        EventQueue(const EventQueue &) = delete;
+        EventQueue(EventQueue &&) = delete;
+        EventQueue &operator=(const EventQueue &) = delete;
+        EventQueue &operator=(EventQueue &&) = delete;
+
         ~EventQueue() override = default;
 
         void init() override { /* nothing to do */ }

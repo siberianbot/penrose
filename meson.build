@@ -118,25 +118,42 @@ src = [
     'src/Builtin/Vulkan/Rendering/VkUtils.cpp',
 ]
 
-cpp_args = [
-    '-DSTB_IMAGE_IMPLEMENTATION',
-    '-DTINYOBJLOADER_IMPLEMENTATION',
+base_cpp_args = [
     '-DGLM_FORCE_DEPTH_ZERO_TO_ONE'
 ]
 
-penrose = library(
+penrose_api_value = '__attribute__ ((visibility ("default")))'
+
+if host_machine.system() == 'windows'
+    penrose_api_value = get_option('default_library') != 'static' ? '__declspec(dllexport)' : ''
+endif
+
+lib_cpp_args = base_cpp_args + [
+    '-DPENROSE_API=@0@'.format(penrose_api_value)
+]
+
+if host_machine.system() == 'windows'
+    penrose_api_value = get_option('default_library') != 'static' ? '__declspec(dllimport)' : ''
+endif
+
+dep_cpp_args = base_cpp_args + [
+    '-DPENROSE_API=@0@'.format(penrose_api_value)
+]
+
+penrose_lib = library(
     'penrose',
     src,
     dependencies: deps,
-    cpp_args: cpp_args,
+    cpp_args: lib_cpp_args,
     include_directories: incdir,
     gnu_symbol_visibility: 'hidden'
 )
 
 penrose_dep = declare_dependency(
     dependencies: deps,
+    compile_args: dep_cpp_args,
     include_directories: incdir,
-    link_with: penrose
+    link_with: penrose_lib
 )
 
 subdir('tests')

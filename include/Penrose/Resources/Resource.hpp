@@ -3,9 +3,11 @@
 
 #include <type_traits>
 
+#include <Penrose/Api.hpp>
+
 namespace Penrose {
 
-    class Resource {
+    class PENROSE_API Resource {
     public:
         virtual ~Resource() = default;
     };
