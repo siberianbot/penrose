@@ -3,6 +3,7 @@
 
 #include <optional>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Rendering/RenderGraphHook.hpp>
 #include <Penrose/Resources/Lazy.hpp>
@@ -12,7 +13,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class RenderGraphContext : public Resource {
+    class PENROSE_API RenderGraphContext : public Resource {
     public:
         explicit RenderGraphContext(ResourceSet *resources);
         ~RenderGraphContext() override = default;

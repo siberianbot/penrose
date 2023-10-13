@@ -6,11 +6,12 @@
 #include <string>
 #include <unordered_map>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class AssetDictionary : public Resource {
+    class PENROSE_API AssetDictionary : public Resource {
     public:
         ~AssetDictionary() override = default;
 

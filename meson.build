@@ -129,7 +129,8 @@ penrose = library(
     src,
     dependencies: deps,
     cpp_args: cpp_args,
-    include_directories: incdir
+    include_directories: incdir,
+    gnu_symbol_visibility: 'hidden'
 )
 
 penrose_dep = declare_dependency(

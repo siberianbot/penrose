@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ComponentFactory.hpp>
@@ -25,7 +26,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class ECSManager : public Resource, public Initializable, public Updatable {
+    class PENROSE_API ECSManager : public Resource, public Initializable, public Updatable {
     public:
         constexpr static const std::size_t ALLOC_SIZE = 64 * 1024;
 

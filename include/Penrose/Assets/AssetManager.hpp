@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <unordered_map>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Assets/Asset.hpp>
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetLoader.hpp>
@@ -27,7 +28,7 @@ namespace Penrose {
     template<typename T>
     concept IsAsset = std::is_base_of<Asset, T>::value;
 
-    class AssetManager : public Resource, public Initializable, public Runnable {
+    class PENROSE_API AssetManager : public Resource, public Initializable, public Runnable {
     public:
         explicit AssetManager(ResourceSet *resources);
         ~AssetManager() override = default;

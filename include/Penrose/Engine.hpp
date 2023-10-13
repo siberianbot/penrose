@@ -1,11 +1,12 @@
 #ifndef PENROSE_ENGINE_HPP
 #define PENROSE_ENGINE_HPP
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
-    class Engine {
+    class PENROSE_API Engine {
     private:
         ResourceSet _resources;
 

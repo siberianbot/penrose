@@ -4,6 +4,7 @@
 #include <optional>
 #include <memory>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Rendering/SurfaceFactory.hpp>
 #include <Penrose/Rendering/SurfaceHook.hpp>
 #include <Penrose/Resources/Initializable.hpp>
@@ -14,7 +15,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class SurfaceManager : public Resource, public Initializable {
+    class PENROSE_API SurfaceManager : public Resource, public Initializable {
     public:
         explicit SurfaceManager(ResourceSet *resources);
         ~SurfaceManager() override = default;

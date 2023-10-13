@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <map>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Input/Input.hpp>
 #include <Penrose/Input/InputHook.hpp>
@@ -14,7 +15,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class InputHandler : public Resource {
+    class PENROSE_API InputHandler : public Resource {
     public:
         explicit InputHandler(ResourceSet *resources);
         ~InputHandler() override = default;

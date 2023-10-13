@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Events/Event.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
@@ -15,7 +16,7 @@
 
 namespace Penrose {
 
-    class EventQueue : public Resource, public Initializable, public Updatable {
+    class PENROSE_API EventQueue : public Resource, public Initializable, public Updatable {
     public:
         using HandlerSignature = void(const EventBase *);
         using Handler = std::function<HandlerSignature>;

@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <vector>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Resources/Lazy.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
@@ -26,7 +27,7 @@ namespace Penrose {
                                                          T(resources);
                                                      });
 
-    class ResourceSet {
+    class PENROSE_API ResourceSet {
     public:
         using ResourceList = std::list<std::unique_ptr<Resource>>;
 

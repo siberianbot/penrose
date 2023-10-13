@@ -5,13 +5,14 @@
 #include <memory>
 #include <string>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 #include <Penrose/Builtin/Debug/UI/Widgets.hpp>
 
 namespace Penrose {
 
-    class UIContext : public Resource {
+    class PENROSE_API UIContext : public Resource {
     public:
         ~UIContext() override = default;
 
