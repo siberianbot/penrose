@@ -1,8 +1,13 @@
 .idea/
 .vscode/
+.vs/
 builddir/
 subprojects/**/
 !subprojects/*.wrap
+x64/
+
+*.filters
+*.user
 
 **/**.spv
 imgui.ini
