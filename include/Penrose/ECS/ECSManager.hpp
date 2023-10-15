@@ -83,7 +83,7 @@ namespace Penrose {
 
         [[nodiscard]] std::optional<EntityEntry *> tryGetEntity(const Entity &entity);
 
-        void addComponent(const Entity &entity, std::string &&name, std::shared_ptr<Component> &&instance);
+        void addComponent(const Entity &entity, std::string &&name, const std::shared_ptr<Component> &instance);
         [[nodiscard]] std::optional<std::shared_ptr<Component>> tryGetComponent(const Entity &entity,
                                                                                 const std::string &name);
         [[nodiscard]] std::shared_ptr<Component> getComponent(const Entity &entity, std::string &&name);

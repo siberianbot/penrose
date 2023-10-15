@@ -12,7 +12,7 @@ namespace Penrose {
         auto name = T::name();
         auto component = this->makeComponent(name);
 
-        this->addComponent(entity, std::forward<decltype(name)>(name), std::forward<decltype(component)>(component));
+        this->addComponent(entity, std::forward<decltype(name)>(name), component);
 
         return std::dynamic_pointer_cast<T>(component);
     }

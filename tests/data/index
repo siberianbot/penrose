@@ -1,0 +1,5 @@
+models/cube.asset:models/cube.asset
+shaders/default-forward-rendering.frag.asset:shaders/default-forward-rendering.frag.asset
+shaders/default-forward-rendering.vert.asset:shaders/default-forward-rendering.vert.asset
+textures/texture-1024.asset:textures/texture-1024.asset
+textures/white-16.asset:textures/white-16.asset

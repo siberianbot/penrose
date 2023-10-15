@@ -170,7 +170,7 @@ namespace Penrose {
         return &this->_entitiesEntries.at(entity);
     }
 
-    void ECSManager::addComponent(const Entity &entity, std::string &&name, std::shared_ptr<Component> &&instance) {
+    void ECSManager::addComponent(const Entity &entity, std::string &&name, const std::shared_ptr<Component> &instance) {
         auto entry = this->tryGetEntity(entity);
 
         if (!entry.has_value()) {

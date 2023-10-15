@@ -1,15 +1,26 @@
 #include <Penrose/Assets/AssetDictionary.hpp>
 
-#include <fmt/core.h>
+#include <fstream>
+#include <string>
+#include <string_view>
 
 #include <Penrose/Common/EngineError.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 
+    constexpr static const std::string_view ASSET_DICTIONARY_TAG = "AssetDictionary";
+    constexpr static const std::string_view INDEX_FILENAME = "index";
+
+    AssetDictionary::AssetDictionary(ResourceSet *resources)
+            : _log(resources->getLazy<Log>()) {
+        //
+    }
+
     void AssetDictionary::addFile(std::string &&asset, std::filesystem::path &&path) {
-        if (std::filesystem::is_directory(path)) {
-            throw EngineError(fmt::format("Path {} is a directory", path.string()));
+        if (!std::filesystem::is_regular_file(path)) {
+            throw EngineError("Path {} is a directory", path.string());
         }
 
         this->_assets.insert_or_assign(asset, path);
@@ -17,11 +28,18 @@ namespace Penrose {
 
     void AssetDictionary::addDir(std::filesystem::path &&path) {
         if (!std::filesystem::is_directory(path)) {
-            throw EngineError(fmt::format("Path {} is not a directory", path.string()));
+            throw EngineError("Path {} is not a directory", path.string());
         }
 
-        auto root = path;
-        this->addDir(std::move(path), root);
+        std::map<std::string, std::filesystem::path> index;
+
+        try {
+            index = this->readIndex(path);
+        } catch (const std::exception &error) {
+            std::throw_with_nested(EngineError("Failed to add directory {} to asset dictionary", path.string()));
+        }
+
+        this->_assets.merge(index);
     }
 
     std::optional<std::filesystem::path> AssetDictionary::tryGetPath(const std::string &asset) const {
@@ -35,20 +53,40 @@ namespace Penrose {
     }
 
     std::filesystem::path AssetDictionary::getPath(const std::string &asset) const {
-        return orElseThrow(this->tryGetPath(asset), EngineError(fmt::format("Asset {} not found", asset)));
+        return orElseThrow(this->tryGetPath(asset), EngineError("Asset {} not found", asset));
     }
 
-    void AssetDictionary::addDir(std::filesystem::path &&currentPath, // NOLINT(misc-no-recursion)
-                                 const std::filesystem::path &root) {
-        for (const auto &entry: std::filesystem::directory_iterator(currentPath)) {
-            auto path = entry.path();
+    AssetDictionary::IndexMap AssetDictionary::readIndex(const std::filesystem::path &root) {
+        auto indexPath = root / INDEX_FILENAME;
 
-            if (std::filesystem::is_directory(entry)) {
-                this->addDir(std::move(path), root);
-            } else {
-                std::string asset = std::filesystem::relative(entry, root).string();
-                this->addFile(std::move(asset), std::move(path));
-            }
+        if (!std::filesystem::exists(indexPath) || !std::filesystem::is_regular_file(indexPath)) {
+            throw EngineError("Index file not found");
         }
+
+        auto indexStream = std::ifstream(indexPath);
+
+        if (!indexStream.good()) {
+            throw EngineError("Failed to read index file");
+        }
+
+        IndexMap index;
+
+        for (std::string line; std::getline(indexStream, line);) {
+
+            auto delim = line.find_first_of(':');
+
+            std::string asset = line.substr(0, delim);
+            std::filesystem::path path = line.substr(delim + 1, line.size() - delim - 1);
+
+            if (index.contains(asset)) {
+                this->_log->writeWarning(ASSET_DICTIONARY_TAG,
+                                         "Index file {} contains duplicated asset {}",
+                                         indexPath.string(), asset);
+            }
+
+            index.insert_or_assign(asset, root / path);
+        }
+
+        return index;
     }
 }
