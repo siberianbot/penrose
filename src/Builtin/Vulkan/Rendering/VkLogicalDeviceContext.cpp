@@ -58,10 +58,16 @@ namespace Penrose {
 
         auto enabledFeatures = vk::PhysicalDeviceFeatures();
 
+        auto enabledExtensions = std::vector<const char *>(REQUIRED_DEVICE_EXTENSIONS.size());
+        std::transform(REQUIRED_DEVICE_EXTENSIONS.begin(), REQUIRED_DEVICE_EXTENSIONS.end(), enabledExtensions.begin(),
+                       [](const std::string_view &extension) {
+                           return extension.data();
+                       });
+
         auto createInfo = vk::DeviceCreateInfo()
                 .setQueueCreateInfos(queueCreateInfos)
                 .setPEnabledFeatures(&enabledFeatures)
-                .setPEnabledExtensionNames(REQUIRED_DEVICE_EXTENSIONS);
+                .setPEnabledExtensionNames(enabledExtensions);
 
         auto device = this->_physicalDeviceContext->getHandle().createDevice(createInfo);
 

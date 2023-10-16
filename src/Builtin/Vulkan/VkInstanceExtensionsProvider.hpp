@@ -2,6 +2,7 @@
 #define PENROSE_BUILTIN_VULKAN_VK_INSTANCE_EXTENSIONS_PROVIDER_HPP
 
 #include <vector>
+#include <string_view>
 
 namespace Penrose {
 
@@ -9,7 +10,7 @@ namespace Penrose {
     public:
         virtual ~VkInstanceExtensionsProvider() = default;
 
-        [[nodiscard]] virtual std::vector<const char *> getRequiredInstanceExtensions() const = 0;
+        [[nodiscard]] virtual std::vector<std::string_view> getRequiredInstanceExtensions() const = 0;
     };
 }
 

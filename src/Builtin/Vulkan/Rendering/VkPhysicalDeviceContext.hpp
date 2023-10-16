@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <optional>
+#include <vector>
+#include <string>
 
 #include <vulkan/vulkan.hpp>
 
@@ -27,26 +29,30 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
-        [[nodiscard]] const vk::PhysicalDevice &getHandle() const { return this->_state->handle; }
+        [[nodiscard]] const vk::PhysicalDevice &getHandle() const { return this->_device->handle; }
 
-        [[nodiscard]] const vk::PhysicalDeviceFeatures &getFeatures() const { return this->_state->features; }
+        [[nodiscard]] const vk::PhysicalDeviceFeatures &getFeatures() const { return this->_device->features; }
 
-        [[nodiscard]] const vk::PhysicalDeviceProperties &getProperties() const { return this->_state->properties; }
+        [[nodiscard]] const vk::PhysicalDeviceProperties &getProperties() const { return this->_device->properties; }
 
-        [[nodiscard]] const std::uint32_t &getGraphicsFamilyIdx() const { return this->_state->graphicsFamilyIdx; }
+        [[nodiscard]] const std::uint32_t &getGraphicsFamilyIdx() const { return this->_device->graphicsFamilyIdx; }
 
-        [[nodiscard]] const std::uint32_t &getTransferFamilyIdx() const { return this->_state->transferFamilyIdx; }
+        [[nodiscard]] const std::uint32_t &getTransferFamilyIdx() const { return this->_device->transferFamilyIdx; }
 
-        [[nodiscard]] const std::uint32_t &getPresentFamilyIdx() const { return this->_state->presentFamilyIdx; }
+        [[nodiscard]] const std::uint32_t &getPresentFamilyIdx() const { return this->_device->presentFamilyIdx; }
+
+        [[nodiscard]] const std::vector<std::string> &getExtensions() const { return this->_device->extensions; }
 
     private:
-        struct State {
+        struct DeviceInfo {
             vk::PhysicalDevice handle;
             vk::PhysicalDeviceFeatures features;
             vk::PhysicalDeviceProperties properties;
             std::uint32_t graphicsFamilyIdx;
             std::uint32_t transferFamilyIdx;
             std::uint32_t presentFamilyIdx;
+            std::vector<std::string> extensions;
+            std::uint32_t priority;
         };
 
         Lazy<Log> _log;
@@ -54,9 +60,11 @@ namespace Penrose {
         Lazy<VkSurfaceProvider> _vkSurfaceProvider;
         Lazy<VulkanBackend> _vulkanBackend;
 
-        std::optional<State> _state;
+        std::optional<DeviceInfo> _device;
 
-        [[nodiscard]] State selectPhysicalDevice();
+        [[nodiscard]] DeviceInfo selectPhysicalDevice();
+        [[nodiscard]] std::optional<DeviceInfo> makePhysicalDeviceInfo(const vk::PhysicalDevice &device,
+                                                                       const vk::SurfaceKHR &surface);
     };
 }
 

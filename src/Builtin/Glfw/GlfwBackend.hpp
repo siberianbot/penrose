@@ -22,7 +22,7 @@ namespace Penrose {
 
         void update(float) override;
 
-        [[nodiscard]] std::vector<const char *> getRequiredInstanceExtensions() const override;
+        [[nodiscard]] std::vector<std::string_view> getRequiredInstanceExtensions() const override;
     };
 }
 

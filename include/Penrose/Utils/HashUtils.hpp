@@ -4,15 +4,9 @@
 #include <initializer_list>
 #include <utility>
 
-namespace Penrose {
+#include <Penrose/Utils/CollectionUtils.hpp>
 
-    template<typename T>
-    concept IsCollection = requires(const T t) {
-        requires std::forward_iterator<typename T::const_iterator>;
-        { t.begin() } -> std::same_as<typename T::const_iterator>;
-        { t.end() } -> std::same_as<typename T::const_iterator>;
-        { t.size() } -> std::same_as<typename T::size_type>;
-    };
+namespace Penrose {
 
     template<IsCollection T>
     std::size_t hashOf(const T &values) {

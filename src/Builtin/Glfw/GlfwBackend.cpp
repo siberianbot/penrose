@@ -22,10 +22,15 @@ namespace Penrose {
         glfwPollEvents();
     }
 
-    std::vector<const char *> GlfwBackend::getRequiredInstanceExtensions() const {
+    std::vector<std::string_view> GlfwBackend::getRequiredInstanceExtensions() const {
         std::uint32_t count = 0;
         auto extensions = glfwGetRequiredInstanceExtensions(&count);
 
-        return {extensions, extensions + count};
+        auto result = std::vector<std::string_view>(count);
+        for (std::uint32_t idx = 0; idx < count; ++idx) {
+            result[idx] = extensions[idx];
+        }
+
+        return result;
     }
 }
