@@ -4,6 +4,13 @@ Penrose Engine is my own game engine built from scratch and written in C++20.
 
 ## Build & Run ##
 
+### Prerequisites ###
+
+* Vulkan SDK
+* Meson
+
+### Compilation ###
+
 Penrose uses Meson as build system. To build Penrose you can execute the following command:
 
 ```shell
@@ -19,18 +26,12 @@ from [utilities repo](https://github.com/siberianbot/penrose-utils). Then you ca
 meson test -C builddir --verbose
 ```
 
-## Limitations ##
-
-* Development of engine is done on Linux-based machine and engine wasn't compiled and tested to run on anything
-  different from Linux (but it's possible to build and run wherever GLFW and Vulkan available due to usage of
-  cross-platform libraries)
-
 ## Dependencies ##
 
 ### Engine ###
 
-* Vulkan
-
+* [Meson](https://mesonbuild.com/)
+* [Vulkan](https://www.lunarg.com/vulkan-sdk/)
 * [fmt](https://github.com/fmtlib/fmt)
 * [GLFW](https://github.com/glfw/glfw)
 * [Dear ImGui](https://github.com/ocornut/imgui)
