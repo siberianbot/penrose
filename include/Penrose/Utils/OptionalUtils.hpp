@@ -51,6 +51,28 @@ namespace Penrose {
 
         return it->second;
     }
+
+    template<typename K, typename V>
+    constexpr std::optional<const V *> tryGetPointer(const std::map<K, V> &map, const K &key) {
+        auto it = map.find(key);
+
+        if (it == map.end()) {
+            return std::nullopt;
+        }
+
+        return &it->second;
+    }
+
+    template<typename K, typename V>
+    constexpr std::optional<V *> tryGetPointer(std::map<K, V> &map, const K &key) {
+        auto it = map.find(key);
+
+        if (it == map.end()) {
+            return std::nullopt;
+        }
+
+        return &it->second;
+    }
 }
 
 #endif // PENROSE_UTILS_OPTIONAL_UTILS_HPP
