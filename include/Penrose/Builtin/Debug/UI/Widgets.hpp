@@ -198,6 +198,8 @@ namespace Penrose {
 
         [[nodiscard]] const std::vector<Item> &getItems() const { return this->_items; }
 
+        void setItems(std::vector<Item> &&items = {}) { this->_items = items; }
+
         [[nodiscard]] const std::optional<Key> &getSelected() const { return this->_selected; }
 
         [[nodiscard]] std::optional<Key> &selected() { return this->_selected; }
