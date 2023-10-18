@@ -47,6 +47,10 @@ namespace Penrose {
                 this->visitDropDown(std::dynamic_pointer_cast<DropDown>(widget));
                 break;
 
+            case WidgetType::ListBox:
+                this->visitListBox(std::dynamic_pointer_cast<ListBox>(widget));
+                break;
+
             case WidgetType::Container:
                 this->visitContainer(std::dynamic_pointer_cast<Container>(widget));
                 break;
@@ -116,6 +120,27 @@ namespace Penrose {
             }
 
             ImGui::EndCombo();
+        }
+    }
+
+    void UIDrawVisitor::visitListBox(const std::shared_ptr<ListBox> &listBox) {
+
+        if (ImGui::BeginListBox(listBox->getTitle().c_str())) {
+
+            for (const auto &[key, value]: listBox->getItems()) {
+
+                bool selected = listBox->getSelected() == key;
+
+                if (ImGui::Selectable(value.c_str(), selected)) {
+                    listBox->selected() = key;
+                }
+
+                if (selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+
+            ImGui::EndListBox();
         }
     }
 

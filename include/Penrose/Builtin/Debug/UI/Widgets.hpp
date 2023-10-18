@@ -18,6 +18,7 @@ namespace Penrose {
         TextInput,
         Button,
         DropDown,
+        ListBox,
         Container
     };
 
@@ -154,7 +155,7 @@ namespace Penrose {
         using Key = std::uint64_t;
         using Item = std::tuple<Key, std::string>;
 
-        explicit DropDown(std::string &&title, std::initializer_list<Item> &&items)
+        explicit DropDown(std::string &&title, std::initializer_list<Item> &&items = {})
                 : _title(title),
                   _items(items) {
             //
@@ -163,6 +164,35 @@ namespace Penrose {
         ~DropDown() override = default;
 
         [[nodiscard]] WidgetType getType() const override { return WidgetType::DropDown; }
+
+        [[nodiscard]] const std::string &getTitle() const { return this->_title; }
+
+        [[nodiscard]] const std::vector<Item> &getItems() const { return this->_items; }
+
+        [[nodiscard]] const std::optional<Key> &getSelected() const { return this->_selected; }
+
+        [[nodiscard]] std::optional<Key> &selected() { return this->_selected; }
+
+    private:
+        std::string _title;
+        std::vector<Item> _items;
+        std::optional<Key> _selected;
+    };
+
+    class ListBox : public Widget {
+    public:
+        using Key = std::uint64_t;
+        using Item = std::tuple<Key, std::string>;
+
+        explicit ListBox(std::string &&title, std::initializer_list<Item> &&items = {})
+                : _title(title),
+                  _items(items) {
+            //
+        }
+
+        ~ListBox() override = default;
+
+        [[nodiscard]] WidgetType getType() const override { return WidgetType::ListBox; }
 
         [[nodiscard]] const std::string &getTitle() const { return this->_title; }
 

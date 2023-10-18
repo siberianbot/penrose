@@ -19,6 +19,7 @@ namespace Penrose {
         void visitTextInput(const std::shared_ptr<TextInput> &textInput);
         void visitButton(const std::shared_ptr<Button> &button);
         void visitDropDown(const std::shared_ptr<DropDown> &dropDown);
+        void visitListBox(const std::shared_ptr<ListBox> &listBox);
         void visitContainer(const std::shared_ptr<Container> &container);
     };
 }
