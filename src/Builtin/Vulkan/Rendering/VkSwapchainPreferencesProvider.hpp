@@ -9,14 +9,12 @@
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Common/Size.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
     class Surface;
 
     struct SwapchainPreference {
@@ -27,7 +25,7 @@ namespace Penrose {
         vk::PresentModeKHR presentMode;
     };
 
-    class VkSwapchainPreferencesProvider : public Resource {
+    class VkSwapchainPreferencesProvider : public Resource<VkSwapchainPreferencesProvider> {
     public:
         explicit VkSwapchainPreferencesProvider(ResourceSet *resources);
         ~VkSwapchainPreferencesProvider() override = default;
@@ -36,8 +34,8 @@ namespace Penrose {
                                                             const vk::SurfaceKHR &vkSurface);
 
     private:
-        Lazy<Log> _log;
-        Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
+        ResourceProxy<Log> _log;
+        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
 
         [[nodiscard]] static vk::Extent2D getPreferredExtent(const vk::SurfaceCapabilitiesKHR &capabilities,
                                                              const Size &surfaceSize);

@@ -14,7 +14,7 @@
 namespace Penrose {
 
     DefaultViewProvider::DefaultViewProvider(ResourceSet *resources)
-            : _ecsManager(resources->getLazy<ECSManager>()) {
+            : _ecsManager(resources->get<ECSManager>()) {
         //
     }
 

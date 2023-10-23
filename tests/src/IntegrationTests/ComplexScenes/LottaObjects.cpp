@@ -9,7 +9,6 @@
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
@@ -26,10 +25,12 @@ using namespace Penrose;
 
 TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
 
-    class TestLogicSystem : public Resource, public Initializable, public System {
+    class TestLogicSystem : public Resource<TestLogicSystem>,
+                            public Initializable,
+                            public System {
     public:
         explicit TestLogicSystem(ResourceSet *resources)
-                : _ecsManager(resources->getLazy<ECSManager>()) {
+                : _ecsManager(resources->get<ECSManager>()) {
             //
         }
 
@@ -58,7 +59,7 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
         [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
     private:
-        Lazy<ECSManager> _ecsManager;
+        ResourceProxy<ECSManager> _ecsManager;
 
         float _passed = 0;
         Entity _targetEntity = -1;
@@ -66,10 +67,19 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
 
     Engine engine;
 
-    engine.resources().add<TestCountdownSystem, System>();
+    engine.resources().add<TestCountdownSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
 
-    engine.resources().add<TestLogicTargetComponentFactory, ComponentFactory>();
-    engine.resources().add<TestLogicSystem, System>();
+    engine.resources().add<TestLogicTargetComponentFactory>()
+            .implements<ComponentFactory>()
+            .done();
+
+    engine.resources().add<TestLogicSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
 
     auto assetDictionary = engine.resources().get<AssetDictionary>();
     assetDictionary->addDir("tests/data");

@@ -15,9 +15,9 @@
 namespace Penrose {
 
     VkPipelineFactory::VkPipelineFactory(ResourceSet *resources)
-            : _assetManager(resources->getLazy<AssetManager>()),
-              _descriptorPoolManager(resources->getLazy<VkDescriptorPoolManager>()),
-              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
+            : _assetManager(resources->get<AssetManager>()),
+              _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
+              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()) {
         //
     }
 

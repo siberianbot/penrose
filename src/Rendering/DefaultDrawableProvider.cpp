@@ -11,7 +11,7 @@
 namespace Penrose {
 
     DefaultDrawableProvider::DefaultDrawableProvider(ResourceSet *resources)
-            : _ecsManager(resources->getLazy<ECSManager>()) {
+            : _ecsManager(resources->get<ECSManager>()) {
         //
     }
 

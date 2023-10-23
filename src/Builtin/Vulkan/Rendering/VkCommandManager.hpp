@@ -10,8 +10,7 @@
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
@@ -19,9 +18,8 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkCommandManager : public Resource, public Initializable {
+    class VkCommandManager : public Resource<VkCommandManager>,
+                             public Initializable {
     public:
         using Command = std::function<void(vk::CommandBuffer &commandBuffer)>;
 
@@ -46,9 +44,9 @@ namespace Penrose {
             vk::CommandPool transferCommandPool;
         };
 
-        Lazy<Log> _log;
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
+        ResourceProxy<Log> _log;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
 
         std::optional<State> _state;
 

@@ -8,8 +8,7 @@
 
 #include <Penrose/Rendering/RenderSystem.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Resources/Runnable.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
@@ -21,9 +20,7 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkRenderSystem : public Resource,
+    class VkRenderSystem : public Resource<VkRenderSystem>,
                            public Initializable,
                            public Runnable,
                            public RenderSystem {
@@ -41,11 +38,11 @@ namespace Penrose {
         void renderFrame() override;
 
     private:
-        Lazy<VkCommandManager> _commandManager;
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkRenderGraphContextManager> _renderGraphContextManager;
-        Lazy<VkRenderGraphExecutor> _renderGraphExecutor;
-        Lazy<VkSwapchainManager> _swapchainManager;
+        ResourceProxy<VkCommandManager> _commandManager;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkRenderGraphContextManager> _renderGraphContextManager;
+        ResourceProxy<VkRenderGraphExecutor> _renderGraphExecutor;
+        ResourceProxy<VkSwapchainManager> _swapchainManager;
 
         std::uint32_t _frameIdx = 0;
         std::array<vk::Fence, INFLIGHT_FRAME_COUNT> _fences;

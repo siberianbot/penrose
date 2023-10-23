@@ -9,7 +9,11 @@ using namespace Penrose;
 TEST_CASE("EngineStartWaitStop", "[engine-int-test]") {
     Engine engine;
 
-    auto testCountdownSystem = engine.resources().add<TestCountdownSystem, System>();
+    auto testCountdownSystem = engine.resources().add<TestCountdownSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
+
     testCountdownSystem->setTestTimeout(1.0f);
 
     REQUIRE_NOTHROW([&]() { engine.run(); }());

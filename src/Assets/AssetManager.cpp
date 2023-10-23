@@ -2,16 +2,14 @@
 
 #include <fmt/format.h>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     constexpr static const std::string_view ASSET_MANAGER_TAG = "AssetManager";
 
     AssetManager::AssetManager(ResourceSet *resources)
-            : _assetDictionary(resources->getLazy<AssetDictionary>()),
-              _assetLoader(resources->getLazy<AssetLoader>()),
-              _log(resources->getLazy<Log>()) {
+            : _assetDictionary(resources->get<AssetDictionary>()),
+              _assetLoader(resources->get<AssetLoader>()),
+              _log(resources->get<Log>()) {
         //
     }
 

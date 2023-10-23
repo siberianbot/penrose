@@ -7,16 +7,13 @@
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 using namespace Penrose;
 
-namespace Penrose {
-    class ResourceSet;
-}
-
-class TestCountdownSystem : public Resource, public Initializable, public System {
+class TestCountdownSystem : public Resource<TestCountdownSystem>,
+                            public Initializable,
+                            public System {
 public:
     constexpr static const float DEFAULT_TEST_TIMEOUT = 3.0f;
     constexpr static const float DEFAULT_FAILURE_TIMEOUT = 3.0f;
@@ -37,7 +34,7 @@ public:
     void setFailureTimeout(float timeout) { this->_failureTimeout = timeout; }
 
 private:
-    Lazy<EventQueue> _eventQueue;
+    ResourceProxy<EventQueue> _eventQueue;
 
     float _passed = 0;
     float _testTimeout = DEFAULT_TEST_TIMEOUT;

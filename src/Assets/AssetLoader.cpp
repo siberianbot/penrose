@@ -5,7 +5,6 @@
 #include <Penrose/Assets/ShaderAsset.hpp>
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Common/Vertex.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Assets/AssetStructs.hpp"
 
@@ -22,7 +21,7 @@ namespace Penrose {
     }
 
     AssetLoader::AssetLoader(ResourceSet *resources)
-            : _renderingObjectManager(resources->getLazy<RenderingObjectManager>()) {
+            : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
 
         this->_providers[AssetType::Mesh] = [this](AssetReader &reader) {
 

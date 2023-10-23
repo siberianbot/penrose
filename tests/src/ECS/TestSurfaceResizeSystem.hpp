@@ -4,16 +4,13 @@
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 using namespace Penrose;
 
-namespace Penrose {
-    class ResourceSet;
-}
-
-class TestSwapchainResizeSystem : public Resource, public Initializable, public System {
+class TestSwapchainResizeSystem : public Resource<TestSwapchainResizeSystem>,
+                                  public Initializable,
+                                  public System {
 public:
     explicit TestSwapchainResizeSystem(ResourceSet *resources);
     ~TestSwapchainResizeSystem() override = default;
@@ -27,7 +24,7 @@ public:
     [[nodiscard]] std::string getName() const override { return "TestSwapchainResizeSystem"; }
 
 private:
-    Lazy<SurfaceManager> _surfaceManager;
+    ResourceProxy<SurfaceManager> _surfaceManager;
 
     double _passed = 0;
 };

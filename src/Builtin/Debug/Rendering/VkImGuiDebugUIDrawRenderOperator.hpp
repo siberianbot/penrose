@@ -2,8 +2,7 @@
 #define PENROSE_BUILTIN_DEBUG_RENDERING_VK_IMGUI_DEBUG_UI_DRAW_RENDER_OPERATOR_HPP
 
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include <Penrose/Builtin/Debug/Rendering/DebugUIDrawRenderOperator.hpp>
 #include <Penrose/Builtin/Debug/UI/UIContext.hpp>
@@ -19,10 +18,9 @@
 
 namespace Penrose {
 
-    class ResourceSet;
     class RenderSubgraph;
 
-    class VkImGuiDebugUIDrawRenderOperator : public Resource,
+    class VkImGuiDebugUIDrawRenderOperator : public Resource<VkImGuiDebugUIDrawRenderOperator>,
                                              public Initializable,
                                              public DebugUIDrawRenderOperator {
     public:
@@ -41,14 +39,14 @@ namespace Penrose {
             std::uint32_t subgraphPassIdx;
         };
 
-        Lazy<VulkanBackend> _vulkanBackend;
-        Lazy<VkCommandManager> _commandManager;
-        Lazy<VkDescriptorPoolManager> _descriptorPoolManager;
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
-        Lazy<VkSwapchainManager> _swapchainManager;
-        Lazy<UIContext> _uiContext;
-        Lazy<UIDrawVisitor> _uiDrawVisitor;
+        ResourceProxy<VulkanBackend> _vulkanBackend;
+        ResourceProxy<VkCommandManager> _commandManager;
+        ResourceProxy<VkDescriptorPoolManager> _descriptorPoolManager;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
+        ResourceProxy<VkSwapchainManager> _swapchainManager;
+        ResourceProxy<UIContext> _uiContext;
+        ResourceProxy<UIDrawVisitor> _uiDrawVisitor;
 
         std::optional<State> _state;
 

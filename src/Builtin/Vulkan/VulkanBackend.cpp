@@ -24,8 +24,8 @@ namespace Penrose {
     };
 
     VulkanBackend::VulkanBackend(ResourceSet *resources)
-            : _log(resources->getLazy<Log>()),
-              _instanceExtensionsProvider(resources->getLazy<VkInstanceExtensionsProvider>()) {
+            : _log(resources->get<Log>()),
+              _instanceExtensionsProvider(resources->get<VkInstanceExtensionsProvider>()) {
         //
     }
 

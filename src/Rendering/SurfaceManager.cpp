@@ -1,12 +1,10 @@
 #include <Penrose/Rendering/SurfaceManager.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     SurfaceManager::SurfaceManager(ResourceSet *resources)
-            : _surfaceFactory(resources->getLazy<SurfaceFactory>()),
-              _surfaceHooks(resources->getAllLazy<SurfaceHook>()) {
+            : _surfaceFactory(resources->get<SurfaceFactory>()),
+              _surfaceHooks(resources->get<SurfaceHook>()) {
         //
     }
 

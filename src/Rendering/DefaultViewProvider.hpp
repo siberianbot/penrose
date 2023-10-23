@@ -3,14 +3,13 @@
 
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/Rendering/ViewProvider.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
 
-    class DefaultViewProvider : public Resource, public ViewProvider {
+    class DefaultViewProvider : public Resource<DefaultViewProvider>, public ViewProvider {
     public:
         explicit DefaultViewProvider(ResourceSet *resources);
         ~DefaultViewProvider() override = default;
@@ -18,7 +17,7 @@ namespace Penrose {
         [[nodiscard]] std::optional<View> tryGetViewFor(const Entity &entity) override;
 
     private:
-        Lazy<ECSManager> _ecsManager;
+        ResourceProxy<ECSManager> _ecsManager;
     };
 }
 

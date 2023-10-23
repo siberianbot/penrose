@@ -7,16 +7,14 @@
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/VkInstanceExtensionsProvider.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VulkanBackend : public Resource, public Initializable {
+    class VulkanBackend : public Resource<VulkanBackend>,
+                          public Initializable {
     public:
         explicit VulkanBackend(ResourceSet *resources);
         ~VulkanBackend() override = default;
@@ -27,8 +25,8 @@ namespace Penrose {
         [[nodiscard]] vk::Instance &getInstance() { return this->_instance.value(); }
 
     private:
-        Lazy<Log> _log;
-        Lazy<VkInstanceExtensionsProvider> _instanceExtensionsProvider;
+        ResourceProxy<Log> _log;
+        ResourceProxy<VkInstanceExtensionsProvider> _instanceExtensionsProvider;
 
         std::optional<vk::Instance> _instance;
 

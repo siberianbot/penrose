@@ -5,7 +5,6 @@
 #include <imgui_impl_vulkan.h>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
@@ -13,14 +12,14 @@
 namespace Penrose {
 
     VkImGuiDebugUIDrawRenderOperator::VkImGuiDebugUIDrawRenderOperator(ResourceSet *resources)
-            : _vulkanBackend(resources->getLazy<VulkanBackend>()),
-              _commandManager(resources->getLazy<VkCommandManager>()),
-              _descriptorPoolManager(resources->getLazy<VkDescriptorPoolManager>()),
-              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _physicalDeviceContext(resources->getLazy<VkPhysicalDeviceContext>()),
-              _swapchainManager(resources->getLazy<VkSwapchainManager>()),
-              _uiContext(resources->getLazy<UIContext>()),
-              _uiDrawVisitor(resources->getLazy<UIDrawVisitor>()) {
+            : _vulkanBackend(resources->get<VulkanBackend>()),
+              _commandManager(resources->get<VkCommandManager>()),
+              _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
+              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()),
+              _uiContext(resources->get<UIContext>()),
+              _uiDrawVisitor(resources->get<UIDrawVisitor>()) {
         //
     }
 

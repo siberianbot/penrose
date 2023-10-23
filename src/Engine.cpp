@@ -1,6 +1,7 @@
 #include <Penrose/Engine.hpp>
 
 #include <chrono>
+#include <ranges>
 
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetLoader.hpp>
@@ -36,44 +37,89 @@
 namespace Penrose {
 
     Engine::Engine() {
-        // before backends
-        this->_resources.add<AssetDictionary>();
-        this->_resources.add<AssetLoader>();
-        this->_resources.add<EventQueue>();
-        this->_resources.add<InputHandler>();
-        this->_resources.add<StdOutLogSink, LogSink>();
-        this->_resources.add<Log>();
-        this->_resources.add<RenderGraphContext>();
-        this->_resources.add<SurfaceManager>();
+
+        this->_resources.add<Log>().done();
+        this->_resources.add<StdOutLogSink>()
+                .implements<LogSink>()
+                .done();
+        this->_resources.add<EventQueue>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+
+        this->_resources.add<ECSManager>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+        this->_resources.add<SceneManager>()
+                .implements<Initializable>()
+                .done();
+
+        this->_resources.add<SurfaceManager>()
+                .implements<Initializable>()
+                .done();
+        this->_resources.add<InputHandler>().done();
+
+        this->_resources.add<RenderGraphContext>().done();
+        this->_resources.add<RenderListBuilder>()
+                .implements<Initializable>()
+                .done();
+        this->_resources.add<RenderManager>()
+                .implements<Initializable>()
+                .implements<Runnable>()
+                .done();
+        this->_resources.add<DefaultDrawableProvider>()
+                .implements<DrawableProvider>()
+                .done();
+        this->_resources.add<DefaultViewProvider>()
+                .implements<ViewProvider>()
+                .done();
+
+        this->_resources.add<AssetDictionary>().done();
+        this->_resources.add<AssetLoader>().done();
+        this->_resources.add<AssetManager>()
+                .implements<Initializable>()
+                .implements<Runnable>()
+                .done();
 
         // backends
-        addVulkan(this->_resources);
         addGlfw(this->_resources);
+        addVulkan(this->_resources);
         addImGui(this->_resources);
         addDebug(this->_resources);
 
-        // after backends
-        this->_resources.add<AssetManager>();
-        this->_resources.add<ECSManager>();
-        this->_resources.add<RenderListBuilder>();
-        this->_resources.add<RenderManager>();
-        this->_resources.add<SceneManager>();
-        this->_resources.add<DefaultDrawableProvider, DrawableProvider>();
-        this->_resources.add<DefaultViewProvider, ViewProvider>();
-
-        // builtin / ECS
-        this->_resources.add<MeshRendererComponentFactory, ComponentFactory>();
-        this->_resources.add<OrthographicCameraComponentFactory, ComponentFactory>();
-        this->_resources.add<PerspectiveCameraComponentFactory, ComponentFactory>();
-        this->_resources.add<TransformComponentFactory, ComponentFactory>();
-        this->_resources.add<ViewComponentFactory, ComponentFactory>();
+        // builtin
+        this->_resources.add<MeshRendererComponentFactory>()
+                .implements<ComponentFactory>()
+                .done();
+        this->_resources.add<OrthographicCameraComponentFactory>()
+                .implements<ComponentFactory>()
+                .done();
+        this->_resources.add<PerspectiveCameraComponentFactory>()
+                .implements<ComponentFactory>()
+                .done();
+        this->_resources.add<TransformComponentFactory>()
+                .implements<ComponentFactory>()
+                .done();
+        this->_resources.add<ViewComponentFactory>()
+                .implements<ComponentFactory>()
+                .done();
 
         // builtin / rendering operators
-        this->_resources.add<ForwardSceneDrawRenderOperator, RenderOperator>();
+        this->_resources.add<ForwardSceneDrawRenderOperator>()
+                .implements<Initializable>()
+                .implements<RenderOperator>()
+                .done();
     }
 
     void Engine::run() {
-        this->_resources.initAll();
+        auto allInitializable = this->_resources.get<Initializable>();
+        auto allRunnable = this->_resources.get<Runnable>();
+        auto allUpdatable = this->_resources.get<Updatable>();
+
+        for (auto &initializable: allInitializable) {
+            initializable->init();
+        }
 
         auto eventQueue = this->_resources.get<EventQueue>();
 
@@ -109,7 +155,9 @@ namespace Penrose {
                     }
                 });
 
-        this->_resources.runAll();
+        for (auto &runnable: allRunnable) {
+            runnable->run();
+        }
 
         std::chrono::high_resolution_clock::time_point start;
         float delta = 0;
@@ -117,15 +165,21 @@ namespace Penrose {
         while (alive) {
             start = std::chrono::high_resolution_clock::now();
 
-            this->_resources.updateAll(delta);
+            for (auto &updatable: allUpdatable) {
+                updatable->update(delta);
+            }
 
             delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
         }
 
-        this->_resources.stopAll();
+        for (auto &runnable: std::views::reverse(allRunnable)) {
+            runnable->stop();
+        }
 
         eventQueue->removeHandler(handlerIdx);
 
-        this->_resources.destroyAll();
+        for (auto &initializable: std::views::reverse(allInitializable)) {
+            initializable->destroy();
+        }
     }
 }

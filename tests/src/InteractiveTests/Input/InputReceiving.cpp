@@ -7,8 +7,6 @@
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Events/InputEvent.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 using namespace Penrose;
@@ -17,11 +15,13 @@ TEST_CASE("InputReceiving", "[engine-interactive-test]") {
 
     constexpr static std::string_view TEST_LOGIC_SYSTEM_TAG = "InputReceiving";
 
-    class TestLogicSystem : public Resource, public Initializable, public System {
+    class TestLogicSystem : public Resource<TestLogicSystem>,
+                            public Initializable,
+                            public System {
     public:
         explicit TestLogicSystem(ResourceSet *resources)
-                : _eventQueue(resources->getLazy<EventQueue>()),
-                  _log(resources->getLazy<Log>()) {
+                : _eventQueue(resources->get<EventQueue>()),
+                  _log(resources->get<Log>()) {
             //
         }
 
@@ -69,15 +69,18 @@ TEST_CASE("InputReceiving", "[engine-interactive-test]") {
         [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
     private:
-        Lazy<EventQueue> _eventQueue;
-        Lazy<Log> _log;
+        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<Log> _log;
 
         EventQueue::HandlerIdx _eventHandlerIdx = -1;
     };
 
     Engine engine;
 
-    engine.resources().add<TestLogicSystem, System>();
+    engine.resources().add<TestLogicSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
 
     REQUIRE_NOTHROW([&]() { engine.run(); }());
 }

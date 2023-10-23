@@ -17,18 +17,15 @@
 #include <Penrose/Assets/AssetLoader.hpp>
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Resources/Runnable.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
     template<typename T>
     concept IsAsset = std::is_base_of<Asset, T>::value;
 
-    class PENROSE_API AssetManager : public Resource, public Initializable, public Runnable {
+    class PENROSE_API AssetManager : public Resource<AssetManager>, public Initializable, public Runnable {
     public:
         explicit AssetManager(ResourceSet *resources);
         ~AssetManager() override = default;
@@ -64,9 +61,9 @@ namespace Penrose {
             std::shared_ptr<Asset> ptr;
         };
 
-        Lazy<AssetDictionary> _assetDictionary;
-        Lazy<AssetLoader> _assetLoader;
-        Lazy<Log> _log;
+        ResourceProxy<AssetDictionary> _assetDictionary;
+        ResourceProxy<AssetLoader> _assetLoader;
+        ResourceProxy<Log> _log;
 
         std::unordered_map<std::string, Entry> _assets;
 

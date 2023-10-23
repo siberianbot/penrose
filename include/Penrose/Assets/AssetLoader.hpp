@@ -9,14 +9,11 @@
 #include <Penrose/Assets/AssetReader.hpp>
 #include <Penrose/Assets/AssetType.hpp>
 #include <Penrose/Rendering/RenderingObjectManager.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class AssetLoader : public Resource {
+    class AssetLoader : public Resource<AssetLoader> {
     public:
         explicit AssetLoader(ResourceSet *resources);
         ~AssetLoader() override = default;
@@ -26,7 +23,7 @@ namespace Penrose {
     private:
         using Provider = std::function<Asset *(AssetReader &)>;
 
-        Lazy<RenderingObjectManager> _renderingObjectManager;
+        ResourceProxy<RenderingObjectManager> _renderingObjectManager;
 
         std::map<AssetType, Provider> _providers;
     };

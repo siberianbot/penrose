@@ -5,10 +5,10 @@
 namespace Penrose {
 
     VkSwapchainFactory::VkSwapchainFactory(ResourceSet *resources)
-            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _surfaceManager(resources->getLazy<SurfaceManager>()),
-              _surfaceProvider(resources->getLazy<VkSurfaceProvider>()),
-              _swapchainPreferencesProvider(resources->getLazy<VkSwapchainPreferencesProvider>()) {
+            : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _surfaceManager(resources->get<SurfaceManager>()),
+              _surfaceProvider(resources->get<VkSurfaceProvider>()),
+              _swapchainPreferencesProvider(resources->get<VkSwapchainPreferencesProvider>()) {
         //
     }
 

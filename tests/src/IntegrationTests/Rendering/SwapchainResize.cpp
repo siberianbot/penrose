@@ -10,8 +10,15 @@ using namespace Penrose;
 TEST_CASE("SwapchainResize", "[engine-int-test]") {
     Engine engine;
 
-    engine.resources().add<TestCountdownSystem, System>();
-    engine.resources().add<TestSwapchainResizeSystem, System>();
+    engine.resources().add<TestCountdownSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
+
+    engine.resources().add<TestSwapchainResizeSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
 
     REQUIRE_NOTHROW([&]() { engine.run(); }());
 }

@@ -8,8 +8,8 @@
 namespace Penrose {
 
     VkBufferFactory::VkBufferFactory(ResourceSet *resources)
-            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _memoryAllocator(resources->getLazy<VkMemoryAllocator>()) {
+            : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _memoryAllocator(resources->get<VkMemoryAllocator>()) {
         //
     }
 

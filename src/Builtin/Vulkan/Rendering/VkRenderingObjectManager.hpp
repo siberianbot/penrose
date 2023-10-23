@@ -2,8 +2,7 @@
 #define PENROSE_BUILTIN_VULKAN_RENDERING_VK_RENDERING_OBJECT_MANAGER_HPP
 
 #include <Penrose/Rendering/RenderingObjectManager.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkBufferFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
@@ -12,9 +11,8 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkRenderingObjectManager : public Resource, public RenderingObjectManager {
+    class VkRenderingObjectManager : public Resource<VkRenderingObjectManager>,
+                                     public RenderingObjectManager {
     public:
         explicit VkRenderingObjectManager(ResourceSet *resources);
         ~VkRenderingObjectManager() override = default;
@@ -27,10 +25,10 @@ namespace Penrose {
         [[nodiscard]] Shader *makeShader(std::vector<std::byte> &&rawData) override;
 
     private:
-        Lazy<VkBufferFactory> _bufferFactory;
-        Lazy<VkImageFactory> _imageFactory;
-        Lazy<VkShaderFactory> _shaderFactory;
-        Lazy<VkCommandManager> _commandManager;
+        ResourceProxy<VkBufferFactory> _bufferFactory;
+        ResourceProxy<VkImageFactory> _imageFactory;
+        ResourceProxy<VkShaderFactory> _shaderFactory;
+        ResourceProxy<VkCommandManager> _commandManager;
     };
 }
 

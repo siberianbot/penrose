@@ -36,7 +36,7 @@ namespace Penrose {
         float _far = 100.0f;
     };
 
-    class OrthographicCameraComponentFactory : public Resource,
+    class OrthographicCameraComponentFactory : public Resource<OrthographicCameraComponentFactory>,
                                                public GenericComponentFactory<OrthographicCameraComponent> {
     public:
         ~OrthographicCameraComponentFactory() override = default;

@@ -8,14 +8,11 @@
 
 #include <Penrose/Api.hpp>
 #include <Penrose/Common/Log.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class PENROSE_API AssetDictionary : public Resource {
+    class PENROSE_API AssetDictionary : public Resource<AssetDictionary> {
     public:
         explicit AssetDictionary(ResourceSet *resources);
         ~AssetDictionary() override = default;
@@ -29,7 +26,7 @@ namespace Penrose {
     private:
         using IndexMap = std::map<std::string, std::filesystem::path>;
 
-        Lazy<Log> _log;
+        ResourceProxy<Log> _log;
 
         IndexMap _assets;
 

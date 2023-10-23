@@ -1,11 +1,9 @@
 #include <Penrose/Common/Log.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     Log::Log(ResourceSet *resources)
-            : _sinks(resources->getAllLazy<LogSink>()) {
+            : _sinks(resources->get<LogSink>()) {
         //
     }
 

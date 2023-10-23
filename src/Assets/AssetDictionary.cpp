@@ -5,7 +5,6 @@
 #include <string_view>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
@@ -14,7 +13,7 @@ namespace Penrose {
     constexpr static const std::string_view INDEX_FILENAME = "index";
 
     AssetDictionary::AssetDictionary(ResourceSet *resources)
-            : _log(resources->getLazy<Log>()) {
+            : _log(resources->get<Log>()) {
         //
     }
 

@@ -1,98 +1,34 @@
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include <ranges>
-
-#include <fmt/core.h>
-
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Runnable.hpp>
-#include <Penrose/Resources/Updatable.hpp>
 
 namespace Penrose {
 
-    void ResourceSet::initAll() {
-        for (const auto &resource: this->_resources) {
-            auto initializable = dynamic_cast<Initializable *>(resource.get());
+    void ResourceSet::insert(std::unique_ptr<ResourceBase> &&instance,
+                             std::set<std::type_index> &&implements,
+                             std::optional<std::type_index> &&before) {
 
-            if (initializable == nullptr) {
-                continue;
-            }
+        auto iterator = this->_instances.insert(this->_instances.end(), std::forward<decltype(instance)>(instance));
 
-            initializable->init();
+        for (const auto &implementType: implements) {
+            auto &implementations = this->_typeMap[implementType];
+            using IteratorType = decltype(implementations.begin());
+
+            auto position = flatMap(
+                    before, [&implementations](const std::type_index &type) -> std::optional<IteratorType> {
+                        for (auto it = implementations.begin();
+                             it != implementations.end(); it++) {
+                            if ((**it)->getType().type != type) {
+                                continue;
+                            }
+
+                            return it;
+                        }
+
+                        return std::nullopt;
+                    });
+
+            implementations.insert(position.value_or(implementations.end()), iterator);
         }
-    }
-
-    void ResourceSet::destroyAll() {
-        for (const auto &resource: std::ranges::reverse_view(this->_resources)) {
-            auto initializable = dynamic_cast<Initializable *>(resource.get());
-
-            if (initializable == nullptr) {
-                continue;
-            }
-
-            initializable->destroy();
-        }
-    }
-
-    void ResourceSet::runAll() {
-        for (const auto &resource: this->_resources) {
-            auto runnable = dynamic_cast<Runnable *>(resource.get());
-
-            if (runnable == nullptr) {
-                continue;
-            }
-
-            runnable->run();
-        }
-    }
-
-    void ResourceSet::stopAll() {
-        for (const auto &resource: std::ranges::reverse_view(this->_resources)) {
-            auto runnable = dynamic_cast<Runnable *>(resource.get());
-
-            if (runnable == nullptr) {
-                continue;
-            }
-
-            runnable->stop();
-        }
-    }
-
-    void ResourceSet::updateAll(float delta) {
-        for (const auto &resource: std::ranges::reverse_view(this->_resources)) {
-            auto updatable = dynamic_cast<Updatable *>(resource.get());
-
-            if (updatable == nullptr) {
-                continue;
-            }
-
-            updatable->update(delta);
-        }
-    }
-
-    ResourceSet::ResourceList::iterator ResourceSet::getBeginIterator() {
-        return this->_resources.begin();
-    }
-
-    ResourceSet::ResourceList::iterator ResourceSet::addToList(Resource *resource,
-                                                               std::optional<ResourceList::iterator> before) {
-        auto position = before.has_value() ? *before : this->_resources.end();
-
-        return this->_resources.emplace(position, resource);
-    }
-
-    void ResourceSet::addToMap(std::type_index idx, ResourceList::iterator it) {
-        this->_resourceMap.emplace(idx, it);
-    }
-
-    Resource *ResourceSet::get(const std::type_index &idx) const {
-        auto it = this->_resourceMap.find(idx);
-
-        if (it != this->_resourceMap.end()) {
-            return it->second->get();
-        }
-
-        throw EngineError(fmt::format("Required resource of type {} not found", idx.name()));
     }
 }

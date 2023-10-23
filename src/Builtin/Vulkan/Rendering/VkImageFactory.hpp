@@ -2,17 +2,15 @@
 #define PENROSE_BUILTIN_VULKAN_RENDERING_VK_IMAGE_FACTORY_HPP
 
 #include <Penrose/Rendering/ImageFactory.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkMemoryAllocator.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkImageFactory : public Resource, public ImageFactory {
+    class VkImageFactory : public Resource<VkImageFactory>,
+            public ImageFactory {
     public:
         explicit VkImageFactory(ResourceSet *resources);
         ~VkImageFactory() override = default;
@@ -20,8 +18,8 @@ namespace Penrose {
         [[nodiscard]] Image *makeImage(ImageFormat format, std::uint32_t width, std::uint32_t height) override;
 
     private:
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkMemoryAllocator> _memoryAllocator;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkMemoryAllocator> _memoryAllocator;
     };
 }
 

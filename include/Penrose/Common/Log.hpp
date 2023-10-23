@@ -8,14 +8,11 @@
 #include <Penrose/Api.hpp>
 #include <Penrose/Common/LogLevel.hpp>
 #include <Penrose/Common/LogSink.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class PENROSE_API Log : public Resource {
+    class PENROSE_API Log : public Resource<Log> {
     public:
         explicit Log(ResourceSet *resources);
         ~Log() override = default;
@@ -38,7 +35,7 @@ namespace Penrose {
         constexpr void writeError(std::string_view tag, fmt::format_string<Args...> fmt, Args &&... args);
 
     private:
-        LazyCollection<LogSink> _sinks;
+        ResourceProxy<LogSink> _sinks;
 
         void write(LogLevel level, std::string_view tag, std::string_view msg);
     };

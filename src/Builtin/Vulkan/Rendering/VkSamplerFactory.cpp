@@ -8,7 +8,7 @@
 namespace Penrose {
 
     VkSamplerFactory::VkSamplerFactory(ResourceSet *resources)
-            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()) {
+            : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()) {
         //
     }
 

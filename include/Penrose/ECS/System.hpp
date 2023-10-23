@@ -9,7 +9,7 @@ namespace Penrose {
     public:
         virtual ~System() = default;
 
-        virtual void update(float) = 0;
+        virtual void update(float) = 0; // TODO: remove and implement Updatable
 
         [[nodiscard]] virtual std::string getName() const = 0;
     };

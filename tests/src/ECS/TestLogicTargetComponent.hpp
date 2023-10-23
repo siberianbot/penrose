@@ -3,6 +3,7 @@
 
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ComponentFactory.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 using namespace Penrose;
 
@@ -15,7 +16,8 @@ public:
     [[nodiscard]] constexpr static std::string name() { return "TestLogicTarget"; }
 };
 
-class TestLogicTargetComponentFactory : public Resource, public GenericComponentFactory<TestLogicTargetComponent> {
+class TestLogicTargetComponentFactory : public Resource<TestLogicTargetComponentFactory>,
+                                        public GenericComponentFactory<TestLogicTargetComponent> {
 public:
     ~TestLogicTargetComponentFactory() override = default;
 };

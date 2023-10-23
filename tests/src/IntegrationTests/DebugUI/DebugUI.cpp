@@ -16,7 +16,11 @@ TEST_CASE("DebugUI", "[engine-int-test]") {
 
     Engine engine;
 
-    auto countdownSystem = engine.resources().add<TestCountdownSystem, System>();
+    auto countdownSystem = engine.resources().add<TestCountdownSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
+
     countdownSystem->setTestTimeout(5.0f);
 
     auto window = std::shared_ptr<Window>( // NOLINT(modernize-make-shared)

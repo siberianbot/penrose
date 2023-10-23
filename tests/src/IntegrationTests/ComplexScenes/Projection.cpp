@@ -71,7 +71,10 @@ TEST_CASE("Projection", "[engine-int-test]") {
 
     Engine engine;
 
-    engine.resources().add<TestCountdownSystem, System>();
+    engine.resources().add<TestCountdownSystem>()
+            .implements<Initializable>()
+            .implements<System>()
+            .done();
 
     auto assetDictionary = engine.resources().get<AssetDictionary>();
     assetDictionary->addDir("tests/data");

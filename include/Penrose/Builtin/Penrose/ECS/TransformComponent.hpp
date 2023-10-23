@@ -29,7 +29,8 @@ namespace Penrose {
         glm::vec3 _scale = glm::vec3(1);
     };
 
-    class TransformComponentFactory : public Resource, public GenericComponentFactory<TransformComponent> {
+    class TransformComponentFactory : public Resource<TransformComponentFactory>,
+                                      public GenericComponentFactory<TransformComponent> {
     public:
         ~TransformComponentFactory() override = default;
     };

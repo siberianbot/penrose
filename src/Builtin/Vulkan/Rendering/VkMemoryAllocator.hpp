@@ -3,17 +3,14 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkMemoryAllocator : public Resource {
+    class VkMemoryAllocator : public Resource<VkMemoryAllocator> {
     public:
         explicit VkMemoryAllocator(ResourceSet *resources);
         ~VkMemoryAllocator() override = default;
@@ -22,8 +19,8 @@ namespace Penrose {
         [[nodiscard]] vk::DeviceMemory allocate(const vk::Image &image, bool local = true);
 
     private:
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
 
         [[nodiscard]] vk::DeviceMemory allocate(const vk::MemoryRequirements &requirements, bool local);
     };

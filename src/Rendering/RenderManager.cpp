@@ -1,11 +1,9 @@
 #include <Penrose/Rendering/RenderManager.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     RenderManager::RenderManager(ResourceSet *resources)
-            : _renderSystem(resources->getLazy<RenderSystem>()) {
+            : _renderSystem(resources->get<RenderSystem>()) {
         //
     }
 

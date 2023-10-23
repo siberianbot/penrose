@@ -11,9 +11,9 @@
 namespace Penrose {
 
     VkRenderTargetFactory::VkRenderTargetFactory(ResourceSet *resources)
-            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _memoryAllocator(resources->getLazy<VkMemoryAllocator>()),
-              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
+            : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _memoryAllocator(resources->get<VkMemoryAllocator>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()) {
         //
     }
 

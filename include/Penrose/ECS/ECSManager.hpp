@@ -18,15 +18,14 @@
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Resources/Updatable.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
 
-    class PENROSE_API ECSManager : public Resource, public Initializable, public Updatable {
+    class PENROSE_API ECSManager : public Resource<ECSManager>, public Initializable, public Updatable {
     public:
         constexpr static const std::size_t ALLOC_SIZE = 64 * 1024;
 
@@ -38,7 +37,7 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
-        void update(float delta) override;
+        void update(float delta) override; // TODO: actually, every system can implement Updatable
 
         [[nodiscard]] Entity createEntity();
         void destroyEntity(Entity &&entity);
@@ -68,10 +67,10 @@ namespace Penrose {
             ComponentMap components;
         };
 
-        Lazy<EventQueue> _eventQueue;
-        Lazy<Log> _log;
-        LazyCollection<ComponentFactory> _componentFactories;
-        LazyCollection<System> _systems;
+        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<Log> _log;
+        ResourceProxy<ComponentFactory> _componentFactories;
+        ResourceProxy<System> _systems;
 
         std::map<std::string, ComponentFactory *> _componentFactoriesMap;
         std::map<std::string, System *> _systemsMap;

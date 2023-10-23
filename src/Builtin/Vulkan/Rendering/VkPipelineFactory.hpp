@@ -10,8 +10,7 @@
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Rendering/PipelineFactory.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
@@ -19,9 +18,9 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkPipelineFactory : public Resource, public Initializable, public PipelineFactory {
+    class VkPipelineFactory : public Resource<VkPipelineFactory>,
+                              public Initializable,
+                              public PipelineFactory {
     public:
         explicit VkPipelineFactory(ResourceSet *resources);
         ~VkPipelineFactory() override = default;
@@ -38,9 +37,9 @@ namespace Penrose {
     private:
         using PipelineKey = std::tuple<std::string, const RenderSubgraph *, std::uint32_t>;
 
-        Lazy<AssetManager> _assetManager;
-        Lazy<VkDescriptorPoolManager> _descriptorPoolManager;
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<AssetManager> _assetManager;
+        ResourceProxy<VkDescriptorPoolManager> _descriptorPoolManager;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
 
         vk::PipelineCache _pipelineCache;
         std::map<std::string, PipelineInfo> _pipelineInfos;

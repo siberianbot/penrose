@@ -1,93 +1,183 @@
 #ifndef PENROSE_RESOURCES_RESOURCE_SET_HPP
 #define PENROSE_RESOURCES_RESOURCE_SET_HPP
 
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <typeindex>
+#include <typeinfo>
 #include <type_traits>
-#include <vector>
 
 #include <Penrose/Api.hpp>
-#include <Penrose/Resources/Lazy.hpp>
+#include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    template<typename T>
-    concept IsDefaultConstructableResource = IsResource<T> &&
-                                             std::is_default_constructible<T>::value;
-
-    template<typename T>
-    concept IsConstructableWithResourceSetResource = IsResource<T> &&
-                                                     (requires(ResourceSet *resources) {
-                                                         T(resources);
-                                                     });
-
     class PENROSE_API ResourceSet {
     public:
-        using ResourceList = std::list<std::unique_ptr<Resource>>;
+        template<typename Target>
+        class Proxy {
+        public:
+            using Iterator = std::list<Target *>::iterator;
+
+            explicit Proxy(ResourceSet *resources)
+                    : _resources(resources),
+                      _instances(std::nullopt) {
+                //
+            }
+
+            [[nodiscard]] bool isPresent() {
+                this->resolve();
+
+                return this->_instances.has_value() && !this->_instances->empty();
+            }
+
+            // TODO: should not be available to caller
+            [[nodiscard]] Target *get() {
+                if (!this->isPresent()) {
+                    throw EngineError("Resource {} is not presented in resource set", typeid(Target).name());
+                }
+
+                return this->_instances->front();
+            }
+
+            [[nodiscard]] Iterator begin() {
+                this->resolve();
+
+                return this->_instances->begin();
+            }
+
+            [[nodiscard]] Iterator end() {
+                this->resolve();
+
+                return this->_instances->end();
+            }
+
+            [[nodiscard]] Target *operator->() {
+                return this->get();
+            }
+
+        private:
+            ResourceSet *_resources;
+            std::optional<std::list<Target *>> _instances;
+
+            void resolve() {
+                if (this->_instances.has_value()) {
+                    return;
+                }
+
+                this->_instances = this->_resources->template resolve<Target>();
+            }
+        };
+
+        template<typename Target> requires std::is_base_of_v<Resource<Target>, Target>
+        class Registration {
+        public:
+            explicit Registration(ResourceSet *resources)
+                    : _resources(resources),
+                      _implements({typeid(Target)}),
+                      _before(std::nullopt) {
+                //
+            }
+
+            template<typename Type>
+            [[nodiscard]] Registration &before() {
+                this->_before = typeid(Type);
+
+                return *this;
+            }
+
+            template<typename Interface>
+            requires std::is_base_of_v<Interface, Target>
+            [[nodiscard]] Registration &implements() {
+                this->_implements.insert(typeid(Interface));
+
+                return *this;
+            }
+
+            Target *done() {
+                return this->_resources->template insert<Target>(
+                        std::forward<decltype(this->_implements)>(this->_implements),
+                        std::forward<decltype(this->_before)>(this->_before));
+            }
+
+        private:
+            ResourceSet *_resources;
+            std::set<std::type_index> _implements;
+            std::optional<std::type_index> _before;
+        };
 
         ResourceSet() = default;
-        ResourceSet(const ResourceSet &) = delete;
-        ResourceSet(ResourceSet &&) = delete;
-        ResourceSet &operator=(const ResourceSet &) = delete;
-        ResourceSet &operator=(ResourceSet &&) = delete;
 
-        void initAll();
-        void destroyAll();
+        template<typename Target>
+        [[nodiscard]] Proxy<Target> get() {
+            return Proxy<Target>(this);
+        }
 
-        void runAll();
-        void stopAll();
-
-        void updateAll(float delta);
-
-        template<IsResource T, class ...Interfaces>
-        T *add(std::optional<ResourceList::iterator> before = std::nullopt);
-
-        template<class T>
-        [[nodiscard]] std::optional<ResourceList::iterator> tryGetIteratorOf() const;
-
-        [[nodiscard]] ResourceList::iterator getBeginIterator();
-
-        template<class T>
-        [[nodiscard]] T *get() const;
-
-        template<class T>
-        [[nodiscard]] std::vector<T *> getAll() const;
-
-        template<class T>
-        [[nodiscard]] Lazy<T> getLazy() const;
-
-        template<class T>
-        [[nodiscard]] LazyCollection<T> getAllLazy() const;
+        template<typename Target>
+        [[nodiscard]] Registration<Target> add() {
+            return Registration<Target>(this);
+        }
 
     private:
-        ResourceList _resources;
-        std::multimap<std::type_index, ResourceList::iterator> _resourceMap;
+        using ResourceList = std::list<std::unique_ptr<ResourceBase>>;
 
-        template<IsResource T>
-        requires IsDefaultConstructableResource<T> || IsConstructableWithResourceSetResource<T>
-        [[nodiscard]] constexpr T *construct();
+        ResourceList _instances;
+        std::map<std::type_index, std::list<ResourceList::iterator>> _typeMap;
 
-        ResourceList::iterator addToList(Resource *resource, std::optional<ResourceList::iterator> before);
+        template<typename Target>
+        [[nodiscard]] std::list<Target *> resolve() {
+            std::type_index idx = typeid(Target);
 
-        template<IsResource T>
-        void addToMap(ResourceList::iterator it);
+            auto it = this->_typeMap.find(idx);
 
-        template<IsResource T, class TInterface, class ...Interfaces>
-        requires std::is_base_of<TInterface, T>::value && (!std::is_same<TInterface, T>::value)
-        void addToMap(ResourceList::iterator it);
+            if (it == this->_typeMap.end()) {
+                return {};
+            }
 
-        void addToMap(std::type_index idx, ResourceList::iterator it);
+            std::list<Target *> instances;
 
-        [[nodiscard]] Resource *get(const std::type_index &idx) const;
+            for (auto &ptr: it->second) {
+                instances.emplace_back(dynamic_cast<Target *>(ptr->get()));
+            }
+
+            return instances;
+        }
+
+        template<typename Target>
+        requires std::is_base_of_v<Resource<Target>, Target>
+        [[nodiscard]] constexpr Target *construct() {
+            if constexpr (std::is_constructible_v<Target, ResourceSet *>) {
+                return Target::create(this);
+            } else {
+                return Target::create();
+            }
+        }
+
+        template<typename Target>
+        Target *insert(std::set<std::type_index> &&implements,
+                       std::optional<std::type_index> &&before) {
+
+            auto instance = this->construct<Target>();
+            this->insert(std::unique_ptr<ResourceBase>(instance),
+                         std::forward<decltype(implements)>(implements),
+                         std::forward<decltype(before)>(before));
+
+            return instance;
+        }
+
+        void insert(std::unique_ptr<ResourceBase> &&instance,
+                    std::set<std::type_index> &&implements,
+                    std::optional<std::type_index> &&before);
     };
-}
 
-#include "ResourceSet.inl"
+    template<typename Target>
+    using ResourceProxy = ResourceSet::Proxy<Target>;
+}
 
 #endif // PENROSE_RESOURCES_RESOURCE_SET_HPP

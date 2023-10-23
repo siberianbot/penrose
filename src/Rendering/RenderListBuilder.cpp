@@ -3,7 +3,6 @@
 #include <queue>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 #include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
@@ -11,10 +10,10 @@
 namespace Penrose {
 
     RenderListBuilder::RenderListBuilder(ResourceSet *resources)
-            : _eventQueue(resources->getLazy<EventQueue>()),
-              _sceneManager(resources->getLazy<SceneManager>()),
-              _drawableProviders(resources->getAllLazy<DrawableProvider>()),
-              _viewProviders(resources->getAllLazy<ViewProvider>()) {
+            : _eventQueue(resources->get<EventQueue>()),
+              _sceneManager(resources->get<SceneManager>()),
+              _drawableProviders(resources->get<DrawableProvider>()),
+              _viewProviders(resources->get<ViewProvider>()) {
         //
     }
 

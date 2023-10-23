@@ -13,13 +13,10 @@
 #include <Penrose/Rendering/RenderList.hpp>
 #include <Penrose/Rendering/ViewProvider.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 
 namespace Penrose {
-
-    class ResourceSet;
 
     // TODO: Still requires a lot of reworking
     //
@@ -27,7 +24,7 @@ namespace Penrose {
     //    -> receive EntityCreated / ComponentCreated / SceneModified events and handle them properly
     // 2. ...
 
-    class RenderListBuilder : public Resource, public Initializable {
+    class RenderListBuilder : public Resource<RenderListBuilder>, public Initializable {
     public:
         explicit RenderListBuilder(ResourceSet *resources);
         ~RenderListBuilder() override = default;
@@ -38,10 +35,10 @@ namespace Penrose {
         [[nodiscard]] std::optional<RenderList> tryBuildRenderList(const std::string &name);
 
     private:
-        Lazy<EventQueue> _eventQueue;
-        Lazy<SceneManager> _sceneManager;
-        LazyCollection<DrawableProvider> _drawableProviders;
-        LazyCollection<ViewProvider> _viewProviders;
+        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<SceneManager> _sceneManager;
+        ResourceProxy<DrawableProvider> _drawableProviders;
+        ResourceProxy<ViewProvider> _viewProviders;
 
         EventQueue::HandlerIdx _eventHandlerIdx = -1;
         std::mutex _mutex;

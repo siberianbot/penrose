@@ -7,10 +7,10 @@
 namespace Penrose {
 
     VkRenderGraphContextManager::VkRenderGraphContextManager(ResourceSet *resources)
-            : _framebufferFactory(resources->getLazy<VkFramebufferFactory>()),
-              _renderGraphContext(resources->getLazy<RenderGraphContext>()),
-              _renderSubgraphFactory(resources->getLazy<VkRenderSubgraphFactory>()),
-              _renderTargetFactory(resources->getLazy<VkRenderTargetFactory>()) {
+            : _framebufferFactory(resources->get<VkFramebufferFactory>()),
+              _renderGraphContext(resources->get<RenderGraphContext>()),
+              _renderSubgraphFactory(resources->get<VkRenderSubgraphFactory>()),
+              _renderTargetFactory(resources->get<VkRenderTargetFactory>()) {
         //
     }
 

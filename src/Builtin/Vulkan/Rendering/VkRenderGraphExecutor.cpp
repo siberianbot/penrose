@@ -8,8 +8,8 @@
 namespace Penrose {
 
     VkRenderGraphExecutor::VkRenderGraphExecutor(ResourceSet *resources)
-            : _renderOperators(resources->getAllLazy<RenderOperator>()),
-              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
+            : _renderOperators(resources->get<RenderOperator>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()) {
         //
     }
 

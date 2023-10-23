@@ -11,11 +11,11 @@ namespace Penrose {
     };
 
     VkRenderSystem::VkRenderSystem(ResourceSet *resources)
-            : _commandManager(resources->getLazy<VkCommandManager>()),
-              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _renderGraphContextManager(resources->getLazy<VkRenderGraphContextManager>()),
-              _renderGraphExecutor(resources->getLazy<VkRenderGraphExecutor>()),
-              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
+            : _commandManager(resources->get<VkCommandManager>()),
+              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _renderGraphContextManager(resources->get<VkRenderGraphContextManager>()),
+              _renderGraphExecutor(resources->get<VkRenderGraphExecutor>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()) {
         //
     }
 

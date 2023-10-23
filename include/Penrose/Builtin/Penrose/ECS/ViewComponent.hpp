@@ -23,7 +23,8 @@ namespace Penrose {
         std::string _renderList = "Default";
     };
 
-    class ViewComponentFactory : public Resource, public GenericComponentFactory<ViewComponent> {
+    class ViewComponentFactory : public Resource<ViewComponentFactory>,
+                                 public GenericComponentFactory<ViewComponent> {
     public:
         ~ViewComponentFactory() override = default;
     };

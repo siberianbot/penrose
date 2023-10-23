@@ -8,17 +8,15 @@
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkDescriptorPoolManager : public Resource, public Initializable {
+    class VkDescriptorPoolManager : public Resource<VkDescriptorPoolManager>,
+                                    public Initializable {
     public:
         using DescriptorSets = std::array<vk::DescriptorSet, INFLIGHT_FRAME_COUNT>;
 
@@ -39,8 +37,8 @@ namespace Penrose {
             vk::DescriptorPool descriptorPool;
         };
 
-        Lazy<Log> _log;
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<Log> _log;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
 
         std::optional<State> _state;
 

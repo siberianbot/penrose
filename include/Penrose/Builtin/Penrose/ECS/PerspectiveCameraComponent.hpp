@@ -29,7 +29,7 @@ namespace Penrose {
         float _far = 100.0f;
     };
 
-    class PerspectiveCameraComponentFactory : public Resource,
+    class PerspectiveCameraComponentFactory : public Resource<PerspectiveCameraComponentFactory>,
                                               public GenericComponentFactory<PerspectiveCameraComponent> {
     public:
         ~PerspectiveCameraComponentFactory() override = default;

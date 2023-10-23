@@ -2,7 +2,6 @@
 
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Events/SurfaceEvent.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Glfw/Rendering/GlfwSurface.hpp"
 #include "src/Builtin/Glfw/Utils/InputUtils.hpp"
@@ -10,10 +9,10 @@
 namespace Penrose {
 
     GlfwSurfaceController::GlfwSurfaceController(ResourceSet *resources)
-            : _eventQueue(resources->getLazy<EventQueue>()),
-              _inputHandler(resources->getLazy<InputHandler>()),
-              _surfaceManager(resources->getLazy<SurfaceManager>()),
-              _vulkanBackend(resources->getLazy<VulkanBackend>()) {
+            : _eventQueue(resources->get<EventQueue>()),
+              _inputHandler(resources->get<InputHandler>()),
+              _surfaceManager(resources->get<SurfaceManager>()),
+              _vulkanBackend(resources->get<VulkanBackend>()) {
         //
     }
 

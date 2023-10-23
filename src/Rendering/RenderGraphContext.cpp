@@ -1,11 +1,9 @@
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     RenderGraphContext::RenderGraphContext(ResourceSet *resources)
-            : _hooks(resources->getAllLazy<RenderGraphHook>()) {
+            : _hooks(resources->get<RenderGraphHook>()) {
         //
     }
 

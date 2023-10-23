@@ -6,14 +6,11 @@
 #include <Penrose/Api.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Rendering/RenderGraphHook.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class PENROSE_API RenderGraphContext : public Resource {
+    class PENROSE_API RenderGraphContext : public Resource<RenderGraphContext> {
     public:
         explicit RenderGraphContext(ResourceSet *resources);
         ~RenderGraphContext() override = default;
@@ -23,7 +20,7 @@ namespace Penrose {
         [[nodiscard]] const RenderGraphInfo &getRenderGraph() { return this->_graphInfo; }
 
     private:
-        LazyCollection<RenderGraphHook> _hooks;
+        ResourceProxy<RenderGraphHook> _hooks;
 
         RenderGraphInfo _graphInfo = RenderGraphInfo::makeDefault();
     };

@@ -5,8 +5,7 @@
 #include <string>
 
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkFramebuffer.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
@@ -14,12 +13,10 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
     class VkRenderSubgraph;
     class VkRenderTarget;
 
-    class VkFramebufferFactory : public Resource {
+    class VkFramebufferFactory : public Resource<VkFramebufferFactory> {
     public:
         explicit VkFramebufferFactory(ResourceSet *resources);
         ~VkFramebufferFactory() override = default;
@@ -28,8 +25,8 @@ namespace Penrose {
                                                      VkRenderSubgraph *subgraph);
 
     private:
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkSwapchainManager> _swapchainManager;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkSwapchainManager> _swapchainManager;
     };
 }
 

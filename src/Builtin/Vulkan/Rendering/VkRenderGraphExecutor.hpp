@@ -10,17 +10,15 @@
 
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkRenderGraphContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkRenderGraphExecutor : public Resource, public Initializable {
+    class VkRenderGraphExecutor : public Resource<VkRenderGraphExecutor>,
+                                  public Initializable {
     public:
         struct Submit {
             vk::CommandBuffer commandBuffer;
@@ -42,8 +40,8 @@ namespace Penrose {
                                                   std::uint32_t frameIdx, std::uint32_t imageIdx);
 
     private:
-        LazyCollection<RenderOperator> _renderOperators;
-        Lazy<VkSwapchainManager> _swapchainManager;
+        ResourceProxy<RenderOperator> _renderOperators;
+        ResourceProxy<VkSwapchainManager> _swapchainManager;
 
         std::map<std::string, RenderOperator *> _renderOperatorsMap;
     };

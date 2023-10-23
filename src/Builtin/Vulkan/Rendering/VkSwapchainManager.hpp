@@ -7,16 +7,14 @@
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkSwapchainFactory.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkSwapchainManager : public Resource, public Initializable {
+    class VkSwapchainManager : public Resource<VkSwapchainManager>,
+                               public Initializable {
     public:
         explicit VkSwapchainManager(ResourceSet *resources);
         ~VkSwapchainManager() override = default;
@@ -29,8 +27,8 @@ namespace Penrose {
         [[nodiscard]] std::shared_ptr<VkSwapchain> getSwapchain();
 
     private:
-        Lazy<Log> _log;
-        Lazy<VkSwapchainFactory> _swapchainFactory;
+        ResourceProxy<Log> _log;
+        ResourceProxy<VkSwapchainFactory> _swapchainFactory;
 
         std::mutex _mutex;
         std::optional<std::shared_ptr<VkSwapchain>> _swapchain;

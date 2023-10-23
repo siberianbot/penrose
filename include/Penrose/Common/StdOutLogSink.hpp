@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    class StdOutLogSink : public Resource, public LogSink {
+    class StdOutLogSink : public Resource<StdOutLogSink>, public LogSink {
     public:
         ~StdOutLogSink() override = default;
 

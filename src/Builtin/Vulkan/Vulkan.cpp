@@ -1,5 +1,7 @@
 #include <Penrose/Builtin/Vulkan.hpp>
 
+#include <Penrose/Rendering/RenderManager.hpp>
+#include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
@@ -28,33 +30,98 @@ namespace Penrose {
 
     ResourceSet &addVulkan(ResourceSet &resources) {
 
-        resources.add<VulkanBackend>(resources.getBeginIterator());
+        resources.add<VulkanBackend>()
+                .implements<Initializable>()
+                .before<SurfaceManager>()
+                .done();
 
-        resources.add<VkPhysicalDeviceContext>();
-        resources.add<VkLogicalDeviceContext>();
-        resources.add<VkMemoryAllocator>();
-        resources.add<VkCommandManager>();
-        resources.add<VkDescriptorPoolManager>();
+        resources.add<VkPhysicalDeviceContext>()
+                .implements<Initializable>()
+                .before<RenderManager>()
+                .done();
 
-        resources.add<VkSwapchainPreferencesProvider>();
-        resources.add<VkSwapchainFactory>();
-        resources.add<VkSwapchainManager>();
+        resources.add<VkLogicalDeviceContext>()
+                .implements<Initializable>()
+                .before<RenderManager>()
+                .done();
 
-        resources.add<VkBufferFactory, BufferFactory>();
-        resources.add<VkImageFactory, ImageFactory>();
-        resources.add<VkPipelineFactory, PipelineFactory>();
-        resources.add<VkSamplerFactory, SamplerFactory>();
-        resources.add<VkShaderFactory, ShaderFactory>();
-        resources.add<VkRenderingObjectManager, RenderingObjectManager>();
+        resources.add<VkCommandManager>()
+                .implements<Initializable>()
+                .before<RenderManager>()
+                .done();
 
-        resources.add<VkRenderSubgraphFactory>();
-        resources.add<VkRenderTargetFactory>();
-        resources.add<VkFramebufferFactory>();
+        resources.add<VkDescriptorPoolManager>()
+                .implements<Initializable>()
+                .before<RenderManager>()
+                .done();
 
-        resources.add<VkRenderGraphContextManager, RenderGraphHook>();
-        resources.add<VkRenderGraphExecutor>();
+        resources.add<VkMemoryAllocator>()
+                .done();
 
-        resources.add<VkRenderSystem, RenderSystem>();
+        resources.add<VkSwapchainPreferencesProvider>()
+                .done();
+
+        resources.add<VkSwapchainFactory>()
+                .before<RenderManager>()
+                .done();
+
+        resources.add<VkSwapchainManager>()
+                .implements<Initializable>()
+                .before<RenderManager>()
+                .done();
+
+        resources.add<VkBufferFactory>()
+                .implements<BufferFactory>()
+                .done();
+
+        resources.add<VkImageFactory>()
+                .implements<ImageFactory>()
+                .done();
+
+        resources.add<VkPipelineFactory>()
+                .implements<Initializable>()
+                .implements<PipelineFactory>()
+                .before<RenderManager>()
+                .done();
+
+        resources.add<VkSamplerFactory>()
+                .implements<SamplerFactory>()
+                .done();
+
+        resources.add<VkShaderFactory>()
+                .implements<ShaderFactory>()
+                .done();
+
+        resources.add<VkRenderingObjectManager>()
+                .implements<RenderingObjectManager>()
+                .done();
+
+        resources.add<VkRenderSubgraphFactory>()
+                .done();
+
+        resources.add<VkRenderTargetFactory>()
+                .done();
+
+        resources.add<VkFramebufferFactory>()
+                .done();
+
+        resources.add<VkRenderGraphContextManager>()
+                .implements<Initializable>()
+                .implements<RenderGraphHook>()
+                .before<RenderManager>()
+                .done();
+
+        resources.add<VkRenderGraphExecutor>()
+                .implements<Initializable>()
+                .before<RenderManager>()
+                .done();
+
+        resources.add<VkRenderSystem>()
+                .implements<Initializable>()
+                .implements<Runnable>()
+                .implements<RenderSystem>()
+                .before<RenderManager>()
+                .done();
 
         return resources;
     }

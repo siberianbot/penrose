@@ -7,7 +7,7 @@
 #include <Penrose/Resources/ResourceSet.hpp>
 
 TestCountdownSystem::TestCountdownSystem(ResourceSet *resources)
-        : _eventQueue(resources->getLazy<EventQueue>()) {
+        : _eventQueue(resources->get<EventQueue>()) {
     //
 }
 

@@ -11,17 +11,15 @@
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkPhysicalDeviceContext : public Resource, public Initializable {
+    class VkPhysicalDeviceContext : public Resource<VkPhysicalDeviceContext>,
+                                    public Initializable {
     public:
         explicit VkPhysicalDeviceContext(ResourceSet *resources);
         ~VkPhysicalDeviceContext() override = default;
@@ -55,10 +53,10 @@ namespace Penrose {
             std::uint32_t priority;
         };
 
-        Lazy<Log> _log;
-        Lazy<SurfaceManager> _surfaceManager;
-        Lazy<VkSurfaceProvider> _vkSurfaceProvider;
-        Lazy<VulkanBackend> _vulkanBackend;
+        ResourceProxy<Log> _log;
+        ResourceProxy<SurfaceManager> _surfaceManager;
+        ResourceProxy<VkSurfaceProvider> _vkSurfaceProvider;
+        ResourceProxy<VulkanBackend> _vulkanBackend;
 
         std::optional<DeviceInfo> _device;
 

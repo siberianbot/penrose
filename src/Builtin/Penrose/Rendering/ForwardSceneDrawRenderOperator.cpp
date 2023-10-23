@@ -93,12 +93,12 @@ namespace Penrose {
             .setBorderColor(SamplerBorderColor::Black);
 
     ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(ResourceSet *resources)
-            : _assetManager(resources->getLazy<AssetManager>()),
-              _bufferFactory(resources->getLazy<BufferFactory>()),
-              _pipelineFactory(resources->getLazy<PipelineFactory>()),
-              _renderingObjectManager(resources->getLazy<RenderingObjectManager>()),
-              _renderListBuilder(resources->getLazy<RenderListBuilder>()),
-              _samplerFactory(resources->getLazy<SamplerFactory>()) {
+            : _assetManager(resources->get<AssetManager>()),
+              _bufferFactory(resources->get<BufferFactory>()),
+              _pipelineFactory(resources->get<PipelineFactory>()),
+              _renderingObjectManager(resources->get<RenderingObjectManager>()),
+              _renderListBuilder(resources->get<RenderListBuilder>()),
+              _samplerFactory(resources->get<SamplerFactory>()) {
         //
     }
 

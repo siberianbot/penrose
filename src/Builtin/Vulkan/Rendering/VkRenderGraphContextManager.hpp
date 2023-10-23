@@ -9,8 +9,7 @@
 #include <Penrose/Rendering/RenderGraphHook.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkFramebufferFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderGraphContext.hpp"
@@ -19,9 +18,7 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkRenderGraphContextManager : public Resource,
+    class VkRenderGraphContextManager : public Resource<VkRenderGraphContextManager>,
                                         public Initializable,
                                         public RenderGraphHook {
     public:
@@ -38,10 +35,10 @@ namespace Penrose {
         [[nodiscard]] std::shared_ptr<VkRenderGraphContext> acquireContext();
 
     private:
-        Lazy<VkFramebufferFactory> _framebufferFactory;
-        Lazy<RenderGraphContext> _renderGraphContext;
-        Lazy<VkRenderSubgraphFactory> _renderSubgraphFactory;
-        Lazy<VkRenderTargetFactory> _renderTargetFactory;
+        ResourceProxy<VkFramebufferFactory> _framebufferFactory;
+        ResourceProxy<RenderGraphContext> _renderGraphContext;
+        ResourceProxy<VkRenderSubgraphFactory> _renderSubgraphFactory;
+        ResourceProxy<VkRenderTargetFactory> _renderTargetFactory;
 
         bool _initialized = false;
 

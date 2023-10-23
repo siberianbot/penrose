@@ -11,18 +11,16 @@
 #include <Penrose/Rendering/SurfaceFactory.hpp>
 #include <Penrose/Rendering/SurfaceHook.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
     class GlfwSurface;
 
-    class GlfwSurfaceController : public Resource,
+    class GlfwSurfaceController : public Resource<GlfwSurfaceController>,
                                   public SurfaceFactory,
                                   public SurfaceHook,
                                   public VkSurfaceProvider {
@@ -41,10 +39,10 @@ namespace Penrose {
         void onSurfaceInvalidated(Surface *) override { /* nothing to do */ }
 
     private:
-        Lazy<EventQueue> _eventQueue;
-        Lazy<InputHandler> _inputHandler;
-        Lazy<SurfaceManager> _surfaceManager;
-        Lazy<VulkanBackend> _vulkanBackend;
+        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<InputHandler> _inputHandler;
+        ResourceProxy<SurfaceManager> _surfaceManager;
+        ResourceProxy<VulkanBackend> _vulkanBackend;
 
         std::map<GLFWwindow *, vk::SurfaceKHR> _vkSurfaces;
 

@@ -7,16 +7,14 @@
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkLogicalDeviceContext : public Resource, public Initializable {
+    class VkLogicalDeviceContext : public Resource<VkLogicalDeviceContext>,
+                                   public Initializable {
     public:
         explicit VkLogicalDeviceContext(ResourceSet *resources);
         ~VkLogicalDeviceContext() override = default;
@@ -40,8 +38,8 @@ namespace Penrose {
             vk::Queue presentQueue;
         };
 
-        Lazy<Log> _log;
-        Lazy<VkPhysicalDeviceContext> _physicalDeviceContext;
+        ResourceProxy<Log> _log;
+        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
 
         std::optional<State> _state;
 

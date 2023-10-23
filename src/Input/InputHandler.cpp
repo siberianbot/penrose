@@ -1,14 +1,13 @@
 #include <Penrose/Input/InputHandler.hpp>
 
 #include <Penrose/Events/InputEvent.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 
     InputHandler::InputHandler(ResourceSet *resources)
-            : _eventQueue(resources->getLazy<EventQueue>()),
-              _inputHooks(resources->getAllLazy<InputHook>()) {
+            : _eventQueue(resources->get<EventQueue>()),
+              _inputHooks(resources->get<InputHook>()) {
         //
     }
 

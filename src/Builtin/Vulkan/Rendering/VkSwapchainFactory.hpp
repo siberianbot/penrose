@@ -4,8 +4,7 @@
 #include <optional>
 
 #include <Penrose/Rendering/SurfaceManager.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
@@ -14,9 +13,7 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkSwapchainFactory : public Resource {
+    class VkSwapchainFactory : public Resource<VkSwapchainFactory> {
     public:
         explicit VkSwapchainFactory(ResourceSet *resources);
         ~VkSwapchainFactory() override = default;
@@ -24,10 +21,10 @@ namespace Penrose {
         [[nodiscard]] VkSwapchain *makeSwapchain(std::optional<VkSwapchain *> oldSwapchain = std::nullopt);
 
     private:
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<SurfaceManager> _surfaceManager;
-        Lazy<VkSurfaceProvider> _surfaceProvider;
-        Lazy<VkSwapchainPreferencesProvider> _swapchainPreferencesProvider;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<SurfaceManager> _surfaceManager;
+        ResourceProxy<VkSurfaceProvider> _surfaceProvider;
+        ResourceProxy<VkSwapchainPreferencesProvider> _swapchainPreferencesProvider;
     };
 }
 

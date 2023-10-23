@@ -21,10 +21,10 @@ namespace Penrose {
     };
 
     VkPhysicalDeviceContext::VkPhysicalDeviceContext(ResourceSet *resources)
-            : _log(resources->getLazy<Log>()),
-              _surfaceManager(resources->getLazy<SurfaceManager>()),
-              _vkSurfaceProvider(resources->getLazy<VkSurfaceProvider>()),
-              _vulkanBackend(resources->getLazy<VulkanBackend>()) {
+            : _log(resources->get<Log>()),
+              _surfaceManager(resources->get<SurfaceManager>()),
+              _vkSurfaceProvider(resources->get<VkSurfaceProvider>()),
+              _vulkanBackend(resources->get<VulkanBackend>()) {
         //
     }
 

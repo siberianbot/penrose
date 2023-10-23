@@ -10,9 +10,9 @@ namespace Penrose {
     constexpr static const std::string_view VK_COMMAND_MANAGER_TAG = "VkCommandManager";
 
     VkCommandManager::VkCommandManager(ResourceSet *resources)
-            : _log(resources->getLazy<Log>()),
-              _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _physicalDeviceContext(resources->getLazy<VkPhysicalDeviceContext>()) {
+            : _log(resources->get<Log>()),
+              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
         //
     }
 

@@ -2,8 +2,7 @@
 #define PENROSE_BUILTIN_VULKAN_RENDERING_VK_RENDER_SUBGRAPH_FACTORY_HPP
 
 #include <Penrose/Rendering/RenderSubgraphInfo.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
@@ -11,9 +10,7 @@
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class VkRenderSubgraphFactory : public Resource {
+    class VkRenderSubgraphFactory : public Resource<VkRenderSubgraphFactory> {
     public:
         explicit VkRenderSubgraphFactory(ResourceSet *resources);
         ~VkRenderSubgraphFactory() override = default;
@@ -21,8 +18,8 @@ namespace Penrose {
         [[nodiscard]] VkRenderSubgraph *makeRenderSubgraph(RenderSubgraphInfo &&subgraphInfo);
 
     private:
-        Lazy<VkLogicalDeviceContext> _logicalDeviceContext;
-        Lazy<VkSwapchainManager> _swapchainManager;
+        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkSwapchainManager> _swapchainManager;
     };
 }
 

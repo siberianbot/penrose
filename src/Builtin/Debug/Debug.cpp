@@ -11,9 +11,12 @@ namespace Penrose {
 
     ResourceSet &addDebug(ResourceSet &resources) {
 
-        resources.add<UIContext>();
-        resources.add<UIDrawVisitor>();
-        resources.add<VkImGuiDebugUIDrawRenderOperator, RenderOperator>();
+        resources.add<UIContext>().done();
+        resources.add<UIDrawVisitor>().done();
+        resources.add<VkImGuiDebugUIDrawRenderOperator>()
+                .implements<Initializable>()
+                .implements<RenderOperator>()
+                .done();
 
         return resources;
     }

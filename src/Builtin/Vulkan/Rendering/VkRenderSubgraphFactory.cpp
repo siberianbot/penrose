@@ -9,8 +9,8 @@
 namespace Penrose {
 
     VkRenderSubgraphFactory::VkRenderSubgraphFactory(ResourceSet *resources)
-            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
+            : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()) {
         //
     }
 

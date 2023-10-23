@@ -42,7 +42,8 @@ namespace Penrose {
         glm::vec3 _color = glm::vec3(1);
     };
 
-    class MeshRendererComponentFactory : public Resource, public GenericComponentFactory<MeshRendererComponent> {
+    class MeshRendererComponentFactory : public Resource<MeshRendererComponentFactory>,
+                                         public GenericComponentFactory<MeshRendererComponent> {
     public:
         ~MeshRendererComponentFactory() override = default;
     };

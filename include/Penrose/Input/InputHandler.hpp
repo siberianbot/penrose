@@ -8,14 +8,11 @@
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Input/Input.hpp>
 #include <Penrose/Input/InputHook.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class PENROSE_API InputHandler : public Resource {
+    class PENROSE_API InputHandler : public Resource<InputHandler> {
     public:
         explicit InputHandler(ResourceSet *resources);
         ~InputHandler() override = default;
@@ -29,8 +26,8 @@ namespace Penrose {
         [[nodiscard]] std::tuple<float, float> getCurrentMousePosition() const { return this->_mousePos; }
 
     private:
-        Lazy<EventQueue> _eventQueue;
-        LazyCollection<InputHook> _inputHooks;
+        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<InputHook> _inputHooks;
 
         std::map<InputKey, InputState> _states;
         std::tuple<float, float> _mousePos;

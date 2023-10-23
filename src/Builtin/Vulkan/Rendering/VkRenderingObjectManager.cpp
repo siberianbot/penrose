@@ -10,10 +10,10 @@
 namespace Penrose {
 
     VkRenderingObjectManager::VkRenderingObjectManager(ResourceSet *resources)
-            : _bufferFactory(resources->getLazy<VkBufferFactory>()),
-              _imageFactory(resources->getLazy<VkImageFactory>()),
-              _shaderFactory(resources->getLazy<VkShaderFactory>()),
-              _commandManager(resources->getLazy<VkCommandManager>()) {
+            : _bufferFactory(resources->get<VkBufferFactory>()),
+              _imageFactory(resources->get<VkImageFactory>()),
+              _shaderFactory(resources->get<VkShaderFactory>()),
+              _commandManager(resources->get<VkCommandManager>()) {
         //
     }
 

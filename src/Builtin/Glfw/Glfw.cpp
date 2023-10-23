@@ -1,5 +1,6 @@
 #include <Penrose/Builtin/Glfw.hpp>
 
+#include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Glfw/GlfwBackend.hpp"
@@ -9,8 +10,19 @@ namespace Penrose {
 
     ResourceSet &addGlfw(ResourceSet &resources) {
 
-        resources.add<GlfwBackend, VkInstanceExtensionsProvider>(resources.getBeginIterator());
-        resources.add<GlfwSurfaceController, SurfaceFactory, SurfaceHook, VkSurfaceProvider>();
+        resources.add<GlfwBackend>()
+                .implements<VkInstanceExtensionsProvider>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .before<SurfaceManager>()
+                .done();
+
+        resources.add<GlfwSurfaceController>()
+                .implements<SurfaceFactory>()
+                .implements<SurfaceHook>()
+                .implements<VkSurfaceProvider>()
+                .before<SurfaceManager>()
+                .done();
 
         return resources;
     }

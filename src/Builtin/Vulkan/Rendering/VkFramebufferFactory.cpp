@@ -11,8 +11,8 @@
 namespace Penrose {
 
     VkFramebufferFactory::VkFramebufferFactory(ResourceSet *resources)
-            : _logicalDeviceContext(resources->getLazy<VkLogicalDeviceContext>()),
-              _swapchainManager(resources->getLazy<VkSwapchainManager>()) {
+            : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+              _swapchainManager(resources->get<VkSwapchainManager>()) {
         //
     }
 

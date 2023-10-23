@@ -23,15 +23,16 @@
 #include <Penrose/Rendering/RenderOperator.hpp>
 #include <Penrose/Rendering/Sampler.hpp>
 #include <Penrose/Rendering/SamplerFactory.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Initializable.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
 
-    class ForwardSceneDrawRenderOperator : public Resource, public Initializable, public RenderOperator {
+    class ForwardSceneDrawRenderOperator : public Resource<ForwardSceneDrawRenderOperator>,
+                                           public Initializable,
+                                           public RenderOperator {
     public:
         constexpr static const std::string_view NAME = "ForwardSceneDraw";
 
@@ -62,12 +63,12 @@ namespace Penrose {
         void execute(CommandRecording *commandRecording, const RenderOperator::Context &context) override;
 
     private:
-        Lazy<AssetManager> _assetManager;
-        Lazy<BufferFactory> _bufferFactory;
-        Lazy<PipelineFactory> _pipelineFactory;
-        Lazy<RenderingObjectManager> _renderingObjectManager;
-        Lazy<RenderListBuilder> _renderListBuilder;
-        Lazy<SamplerFactory> _samplerFactory;
+        ResourceProxy<AssetManager> _assetManager;
+        ResourceProxy<BufferFactory> _bufferFactory;
+        ResourceProxy<PipelineFactory> _pipelineFactory;
+        ResourceProxy<RenderingObjectManager> _renderingObjectManager;
+        ResourceProxy<RenderListBuilder> _renderListBuilder;
+        ResourceProxy<SamplerFactory> _samplerFactory;
 
         std::optional<std::unique_ptr<Buffer>> _instanceDataBuffer;
         std::optional<std::unique_ptr<Image>> _placeholderTexture;

@@ -8,14 +8,13 @@
 #include <Penrose/Rendering/SurfaceFactory.hpp>
 #include <Penrose/Rendering/SurfaceHook.hpp>
 #include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/Lazy.hpp>
-#include <Penrose/Resources/Resource.hpp>
+#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 
     class ResourceSet;
 
-    class PENROSE_API SurfaceManager : public Resource, public Initializable {
+    class PENROSE_API SurfaceManager : public Resource<SurfaceManager>, public Initializable {
     public:
         explicit SurfaceManager(ResourceSet *resources);
         ~SurfaceManager() override = default;
@@ -28,8 +27,8 @@ namespace Penrose {
         [[nodiscard]] std::shared_ptr<Surface> getSurface() const { return this->_surface.value(); }
 
     private:
-        Lazy<SurfaceFactory> _surfaceFactory;
-        LazyCollection<SurfaceHook> _surfaceHooks;
+        ResourceProxy<SurfaceFactory> _surfaceFactory;
+        ResourceProxy<SurfaceHook> _surfaceHooks;
 
         std::optional<std::shared_ptr<Surface>> _surface;
     };

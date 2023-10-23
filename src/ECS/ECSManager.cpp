@@ -7,7 +7,6 @@
 
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Events/ECSEvent.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
@@ -15,10 +14,10 @@ namespace Penrose {
     constexpr static const std::string_view ECS_MANAGER_TAG = "ECSManager";
 
     ECSManager::ECSManager(ResourceSet *resources)
-            : _eventQueue(resources->getLazy<EventQueue>()),
-              _log(resources->getLazy<Log>()),
-              _componentFactories(resources->getAllLazy<ComponentFactory>()),
-              _systems(resources->getAllLazy<System>()) {
+            : _eventQueue(resources->get<EventQueue>()),
+              _log(resources->get<Log>()),
+              _componentFactories(resources->get<ComponentFactory>()),
+              _systems(resources->get<System>()) {
         //
     }
 
