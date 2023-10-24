@@ -1,7 +1,6 @@
 #include "GlfwSurfaceController.hpp"
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Events/SurfaceEvent.hpp>
 
 #include "src/Builtin/Glfw/Rendering/GlfwSurface.hpp"
 #include "src/Builtin/Glfw/Utils/InputUtils.hpp"
@@ -9,7 +8,7 @@
 namespace Penrose {
 
     GlfwSurfaceController::GlfwSurfaceController(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()),
+            : _eventQueue(resources->get<SurfaceEventQueue>()),
               _inputHandler(resources->get<InputHandler>()),
               _surfaceManager(resources->get<SurfaceManager>()),
               _vulkanBackend(resources->get<VulkanBackend>()) {
@@ -77,18 +76,19 @@ namespace Penrose {
     void GlfwSurfaceController::windowCloseCallback(GLFWwindow *handle) {
         auto that = reinterpret_cast<GlfwSurfaceController *>(glfwGetWindowUserPointer(handle));
 
-        auto data = SurfaceEventArgs{
-                .type = SurfaceEventType::CloseRequested,
-                .surface = that->_surfaceManager->getSurface()
-        };
+        auto surface = that->_surfaceManager->getSurface();
 
-        that->_eventQueue->pushEvent<EventType::SurfaceEvent>(data);
+        that->_eventQueue->push<SurfaceCloseRequestedEvent>(std::move(surface));
     }
 
-    void GlfwSurfaceController::framebufferSizeCallback(GLFWwindow *handle, int, int) {
+    void GlfwSurfaceController::framebufferSizeCallback(GLFWwindow *handle, int w, int h) {
         auto that = reinterpret_cast<GlfwSurfaceController *>(glfwGetWindowUserPointer(handle));
 
-        that->_surfaceManager->invalidate();
+        that->_surfaceManager->invalidate(); // TODO: remove
+
+        auto surface = that->_surfaceManager->getSurface();
+
+        that->_eventQueue->push<SurfaceResizedEvent>(std::move(surface), Size(w, h));
     }
 
     void GlfwSurfaceController::keyCallback(GLFWwindow *handle, int key, int, int action, int) {

@@ -38,9 +38,6 @@ src = [
     # ECS
     'src/ECS/ECSManager.cpp',
 
-    # Events
-    'src/Events/EventQueue.cpp',
-
     # Input
     'src/Input/Input.cpp',
     'src/Input/InputHandler.cpp',

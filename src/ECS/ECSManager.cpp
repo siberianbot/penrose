@@ -6,7 +6,6 @@
 #include <utility>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Events/ECSEvent.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
@@ -14,7 +13,7 @@ namespace Penrose {
     constexpr static const std::string_view ECS_MANAGER_TAG = "ECSManager";
 
     ECSManager::ECSManager(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()),
+            : _eventQueue(resources->get<ECSEventQueue>()),
               _log(resources->get<Log>()),
               _componentFactories(resources->get<ComponentFactory>()),
               _systems(resources->get<System>()) {
@@ -61,14 +60,7 @@ namespace Penrose {
         this->_entitiesEntries[*entity] = {};
         this->_entitiesAllocMap.set(*entity, true);
 
-        auto data = ECSEventArgs{
-                .type = ECSEventType::EntityCreated,
-                .entity = *entity,
-                .componentName = "",
-                .component = nullptr
-        };
-
-        this->_eventQueue->pushEvent<EventType::ECSEvent>(data);
+        this->_eventQueue->push<EntityCreatedEvent>(*entity);
 
         return *entity;
     }
@@ -83,14 +75,7 @@ namespace Penrose {
         this->_entitiesAllocMap.set(entity, false);
         (*entry)->components.clear();
 
-        auto data = ECSEventArgs{
-                .type = ECSEventType::EntityDestroyed,
-                .entity = entity,
-                .componentName = "",
-                .component = nullptr
-        };
-
-        this->_eventQueue->pushEvent<EventType::ECSEvent>(data);
+        this->_eventQueue->push<EntityDestroyedEvent>(entity);
     }
 
     const ECSManager::ComponentMap &ECSManager::getComponents(const Entity &entity) {
@@ -169,7 +154,8 @@ namespace Penrose {
         return &this->_entitiesEntries.at(entity);
     }
 
-    void ECSManager::addComponent(const Entity &entity, std::string &&name, const std::shared_ptr<Component> &instance) {
+    void
+    ECSManager::addComponent(const Entity &entity, std::string &&name, const std::shared_ptr<Component> &instance) {
         auto entry = this->tryGetEntity(entity);
 
         if (!entry.has_value()) {
@@ -184,14 +170,8 @@ namespace Penrose {
 
         (*entry)->components.emplace(name, instance);
 
-        auto data = ECSEventArgs{
-                .type = ECSEventType::ComponentCreated,
-                .entity = entity,
-                .componentName = name,
-                .component = instance
-        };
-
-        this->_eventQueue->pushEvent<EventType::ECSEvent>(data);
+        auto instanceCopy = instance;
+        this->_eventQueue->push<ComponentCreatedEvent>(entity, std::move(instanceCopy));
     }
 
     std::optional<std::shared_ptr<Component>> ECSManager::tryGetComponent(const Entity &entity,
@@ -228,13 +208,6 @@ namespace Penrose {
 
         (*entry)->components.erase(componentIt);
 
-        auto data = ECSEventArgs{
-                .type = ECSEventType::ComponentDestroyed,
-                .entity = entity,
-                .componentName = name,
-                .component = nullptr
-        };
-
-        this->_eventQueue->pushEvent<EventType::ECSEvent>(data);
+        this->_eventQueue->push<ComponentDestroyedEvent>(entity, std::move(name));
     }
 }

@@ -5,7 +5,7 @@
 #include <thread>
 
 #include <Penrose/ECS/System.hpp>
-#include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Events/EngineEvents.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -34,7 +34,7 @@ public:
     void setFailureTimeout(float timeout) { this->_failureTimeout = timeout; }
 
 private:
-    ResourceProxy<EventQueue> _eventQueue;
+    ResourceProxy<EngineEventQueue> _eventQueue;
 
     float _passed = 0;
     float _testTimeout = DEFAULT_TEST_TIMEOUT;

@@ -42,10 +42,10 @@ namespace Penrose {
         }
 
         template<typename ...Args>
-        [[nodiscard]] constexpr static Self *create(Args...args) {
+        [[nodiscard]] constexpr static Self *create(Args &&...args) {
             static_assert(std::is_constructible_v<Self, Args...>);
 
-            return new Self(args...);
+            return new Self(std::forward<decltype(args)>(args)...);
         }
 
         [[nodiscard]] /* TODO: constexpr */ static ResourceInfo type() {

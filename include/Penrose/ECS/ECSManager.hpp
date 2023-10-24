@@ -16,7 +16,7 @@
 #include <Penrose/ECS/ECSQuery.hpp>
 #include <Penrose/ECS/Entity.hpp>
 #include <Penrose/ECS/System.hpp>
-#include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Events/ECSEvents.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Resources/Updatable.hpp>
@@ -67,7 +67,7 @@ namespace Penrose {
             ComponentMap components;
         };
 
-        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<ECSEventQueue> _eventQueue;
         ResourceProxy<Log> _log;
         ResourceProxy<ComponentFactory> _componentFactories;
         ResourceProxy<System> _systems;

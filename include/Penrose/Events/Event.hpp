@@ -3,34 +3,27 @@
 
 #include <type_traits>
 
-#include <Penrose/Events/EventType.hpp>
+#include <Penrose/Api.hpp>
 
 namespace Penrose {
 
-    class EventBase {
+    template<typename Self>
+    class PENROSE_API Event {
     public:
-        virtual ~EventBase() = default;
+        virtual ~Event() = default;
 
-        [[nodiscard]] virtual EventType getType() const = 0;
-    };
+        [[nodiscard]] constexpr static Self create() {
+            static_assert(std::is_default_constructible_v<Self>);
 
-    template<EventType Type, typename Data>
-    class Event : public EventBase {
-    public:
-        explicit Event(Data &&data) : _data(data) {
-            //
+            return Self();
         }
 
-        [[nodiscard]] EventType getType() const override { return Type; }
+        template<typename ...Args>
+        [[nodiscard]] constexpr static Self create(Args &&...args) {
+            static_assert(std::is_constructible_v<Self, Args...>);
 
-        [[nodiscard]] const Data &getArgs() const { return this->_data; }
-
-        [[nodiscard]] static Event<Type, Data> construct(Data &&data) {
-            return Event<Type, Data>(data);
+            return Self(std::forward<decltype(args)>(args)...);
         }
-
-    private:
-        Data _data;
     };
 }
 

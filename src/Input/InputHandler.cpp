@@ -1,12 +1,11 @@
 #include <Penrose/Input/InputHandler.hpp>
 
-#include <Penrose/Events/InputEvent.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 
     InputHandler::InputHandler(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()),
+            : _eventQueue(resources->get<InputEventQueue>()),
               _inputHooks(resources->get<InputHook>()) {
         //
     }
@@ -20,12 +19,7 @@ namespace Penrose {
 
         this->_states.insert_or_assign(key, state);
 
-        auto data = InputEventArgs{
-                .type = InputEventType::KeyStateUpdated,
-                .keyState = InputKeyState{key, state}
-        };
-
-        this->_eventQueue->pushEvent<EventType::InputEvent>(data);
+        this->_eventQueue->push<KeyStateUpdatedEvent>(key, state);
     }
 
     void InputHandler::pushMouseMove(float x, float y) {
@@ -36,25 +30,16 @@ namespace Penrose {
                 std::clamp(y, -1.0f, 1.0f)
         };
 
-        auto data = InputEventArgs{
-                .type = InputEventType::MouseMoved,
-                .mousePos = this->_mousePos,
-                .mousePosDelta = InputMousePos{
-                        x - xOld,
-                        y - yOld
-                }
-        };
+        auto pos = this->_mousePos;
+        auto delta = std::make_tuple(x - xOld, y - yOld);
 
-        this->_eventQueue->pushEvent<EventType::InputEvent>(data);
+        this->_eventQueue->push<MouseMovementEvent>(
+                std::move(pos),
+                std::move(delta));
     }
 
     void InputHandler::pushScroll(float dx, float dy) {
-        auto data = InputEventArgs{
-                .type = InputEventType::Scroll,
-                .scroll = InputScroll{dx, dy}
-        };
-
-        this->_eventQueue->pushEvent<EventType::InputEvent>(data);
+        this->_eventQueue->push<MouseScrollEvent>(dx, dy);
     }
 
     InputState InputHandler::getCurrentStateOf(InputKey key) const {

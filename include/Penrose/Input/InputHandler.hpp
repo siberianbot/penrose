@@ -5,7 +5,7 @@
 #include <map>
 
 #include <Penrose/Api.hpp>
-#include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Events/InputEvents.hpp>
 #include <Penrose/Input/Input.hpp>
 #include <Penrose/Input/InputHook.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
@@ -26,7 +26,7 @@ namespace Penrose {
         [[nodiscard]] std::tuple<float, float> getCurrentMousePosition() const { return this->_mousePos; }
 
     private:
-        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<InputEventQueue> _eventQueue;
         ResourceProxy<InputHook> _inputHooks;
 
         std::map<InputKey, InputState> _states;

@@ -7,7 +7,7 @@
 #include <set>
 
 #include <Penrose/ECS/Entity.hpp>
-#include <Penrose/Events/ECSEvent.hpp>
+#include <Penrose/Events/ECSEvents.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/DrawableProvider.hpp>
 #include <Penrose/Rendering/RenderList.hpp>
@@ -35,18 +35,17 @@ namespace Penrose {
         [[nodiscard]] std::optional<RenderList> tryBuildRenderList(const std::string &name);
 
     private:
-        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<ECSEventQueue> _eventQueue;
         ResourceProxy<SceneManager> _sceneManager;
         ResourceProxy<DrawableProvider> _drawableProviders;
         ResourceProxy<ViewProvider> _viewProviders;
 
-        EventQueue::HandlerIdx _eventHandlerIdx = -1;
         std::mutex _mutex;
 
         std::map<std::string, Entity> _renderListViewMap;
 
-        void handleComponentCreate(const ECSEventArgs &eventArgs);
-        void handleComponentDestroy(const ECSEventArgs &eventArgs);
+        void handleComponentCreate(const ComponentCreatedEvent *event);
+        void handleComponentDestroy(const ComponentDestroyedEvent *event);
 
         [[nodiscard]] std::optional<std::set<Entity>> discoverDrawables(const Entity &viewEntity);
     };

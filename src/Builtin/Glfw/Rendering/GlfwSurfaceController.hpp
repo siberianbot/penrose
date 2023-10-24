@@ -6,7 +6,7 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
-#include <Penrose/Events/EventQueue.hpp>
+#include <Penrose/Events/SurfaceEvents.hpp>
 #include <Penrose/Input/InputHandler.hpp>
 #include <Penrose/Rendering/SurfaceFactory.hpp>
 #include <Penrose/Rendering/SurfaceHook.hpp>
@@ -39,7 +39,7 @@ namespace Penrose {
         void onSurfaceInvalidated(Surface *) override { /* nothing to do */ }
 
     private:
-        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<SurfaceEventQueue> _eventQueue;
         ResourceProxy<InputHandler> _inputHandler;
         ResourceProxy<SurfaceManager> _surfaceManager;
         ResourceProxy<VulkanBackend> _vulkanBackend;

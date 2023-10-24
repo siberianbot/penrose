@@ -1,11 +1,13 @@
 #ifndef PENROSE_EVENTS_EVENT_QUEUE_HPP
 #define PENROSE_EVENTS_EVENT_QUEUE_HPP
 
+#include <atomic>
 #include <array>
 #include <cstdint>
 #include <functional>
-#include <map>
-#include <memory>
+#include <list>
+#include <type_traits>
+#include <variant>
 #include <vector>
 
 #include <Penrose/Api.hpp>
@@ -13,51 +15,95 @@
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Updatable.hpp>
+#include <Penrose/Utils/TemplateUtils.hpp>
 
 namespace Penrose {
 
-    class PENROSE_API EventQueue : public Resource<EventQueue>, public Initializable, public Updatable {
-    public:
-        using HandlerSignature = void(const EventBase *);
-        using Handler = std::function<HandlerSignature>;
-        using HandlerIdx = std::size_t;
+    template<typename E>
+    concept IsEvent = std::is_base_of_v<Event<E>, E>;
 
-        EventQueue() = default;
+    template<typename ...Events> requires All<IsEvent<Events>...>
+    class PENROSE_API EventQueue : public Resource<EventQueue<Events...>>,
+                                   public Initializable,
+                                   public Updatable {
+    public:
         ~EventQueue() override = default;
 
         void init() override { /* nothing to do */ }
 
-        void destroy() override;
+        void destroy() override {
+            this->_handlers.clear();
 
-        void update(float) override;
+            for (auto &eventQueue: this->_eventQueues) {
+                eventQueue.clear();
+            }
+        }
 
-        [[nodiscard]] HandlerIdx addHandler(EventTypeMask mask, Handler &&handler);
-        void removeHandler(HandlerIdx idx);
+        void update(float) override {
+            this->swap();
 
-        template<EventType Type, typename Data>
-        [[nodiscard]] HandlerIdx addHandler(std::function<void(const Event<Type, Data> *)> &&handler);
+            for (const auto &event: this->back()) {
+                for (const auto &handler: this->_handlers) {
+                    handler(&event);
+                }
+            }
 
-        template<EventType Type, typename Data>
-        void pushEvent(Data data);
+            this->back().clear();
+        }
+
+        template<typename E>
+        requires Any<std::is_same_v<E, Events>...> && IsEvent<E> && std::is_default_constructible_v<E>
+        void push() {
+            auto event = E::create();
+
+            this->current().emplace_back(event);
+        }
+
+        template<typename E, typename ...Args>
+        requires Any<std::is_same_v<E, Events>...> && IsEvent<E> && std::is_constructible_v<E, Args...>
+        void push(Args &&...args) {
+            auto event = E::create(std::forward<decltype(args)>(args)...);
+
+            this->current().emplace_back(event);
+        }
+
+        template<typename E, typename H>
+        requires Any<std::is_same_v<E, Events>...> && IsEvent<E> && std::is_invocable_v<H, const E *>
+        void addHandler(H handler) {
+            this->_handlers.emplace_back([handler](const EventVariant *event) {
+                auto targetEvent = std::get_if<E>(event);
+
+                if (targetEvent == nullptr) {
+                    return;
+                }
+
+                handler(targetEvent);
+            });
+        }
 
     private:
-        constexpr static const std::size_t EVENT_QUEUE_SIZE = 2;
+        constexpr static const std::size_t QUEUE_COUNT = 2;
 
-        struct HandlerEntry {
-            EventTypeMask mask;
-            Handler handler;
-        };
+        using EventVariant = std::variant<Events...>;
+        using Queue = std::vector<EventVariant>;
+        using Handler = std::function<void(const EventVariant *)>;
 
-        std::array<std::vector<std::unique_ptr<EventBase>>, EVENT_QUEUE_SIZE> _eventQueues;
-        std::size_t _currentEventQueueIdx;
+        std::list<Handler> _handlers;
+        std::array<Queue, QUEUE_COUNT> _eventQueues;
+        std::atomic_size_t _currentEventQueueIdx = 0;
 
-        HandlerIdx _lastHandlerIdx = 0;
-        std::map<HandlerIdx, HandlerEntry> _handlers;
+        [[nodiscard]] Queue &current() {
+            return this->_eventQueues.at(this->_currentEventQueueIdx % QUEUE_COUNT);
+        }
 
-        void pushEvent(std::unique_ptr<EventBase> &&event);
+        [[nodiscard]] Queue &back() {
+            return this->_eventQueues.at((this->_currentEventQueueIdx - 1) % QUEUE_COUNT);
+        }
+
+        void swap() {
+            this->_currentEventQueueIdx++;
+        }
     };
 }
-
-#include "EventQueue.inl"
 
 #endif // PENROSE_EVENTS_EVENT_QUEUE_HPP

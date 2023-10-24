@@ -4,8 +4,7 @@
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/ECS/System.hpp>
-#include <Penrose/Events/EventQueue.hpp>
-#include <Penrose/Events/InputEvent.hpp>
+#include <Penrose/Events/InputEvents.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Initializable.hpp>
@@ -26,7 +25,7 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                             public System {
     public:
         explicit TestLogicSystem(ResourceSet *resources)
-                : _eventQueue(resources->get<EventQueue>()),
+                : _eventQueue(resources->get<InputEventQueue>()),
                   _log(resources->get<Log>()) {
             //
         }
@@ -34,51 +33,38 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
         ~TestLogicSystem() override = default;
 
         void init() override {
-            this->_eventHandlerIdx = this->_eventQueue->addHandler<EventType::InputEvent, InputEventArgs>(
-                    [this](const InputEvent *event) {
-                        switch (event->getArgs().type) {
-                            case InputEventType::KeyStateUpdated: {
-                                auto [key, state] = event->getArgs().keyState;
+            this->_eventQueue->addHandler<KeyStateUpdatedEvent>([this](const KeyStateUpdatedEvent *event) {
+                this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG,
+                                       "Key state updated - key {:#x}, state {:#x}",
+                                       static_cast<std::uint32_t>(event->getKey()),
+                                       static_cast<std::uint32_t>(event->getState()));
+            });
 
-                                this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG,
-                                                       "Key state updated - key {:#x}, state {:#x}",
-                                                       static_cast<std::uint32_t>(key),
-                                                       static_cast<std::uint32_t>(state));
-                                break;
-                            }
+            this->_eventQueue->addHandler<MouseMovementEvent>([this](const MouseMovementEvent *event) {
+                auto [x, y] = event->getPosition();
+                auto [dx, dy] = event->getDelta();
 
-                            case InputEventType::MouseMoved: {
-                                auto [x, y] = event->getArgs().mousePos;
-                                auto [dx, dy] = event->getArgs().mousePosDelta;
+                this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG,
+                                       "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy);
+            });
 
-                                this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG,
-                                                       "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy);
-                                break;
-                            }
+            this->_eventQueue->addHandler<MouseScrollEvent>([this](const MouseScrollEvent *event) {
+                auto [dx, dy] = event->getOffset();
 
-                            default:
-                                auto [dx, dy] = event->getArgs().scroll;
-
-                                this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG,
-                                                       "Scroll - dx = {}, dy = {}", dx, dy);
-                                break;
-                        }
-                    });
+                this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG,
+                                       "Scroll - dx = {}, dy = {}", dx, dy);
+            });
         }
 
         void update(float) override { /* nothing to do */ }
 
-        void destroy() override {
-            this->_eventQueue->removeHandler(this->_eventHandlerIdx);
-        }
+        void destroy() override { /* nothing to do */ }
 
         [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
     private:
-        ResourceProxy<EventQueue> _eventQueue;
+        ResourceProxy<InputEventQueue> _eventQueue;
         ResourceProxy<Log> _log;
-
-        EventQueue::HandlerIdx _eventHandlerIdx = -1;
     };
 
     Engine engine;

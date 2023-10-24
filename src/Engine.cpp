@@ -9,9 +9,10 @@
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Common/StdOutLogSink.hpp>
 #include <Penrose/ECS/ECSManager.hpp>
-#include <Penrose/Events/EngineEvent.hpp>
-#include <Penrose/Events/EventQueue.hpp>
-#include <Penrose/Events/SurfaceEvent.hpp>
+#include <Penrose/Events/ECSEvents.hpp>
+#include <Penrose/Events/EngineEvents.hpp>
+#include <Penrose/Events/InputEvents.hpp>
+#include <Penrose/Events/SurfaceEvents.hpp>
 #include <Penrose/Input/InputHandler.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderListBuilder.hpp>
@@ -38,13 +39,26 @@ namespace Penrose {
 
     Engine::Engine() {
 
+        this->_resources.add<ECSEventQueue>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+        this->_resources.add<EngineEventQueue>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+        this->_resources.add<InputEventQueue>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+        this->_resources.add<SurfaceEventQueue>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+
         this->_resources.add<Log>().done();
         this->_resources.add<StdOutLogSink>()
                 .implements<LogSink>()
-                .done();
-        this->_resources.add<EventQueue>()
-                .implements<Initializable>()
-                .implements<Updatable>()
                 .done();
 
         this->_resources.add<ECSManager>()
@@ -121,38 +135,18 @@ namespace Penrose {
             initializable->init();
         }
 
-        auto eventQueue = this->_resources.get<EventQueue>();
 
         auto alive = true;
-        auto handlerIdx = eventQueue->addHandler(
-                EventType::EngineEvent | EventType::SurfaceEvent,
-                [&alive](const EventBase *event) {
-                    switch (event->getType()) {
-                        case EventType::EngineEvent: {
-                            auto engineEvent = dynamic_cast<const EngineEvent *>(event);
 
-                            if (engineEvent->getArgs().type ==
-                                EngineEventType::DestroyRequested) {
-                                alive = false;
-                            }
+        auto engineEventQueue = this->_resources.get<EngineEventQueue>();
+        engineEventQueue->addHandler<EngineDestroyRequestedEvent>(
+                [&alive](const EngineDestroyRequestedEvent *) {
+                    alive = false;
+                });
 
-                            break;
-                        }
-
-                        case EventType::SurfaceEvent: {
-                            auto surfaceEvent = dynamic_cast<const SurfaceEvent *>(event);
-
-                            if (surfaceEvent->getArgs().type ==
-                                SurfaceEventType::CloseRequested) {
-                                alive = false;
-                            }
-
-                            break;
-                        }
-
-                        default:
-                            throw EngineError("Not supported event");
-                    }
+        this->_resources.get<SurfaceEventQueue>()->addHandler<SurfaceCloseRequestedEvent>(
+                [&engineEventQueue](const SurfaceCloseRequestedEvent *) {
+                    engineEventQueue->push<EngineDestroyRequestedEvent>();
                 });
 
         for (auto &runnable: allRunnable) {
@@ -175,8 +169,6 @@ namespace Penrose {
         for (auto &runnable: std::views::reverse(allRunnable)) {
             runnable->stop();
         }
-
-        eventQueue->removeHandler(handlerIdx);
 
         for (auto &initializable: std::views::reverse(allInitializable)) {
             initializable->destroy();

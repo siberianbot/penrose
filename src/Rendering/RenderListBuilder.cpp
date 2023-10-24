@@ -10,7 +10,7 @@
 namespace Penrose {
 
     RenderListBuilder::RenderListBuilder(ResourceSet *resources)
-            : _eventQueue(resources->get<EventQueue>()),
+            : _eventQueue(resources->get<ECSEventQueue>()),
               _sceneManager(resources->get<SceneManager>()),
               _drawableProviders(resources->get<DrawableProvider>()),
               _viewProviders(resources->get<ViewProvider>()) {
@@ -18,30 +18,17 @@ namespace Penrose {
     }
 
     void RenderListBuilder::init() {
-        this->_eventHandlerIdx = this->_eventQueue->addHandler<EventType::ECSEvent, ECSEventArgs>(
-                [this](const ECSEvent *event) {
-                    auto lock = std::lock_guard<std::mutex>(this->_mutex);
+        this->_eventQueue->addHandler<ComponentCreatedEvent>([this](const ComponentCreatedEvent *event) {
+            this->handleComponentCreate(event);
+        });
 
-                    switch (event->getArgs().type) {
-                        case ECSEventType::ComponentCreated: {
-                            this->handleComponentCreate(event->getArgs());
-                            break;
-                        }
-
-                        case ECSEventType::ComponentDestroyed: {
-                            this->handleComponentDestroy(event->getArgs());
-                            break;
-                        }
-
-                        default:
-                            /* nothing to do */
-                            break;
-                    }
-                });
+        this->_eventQueue->addHandler<ComponentDestroyedEvent>([this](const ComponentDestroyedEvent *event) {
+            this->handleComponentDestroy(event);
+        });
     }
 
     void RenderListBuilder::destroy() {
-        this->_eventQueue->removeHandler(this->_eventHandlerIdx);
+        //this->_eventQueue->removeHandler(this->_eventHandlerIdx);
     }
 
     std::optional<RenderList> RenderListBuilder::tryBuildRenderList(const std::string &name) {
@@ -128,21 +115,21 @@ namespace Penrose {
         return renderList;
     }
 
-    void RenderListBuilder::handleComponentCreate(const ECSEventArgs &eventArgs) {
-        if (eventArgs.componentName != ViewComponent::name()) {
+    void RenderListBuilder::handleComponentCreate(const ComponentCreatedEvent *event) {
+        if (event->getComponentName() != ViewComponent::name()) {
             return;
         }
 
-        auto view = std::dynamic_pointer_cast<ViewComponent>(eventArgs.component);
-        this->_renderListViewMap.insert_or_assign(view->getRenderList(), eventArgs.entity);
+        auto view = std::dynamic_pointer_cast<ViewComponent>(event->getComponent());
+        this->_renderListViewMap.insert_or_assign(view->getRenderList(), event->getEntity());
     }
 
-    void RenderListBuilder::handleComponentDestroy(const ECSEventArgs &eventArgs) {
-        if (eventArgs.componentName != ViewComponent::name()) {
+    void RenderListBuilder::handleComponentDestroy(const ComponentDestroyedEvent *event) {
+        if (event->getComponentName() != ViewComponent::name()) {
             return;
         }
 
-        auto entity = eventArgs.entity;
+        auto entity = event->getEntity();
         auto it = std::find_if(this->_renderListViewMap.begin(), this->_renderListViewMap.end(),
                                [&entity](const auto &entry) {
                                    return entry.second == entity;

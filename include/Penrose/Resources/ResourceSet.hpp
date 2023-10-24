@@ -1,7 +1,6 @@
 #ifndef PENROSE_RESOURCES_RESOURCE_SET_HPP
 #define PENROSE_RESOURCES_RESOURCE_SET_HPP
 
-#include <functional>
 #include <list>
 #include <map>
 #include <memory>
