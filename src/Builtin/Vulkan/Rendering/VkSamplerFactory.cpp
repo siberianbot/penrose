@@ -1,7 +1,5 @@
 #include "VkSamplerFactory.hpp"
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 #include "src/Builtin/Vulkan/Rendering/VkSampler.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkUtils.hpp"
 

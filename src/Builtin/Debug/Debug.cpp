@@ -1,7 +1,5 @@
 #include <Penrose/Builtin/Debug/Debug.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 #include <Penrose/Builtin/Debug/UI/UIContext.hpp>
 
 #include "src/Builtin/Debug/Rendering/VkImGuiDebugUIDrawRenderOperator.hpp"
@@ -11,9 +9,10 @@ namespace Penrose {
 
     ResourceSet &addDebug(ResourceSet &resources) {
 
-        resources.add<UIContext>().done();
-        resources.add<UIDrawVisitor>().done();
-        resources.add<VkImGuiDebugUIDrawRenderOperator>()
+        resources.add<UIContext, ResourceGroup::Rendering>().done();
+        resources.add<UIDrawVisitor, ResourceGroup::Rendering>().done();
+
+        resources.add<VkImGuiDebugUIDrawRenderOperator, ResourceGroup::RenderOperator>()
                 .implements<Initializable>()
                 .implements<RenderOperator>()
                 .done();

@@ -12,7 +12,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API AssetDictionary : public Resource<AssetDictionary> {
+    class PENROSE_API AssetDictionary : public Resource<AssetDictionary, ResourceGroup::Assets> {
     public:
         explicit AssetDictionary(ResourceSet *resources);
         ~AssetDictionary() override = default;

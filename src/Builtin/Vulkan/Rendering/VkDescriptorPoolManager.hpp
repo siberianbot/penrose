@@ -15,7 +15,7 @@
 
 namespace Penrose {
 
-    class VkDescriptorPoolManager : public Resource<VkDescriptorPoolManager>,
+    class VkDescriptorPoolManager : public Resource<VkDescriptorPoolManager, ResourceGroup::Rendering>,
                                     public Initializable {
     public:
         using DescriptorSets = std::array<vk::DescriptorSet, INFLIGHT_FRAME_COUNT>;

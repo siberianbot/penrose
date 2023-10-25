@@ -1,7 +1,5 @@
 #include "VkImageFactory.hpp"
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 #include "src/Builtin/Vulkan/Rendering/VkImage.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkUtils.hpp"
 

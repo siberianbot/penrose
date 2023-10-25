@@ -6,7 +6,6 @@
 
 #include <Penrose/Assets/ShaderAsset.hpp>
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkPipeline.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkShader.hpp"

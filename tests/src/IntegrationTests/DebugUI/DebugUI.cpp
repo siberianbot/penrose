@@ -16,7 +16,7 @@ TEST_CASE("DebugUI", "[engine-int-test]") {
 
     Engine engine;
 
-    auto countdownSystem = engine.resources().add<TestCountdownSystem>()
+    auto countdownSystem = engine.resources().add<TestCountdownSystem, ResourceGroup::ECSSystem>()
             .implements<Initializable>()
             .implements<System>()
             .done();

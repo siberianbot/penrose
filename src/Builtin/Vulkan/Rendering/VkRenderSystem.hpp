@@ -20,7 +20,7 @@
 
 namespace Penrose {
 
-    class VkRenderSystem : public Resource<VkRenderSystem>,
+    class VkRenderSystem : public Resource<VkRenderSystem, ResourceGroup::Rendering>,
                            public Initializable,
                            public Runnable,
                            public RenderSystem {

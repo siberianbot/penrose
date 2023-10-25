@@ -18,7 +18,7 @@
 
 namespace Penrose {
 
-    class VkCommandManager : public Resource<VkCommandManager>,
+    class VkCommandManager : public Resource<VkCommandManager, ResourceGroup::Rendering>,
                              public Initializable {
     public:
         using Command = std::function<void(vk::CommandBuffer &commandBuffer)>;

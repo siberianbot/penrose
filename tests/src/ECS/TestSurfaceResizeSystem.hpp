@@ -8,7 +8,7 @@
 
 using namespace Penrose;
 
-class TestSwapchainResizeSystem : public Resource<TestSwapchainResizeSystem>,
+class TestSwapchainResizeSystem : public Resource<TestSwapchainResizeSystem, ResourceGroup::ECSSystem>,
                                   public Initializable,
                                   public System {
 public:

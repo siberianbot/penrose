@@ -21,7 +21,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API EntityManager : public Resource<EntityManager>,
+    class PENROSE_API EntityManager : public Resource<EntityManager, ResourceGroup::ECSManager>,
                                       public Initializable {
     public:
         struct Entry {

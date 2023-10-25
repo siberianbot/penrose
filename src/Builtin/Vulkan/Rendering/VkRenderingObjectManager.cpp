@@ -2,8 +2,6 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 #include "src/Builtin/Vulkan/Rendering/VkBuffer.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkImage.hpp"
 

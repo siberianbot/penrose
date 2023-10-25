@@ -19,7 +19,7 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
 
     constexpr static std::string_view TEST_LOGIC_SYSTEM_TAG = "InputReceiving";
 
-    class TestLogicSystem : public Resource<TestLogicSystem>,
+    class TestLogicSystem : public Resource<TestLogicSystem, ResourceGroup::ECSSystem>,
                             public Initializable,
                             public System {
     public:
@@ -68,7 +68,7 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
 
     Engine engine;
 
-    engine.resources().add<TestLogicSystem>()
+    engine.resources().add<TestLogicSystem, ResourceGroup::ECSSystem>()
             .implements<Initializable>()
             .implements<System>()
             .done();

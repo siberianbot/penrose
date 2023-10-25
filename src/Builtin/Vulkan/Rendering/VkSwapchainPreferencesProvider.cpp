@@ -4,8 +4,6 @@
 #include <limits>
 #include <string_view>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     constexpr static const std::string_view VK_SWAPCHAIN_PREFERENCES_PROVIDER_TAG = "VkSwapchainManager";

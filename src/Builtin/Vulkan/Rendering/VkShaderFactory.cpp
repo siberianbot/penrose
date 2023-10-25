@@ -1,7 +1,5 @@
 #include "VkShaderFactory.hpp"
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 #include "src/Builtin/Vulkan/Rendering/VkShader.hpp"
 
 namespace Penrose {

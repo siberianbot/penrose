@@ -7,7 +7,7 @@
 
 namespace Penrose {
 
-    class UIDrawVisitor : public Resource<UIDrawVisitor> {
+    class UIDrawVisitor : public Resource<UIDrawVisitor, ResourceGroup::Rendering> {
     public:
         ~UIDrawVisitor() override = default;
 

@@ -1,9 +1,9 @@
 #ifndef PENROSE_BUILTIN_DEBUG_DEBUG_HPP
 #define PENROSE_BUILTIN_DEBUG_DEBUG_HPP
 
-namespace Penrose {
+#include <Penrose/Resources/ResourceSet.hpp>
 
-    class ResourceSet;
+namespace Penrose {
 
     ResourceSet &addDebug(ResourceSet &resources);
 }

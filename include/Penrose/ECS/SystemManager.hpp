@@ -8,7 +8,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API SystemManager : public Resource<SystemManager>,
+    class PENROSE_API SystemManager : public Resource<SystemManager, ResourceGroup::ECSManager>,
                                       public Updatable {
     public:
         explicit SystemManager(ResourceSet *resources);

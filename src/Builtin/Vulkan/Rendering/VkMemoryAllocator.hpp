@@ -10,7 +10,7 @@
 
 namespace Penrose {
 
-    class VkMemoryAllocator : public Resource<VkMemoryAllocator> {
+    class VkMemoryAllocator : public Resource<VkMemoryAllocator, ResourceGroup::Rendering> {
     public:
         explicit VkMemoryAllocator(ResourceSet *resources);
         ~VkMemoryAllocator() override = default;

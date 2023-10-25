@@ -30,9 +30,10 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class ForwardSceneDrawRenderOperator : public Resource<ForwardSceneDrawRenderOperator>,
-                                           public Initializable,
-                                           public RenderOperator {
+    class ForwardSceneDrawRenderOperator
+            : public Resource<ForwardSceneDrawRenderOperator, ResourceGroup::RenderOperator>,
+              public Initializable,
+              public RenderOperator {
     public:
         constexpr static const std::string_view NAME = "ForwardSceneDraw";
 

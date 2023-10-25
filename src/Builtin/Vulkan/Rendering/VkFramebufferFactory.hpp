@@ -16,7 +16,7 @@ namespace Penrose {
     class VkRenderSubgraph;
     class VkRenderTarget;
 
-    class VkFramebufferFactory : public Resource<VkFramebufferFactory> {
+    class VkFramebufferFactory : public Resource<VkFramebufferFactory, ResourceGroup::Rendering> {
     public:
         explicit VkFramebufferFactory(ResourceSet *resources);
         ~VkFramebufferFactory() override = default;

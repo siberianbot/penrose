@@ -74,7 +74,7 @@ namespace Penrose {
             }
         };
 
-        template<typename Target> requires std::is_base_of_v<Resource<Target>, Target>
+        template<typename Target, ResourceGroup Group> requires IsResource<Target, Group>
         class Registration {
         public:
             explicit Registration(ResourceSet *resources)
@@ -100,7 +100,7 @@ namespace Penrose {
             }
 
             Target *done() {
-                return this->_resources->template insert<Target>(
+                return this->_resources->template insert<Target, Group>(
                         std::forward<decltype(this->_implements)>(this->_implements),
                         std::forward<decltype(this->_before)>(this->_before));
             }
@@ -118,16 +118,16 @@ namespace Penrose {
             return Proxy<Target>(this);
         }
 
-        template<typename Target>
-        [[nodiscard]] Registration<Target> add() {
-            return Registration<Target>(this);
+        template<typename Target, ResourceGroup Group>
+        [[nodiscard]] Registration<Target, Group> add() {
+            return Registration<Target, Group>(this);
         }
 
     private:
         using ResourceList = std::list<std::unique_ptr<ResourceBase>>;
 
         ResourceList _instances;
-        std::map<std::type_index, std::list<ResourceList::iterator>> _typeMap;
+        std::map<std::type_index, std::map<ResourceGroup, std::list<ResourceList::iterator>>> _typeMap;
 
         template<typename Target>
         [[nodiscard]] std::list<Target *> resolve() {
@@ -141,15 +141,17 @@ namespace Penrose {
 
             std::list<Target *> instances;
 
-            for (auto &ptr: it->second) {
-                instances.emplace_back(dynamic_cast<Target *>(ptr->get()));
+            for (const auto &[_, list]: it->second) {
+                for (const auto &ptr: list) {
+                    instances.emplace_back(dynamic_cast<Target *>(ptr->get()));
+                }
             }
 
             return instances;
         }
 
-        template<typename Target>
-        requires std::is_base_of_v<Resource<Target>, Target>
+        template<typename Target, ResourceGroup Group>
+        requires IsResource<Target, Group>
         [[nodiscard]] constexpr Target *construct() {
             if constexpr (std::is_constructible_v<Target, ResourceSet *>) {
                 return Target::create(this);
@@ -158,12 +160,13 @@ namespace Penrose {
             }
         }
 
-        template<typename Target>
+        template<typename Target, ResourceGroup Group>
         Target *insert(std::set<std::type_index> &&implements,
                        std::optional<std::type_index> &&before) {
 
-            auto instance = this->construct<Target>();
+            auto instance = this->construct<Target, Group>();
             this->insert(std::unique_ptr<ResourceBase>(instance),
+                         Group,
                          std::forward<decltype(implements)>(implements),
                          std::forward<decltype(before)>(before));
 
@@ -171,6 +174,7 @@ namespace Penrose {
         }
 
         void insert(std::unique_ptr<ResourceBase> &&instance,
+                    ResourceGroup group,
                     std::set<std::type_index> &&implements,
                     std::optional<std::type_index> &&before);
     };

@@ -3,7 +3,6 @@
 #include <utility>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkRenderSubgraph.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderTarget.hpp"

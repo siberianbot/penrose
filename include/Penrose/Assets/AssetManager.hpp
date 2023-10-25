@@ -25,7 +25,9 @@ namespace Penrose {
     template<typename T>
     concept IsAsset = std::is_base_of<Asset, T>::value;
 
-    class PENROSE_API AssetManager : public Resource<AssetManager>, public Initializable, public Runnable {
+    class PENROSE_API AssetManager : public Resource<AssetManager, ResourceGroup::Assets>,
+                                     public Initializable,
+                                     public Runnable {
     public:
         explicit AssetManager(ResourceSet *resources);
         ~AssetManager() override = default;

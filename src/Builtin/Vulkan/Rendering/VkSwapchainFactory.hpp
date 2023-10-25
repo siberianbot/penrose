@@ -13,7 +13,7 @@
 
 namespace Penrose {
 
-    class VkSwapchainFactory : public Resource<VkSwapchainFactory> {
+    class VkSwapchainFactory : public Resource<VkSwapchainFactory, ResourceGroup::Rendering> {
     public:
         explicit VkSwapchainFactory(ResourceSet *resources);
         ~VkSwapchainFactory() override = default;

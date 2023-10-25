@@ -1,9 +1,9 @@
 #ifndef PENROSE_BUILTIN_GLFW_HPP
 #define PENROSE_BUILTIN_GLFW_HPP
 
-namespace Penrose {
+#include <Penrose/Resources/ResourceSet.hpp>
 
-    class ResourceSet;
+namespace Penrose {
 
     ResourceSet &addGlfw(ResourceSet &resources);
 }

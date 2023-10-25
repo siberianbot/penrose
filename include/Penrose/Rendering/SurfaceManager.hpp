@@ -14,7 +14,8 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class PENROSE_API SurfaceManager : public Resource<SurfaceManager>, public Initializable {
+    class PENROSE_API SurfaceManager : public Resource<SurfaceManager, ResourceGroup::Windowing>,
+                                       public Initializable {
     public:
         explicit SurfaceManager(ResourceSet *resources);
         ~SurfaceManager() override = default;

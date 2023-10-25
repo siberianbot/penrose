@@ -13,7 +13,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class GlfwBackend : public Resource<GlfwBackend>,
+    class GlfwBackend : public Resource<GlfwBackend, ResourceGroup::Backend>,
                         public Initializable,
                         public Updatable,
                         public VkInstanceExtensionsProvider {

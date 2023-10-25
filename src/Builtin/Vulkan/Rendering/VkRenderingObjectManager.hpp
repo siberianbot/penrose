@@ -11,7 +11,7 @@
 
 namespace Penrose {
 
-    class VkRenderingObjectManager : public Resource<VkRenderingObjectManager>,
+    class VkRenderingObjectManager : public Resource<VkRenderingObjectManager, ResourceGroup::Rendering>,
                                      public RenderingObjectManager {
     public:
         explicit VkRenderingObjectManager(ResourceSet *resources);

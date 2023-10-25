@@ -10,8 +10,23 @@
 
 namespace Penrose {
 
+    enum class ResourceGroup {
+        Engine,
+        Backend,
+        Windowing,
+        Rendering,
+        RenderOperator,
+        Assets,
+        Events,
+        ECSManager,
+        Scene,
+        ECSComponent,
+        ECSSystem
+    };
+
     struct ResourceInfo {
         std::type_index type;
+        ResourceGroup group;
         std::string name;
     };
 
@@ -22,7 +37,7 @@ namespace Penrose {
         [[nodiscard]] virtual ResourceInfo getType() const = 0;
     };
 
-    template<typename Self>
+    template<typename Self, ResourceGroup Group>
     class PENROSE_API Resource : public ResourceBase {
     public:
         Resource() = default;
@@ -53,10 +68,14 @@ namespace Penrose {
 
             return {
                     .type = type,
+                    .group = Group,
                     .name = demangle(type.name())
             };
         }
     };
+
+    template<typename Target, ResourceGroup Group>
+    concept IsResource = std::is_base_of_v<Resource<Target, Group>, Target>;
 }
 
 #endif // PENROSE_RESOURCES_RESOURCE_HPP

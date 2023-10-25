@@ -12,7 +12,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API Log : public Resource<Log> {
+    class PENROSE_API Log : public Resource<Log, ResourceGroup::Engine> {
     public:
         explicit Log(ResourceSet *resources);
         ~Log() override = default;

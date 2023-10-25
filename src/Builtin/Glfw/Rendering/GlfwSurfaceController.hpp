@@ -20,7 +20,7 @@ namespace Penrose {
 
     class GlfwSurface;
 
-    class GlfwSurfaceController : public Resource<GlfwSurfaceController>,
+    class GlfwSurfaceController : public Resource<GlfwSurfaceController, ResourceGroup::Windowing>,
                                   public SurfaceFactory,
                                   public SurfaceHook,
                                   public VkSurfaceProvider {

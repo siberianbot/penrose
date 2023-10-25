@@ -1,7 +1,6 @@
 #include "VkRenderGraphExecutor.hpp"
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkCommandRecording.hpp"
 

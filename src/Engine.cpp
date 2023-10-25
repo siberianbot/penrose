@@ -40,64 +40,64 @@ namespace Penrose {
 
     Engine::Engine() {
 
-        this->_resources.add<ECSEventQueue>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
-        this->_resources.add<EngineEventQueue>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
-        this->_resources.add<InputEventQueue>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
-        this->_resources.add<SurfaceEventQueue>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
-
-        this->_resources.add<Log>().done();
-        this->_resources.add<StdOutLogSink>()
+        this->_resources.add<InputHandler, ResourceGroup::Engine>().done();
+        this->_resources.add<Log, ResourceGroup::Engine>().done();
+        this->_resources.add<StdOutLogSink, ResourceGroup::Engine>()
                 .implements<LogSink>()
                 .done();
 
-        this->_resources.add<EntityManager>()
-                .implements<Initializable>()
-                .done();
-        this->_resources.add<SystemManager>()
-                .implements<Updatable>()
-                .done();
-
-        this->_resources.add<SceneManager>()
+        this->_resources.add<SurfaceManager, ResourceGroup::Windowing>()
                 .implements<Initializable>()
                 .done();
 
-        this->_resources.add<SurfaceManager>()
+        this->_resources.add<RenderGraphContext, ResourceGroup::Rendering>().done();
+        this->_resources.add<RenderListBuilder, ResourceGroup::Rendering>()
                 .implements<Initializable>()
                 .done();
-        this->_resources.add<InputHandler>().done();
-
-        this->_resources.add<RenderGraphContext>().done();
-        this->_resources.add<RenderListBuilder>()
-                .implements<Initializable>()
-                .done();
-        this->_resources.add<RenderManager>()
+        this->_resources.add<RenderManager, ResourceGroup::Rendering>()
                 .implements<Initializable>()
                 .implements<Runnable>()
                 .done();
-        this->_resources.add<DefaultDrawableProvider>()
+        this->_resources.add<DefaultDrawableProvider, ResourceGroup::Rendering>()
                 .implements<DrawableProvider>()
                 .done();
-        this->_resources.add<DefaultViewProvider>()
+        this->_resources.add<DefaultViewProvider, ResourceGroup::Rendering>()
                 .implements<ViewProvider>()
                 .done();
 
-        this->_resources.add<AssetDictionary>().done();
-        this->_resources.add<AssetLoader>().done();
-        this->_resources.add<AssetManager>()
+        this->_resources.add<AssetDictionary, ResourceGroup::Assets>().done();
+        this->_resources.add<AssetLoader, ResourceGroup::Assets>().done();
+        this->_resources.add<AssetManager, ResourceGroup::Assets>()
                 .implements<Initializable>()
                 .implements<Runnable>()
+                .done();
+
+        this->_resources.add<ECSEventQueue, ResourceGroup::Events>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+        this->_resources.add<EngineEventQueue, ResourceGroup::Events>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+        this->_resources.add<InputEventQueue, ResourceGroup::Events>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+        this->_resources.add<SurfaceEventQueue, ResourceGroup::Events>()
+                .implements<Initializable>()
+                .implements<Updatable>()
+                .done();
+
+        this->_resources.add<EntityManager, ResourceGroup::ECSManager>()
+                .implements<Initializable>()
+                .done();
+        this->_resources.add<SystemManager, ResourceGroup::ECSManager>()
+                .implements<Updatable>()
+                .done();
+
+        this->_resources.add<SceneManager, ResourceGroup::Scene>()
+                .implements<Initializable>()
                 .done();
 
         // backends
@@ -107,24 +107,24 @@ namespace Penrose {
         addDebug(this->_resources);
 
         // builtin
-        this->_resources.add<MeshRendererComponentFactory>()
+        this->_resources.add<MeshRendererComponentFactory, ResourceGroup::ECSComponent>()
                 .implements<ComponentFactory>()
                 .done();
-        this->_resources.add<OrthographicCameraComponentFactory>()
+        this->_resources.add<OrthographicCameraComponentFactory, ResourceGroup::ECSComponent>()
                 .implements<ComponentFactory>()
                 .done();
-        this->_resources.add<PerspectiveCameraComponentFactory>()
+        this->_resources.add<PerspectiveCameraComponentFactory, ResourceGroup::ECSComponent>()
                 .implements<ComponentFactory>()
                 .done();
-        this->_resources.add<TransformComponentFactory>()
+        this->_resources.add<TransformComponentFactory, ResourceGroup::ECSComponent>()
                 .implements<ComponentFactory>()
                 .done();
-        this->_resources.add<ViewComponentFactory>()
+        this->_resources.add<ViewComponentFactory, ResourceGroup::ECSComponent>()
                 .implements<ComponentFactory>()
                 .done();
 
         // builtin / rendering operators
-        this->_resources.add<ForwardSceneDrawRenderOperator>()
+        this->_resources.add<ForwardSceneDrawRenderOperator, ResourceGroup::RenderOperator>()
                 .implements<Initializable>()
                 .implements<RenderOperator>()
                 .done();

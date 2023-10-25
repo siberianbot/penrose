@@ -1,7 +1,5 @@
 #include "VkRenderSystem.hpp"
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     constexpr static const std::uint64_t MAX_TIMEOUT = std::numeric_limits<std::uint64_t>::max();

@@ -20,9 +20,10 @@ namespace Penrose {
 
     class RenderSubgraph;
 
-    class VkImGuiDebugUIDrawRenderOperator : public Resource<VkImGuiDebugUIDrawRenderOperator>,
-                                             public Initializable,
-                                             public DebugUIDrawRenderOperator {
+    class VkImGuiDebugUIDrawRenderOperator
+            : public Resource<VkImGuiDebugUIDrawRenderOperator, ResourceGroup::RenderOperator>,
+              public Initializable,
+              public DebugUIDrawRenderOperator {
     public:
         explicit VkImGuiDebugUIDrawRenderOperator(ResourceSet *resources);
         ~VkImGuiDebugUIDrawRenderOperator() override = default;

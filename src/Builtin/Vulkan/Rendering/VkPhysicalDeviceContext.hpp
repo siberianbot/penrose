@@ -18,7 +18,7 @@
 
 namespace Penrose {
 
-    class VkPhysicalDeviceContext : public Resource<VkPhysicalDeviceContext>,
+    class VkPhysicalDeviceContext : public Resource<VkPhysicalDeviceContext, ResourceGroup::Rendering>,
                                     public Initializable {
     public:
         explicit VkPhysicalDeviceContext(ResourceSet *resources);

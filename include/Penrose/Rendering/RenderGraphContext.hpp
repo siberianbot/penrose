@@ -10,7 +10,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API RenderGraphContext : public Resource<RenderGraphContext> {
+    class PENROSE_API RenderGraphContext : public Resource<RenderGraphContext, ResourceGroup::Rendering> {
     public:
         explicit RenderGraphContext(ResourceSet *resources);
         ~RenderGraphContext() override = default;

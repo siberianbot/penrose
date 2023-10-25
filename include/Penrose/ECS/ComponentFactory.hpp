@@ -20,8 +20,9 @@ namespace Penrose {
     };
 
     template<typename C> requires std::is_base_of_v<Component<C>, C> && std::is_default_constructible_v<C>
-    class PENROSE_API GenericComponentFactory : public Resource<GenericComponentFactory<C>>,
-                                                public ComponentFactory {
+    class PENROSE_API GenericComponentFactory
+            : public Resource<GenericComponentFactory<C>, ResourceGroup::ECSComponent>,
+              public ComponentFactory {
     public:
         ~GenericComponentFactory() override = default;
 

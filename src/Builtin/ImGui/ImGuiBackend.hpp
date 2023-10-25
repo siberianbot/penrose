@@ -10,7 +10,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class ImGuiBackend : public Resource<ImGuiBackend>,
+    class ImGuiBackend : public Resource<ImGuiBackend, ResourceGroup::Backend>,
                          public Initializable,
                          public SurfaceHook,
                          public InputHook {

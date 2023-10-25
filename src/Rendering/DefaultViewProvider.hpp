@@ -9,7 +9,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class DefaultViewProvider : public Resource<DefaultViewProvider>,
+    class DefaultViewProvider : public Resource<DefaultViewProvider, ResourceGroup::Rendering>,
                                 public ViewProvider {
     public:
         explicit DefaultViewProvider(ResourceSet *resources);

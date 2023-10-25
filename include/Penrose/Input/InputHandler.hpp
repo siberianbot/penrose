@@ -12,7 +12,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API InputHandler : public Resource<InputHandler> {
+    class PENROSE_API InputHandler : public Resource<InputHandler, ResourceGroup::Engine> {
     public:
         explicit InputHandler(ResourceSet *resources);
         ~InputHandler() override = default;

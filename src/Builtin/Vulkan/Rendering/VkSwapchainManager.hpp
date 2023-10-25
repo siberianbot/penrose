@@ -13,7 +13,7 @@
 
 namespace Penrose {
 
-    class VkSwapchainManager : public Resource<VkSwapchainManager>,
+    class VkSwapchainManager : public Resource<VkSwapchainManager, ResourceGroup::Rendering>,
                                public Initializable {
     public:
         explicit VkSwapchainManager(ResourceSet *resources);

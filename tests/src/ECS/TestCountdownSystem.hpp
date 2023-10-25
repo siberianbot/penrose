@@ -11,7 +11,7 @@
 
 using namespace Penrose;
 
-class TestCountdownSystem : public Resource<TestCountdownSystem>,
+class TestCountdownSystem : public Resource<TestCountdownSystem, ResourceGroup::ECSSystem>,
                             public Initializable,
                             public System {
 public:

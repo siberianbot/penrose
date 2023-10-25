@@ -1,7 +1,5 @@
 #include "VkSwapchainFactory.hpp"
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     VkSwapchainFactory::VkSwapchainFactory(ResourceSet *resources)

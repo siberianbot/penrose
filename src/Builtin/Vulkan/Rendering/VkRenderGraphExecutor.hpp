@@ -17,7 +17,7 @@
 
 namespace Penrose {
 
-    class VkRenderGraphExecutor : public Resource<VkRenderGraphExecutor>,
+    class VkRenderGraphExecutor : public Resource<VkRenderGraphExecutor, ResourceGroup::Rendering>,
                                   public Initializable {
     public:
         struct Submit {

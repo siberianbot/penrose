@@ -12,7 +12,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API UIContext : public Resource<UIContext> {
+    class PENROSE_API UIContext : public Resource<UIContext, ResourceGroup::Rendering> {
     public:
         ~UIContext() override = default;
 

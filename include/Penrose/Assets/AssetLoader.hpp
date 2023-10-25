@@ -13,7 +13,7 @@
 
 namespace Penrose {
 
-    class AssetLoader : public Resource<AssetLoader> {
+    class AssetLoader : public Resource<AssetLoader, ResourceGroup::Assets> {
     public:
         explicit AssetLoader(ResourceSet *resources);
         ~AssetLoader() override = default;

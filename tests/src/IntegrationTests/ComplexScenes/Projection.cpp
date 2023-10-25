@@ -71,7 +71,7 @@ TEST_CASE("Projection", "[engine-int-test]") {
 
     Engine engine;
 
-    engine.resources().add<TestCountdownSystem>()
+    engine.resources().add<TestCountdownSystem, ResourceGroup::ECSSystem>()
             .implements<Initializable>()
             .implements<System>()
             .done();

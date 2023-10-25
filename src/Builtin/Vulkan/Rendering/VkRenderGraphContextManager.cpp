@@ -2,8 +2,6 @@
 
 #include <utility>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-
 namespace Penrose {
 
     VkRenderGraphContextManager::VkRenderGraphContextManager(ResourceSet *resources)

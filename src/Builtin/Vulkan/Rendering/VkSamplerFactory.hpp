@@ -8,7 +8,7 @@
 
 namespace Penrose {
 
-    class VkSamplerFactory : public Resource<VkSamplerFactory>,
+    class VkSamplerFactory : public Resource<VkSamplerFactory, ResourceGroup::Rendering>,
                              public SamplerFactory {
     public:
         explicit VkSamplerFactory(ResourceSet *resources);

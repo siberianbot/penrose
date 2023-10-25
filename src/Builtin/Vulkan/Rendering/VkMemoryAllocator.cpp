@@ -1,7 +1,6 @@
 #include "VkMemoryAllocator.hpp"
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 

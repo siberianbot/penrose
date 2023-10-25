@@ -18,7 +18,7 @@
 
 namespace Penrose {
 
-    class VkRenderGraphContextManager : public Resource<VkRenderGraphContextManager>,
+    class VkRenderGraphContextManager : public Resource<VkRenderGraphContextManager, ResourceGroup::Rendering>,
                                         public Initializable,
                                         public RenderGraphHook {
     public:

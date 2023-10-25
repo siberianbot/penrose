@@ -9,7 +9,7 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class DefaultDrawableProvider : public Resource<DefaultDrawableProvider>,
+    class DefaultDrawableProvider : public Resource<DefaultDrawableProvider, ResourceGroup::Rendering>,
                                     public DrawableProvider {
     public:
         explicit DefaultDrawableProvider(ResourceSet *resources);

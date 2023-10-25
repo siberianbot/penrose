@@ -9,7 +9,8 @@
 
 namespace Penrose {
 
-    class VkBufferFactory : public Resource<VkBufferFactory>, public BufferFactory {
+    class VkBufferFactory : public Resource<VkBufferFactory, ResourceGroup::Rendering>,
+                            public BufferFactory {
     public:
         explicit VkBufferFactory(ResourceSet *resources);
         ~VkBufferFactory() override = default;

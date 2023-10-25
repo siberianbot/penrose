@@ -8,7 +8,7 @@
 
 namespace Penrose {
 
-    class VkShaderFactory : public Resource<VkShaderFactory>,
+    class VkShaderFactory : public Resource<VkShaderFactory, ResourceGroup::Rendering>,
                             public ShaderFactory {
     public:
         explicit VkShaderFactory(ResourceSet *resources);

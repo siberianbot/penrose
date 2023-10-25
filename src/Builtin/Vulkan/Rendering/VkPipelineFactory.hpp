@@ -18,7 +18,7 @@
 
 namespace Penrose {
 
-    class VkPipelineFactory : public Resource<VkPipelineFactory>,
+    class VkPipelineFactory : public Resource<VkPipelineFactory, ResourceGroup::Rendering>,
                               public Initializable,
                               public PipelineFactory {
     public:

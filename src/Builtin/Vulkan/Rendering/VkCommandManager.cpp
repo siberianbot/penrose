@@ -3,7 +3,6 @@
 #include <string_view>
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
 
 namespace Penrose {
 

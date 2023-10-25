@@ -25,7 +25,7 @@ using namespace Penrose;
 
 TEST_CASE("ComplexScenes_OrbitalCamera", "[engine-int-test]") {
 
-    class TestLogicSystem : public Resource<TestLogicSystem>,
+    class TestLogicSystem : public Resource<TestLogicSystem, ResourceGroup::ECSSystem>,
                             public Initializable,
                             public System {
     public:
@@ -70,16 +70,16 @@ TEST_CASE("ComplexScenes_OrbitalCamera", "[engine-int-test]") {
 
     Engine engine;
 
-    engine.resources().add<TestCountdownSystem>()
+    engine.resources().add<TestCountdownSystem, ResourceGroup::ECSSystem>()
             .implements<Initializable>()
             .implements<System>()
             .done();
 
-    engine.resources().add<TestLogicTargetComponentFactory>()
+    engine.resources().add<TestLogicTargetComponentFactory, ResourceGroup::ECSComponent>()
             .implements<ComponentFactory>()
             .done();
 
-    engine.resources().add<TestLogicSystem>()
+    engine.resources().add<TestLogicSystem, ResourceGroup::ECSSystem>()
             .implements<Initializable>()
             .implements<System>()
             .done();
