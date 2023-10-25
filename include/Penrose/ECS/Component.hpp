@@ -2,20 +2,55 @@
 #define PENROSE_ECS_COMPONENT_HPP
 
 #include <string>
-#include <type_traits>
+#include <typeindex>
+#include <typeinfo>
+
+#include <Penrose/Api.hpp>
+#include <Penrose/Utils/TypeUtils.hpp>
 
 namespace Penrose {
 
-    class Component {
-    public:
-        virtual ~Component() = default;
-
-        [[nodiscard]] virtual std::string getName() const = 0;
+    struct ComponentInfo {
+        std::type_index type;
+        std::string name;
     };
 
-    template<typename T>
-    concept IsComponent = std::is_base_of<Component, T>::value &&
-                          requires(T) {{ T::name() } -> std::same_as<std::string>; };
+    class ComponentBase {
+    public:
+        virtual ~ComponentBase() = default;
+
+        [[nodiscard]] virtual ComponentInfo getType() const = 0;
+    };
+
+    template<typename Self>
+    class PENROSE_API Component : public ComponentBase {
+    public:
+        ~Component() override = default;
+
+        [[nodiscard]] ComponentInfo getType() const final { return type(); }
+
+        [[nodiscard]] constexpr static Self *create() {
+            static_assert(std::is_default_constructible_v<Self>);
+
+            return new Self();
+        }
+
+        template<typename ...Args>
+        [[nodiscard]] constexpr static Self *create(Args &&...args) {
+            static_assert(std::is_constructible_v<Self, Args...>);
+
+            return new Self(std::forward<decltype(args)>(args)...);
+        }
+
+        [[nodiscard]] /* TODO: constexpr */ static ComponentInfo type() {
+            std::type_index type = typeid(Self);
+
+            return {
+                    .type = type,
+                    .name = demangle(type.name())
+            };
+        }
+    };
 }
 
 #endif // PENROSE_ECS_COMPONENT_HPP

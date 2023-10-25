@@ -116,7 +116,7 @@ namespace Penrose {
     }
 
     void RenderListBuilder::handleComponentCreate(const ComponentCreatedEvent *event) {
-        if (event->getComponentName() != ViewComponent::name()) {
+        if (event->getComponentType().type != ViewComponent::type().type) {
             return;
         }
 
@@ -125,7 +125,7 @@ namespace Penrose {
     }
 
     void RenderListBuilder::handleComponentDestroy(const ComponentDestroyedEvent *event) {
-        if (event->getComponentName() != ViewComponent::name()) {
+        if (event->getComponentType().type != ViewComponent::type().type) {
             return;
         }
 

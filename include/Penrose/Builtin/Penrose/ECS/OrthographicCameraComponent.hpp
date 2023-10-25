@@ -3,11 +3,10 @@
 
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ComponentFactory.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class OrthographicCameraComponent : public Component {
+    class OrthographicCameraComponent : public Component<OrthographicCameraComponent> {
     public:
         ~OrthographicCameraComponent() override = default;
 
@@ -23,10 +22,6 @@ namespace Penrose {
 
         [[nodiscard]] float &getFar() { return this->_far; }
 
-        [[nodiscard]] std::string getName() const override { return name(); }
-
-        [[nodiscard]] constexpr static std::string name() { return "OrthographicCamera"; }
-
     private:
         float _top = 1.0f;
         float _bottom = -1.0f;
@@ -36,11 +31,7 @@ namespace Penrose {
         float _far = 100.0f;
     };
 
-    class OrthographicCameraComponentFactory : public Resource<OrthographicCameraComponentFactory>,
-                                               public GenericComponentFactory<OrthographicCameraComponent> {
-    public:
-        ~OrthographicCameraComponentFactory() override = default;
-    };
+    using OrthographicCameraComponentFactory = GenericComponentFactory<OrthographicCameraComponent>;
 }
 
 #endif // PENROSE_BUILTIN_PENROSE_ECS_ORTHOGRAPHIC_CAMERA_COMPONENT_HPP

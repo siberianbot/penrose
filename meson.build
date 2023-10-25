@@ -36,7 +36,8 @@ src = [
     'src/Common/StdOutLogSink.cpp',
 
     # ECS
-    'src/ECS/ECSManager.cpp',
+    'src/ECS/EntityManager.cpp',
+    'src/ECS/SystemManager.cpp',
 
     # Input
     'src/Input/Input.cpp',

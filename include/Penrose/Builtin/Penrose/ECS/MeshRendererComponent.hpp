@@ -8,11 +8,10 @@
 
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/ComponentFactory.hpp>
-#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class MeshRendererComponent : public Component {
+    class MeshRendererComponent : public Component<MeshRendererComponent> {
     public:
         ~MeshRendererComponent() override = default;
 
@@ -32,21 +31,13 @@ namespace Penrose {
 
         void setColor(const glm::vec3 &color) { this->_color = color; }
 
-        [[nodiscard]] std::string getName() const override { return name(); }
-
-        [[nodiscard]] constexpr static std::string name() { return "MeshRenderer"; }
-
     private:
         std::optional<std::string> _meshAsset = std::nullopt;
         std::optional<std::string> _albedoTextureAsset = std::nullopt;
         glm::vec3 _color = glm::vec3(1);
     };
 
-    class MeshRendererComponentFactory : public Resource<MeshRendererComponentFactory>,
-                                         public GenericComponentFactory<MeshRendererComponent> {
-    public:
-        ~MeshRendererComponentFactory() override = default;
-    };
+    using MeshRendererComponentFactory = GenericComponentFactory<MeshRendererComponent>;
 }
 
 #endif // PENROSE_BUILTIN_PENROSE_ECS_MESH_RENDERER_COMPONENT_HPP

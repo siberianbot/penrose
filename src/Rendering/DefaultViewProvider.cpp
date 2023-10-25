@@ -3,9 +3,6 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Utils/OptionalUtils.hpp>
-
 #include <Penrose/Builtin/Penrose/ECS/OrthographicCameraComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/PerspectiveCameraComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
@@ -14,24 +11,19 @@
 namespace Penrose {
 
     DefaultViewProvider::DefaultViewProvider(ResourceSet *resources)
-            : _ecsManager(resources->get<ECSManager>()) {
+            : _entityManager(resources->get<EntityManager>()) {
         //
     }
 
     std::optional<View> DefaultViewProvider::tryGetViewFor(const Entity &entity) {
-        auto &components = this->_ecsManager->getComponents(entity);
 
-        if (!components.contains(ViewComponent::name())) {
+        if (!this->_entityManager->hasComponent<ViewComponent>(entity)) {
             return std::nullopt;
         }
 
         View view;
 
-        auto maybeTransform = map(
-                tryGet(components, TransformComponent::name()),
-                [](const std::shared_ptr<Component> &component) {
-                    return std::dynamic_pointer_cast<TransformComponent>(component);
-                });
+        auto maybeTransform = this->_entityManager->tryGetComponent<TransformComponent>(entity);
 
         if (maybeTransform.has_value()) {
             auto transform = *maybeTransform;
@@ -46,11 +38,7 @@ namespace Penrose {
             view.view = glm::lookAt(transform->getPos(), transform->getPos() + forward, up);
         }
 
-        auto maybeOrthographicCamera = map(
-                tryGet(components, OrthographicCameraComponent::name()),
-                [](const std::shared_ptr<Component> &component) {
-                    return std::dynamic_pointer_cast<OrthographicCameraComponent>(component);
-                });
+        auto maybeOrthographicCamera = this->_entityManager->tryGetComponent<OrthographicCameraComponent>(entity);
 
         if (maybeOrthographicCamera.has_value()) {
             auto orthographicCamera = *maybeOrthographicCamera;
@@ -65,11 +53,7 @@ namespace Penrose {
             };
         }
 
-        auto maybePerspectiveCamera = map(
-                tryGet(components, PerspectiveCameraComponent::name()),
-                [](const std::shared_ptr<Component> &component) {
-                    return std::dynamic_pointer_cast<PerspectiveCameraComponent>(component);
-                });
+        auto maybePerspectiveCamera = this->_entityManager->tryGetComponent<PerspectiveCameraComponent>(entity);
 
         if (maybePerspectiveCamera.has_value()) {
             auto perspectiveCamera = *maybePerspectiveCamera;

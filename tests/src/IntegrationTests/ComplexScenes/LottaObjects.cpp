@@ -3,7 +3,7 @@
 #include <Penrose/Engine.hpp>
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
-#include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/ECS/EntityManager.hpp>
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Math/Constants.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
@@ -30,7 +30,7 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
                             public System {
     public:
         explicit TestLogicSystem(ResourceSet *resources)
-                : _ecsManager(resources->get<ECSManager>()) {
+                : _entityManager(resources->get<EntityManager>()) {
             //
         }
 
@@ -39,8 +39,11 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
         void init() override {
             this->_passed = 0;
 
-            auto query = ECSQuery().component<TestLogicTargetComponent>();
-            this->_targetEntity = this->_ecsManager->query(query).at(0).entity;
+            this->_targetEntity = this->_entityManager->query()
+                    .component<TestLogicTargetComponent>()
+                    .front()
+                    .value()
+                    .entity;
         }
 
         void update(float delta) override {
@@ -49,7 +52,7 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
             const int r = 10;
             auto angle = glm::radians(this->_passed * 90.0f);
 
-            auto transform = this->_ecsManager->getComponent<TransformComponent>(this->_targetEntity);
+            auto transform = this->_entityManager->getComponent<TransformComponent>(this->_targetEntity);
             transform->getPos() = glm::vec3(r * cos(angle), 3, r * sin(angle));
             transform->getRot().y = PI_F - angle;
         }
@@ -59,7 +62,7 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
         [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
     private:
-        ResourceProxy<ECSManager> _ecsManager;
+        ResourceProxy<EntityManager> _entityManager;
 
         float _passed = 0;
         Entity _targetEntity = -1;
@@ -120,7 +123,7 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
     auto renderContext = engine.resources().get<RenderGraphContext>();
     renderContext->setRenderGraph(graph);
 
-    auto ecsManager = engine.resources().get<ECSManager>();
+    auto entityManager = engine.resources().get<EntityManager>();
     auto sceneManager = engine.resources().get<SceneManager>();
     auto root = sceneManager->addRoot("Default");
 
@@ -132,31 +135,36 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
 
     for (float x = -(totalWidth / 2); x <= (totalWidth / 2); x += offset) {
         for (float y = -(totalHeight / 2); y <= (totalHeight / 2); y += offset) {
-            auto entity = ecsManager->createEntity();
+            auto entity = entityManager->createEntity();
 
-            auto meshRenderer = ecsManager->addComponent<MeshRendererComponent>(entity);
+            auto meshRenderer = std::make_shared<MeshRendererComponent>();
             meshRenderer->setMeshAsset("models/cube.asset");
             meshRenderer->setAlbedoTextureAsset("textures/texture-1024.asset");
 
-            auto transform = ecsManager->addComponent<TransformComponent>(entity);
+            auto transform = std::make_shared<TransformComponent>();
             transform->getPos() = glm::vec3(x, 0, y);
+
+            entityManager->addComponent(entity, meshRenderer);
+            entityManager->addComponent(entity, transform);
 
             sceneManager->insertEntityNode(root, entity);
         }
     }
 
     {
-        auto entity = ecsManager->createEntity();
+        auto entity = entityManager->createEntity();
 
-        ecsManager->addComponent<TestLogicTargetComponent>(entity);
-        ecsManager->addComponent<ViewComponent>(entity);
-
-        auto camera = ecsManager->addComponent<PerspectiveCameraComponent>(entity);
+        auto camera = std::make_shared<PerspectiveCameraComponent>();
         camera->getFov() = glm::radians(90.0f);
 
-        auto transform = ecsManager->addComponent<TransformComponent>(entity);
+        auto transform = std::make_shared<TransformComponent>();
         transform->getPos() = glm::vec3(0);
         transform->getRot() = glm::vec3(0, 0, glm::radians(-15.0f));
+
+        entityManager->addComponent(entity, std::make_shared<TestLogicTargetComponent>());
+        entityManager->addComponent(entity, std::make_shared<ViewComponent>());
+        entityManager->addComponent(entity, camera);
+        entityManager->addComponent(entity, transform);
 
         sceneManager->insertEntityNode(root, entity);
     }

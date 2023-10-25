@@ -2,27 +2,18 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Utils/OptionalUtils.hpp>
-
 #include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
 
 namespace Penrose {
 
     DefaultDrawableProvider::DefaultDrawableProvider(ResourceSet *resources)
-            : _ecsManager(resources->get<ECSManager>()) {
+            : _entityManager(resources->get<EntityManager>()) {
         //
     }
 
     std::vector<Drawable> DefaultDrawableProvider::getDrawablesFor(const Entity &entity) {
-        auto &components = this->_ecsManager->getComponents(entity);
-
-        auto maybeMeshRenderer = map(
-                tryGet(components, MeshRendererComponent::name()),
-                [](const std::shared_ptr<Component> &component) {
-                    return std::dynamic_pointer_cast<MeshRendererComponent>(component);
-                });
+        auto maybeMeshRenderer = this->_entityManager->tryGetComponent<MeshRendererComponent>(entity);
 
         if (!maybeMeshRenderer.has_value()) {
             return {};
@@ -41,11 +32,7 @@ namespace Penrose {
                 .color = meshRenderer->getColor()
         };
 
-        auto maybeTransform = map(
-                tryGet(components, TransformComponent::name()),
-                [](const std::shared_ptr<Component> &component) {
-                    return std::dynamic_pointer_cast<TransformComponent>(component);
-                });
+        auto maybeTransform = this->_entityManager->tryGetComponent<TransformComponent>(entity);
 
         if (maybeTransform.has_value()) {
             auto transform = *maybeTransform;

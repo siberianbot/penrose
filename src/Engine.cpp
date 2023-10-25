@@ -8,7 +8,8 @@
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Common/StdOutLogSink.hpp>
-#include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/ECS/EntityManager.hpp>
+#include <Penrose/ECS/SystemManager.hpp>
 #include <Penrose/Events/ECSEvents.hpp>
 #include <Penrose/Events/EngineEvents.hpp>
 #include <Penrose/Events/InputEvents.hpp>
@@ -61,10 +62,13 @@ namespace Penrose {
                 .implements<LogSink>()
                 .done();
 
-        this->_resources.add<ECSManager>()
+        this->_resources.add<EntityManager>()
                 .implements<Initializable>()
+                .done();
+        this->_resources.add<SystemManager>()
                 .implements<Updatable>()
                 .done();
+
         this->_resources.add<SceneManager>()
                 .implements<Initializable>()
                 .done();

@@ -2,7 +2,6 @@
 
 #include <Penrose/Engine.hpp>
 #include <Penrose/Common/Log.hpp>
-#include <Penrose/ECS/ECSManager.hpp>
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Events/InputEvents.hpp>
 #include <Penrose/Resources/Initializable.hpp>

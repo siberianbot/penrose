@@ -27,23 +27,22 @@ namespace Penrose {
         Entity _entity;
     };
 
-    // TODO: pass component info
     template<typename Self>
     class ComponentEvent : public EntityEvent<Self> {
     public:
         ~ComponentEvent() override = default;
 
-        [[nodiscard]] const std::string &getComponentName() const { return this->_componentName; }
+        [[nodiscard]] const ComponentInfo &getComponentType() const { return this->_componentType; }
 
     protected:
-        explicit ComponentEvent(Entity entity, std::string &&componentName)
+        explicit ComponentEvent(Entity entity, ComponentInfo &&componentType)
                 : EntityEvent<Self>(entity),
-                  _componentName(componentName) {
+                  _componentType(componentType) {
             //
         }
 
     private:
-        std::string _componentName;
+        ComponentInfo _componentType;
     };
 
     class EntityCreatedEvent : public EntityEvent<EntityCreatedEvent> {
@@ -68,25 +67,25 @@ namespace Penrose {
 
     class ComponentCreatedEvent : public ComponentEvent<ComponentCreatedEvent> {
     public:
-        explicit ComponentCreatedEvent(Entity entity, std::shared_ptr<Component> &&component)
-                : ComponentEvent<ComponentCreatedEvent>(entity, component->getName()),
+        explicit ComponentCreatedEvent(Entity entity, std::shared_ptr<ComponentBase> &&component)
+                : ComponentEvent<ComponentCreatedEvent>(entity, component->getType()),
                   _component(component) {
             //
         }
 
         ~ComponentCreatedEvent() override = default;
 
-        [[nodiscard]] const std::shared_ptr<Component> &getComponent() const { return this->_component; }
+        [[nodiscard]] const std::shared_ptr<ComponentBase> &getComponent() const { return this->_component; }
 
     private:
-        std::shared_ptr<Component> _component;
+        std::shared_ptr<ComponentBase> _component;
     };
 
     class ComponentDestroyedEvent : public ComponentEvent<ComponentDestroyedEvent> {
     public:
-        explicit ComponentDestroyedEvent(Entity entity, std::string &&componentName)
+        explicit ComponentDestroyedEvent(Entity entity, ComponentInfo &&componentType)
                 : ComponentEvent<ComponentDestroyedEvent>(entity,
-                                                          std::forward<decltype(componentName)>(componentName)) {
+                                                          std::forward<decltype(componentType)>(componentType)) {
             //
         }
 

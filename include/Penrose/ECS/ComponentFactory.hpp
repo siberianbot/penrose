@@ -4,27 +4,30 @@
 #include <string>
 #include <type_traits>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/ECS/Component.hpp>
+#include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class ComponentFactory {
+    class PENROSE_API ComponentFactory {
     public:
         virtual ~ComponentFactory() = default;
 
-        [[nodiscard]] virtual std::string getName() const = 0;
+        [[nodiscard]] virtual ComponentInfo getComponentType() const = 0;
 
-        [[nodiscard]] virtual Component *makeComponent() = 0;
+        [[nodiscard]] virtual ComponentBase *makeComponent() = 0;
     };
 
-    template<IsComponent T> requires std::is_default_constructible<T>::value
-    class GenericComponentFactory : public ComponentFactory {
+    template<typename C> requires std::is_base_of_v<Component<C>, C> && std::is_default_constructible_v<C>
+    class PENROSE_API GenericComponentFactory : public Resource<GenericComponentFactory<C>>,
+                                                public ComponentFactory {
     public:
         ~GenericComponentFactory() override = default;
 
-        [[nodiscard]] std::string getName() const override { return std::string(T::name()); }
+        [[nodiscard]] ComponentInfo getComponentType() const override { return C::type(); }
 
-        [[nodiscard]] Component *makeComponent() override { return new T(); }
+        [[nodiscard]] ComponentBase *makeComponent() override { return C::create(); }
     };
 }
 

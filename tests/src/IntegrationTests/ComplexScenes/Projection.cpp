@@ -7,7 +7,7 @@
 #include <Penrose/Engine.hpp>
 #include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
-#include <Penrose/ECS/ECSManager.hpp>
+#include <Penrose/ECS/EntityManager.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Resource.hpp>
@@ -115,36 +115,41 @@ TEST_CASE("Projection", "[engine-int-test]") {
     auto renderContext = engine.resources().get<RenderGraphContext>();
     renderContext->setRenderGraph(graph);
 
-    auto ecsManager = engine.resources().get<ECSManager>();
+    auto entityManager = engine.resources().get<EntityManager>();
     auto sceneManager = engine.resources().get<SceneManager>();
     auto root = sceneManager->addRoot("Default");
 
     for (auto cube: CUBES) {
-        auto entity = ecsManager->createEntity();
+        auto entity = entityManager->createEntity();
 
-        auto meshRenderer = ecsManager->addComponent<MeshRendererComponent>(entity);
+        auto meshRenderer = std::make_shared<MeshRendererComponent>();
         meshRenderer->setMeshAsset("models/cube.asset");
         meshRenderer->setAlbedoTextureAsset("textures/white-16.asset");
         meshRenderer->setColor(cube.color);
 
-        auto transform = ecsManager->addComponent<TransformComponent>(entity);
+        auto transform = std::make_shared<TransformComponent>();
         transform->getPos() = glm::vec3(cube.pos);
         transform->getRot() = glm::vec3(cube.rot);
+
+        entityManager->addComponent(entity, meshRenderer);
+        entityManager->addComponent(entity, transform);
 
         sceneManager->insertEntityNode(root, entity);
     }
 
     {
-        auto entity = ecsManager->createEntity();
+        auto entity = entityManager->createEntity();
 
-        ecsManager->addComponent<ViewComponent>(entity);
-
-        auto camera = ecsManager->addComponent<PerspectiveCameraComponent>(entity);
+        auto camera = std::make_shared<PerspectiveCameraComponent>();
         camera->getFov() = glm::radians(90.0f);
 
-        auto transform = ecsManager->addComponent<TransformComponent>(entity);
+        auto transform = std::make_shared<TransformComponent>();
         transform->getPos() = glm::vec3(0, 0, 4);
         transform->getRot() = glm::vec3(0, glm::radians(90.0f), 0);
+
+        entityManager->addComponent(entity, std::make_shared<ViewComponent>());
+        entityManager->addComponent(entity, camera);
+        entityManager->addComponent(entity, transform);
 
         sceneManager->insertEntityNode(root, entity);
     }
