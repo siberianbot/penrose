@@ -15,6 +15,7 @@
 #include <Penrose/Events/InputEvents.hpp>
 #include <Penrose/Events/SurfaceEvents.hpp>
 #include <Penrose/Input/InputHandler.hpp>
+#include <Penrose/Performance/Profiler.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderManager.hpp>
@@ -45,6 +46,8 @@ namespace Penrose {
         this->_resources.add<StdOutLogSink, ResourceGroup::Engine>()
                 .implements<LogSink>()
                 .done();
+
+        this->_resources.add<Profiler, ResourceGroup::Performance>().done();
 
         this->_resources.add<SurfaceManager, ResourceGroup::Windowing>()
                 .implements<Initializable>()
@@ -134,11 +137,11 @@ namespace Penrose {
         auto allInitializable = this->_resources.get<Initializable>();
         auto allRunnable = this->_resources.get<Runnable>();
         auto allUpdatable = this->_resources.get<Updatable>();
+        auto profiler = this->_resources.get<Profiler>();
 
         for (auto &initializable: allInitializable) {
             initializable->init();
         }
-
 
         auto alive = true;
 
@@ -157,17 +160,18 @@ namespace Penrose {
             runnable->run();
         }
 
-        std::chrono::high_resolution_clock::time_point start;
-        float delta = 0;
+        std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+        float delta;
 
         while (alive) {
+            auto frameUpdate = profiler->begin("Frame Update");
+
+            delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
             start = std::chrono::high_resolution_clock::now();
 
             for (auto &updatable: allUpdatable) {
                 updatable->update(delta);
             }
-
-            delta = std::chrono::duration<float>(std::chrono::high_resolution_clock::now() - start).count();
         }
 
         for (auto &runnable: std::views::reverse(allRunnable)) {

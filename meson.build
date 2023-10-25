@@ -43,6 +43,9 @@ src = [
     'src/Input/Input.cpp',
     'src/Input/InputHandler.cpp',
 
+    # Performance
+    'src/Performance/Profiler.cpp',
+
     # Rendering
     'src/Rendering/DefaultDrawableProvider.cpp',
     'src/Rendering/DefaultViewProvider.cpp',

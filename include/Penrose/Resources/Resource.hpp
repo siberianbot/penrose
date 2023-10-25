@@ -12,6 +12,7 @@ namespace Penrose {
 
     enum class ResourceGroup {
         Engine,
+        Performance,
         Backend,
         Windowing,
         Rendering,
