@@ -21,6 +21,18 @@ namespace Penrose {
 
         return value;
     }
+
+    template<typename A, typename B = A>
+    requires std::is_convertible_v<B, A>
+    constexpr inline A max(const A &a, const B &b) {
+        return a < b ? b : a;
+    }
+
+    template<typename A, typename B = A, typename ...Args>
+    requires std::is_convertible_v<B, A>
+    constexpr inline A max(const A &a, const B &b, const Args &...args) {
+        return max(max(a, b), args...);
+    }
 }
 
 #endif // PENROSE_MATH_NUMERIC_FUNCS_HPP

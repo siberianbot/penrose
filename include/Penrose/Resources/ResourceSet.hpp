@@ -39,7 +39,7 @@ namespace Penrose {
             // TODO: should not be available to caller
             [[nodiscard]] Target *get() {
                 if (!this->isPresent()) {
-                    throw EngineError("Resource {} is not presented in resource set", typeid(Target).name());
+                    throw EngineError("Resource {} is not presented in resource set", demangle(typeid(Target).name()));
                 }
 
                 return this->_instances->front();

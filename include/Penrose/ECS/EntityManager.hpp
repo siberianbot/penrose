@@ -68,7 +68,7 @@ namespace Penrose {
         void destroy() override;
 
         [[nodiscard]] Entity createEntity();
-        void destroyEntity(Entity &&entity);
+        void destroyEntity(Entity entity);
 
         void addComponent(Entity entity, std::shared_ptr<ComponentBase> &&component);
         void removeComponent(Entity entity, ComponentInfo &&componentType);

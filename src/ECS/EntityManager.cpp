@@ -83,7 +83,7 @@ namespace Penrose {
         return *maybeEntity;
     }
 
-    void EntityManager::destroyEntity(Entity &&entity) {
+    void EntityManager::destroyEntity(Entity entity) {
         auto maybeData = this->tryGetEntityData(entity);
 
         if (!maybeData.has_value()) {

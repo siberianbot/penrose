@@ -22,7 +22,8 @@ namespace Penrose {
         ECSManager,
         Scene,
         ECSComponent,
-        ECSSystem
+        ECSSystem,
+        Custom
     };
 
     struct ResourceInfo {
