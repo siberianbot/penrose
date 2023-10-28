@@ -9,7 +9,8 @@ namespace Penrose {
         Unknown = 0x00,
         Shader = 0x01,
         Mesh = 0x02,
-        Image = 0x03
+        Image = 0x03,
+        UILayout = 0x04
     };
 }
 

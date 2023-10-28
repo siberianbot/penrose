@@ -17,6 +17,7 @@ namespace Penrose {
         Windowing,
         Rendering,
         RenderOperator,
+        UI,
         Assets,
         Events,
         ECSManager,

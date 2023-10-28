@@ -10,6 +10,7 @@
 #include <Penrose/Assets/AssetType.hpp>
 #include <Penrose/Rendering/RenderingObjectManager.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/UI/LayoutFactory.hpp>
 
 namespace Penrose {
 
@@ -23,6 +24,7 @@ namespace Penrose {
     private:
         using Provider = std::function<Asset *(AssetReader &)>;
 
+        ResourceProxy<LayoutFactory> _layoutFactory;
         ResourceProxy<RenderingObjectManager> _renderingObjectManager;
 
         std::map<AssetType, Provider> _providers;

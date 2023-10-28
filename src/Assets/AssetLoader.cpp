@@ -3,6 +3,7 @@
 #include <Penrose/Assets/ImageAsset.hpp>
 #include <Penrose/Assets/MeshAsset.hpp>
 #include <Penrose/Assets/ShaderAsset.hpp>
+#include <Penrose/Assets/UILayoutAsset.hpp>
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/Common/Vertex.hpp>
 
@@ -21,7 +22,8 @@ namespace Penrose {
     }
 
     AssetLoader::AssetLoader(ResourceSet *resources)
-            : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
+            : _layoutFactory(resources->get<LayoutFactory>()),
+              _renderingObjectManager(resources->get<RenderingObjectManager>()) {
 
         this->_providers[AssetType::Mesh] = [this](AssetReader &reader) {
 
@@ -71,6 +73,17 @@ namespace Penrose {
             auto shader = this->_renderingObjectManager->makeShader(std::forward<decltype(rawData)>(rawData));
 
             return new ShaderAsset(std::unique_ptr<Shader>(shader));
+        };
+
+        this->_providers[AssetType::UILayout] = [this](AssetReader &reader) {
+            auto info = reader.read<UILayoutInfo>();
+
+            auto rawData = std::vector<unsigned char>(info.size);
+            reader.read(info.size, rawData.data());
+
+            auto layout = this->_layoutFactory->makeLayout(std::forward<decltype(rawData)>(rawData));
+
+            return new UILayoutAsset(std::unique_ptr<Layout>(layout));
         };
     }
 

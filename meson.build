@@ -12,6 +12,8 @@ deps = [
     dependency('glfw3'),
     dependency('glm'),
     dependency('imgui'),
+    dependency('libxml-2.0'),
+    dependency('libxml++'),
     dependency('vulkan'),
 ]
 
@@ -29,6 +31,7 @@ src = [
     'src/Assets/ImageAsset.cpp',
     'src/Assets/MeshAsset.cpp',
     'src/Assets/ShaderAsset.cpp',
+    'src/Assets/UILayoutAsset.cpp',
 
     # Common
     'src/Common/Log.cpp',
@@ -60,6 +63,11 @@ src = [
     # Scene
     'src/Scene/SceneManager.cpp',
     'src/Scene/SceneNode.cpp',
+
+    # UI
+    'src/UI/Layout.cpp',
+    'src/UI/LayoutFactory.cpp',
+    'src/UI/Value.cpp',
 
     # Builtin / Penrose
     'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',

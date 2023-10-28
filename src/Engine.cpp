@@ -21,6 +21,7 @@
 #include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
+#include <Penrose/UI/LayoutFactory.hpp>
 
 #include <Penrose/Builtin/Debug/Debug.hpp>
 #include <Penrose/Builtin/Glfw.hpp>
@@ -66,6 +67,9 @@ namespace Penrose {
                 .done();
         this->_resources.add<DefaultViewProvider, ResourceGroup::Rendering>()
                 .implements<ViewProvider>()
+                .done();
+
+        this->_resources.add<LayoutFactory, ResourceGroup::UI>()
                 .done();
 
         this->_resources.add<AssetDictionary, ResourceGroup::Assets>().done();

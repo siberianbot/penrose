@@ -41,6 +41,10 @@ namespace Penrose {
         std::uint32_t size;
     };
 
+    struct UILayoutInfo {
+        std::uint32_t size;
+    };
+
 #pragma pack(pop)
 }
 
