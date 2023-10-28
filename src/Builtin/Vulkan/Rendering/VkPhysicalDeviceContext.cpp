@@ -139,7 +139,8 @@ namespace Penrose {
 
             auto haveExtension = contains(extensions, requiredDeviceExtension,
                                           [](const vk::ExtensionProperties &extension) {
-                                              return extension.extensionName;
+                                              return std::string_view(extension.extensionName,
+                                                                      std::strlen(extension.extensionName));
                                           });
 
             if (haveExtension) {

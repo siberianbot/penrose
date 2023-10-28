@@ -48,7 +48,7 @@ namespace Penrose {
             for (const auto &requiredLayer: REQUIRED_LAYERS) {
 
                 auto haveLayer = contains(availableLayers, requiredLayer, [](const vk::LayerProperties &layer) {
-                    return layer.layerName;
+                    return std::string_view(layer.layerName, std::strlen(layer.layerName));
                 });
 
                 if (!haveLayer) {
@@ -61,7 +61,7 @@ namespace Penrose {
             for (const auto &optionalLayer: OPTIONAL_LAYERS) {
 
                 auto haveLayer = contains(availableLayers, optionalLayer, [](const vk::LayerProperties &layer) {
-                    return layer.layerName;
+                    return std::string_view(layer.layerName, std::strlen(layer.layerName));
                 });
 
                 if (!haveLayer) {
@@ -90,7 +90,8 @@ namespace Penrose {
 
                 auto haveExtension = contains(availableExtensions, requiredExtension,
                                               [](const vk::ExtensionProperties &extension) {
-                                                  return extension.extensionName;
+                                                  return std::string_view(extension.extensionName,
+                                                                          std::strlen(extension.extensionName));
                                               });
 
                 if (!haveExtension) {
@@ -104,7 +105,8 @@ namespace Penrose {
 
                 auto haveExtension = contains(availableExtensions, optionalExtension,
                                               [](const vk::ExtensionProperties &extension) {
-                                                  return extension.extensionName;
+                                                  return std::string_view(extension.extensionName,
+                                                                          std::strlen(extension.extensionName));
                                               });
 
                 if (!haveExtension) {
