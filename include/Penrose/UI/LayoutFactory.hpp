@@ -20,11 +20,11 @@ namespace Penrose {
         [[nodiscard]] Layout *makeLayout(std::vector<unsigned char> &&content);
 
     private:
-        using WidgetFactory = std::function<WidgetBase *(const xmlpp::Element *)>;
+        using WidgetFactory = std::function<Widget *(const xmlpp::Element *)>;
 
         std::map<std::string, WidgetFactory> _factories;
 
-        [[nodiscard]] WidgetBase *makeWidget(const xmlpp::Element *element);
+        [[nodiscard]] Widget *makeWidget(const xmlpp::Element *element);
     };
 }
 

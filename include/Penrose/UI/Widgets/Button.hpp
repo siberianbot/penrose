@@ -1,35 +1,37 @@
-#ifndef PENROSE_UI_WIDGETS_WINDOW_HPP
-#define PENROSE_UI_WIDGETS_WINDOW_HPP
+#ifndef PENROSE_UI_WIDGETS_BUTTON_HPP
+#define PENROSE_UI_WIDGETS_BUTTON_HPP
 
 #include <Penrose/UI/Widgets/Widget.hpp>
 
 namespace Penrose {
 
-    class Window : public Widget {
+    class Button : public Widget {
     public:
         struct Args {
             BooleanWidgetValue enabled;
             BooleanWidgetValue visible;
             StringWidgetValue title;
-            WidgetList children;
+            ActionWidgetValue action;
         };
 
-        explicit Window(Args &&args)
+        explicit Button(Args &&args)
                 : Widget(std::forward<decltype(args.enabled)>(args.enabled),
                          std::forward<decltype(args.visible)>(args.visible)),
                   _title(std::forward<decltype(args.title)>(args.title)),
-                  _children(std::forward<decltype(args.children)>(args.children)) {
+                  _action(std::forward<decltype(args.action)>(args.action)) {
             //
         }
 
-        [[nodiscard]] WidgetType getType() const override { return WidgetType::Window; }
+        [[nodiscard]] WidgetType getType() const override { return WidgetType::Button; }
 
         [[nodiscard]] const StringWidgetValue &getTitle() const { return this->_title; }
 
+        [[nodiscard]] const ActionWidgetValue &getAction() const { return this->_action; }
+
     private:
         StringWidgetValue _title;
-        WidgetList _children;
+        ActionWidgetValue _action;
     };
 }
 
-#endif // PENROSE_UI_WIDGETS_WINDOW_HPP
+#endif // PENROSE_UI_WIDGETS_BUTTON_HPP

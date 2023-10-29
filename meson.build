@@ -67,7 +67,7 @@ src = [
     # UI
     'src/UI/Layout.cpp',
     'src/UI/LayoutFactory.cpp',
-    'src/UI/Value.cpp',
+    'src/UI/WidgetValue.cpp',
 
     # Builtin / Penrose
     'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',

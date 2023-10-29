@@ -3,7 +3,6 @@
 
 #include <list>
 #include <memory>
-#include <string>
 
 #include <Penrose/UI/Widgets/Widget.hpp>
 
@@ -11,12 +10,12 @@ namespace Penrose {
 
     class Layout {
     public:
-        explicit Layout(std::unique_ptr<WidgetBase> &&root);
+        explicit Layout(std::unique_ptr<Widget> &&root);
 
-        [[nodiscard]] const WidgetBase *getRoot() const { return this->_root.get(); }
+        [[nodiscard]] const Widget *getRoot() const { return this->_root.get(); }
 
     private:
-        std::unique_ptr<WidgetBase> _root;
+        std::unique_ptr<Widget> _root;
     };
 }
 

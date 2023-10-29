@@ -1,4 +1,4 @@
-#include <Penrose/UI/Value.hpp>
+#include <Penrose/UI/WidgetValue.hpp>
 
 #include <algorithm>
 #include <cctype>
@@ -44,30 +44,30 @@ namespace Penrose {
     }
 
     template<>
-    BooleanValue BooleanValue::parse(std::string_view &&value) {
+    BooleanWidgetValue BooleanWidgetValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {ValueType::Binding, false, std::move(*binding)};
+            return {WidgetValueSource::Binding, false, std::move(*binding)};
         }
 
         if (compare(value, BOOLEAN_TRUE)) {
-            return {ValueType::Constant, true, ""};
+            return {WidgetValueSource::Constant, true, ""};
         }
 
         if (compare(value, BOOLEAN_FALSE)) {
-            return {ValueType::Constant, false, ""};
+            return {WidgetValueSource::Constant, false, ""};
         }
 
         throw EngineError("Invalid boolean value \"{}\"", value);
     }
 
     template<>
-    IntegerValue IntegerValue::parse(std::string_view &&value) {
+    IntegerWidgetValue IntegerWidgetValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {ValueType::Binding, 0, std::move(*binding)};
+            return {WidgetValueSource::Binding, 0, std::move(*binding)};
         }
 
         int integer;
@@ -77,15 +77,15 @@ namespace Penrose {
             throw EngineError("Invalid integer value \"{}\"", value);
         }
 
-        return {ValueType::Constant, integer, ""};
+        return {WidgetValueSource::Constant, integer, ""};
     }
 
     template<>
-    FloatValue FloatValue::parse(std::string_view &&value) {
+    FloatWidgetValue FloatWidgetValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {ValueType::Binding, 0, std::move(*binding)};
+            return {WidgetValueSource::Binding, 0, std::move(*binding)};
         }
 
         float f;
@@ -95,17 +95,50 @@ namespace Penrose {
             throw EngineError("Invalid float value \"{}\"", value);
         }
 
-        return {ValueType::Constant, f, ""};
+        return {WidgetValueSource::Constant, f, ""};
     }
 
     template<>
-    StringValue StringValue::parse(std::string_view &&value) {
+    StringWidgetValue StringWidgetValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {ValueType::Binding, "", std::move(*binding)};
+            return {WidgetValueSource::Binding, "", std::move(*binding)};
         }
 
-        return {ValueType::Constant, std::string(value), ""};
+        return {WidgetValueSource::Constant, std::string(value), ""};
+    }
+
+    template<>
+    ActionWidgetValue ActionWidgetValue::parse(std::string_view &&value) {
+        auto binding = tryGetBinding(value);
+
+        if (!binding.has_value()) {
+            throw EngineError("Action requires binding");
+        }
+
+        return ActionWidgetValue(std::move(*binding));
+    }
+
+    template<>
+    ObjectWidgetValue ObjectWidgetValue::parse(std::string_view &&value) {
+        auto binding = tryGetBinding(value);
+
+        if (!binding.has_value()) {
+            throw EngineError("Object requires binding");
+        }
+
+        return ObjectWidgetValue(std::move(*binding));
+    }
+
+    template<>
+    ListWidgetValue ListWidgetValue::parse(std::string_view &&value) {
+        auto binding = tryGetBinding(value);
+
+        if (!binding.has_value()) {
+            throw EngineError("List requires binding");
+        }
+
+        return ListWidgetValue(std::move(*binding));
     }
 }

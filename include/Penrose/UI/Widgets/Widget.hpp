@@ -1,43 +1,44 @@
 #ifndef PENROSE_UI_WIDGETS_WIDGET_HPP
 #define PENROSE_UI_WIDGETS_WIDGET_HPP
 
-#include <string>
+#include <list>
+#include <memory>
 
-#include <Penrose/UI/Value.hpp>
+#include <Penrose/UI/WidgetValue.hpp>
 
 namespace Penrose {
 
     enum class WidgetType {
-        Window
+        Window,
+        Label,
+        Button,
+        Input,
+        Checkbox
     };
 
-    class WidgetBase {
+    class Widget {
     public:
-        virtual ~WidgetBase() = default;
+        virtual ~Widget() = default;
 
         [[nodiscard]] virtual WidgetType getType() const = 0;
 
-        [[nodiscard]] virtual const BooleanValue &getVisible() const = 0;
-    };
+        [[nodiscard]] const BooleanWidgetValue &getEnabled() const { return this->_enabled; }
 
-    template<typename W, WidgetType Type>
-    class Widget : public WidgetBase {
-    public:
-        ~Widget() override = default;
-
-        [[nodiscard]] WidgetType getType() const override { return Type; }
-
-        [[nodiscard]] const BooleanValue &getVisible() const override { return this->_visible; }
+        [[nodiscard]] const BooleanWidgetValue &getVisible() const { return this->_visible; }
 
     protected:
-        explicit Widget(BooleanValue &&visible)
-                : _visible(visible) {
+        Widget(BooleanWidgetValue &&enabled, BooleanWidgetValue &&visible)
+                : _enabled(enabled),
+                  _visible(visible) {
             //
         }
 
     private:
-        BooleanValue _visible;
+        BooleanWidgetValue _enabled;
+        BooleanWidgetValue _visible;
     };
+
+    using WidgetList = std::list<std::unique_ptr<Widget>>;
 }
 
 #endif // PENROSE_UI_WIDGETS_WIDGET_HPP
