@@ -37,6 +37,11 @@ namespace Penrose {
     std::shared_ptr<T> AssetManager::getAsset(const std::string &asset) const {
         return orElseThrow(this->tryGetAsset<T>(asset, true), EngineError(fmt::format("Asset {} not loaded", asset)));
     }
+
+    template<IsAsset T>
+    std::shared_ptr<T> AssetManager::getAsset(std::string_view &&asset) const {
+        return this->getAsset<T>(std::string(asset));
+    }
 }
 
 #endif // PENROSE_ASSETS_ASSET_MANAGER_INL

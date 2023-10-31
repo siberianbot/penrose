@@ -1,3 +1,4 @@
+layouts/root.asset:layouts/root.asset
 models/cube.asset:models/cube.asset
 shaders/default-forward-rendering.frag.asset:shaders/default-forward-rendering.frag.asset
 shaders/default-forward-rendering.vert.asset:shaders/default-forward-rendering.vert.asset

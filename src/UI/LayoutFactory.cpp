@@ -50,9 +50,10 @@ namespace Penrose {
     LayoutFactory::LayoutFactory() {
         this->_factories["window"] = [this](const xmlpp::Element *element) -> Widget * {
             auto args = Window::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanWidgetValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanWidgetValue(true)),
-                    .title = getRequiredAttribute<StringWidgetValue>(element, "title")
+                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
+                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
+                    .title = getRequiredAttribute<StringValue>(element, "title"),
+                    .context = getRequiredAttribute<ObjectValue>(element, "context")
             };
 
             for (const xmlpp::Node *childNode: element->get_children()) {
@@ -78,9 +79,9 @@ namespace Penrose {
 
         this->_factories["label"] = [](const xmlpp::Element *element) -> Widget * {
             auto args = Label::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanWidgetValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanWidgetValue(true)),
-                    .text = getRequiredAttribute<StringWidgetValue>(element, "text")
+                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
+                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
+                    .text = getRequiredAttribute<StringValue>(element, "text")
             };
 
             return new Label(std::move(args));
@@ -88,10 +89,10 @@ namespace Penrose {
 
         this->_factories["button"] = [](const xmlpp::Element *element) -> Widget * {
             auto args = Button::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanWidgetValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanWidgetValue(true)),
-                    .title = getRequiredAttribute<StringWidgetValue>(element, "title"),
-                    .action = getRequiredAttribute<ActionWidgetValue>(element, "action")
+                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
+                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
+                    .title = getRequiredAttribute<StringValue>(element, "title"),
+                    .action = getRequiredAttribute<ActionValue>(element, "action")
             };
 
             return new Button(std::move(args));
@@ -99,9 +100,9 @@ namespace Penrose {
 
         this->_factories["input"] = [](const xmlpp::Element *element) -> Widget * {
             auto args = Input::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanWidgetValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanWidgetValue(true)),
-                    .text = getRequiredAttribute<StringWidgetValue>(element, "text")
+                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
+                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
+                    .text = getRequiredAttribute<StringValue>(element, "text")
             };
 
             return new Input(std::move(args));
@@ -109,9 +110,9 @@ namespace Penrose {
 
         this->_factories["checkbox"] = [](const xmlpp::Element *element) -> Widget * {
             auto args = Checkbox::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanWidgetValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanWidgetValue(true)),
-                    .checked = getRequiredAttribute<BooleanWidgetValue>(element, "checked")
+                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
+                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
+                    .checked = getRequiredAttribute<BooleanValue>(element, "checked")
             };
 
             return new Checkbox(std::move(args));

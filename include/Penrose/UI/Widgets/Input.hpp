@@ -8,9 +8,9 @@ namespace Penrose {
     class Input : public Widget {
     public:
         struct Args {
-            BooleanWidgetValue enabled;
-            BooleanWidgetValue visible;
-            StringWidgetValue text;
+            BooleanValue enabled;
+            BooleanValue visible;
+            StringValue text;
         };
 
         explicit Input(Args &&args)
@@ -22,10 +22,10 @@ namespace Penrose {
 
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Input; }
 
-        [[nodiscard]] const StringWidgetValue &getText() const { return this->_text; }
+        [[nodiscard]] const StringValue &getText() const { return this->_text; }
 
     private:
-        StringWidgetValue _text;
+        StringValue _text;
     };
 }
 

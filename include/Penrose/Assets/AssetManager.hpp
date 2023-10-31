@@ -51,6 +51,9 @@ namespace Penrose {
         template<IsAsset T>
         [[nodiscard]] std::shared_ptr<T> getAsset(const std::string &asset) const;
 
+        template<IsAsset T>
+        [[nodiscard]] std::shared_ptr<T> getAsset(std::string_view &&asset) const;
+
     private:
         enum class LoadingState {
             Pending,

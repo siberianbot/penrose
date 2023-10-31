@@ -8,9 +8,10 @@ namespace Penrose {
     class Window : public Widget {
     public:
         struct Args {
-            BooleanWidgetValue enabled;
-            BooleanWidgetValue visible;
-            StringWidgetValue title;
+            BooleanValue enabled;
+            BooleanValue visible;
+            StringValue title;
+            ObjectValue context;
             WidgetList children;
         };
 
@@ -18,16 +19,22 @@ namespace Penrose {
                 : Widget(std::forward<decltype(args.enabled)>(args.enabled),
                          std::forward<decltype(args.visible)>(args.visible)),
                   _title(std::forward<decltype(args.title)>(args.title)),
+                  _context(std::forward<decltype(args.context)>(args.context)),
                   _children(std::forward<decltype(args.children)>(args.children)) {
             //
         }
 
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Window; }
 
-        [[nodiscard]] const StringWidgetValue &getTitle() const { return this->_title; }
+        [[nodiscard]] const StringValue &getTitle() const { return this->_title; }
+
+        [[nodiscard]] const ObjectValue &getContext() const { return this->_context; }
+
+        [[nodiscard]] const WidgetList &getChildren() const { return this->_children; }
 
     private:
-        StringWidgetValue _title;
+        StringValue _title;
+        ObjectValue _context;
         WidgetList _children;
     };
 }

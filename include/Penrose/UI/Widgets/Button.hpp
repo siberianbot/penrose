@@ -8,10 +8,10 @@ namespace Penrose {
     class Button : public Widget {
     public:
         struct Args {
-            BooleanWidgetValue enabled;
-            BooleanWidgetValue visible;
-            StringWidgetValue title;
-            ActionWidgetValue action;
+            BooleanValue enabled;
+            BooleanValue visible;
+            StringValue title;
+            ActionValue action;
         };
 
         explicit Button(Args &&args)
@@ -24,13 +24,13 @@ namespace Penrose {
 
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Button; }
 
-        [[nodiscard]] const StringWidgetValue &getTitle() const { return this->_title; }
+        [[nodiscard]] const StringValue &getTitle() const { return this->_title; }
 
-        [[nodiscard]] const ActionWidgetValue &getAction() const { return this->_action; }
+        [[nodiscard]] const ActionValue &getAction() const { return this->_action; }
 
     private:
-        StringWidgetValue _title;
-        ActionWidgetValue _action;
+        StringValue _title;
+        ActionValue _action;
     };
 }
 

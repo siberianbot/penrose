@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<window title="Root Window">
+
+    <label text="It's a label"/>
+    <input text="It's an input"/>
+
+    <label text="${text}"/>
+    <input text="${text}"/>
+
+    <button title="It's a button" action="${button_action}"/>
+    <label visible="${button_pressed}" text="Button pressed"/>
+
+    <checkbox text="Toggle visibility" checked="${checkbox_visibility}"/>
+    <label text="This label was invisible" visible="${checkbox_visibility}"/>
+    <input text="This input was invisible" visible="${checkbox_visibility}"/>
+    <button title="This button was invisible" visible="${checkbox_visibility}" action="${none_action}"/>
+    <checkbox text="This checkbox was invisible" visible="${checkbox_visibility}" checked="${none_check}"/>
+
+    <checkbox text="Toggle visibility" checked="${checkbox_enabled}"/>
+    <label text="This label was disabled" enabled="${checkbox_enabled}"/>
+    <input text="This input was disabled" enabled="${checkbox_enabled}"/>
+    <button title="This button was disabled" enabled="${checkbox_enabled}" action="${none_action}"/>
+    <checkbox text="This checkbox was disabled" enabled="${checkbox_enabled}" checked="${none_check}"/>
+
+</window>

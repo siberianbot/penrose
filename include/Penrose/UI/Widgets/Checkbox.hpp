@@ -8,24 +8,29 @@ namespace Penrose {
     class Checkbox : public Widget {
     public:
         struct Args {
-            BooleanWidgetValue enabled;
-            BooleanWidgetValue visible;
-            BooleanWidgetValue checked;
+            BooleanValue enabled;
+            BooleanValue visible;
+            StringValue text;
+            BooleanValue checked;
         };
 
         explicit Checkbox(Args &&args)
                 : Widget(std::forward<decltype(args.enabled)>(args.enabled),
                          std::forward<decltype(args.visible)>(args.visible)),
+                  _text(std::forward<decltype(args.text)>(args.text)),
                   _checked(std::forward<decltype(args.checked)>(args.checked)) {
             //
         }
 
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Checkbox; }
 
-        [[nodiscard]] const BooleanWidgetValue &getChecked() const { return this->_checked; }
+        [[nodiscard]] const StringValue &getText() const { return this->_text; }
+
+        [[nodiscard]] const BooleanValue &getChecked() const { return this->_checked; }
 
     private:
-        BooleanWidgetValue _checked;
+        StringValue _text;
+        BooleanValue _checked;
     };
 }
 

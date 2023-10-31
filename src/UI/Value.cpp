@@ -1,4 +1,4 @@
-#include <Penrose/UI/WidgetValue.hpp>
+#include <Penrose/UI/Value.hpp>
 
 #include <algorithm>
 #include <cctype>
@@ -44,30 +44,30 @@ namespace Penrose {
     }
 
     template<>
-    BooleanWidgetValue BooleanWidgetValue::parse(std::string_view &&value) {
+    BooleanValue BooleanValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {WidgetValueSource::Binding, false, std::move(*binding)};
+            return {ValueSource::Binding, false, std::move(*binding)};
         }
 
         if (compare(value, BOOLEAN_TRUE)) {
-            return {WidgetValueSource::Constant, true, ""};
+            return {ValueSource::Constant, true, ""};
         }
 
         if (compare(value, BOOLEAN_FALSE)) {
-            return {WidgetValueSource::Constant, false, ""};
+            return {ValueSource::Constant, false, ""};
         }
 
         throw EngineError("Invalid boolean value \"{}\"", value);
     }
 
     template<>
-    IntegerWidgetValue IntegerWidgetValue::parse(std::string_view &&value) {
+    IntegerValue IntegerValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {WidgetValueSource::Binding, 0, std::move(*binding)};
+            return {ValueSource::Binding, 0, std::move(*binding)};
         }
 
         int integer;
@@ -77,15 +77,15 @@ namespace Penrose {
             throw EngineError("Invalid integer value \"{}\"", value);
         }
 
-        return {WidgetValueSource::Constant, integer, ""};
+        return {ValueSource::Constant, integer, ""};
     }
 
     template<>
-    FloatWidgetValue FloatWidgetValue::parse(std::string_view &&value) {
+    FloatValue FloatValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {WidgetValueSource::Binding, 0, std::move(*binding)};
+            return {ValueSource::Binding, 0, std::move(*binding)};
         }
 
         float f;
@@ -95,50 +95,50 @@ namespace Penrose {
             throw EngineError("Invalid float value \"{}\"", value);
         }
 
-        return {WidgetValueSource::Constant, f, ""};
+        return {ValueSource::Constant, f, ""};
     }
 
     template<>
-    StringWidgetValue StringWidgetValue::parse(std::string_view &&value) {
+    StringValue StringValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (binding.has_value()) {
-            return {WidgetValueSource::Binding, "", std::move(*binding)};
+            return {ValueSource::Binding, "", std::move(*binding)};
         }
 
-        return {WidgetValueSource::Constant, std::string(value), ""};
+        return {ValueSource::Constant, std::string(value), ""};
     }
 
     template<>
-    ActionWidgetValue ActionWidgetValue::parse(std::string_view &&value) {
+    ActionValue ActionValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (!binding.has_value()) {
             throw EngineError("Action requires binding");
         }
 
-        return ActionWidgetValue(std::move(*binding));
+        return ActionValue(std::move(*binding));
     }
 
     template<>
-    ObjectWidgetValue ObjectWidgetValue::parse(std::string_view &&value) {
+    ObjectValue ObjectValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (!binding.has_value()) {
             throw EngineError("Object requires binding");
         }
 
-        return ObjectWidgetValue(std::move(*binding));
+        return ObjectValue(std::move(*binding));
     }
 
     template<>
-    ListWidgetValue ListWidgetValue::parse(std::string_view &&value) {
+    ListValue ListValue::parse(std::string_view &&value) {
         auto binding = tryGetBinding(value);
 
         if (!binding.has_value()) {
             throw EngineError("List requires binding");
         }
 
-        return ListWidgetValue(std::move(*binding));
+        return ListValue(std::move(*binding));
     }
 }
