@@ -21,37 +21,39 @@ namespace Penrose {
         //
     }
 
-    ObjectValueProxy &ObjectValueProxy::property(std::string_view &&name, std::unique_ptr<ValueProxy> &&value) {
+    ObjectValueProxy &ObjectValueProxy::property(std::string_view &&name, std::shared_ptr<ValueProxy> &&value) {
         this->_properties.emplace(name, std::forward<decltype(value)>(value));
 
         return *this;
     }
 
-    std::optional<ValueProxy *> ObjectValueProxy::tryGetProperty(const std::string_view &name) const {
+    std::optional<std::shared_ptr<ValueProxy>> ObjectValueProxy::tryGetProperty(const std::string_view &name) const {
         auto it = this->_properties.find(std::string(name));
 
         if (it == this->_properties.end()) {
             return std::nullopt;
         }
 
-        return it->second.get();
+        return it->second;
     }
 
-    ValueProxy *ObjectValueProxy::getPropertyByPath(const std::string_view &path) const {
+    std::shared_ptr<ValueProxy> ObjectValueProxy::getPropertyByPath(const std::string_view &path) const {
         std::vector<std::string_view> properties;
 
-        std::string_view::size_type idx;
         std::string_view remain = path;
+        std::string_view::size_type idx = remain.find('.');
 
-        while ((idx = remain.find('.')) && idx != std::string_view::npos) {
+        do {
             properties.emplace_back(remain.substr(0, idx));
             remain = remain.substr(idx + 1);
-        }
+        } while ((idx = remain.find('.')) && idx != std::string_view::npos);
 
         auto currentObject = this;
+        std::optional<std::shared_ptr<ValueProxy>> valueProxy;
+
         for (std::uint32_t propertyIdx = 0; propertyIdx < properties.size(); ++propertyIdx) {
             auto property = properties.at(propertyIdx);
-            auto valueProxy = currentObject->tryGetProperty(property);
+            valueProxy = currentObject->tryGetProperty(property);
 
             if (!valueProxy.has_value()) {
                 throw EngineError("No such property {}", property);
@@ -61,7 +63,7 @@ namespace Penrose {
                 return *valueProxy;
             }
 
-            currentObject = dynamic_cast<ObjectValueProxy *>(*valueProxy);
+            currentObject = dynamic_cast<ObjectValueProxy *>(valueProxy->get());
 
             if (currentObject == nullptr) {
                 throw EngineError("Property {} is not an object", property);

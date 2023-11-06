@@ -14,7 +14,7 @@ namespace Penrose {
     constexpr static const std::string_view BOOLEAN_FALSE = "false";
 
     std::optional<std::string> tryGetBinding(const std::string_view &value) {
-        if (!value.starts_with(BINDING_START) || !value.starts_with(BINDING_END)) {
+        if (!value.starts_with(BINDING_START) || !value.ends_with(BINDING_END)) {
             return std::nullopt;
         }
 

@@ -7,6 +7,7 @@
 #include <tuple>
 
 #include <Penrose/Assets/UILayoutAsset.hpp>
+#include <Penrose/Common/EngineError.hpp>
 #include <Penrose/UI/ValueBinding.hpp>
 #include <Penrose/UI/Widgets/Widget.hpp>
 
@@ -25,6 +26,18 @@ namespace Penrose {
         }
 
         [[nodiscard]] const Layout *getLayout() const { return this->_layoutAsset->getLayout(); }
+
+        [[nodiscard]] const ObjectValueProxy *getRootContext() const { return this->_rootContext.get(); }
+
+        [[nodiscard]] std::shared_ptr<Penrose::ValueProxy> getBinding(const ValueBindingKey &key) const {
+            auto it = this->_valueBindings.find(key);
+
+            if (it == this->_valueBindings.end()) {
+                throw EngineError("No such binding");
+            }
+
+            return it->second;
+        }
 
     private:
         std::shared_ptr<UILayoutAsset> _layoutAsset;

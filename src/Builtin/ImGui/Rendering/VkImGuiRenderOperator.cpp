@@ -1,4 +1,4 @@
-#include "VkImGuiDebugUIDrawRenderOperator.hpp"
+#include "VkImGuiRenderOperator.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
@@ -11,19 +11,19 @@
 
 namespace Penrose {
 
-    VkImGuiDebugUIDrawRenderOperator::VkImGuiDebugUIDrawRenderOperator(ResourceSet *resources)
+    VkImGuiRenderOperator::VkImGuiRenderOperator(ResourceSet *resources)
             : _vulkanBackend(resources->get<VulkanBackend>()),
               _commandManager(resources->get<VkCommandManager>()),
               _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
               _swapchainManager(resources->get<VkSwapchainManager>()),
-              _uiContext(resources->get<UIContext>()),
-              _uiDrawVisitor(resources->get<UIDrawVisitor>()) {
+              _uiManager(resources->get<UIManager>()),
+              _uiInstanceVisitor(resources->get<ImGuiUIInstanceVisitor>()) {
         //
     }
 
-    void VkImGuiDebugUIDrawRenderOperator::destroy() {
+    void VkImGuiRenderOperator::destroy() {
         if (!this->_state.has_value()) {
             return;
         }
@@ -33,8 +33,7 @@ namespace Penrose {
         this->_state = std::nullopt;
     }
 
-    void VkImGuiDebugUIDrawRenderOperator::execute(CommandRecording *commandRecording,
-                                                   const RenderOperator::Context &context) {
+    void VkImGuiRenderOperator::execute(CommandRecording *commandRecording, const RenderOperator::Context &context) {
 
         if (this->_state.has_value() && (this->_state->subgraph != context.subgraph ||
                                          this->_state->subgraphPassIdx != context.subgraphPassIdx)) {
@@ -48,20 +47,24 @@ namespace Penrose {
 
         auto commandBuffer = dynamic_cast<VkCommandRecording *>(commandRecording)->getCommandBuffer();
 
+        auto maybeUIInstance = this->_uiManager->tryGetUI(context.param.getString(PARAM_UI_NAME));
+
+        if (!maybeUIInstance.has_value()) {
+            return;
+        }
+
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        for (const auto &[_, root]: this->_uiContext->getRoots()) {
-            this->_uiDrawVisitor->visit(root);
-        }
+        this->_uiInstanceVisitor->visit(*maybeUIInstance);
 
         ImGui::Render();
         ImDrawData *drawData = ImGui::GetDrawData();
         ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffer);
     }
 
-    void VkImGuiDebugUIDrawRenderOperator::initFor(const RenderOperator::Context &context) {
+    void VkImGuiRenderOperator::initFor(const RenderOperator::Context &context) {
         auto imageCount = this->_swapchainManager->getSwapchain()->getImageCount();
 
         auto initInfo = ImGui_ImplVulkan_InitInfo{

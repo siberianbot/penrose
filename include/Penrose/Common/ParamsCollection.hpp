@@ -6,10 +6,12 @@
 #include <unordered_map>
 #include <variant>
 
+#include <Penrose/Api.hpp>
+
 namespace Penrose {
 
     // TODO: looks shitty
-    class ParamsCollection {
+    class PENROSE_API ParamsCollection {
     public:
         using Key = std::string;
         using KeyView = std::string_view;

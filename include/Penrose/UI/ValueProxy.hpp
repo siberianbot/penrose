@@ -8,11 +8,12 @@
 #include <string>
 #include <vector>
 
+#include <Penrose/Api.hpp>
 #include <Penrose/UI/ValueType.hpp>
 
 namespace Penrose {
 
-    class ValueProxy {
+    class PENROSE_API ValueProxy {
     public:
         ValueProxy() = default;
         ValueProxy(const ValueProxy &) = default;
@@ -26,19 +27,27 @@ namespace Penrose {
     };
 
     template<typename T, ValueType Type>
-    class StrongTypedValueProxy : public ValueProxy {
+    class PENROSE_API StrongTypedValueProxy : public ValueProxy {
     public:
-        using Getter = std::function<T &()>;
+        using Getter = std::function<T()>;
         using Setter = std::function<void(T)>;
 
-        explicit StrongTypedValueProxy(T value)
-                : _getter([value]() { return value; }),
-                  _setter([](T) {}) {
+        explicit StrongTypedValueProxy(T value, bool constant = false)
+                : _value({constant, value}),
+                  _getter([this]() { return this->_value->value; }),
+                  _setter([this](T value) {
+                      if (this->_value->constant) {
+                          return;
+                      }
+
+                      this->_value->value = value;
+                  }) {
             //
         }
 
         StrongTypedValueProxy(Getter &&getter, Setter &&setter)
-                : _getter(getter),
+                : _value(std::nullopt),
+                  _getter(getter),
                   _setter(setter) {
             //
         }
@@ -47,11 +56,17 @@ namespace Penrose {
 
         [[nodiscard]] ValueType getType() const override { return Type; }
 
-        [[nodiscard]] T &getValue() { return this->_getter(); }
+        [[nodiscard]] T getValue() { return this->_getter(); }
 
         void setValue(T value) { return this->_setter(value); }
 
     private:
+        struct InnerValue {
+            bool constant;
+            T value;
+        };
+
+        std::optional<InnerValue> _value;
         Getter _getter;
         Setter _setter;
     };
@@ -61,7 +76,7 @@ namespace Penrose {
     using FloatValueProxy = StrongTypedValueProxy<float, ValueType::Float>;
     using StringValueProxy = StrongTypedValueProxy<std::string, ValueType::String>;
 
-    class ActionValueProxy : public ValueProxy {
+    class PENROSE_API ActionValueProxy : public ValueProxy {
     public:
         using Delegate = std::function<void()>;
 
@@ -71,15 +86,19 @@ namespace Penrose {
 
         void invoke();
 
+        [[nodiscard]] ValueType getType() const override { return ValueType::Action; }
+
     private:
         Delegate _delegate;
     };
 
-    class ObjectValueProxy : public ValueProxy {
+    class PENROSE_API ObjectValueProxy : public ValueProxy {
     public:
-        using Container = std::map<std::string, std::unique_ptr<ValueProxy>>;
+        using Container = std::map<std::string, std::shared_ptr<ValueProxy>>;
 
         explicit ObjectValueProxy(Container &&properties = {});
+
+        ~ObjectValueProxy() override = default;
 
         template<typename T, typename ...Args>
         requires std::is_base_of_v<ValueProxy, T> && std::is_constructible_v<T, Args...>
@@ -88,13 +107,15 @@ namespace Penrose {
                                   std::make_shared<T>(std::forward<decltype(args)>(args)...));
         }
 
-        [[nodiscard]] ObjectValueProxy &property(std::string_view &&name, std::unique_ptr<ValueProxy> &&value);
+        [[nodiscard]] ObjectValueProxy &property(std::string_view &&name, std::shared_ptr<ValueProxy> &&value);
 
-        [[nodiscard]] std::optional<ValueProxy *> tryGetProperty(const std::string_view &name) const;
+        [[nodiscard]] std::optional<std::shared_ptr<ValueProxy>> tryGetProperty(const std::string_view &name) const;
 
-        [[nodiscard]] ValueProxy *getPropertyByPath(const std::string_view &path) const;
+        [[nodiscard]] std::shared_ptr<ValueProxy> getPropertyByPath(const std::string_view &path) const;
 
         [[nodiscard]] const Container &getProperties() const { return this->_properties; }
+
+        [[nodiscard]] ValueType getType() const override { return ValueType::Object; }
 
     private:
         Container _properties;

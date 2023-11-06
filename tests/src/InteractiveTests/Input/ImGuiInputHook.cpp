@@ -8,14 +8,52 @@
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/UI/UIManager.hpp>
+#include <Penrose/UI/ValueProxy.hpp>
 
-#include <Penrose/Builtin/Debug/Rendering/DebugUIDrawRenderOperator.hpp>
-#include <Penrose/Builtin/Debug/UI/UIContext.hpp>
-#include <Penrose/Builtin/Debug/UI/Widgets.hpp>
+#include <Penrose/Builtin/ImGui/Rendering/ImGuiRenderOperator.hpp>
 
 using namespace Penrose;
 
 TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
+
+    class UIContext : public Resource<UIContext, ResourceGroup::Custom>,
+                      public Runnable {
+    public:
+        explicit UIContext(ResourceSet *resources)
+                : _uiManager(resources->get<UIManager>()) {
+            //
+        }
+
+        ~UIContext() override = default;
+
+        void run() override {
+            auto buttonPressed = std::make_shared<BooleanValueProxy>(false);
+
+            auto viewModel = ObjectValueProxy()
+                    .property<ObjectValueProxy>("root", ObjectValueProxy()
+                            .property<StringValueProxy>("text", "Same text in label and input")
+                            .property<ActionValueProxy>("button_action",
+                                                        [&buttonPressed]() {
+                                                            buttonPressed->setValue(true);
+                                                        })
+                            .property("button_pressed", buttonPressed)
+                            .property<BooleanValueProxy>("checkbox_visibility", false)
+                            .property<BooleanValueProxy>("checkbox_enabled", false)
+                            .property<ActionValueProxy>("none_action", []() {})
+                            .property<BooleanValueProxy>("none_check", true)
+                    );
+
+            this->_uiManager->createUI("TestUI", "layouts/root.asset", std::make_unique<ObjectValueProxy>(viewModel));
+        }
+
+        void stop() override {
+            this->_uiManager->destroyUI("TestUI");
+        }
+
+    private:
+        ResourceProxy<UIManager> _uiManager;
+    };
 
     constexpr static std::string_view TEST_LOGIC_SYSTEM_TAG = "InputReceiving";
 
@@ -68,45 +106,23 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
 
     Engine engine;
 
+    engine.resources().add<UIContext, ResourceGroup::Custom>()
+            .implements<Runnable>()
+            .done();
+
     engine.resources().add<TestLogicSystem, ResourceGroup::ECSSystem>()
             .implements<Initializable>()
             .implements<System>()
             .done();
 
-    auto buttonLabel = std::make_shared<Label>("Not clicked yet");
+    auto assetDictionary = engine.resources().get<AssetDictionary>();
+    assetDictionary->addDir("tests/data");
 
-    auto window = std::shared_ptr<Window>( // NOLINT(modernize-make-shared)
-            new Window("Debug UI Window", {
-                    std::make_shared<Label>("It's a label"),
-                    std::make_shared<TextInput>("It's a text input"),
-                    buttonLabel,
-                    std::make_shared<Button>("Click me", [&]() {
-                        buttonLabel->setText("Clicked!");
-                    }),
-                    std::shared_ptr<DropDown>(new DropDown( // NOLINT(modernize-make-shared)
-                            "Select inside of me", {
-                                    {1, "Item 1"},
-                                    {2, "Item 2"},
-                                    {3, "Item 3"},
-                                    {4, "Item 4"}
-                            })),
-                    std::shared_ptr<ListBox>(new ListBox( // NOLINT(modernize-make-shared)
-                            "Select inside of me", {
-                                    {0, "Item 0"},
-                                    {1, "Item 1"},
-                                    {2, "Item 2"},
-                                    {3, "Item 3"},
-                                    {4, "Item 4"}
-                            })),
-                    std::shared_ptr<Container>( // NOLINT(modernize-make-shared)
-                            new Container({
-                                                  std::make_shared<Label>("inside container")
-                                          })
-                    )
-            })
-    );
+    auto assetManager = engine.resources().get<AssetManager>();
+    assetManager->enqueue("layouts/root.asset");
 
-    engine.resources().get<UIContext>()->setRoot("DebugUIWindow", window);
+    auto uiParams = ParamsCollection();
+    uiParams.setString(ImGuiRenderOperator::PARAM_UI_NAME, "TestUI");
 
     auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
@@ -119,8 +135,8 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                                            .setFinalLayout(RenderAttachmentLayout::Present))
                     .addPass(RenderSubgraphPassInfo()
                                      .addColorAttachmentIdx(0)
-                                     .setOperatorInfo(RenderOperatorInfo(
-                                             std::string(DebugUIDrawRenderOperator::NAME))))
+                                     .setOperatorInfo(RenderOperatorInfo(ImGuiRenderOperator::name(),
+                                                                         std::move(uiParams))))
             );
 
     auto renderContext = engine.resources().get<RenderGraphContext>();

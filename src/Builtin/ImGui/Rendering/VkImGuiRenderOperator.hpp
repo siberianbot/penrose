@@ -1,13 +1,11 @@
-#ifndef PENROSE_BUILTIN_DEBUG_RENDERING_VK_IMGUI_DEBUG_UI_DRAW_RENDER_OPERATOR_HPP
-#define PENROSE_BUILTIN_DEBUG_RENDERING_VK_IMGUI_DEBUG_UI_DRAW_RENDER_OPERATOR_HPP
+#ifndef PENROSE_BUILTIN_IMGUI_RENDERING_VK_IMGUI_RENDER_OPERATOR_HPP
+#define PENROSE_BUILTIN_IMGUI_RENDERING_VK_IMGUI_RENDER_OPERATOR_HPP
 
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/UI/UIManager.hpp>
 
-#include <Penrose/Builtin/Debug/Rendering/DebugUIDrawRenderOperator.hpp>
-#include <Penrose/Builtin/Debug/UI/UIContext.hpp>
-
-#include "src/Builtin/Debug/UI/UIDrawVisitor.hpp"
+#include <Penrose/Builtin/ImGui/Rendering/ImGuiRenderOperator.hpp>
 
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
@@ -16,17 +14,16 @@
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
+#include "src/Builtin/ImGui/UI/ImGuiUIInstanceVisitor.hpp"
+
 namespace Penrose {
 
-    class RenderSubgraph;
-
-    class VkImGuiDebugUIDrawRenderOperator
-            : public Resource<VkImGuiDebugUIDrawRenderOperator, ResourceGroup::RenderOperator>,
-              public Initializable,
-              public DebugUIDrawRenderOperator {
+    class VkImGuiRenderOperator : public Resource<VkImGuiRenderOperator, ResourceGroup::RenderOperator>,
+                                  public Initializable,
+                                  public ImGuiRenderOperator {
     public:
-        explicit VkImGuiDebugUIDrawRenderOperator(ResourceSet *resources);
-        ~VkImGuiDebugUIDrawRenderOperator() override = default;
+        explicit VkImGuiRenderOperator(ResourceSet *resources);
+        ~VkImGuiRenderOperator() override = default;
 
         void init() override { /* nothing to do */ }
 
@@ -46,8 +43,8 @@ namespace Penrose {
         ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
         ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
         ResourceProxy<VkSwapchainManager> _swapchainManager;
-        ResourceProxy<UIContext> _uiContext;
-        ResourceProxy<UIDrawVisitor> _uiDrawVisitor;
+        ResourceProxy<UIManager> _uiManager;
+        ResourceProxy<ImGuiUIInstanceVisitor> _uiInstanceVisitor;
 
         std::optional<State> _state;
 
@@ -55,4 +52,4 @@ namespace Penrose {
     };
 }
 
-#endif // PENROSE_BUILTIN_DEBUG_RENDERING_VK_IMGUI_DEBUG_UI_DRAW_RENDER_OPERATOR_HPP
+#endif // PENROSE_BUILTIN_IMGUI_RENDERING_VK_IMGUI_RENDER_OPERATOR_HPP

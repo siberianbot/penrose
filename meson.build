@@ -68,16 +68,11 @@ src = [
     'src/UI/Layout.cpp',
     'src/UI/LayoutFactory.cpp',
     'src/UI/UIManager.cpp',
-    'src/UI/WidgetValue.cpp',
+    'src/UI/Value.cpp',
+    'src/UI/ValueProxy.cpp',
 
     # Builtin / Penrose
     'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',
-
-    # Builtin / Debug
-    'src/Builtin/Debug/Debug.cpp',
-    'src/Builtin/Debug/Rendering/VkImGuiDebugUIDrawRenderOperator.cpp',
-    'src/Builtin/Debug/UI/UIContext.cpp',
-    'src/Builtin/Debug/UI/UIDrawVisitor.cpp',
 
     # Builtin / GLFW
     'src/Builtin/Glfw/Glfw.cpp',
@@ -89,6 +84,8 @@ src = [
     # Builtin / ImGui
     'src/Builtin/ImGui/ImGui.cpp',
     'src/Builtin/ImGui/ImGuiBackend.cpp',
+    'src/Builtin/ImGui/Rendering/VkImGuiRenderOperator.cpp',
+    'src/Builtin/ImGui/UI/ImGuiUIInstanceVisitor.cpp',
 
     # Builtin / Vulkan
     'src/Builtin/Vulkan/Vulkan.cpp',

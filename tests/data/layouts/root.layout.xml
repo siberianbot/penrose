@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<window title="Root Window">
+<window title="Root Window" context="${root}">
 
     <label text="It's a label"/>
     <input text="It's an input"/>
@@ -17,7 +17,7 @@
     <button title="This button was invisible" visible="${checkbox_visibility}" action="${none_action}"/>
     <checkbox text="This checkbox was invisible" visible="${checkbox_visibility}" checked="${none_check}"/>
 
-    <checkbox text="Toggle visibility" checked="${checkbox_enabled}"/>
+    <checkbox text="Toggle enablement" checked="${checkbox_enabled}"/>
     <label text="This label was disabled" enabled="${checkbox_enabled}"/>
     <input text="This input was disabled" enabled="${checkbox_enabled}"/>
     <button title="This button was disabled" enabled="${checkbox_enabled}" action="${none_action}"/>

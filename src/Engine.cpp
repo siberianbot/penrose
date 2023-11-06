@@ -24,9 +24,8 @@
 #include <Penrose/UI/LayoutFactory.hpp>
 #include <Penrose/UI/UIManager.hpp>
 
-#include <Penrose/Builtin/Debug/Debug.hpp>
 #include <Penrose/Builtin/Glfw.hpp>
-#include <Penrose/Builtin/ImGui.hpp>
+#include <Penrose/Builtin/ImGui/ImGui.hpp>
 #include <Penrose/Builtin/Vulkan.hpp>
 
 #include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
@@ -114,7 +113,6 @@ namespace Penrose {
         addGlfw(this->_resources);
         addVulkan(this->_resources);
         addImGui(this->_resources);
-        addDebug(this->_resources);
 
         // builtin
         this->_resources.add<MeshRendererComponentFactory, ResourceGroup::ECSComponent>()

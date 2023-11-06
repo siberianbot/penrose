@@ -2,6 +2,7 @@
 #define PENROSE_UI_VALUE_HPP
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -72,6 +73,11 @@ namespace Penrose {
     template<ValueType Type>
     class BindOnlyValue {
     public:
+        explicit BindOnlyValue()
+                : _binding(std::nullopt) {
+            //
+        }
+
         explicit BindOnlyValue(std::string &&binding)
                 : _binding(binding) {
             //
@@ -79,14 +85,14 @@ namespace Penrose {
 
         [[nodiscard]] ValueType getType() const { return Type; }
 
-        [[nodiscard]] const std::string &getBinding() const { return this->_binding; }
+        [[nodiscard]] const std::optional<std::string> &getBinding() const { return this->_binding; }
 
         static BindOnlyValue<Type> parse(std::string_view &&) {
             throw EngineError("Value parsing is not supported");
         }
 
     private:
-        std::string _binding;
+        std::optional<std::string> _binding;
     };
 
     using ActionValue = BindOnlyValue<ValueType::Action>;

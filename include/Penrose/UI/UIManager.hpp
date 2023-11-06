@@ -27,9 +27,9 @@ namespace Penrose {
 
         void destroy() override;
 
-        [[nodiscard]] UIInstance *createUI(std::string &&name,
-                                           std::string_view &&context,
-                                           std::unique_ptr<ObjectValueProxy> &&rootContext);
+        UIInstance *createUI(std::string &&name,
+                             std::string_view &&layoutAsset,
+                             std::unique_ptr<ObjectValueProxy> &&rootContext);
 
         [[nodiscard]] std::optional<UIInstance *> tryGetUI(std::string &&name) const;
 

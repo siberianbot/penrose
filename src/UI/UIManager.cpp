@@ -23,7 +23,9 @@ namespace Penrose {
                                                     &window->getContext());
 
             for (const auto &child: window->getChildren()) {
-                context.widgets.emplace(child.get(), nestedContext);
+                context.widgets.emplace(child.get(), nestedContext.has_value()
+                                                     ? dynamic_cast<ObjectValueProxy *>(nestedContext->get())
+                                                     : context.currentContext);
             }
         };
 
@@ -77,7 +79,7 @@ namespace Penrose {
         auto asset = this->_assetManager->getAsset<UILayoutAsset>(std::forward<decltype(layoutAsset)>(layoutAsset));
 
         std::queue<ContextualizedWidget> widgets;
-        widgets.emplace(asset->getLayout()->getRoot(), rootContext);
+        widgets.emplace(asset->getLayout()->getRoot(), rootContext.get());
 
         while (!widgets.empty()) {
             auto [widget, context] = widgets.front();

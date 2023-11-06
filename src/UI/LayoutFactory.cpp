@@ -53,7 +53,7 @@ namespace Penrose {
                     .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
                     .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
                     .title = getRequiredAttribute<StringValue>(element, "title"),
-                    .context = getRequiredAttribute<ObjectValue>(element, "context")
+                    .context = getOptionalAttribute(element, "context", ObjectValue())
             };
 
             for (const xmlpp::Node *childNode: element->get_children()) {
@@ -112,6 +112,7 @@ namespace Penrose {
             auto args = Checkbox::Args{
                     .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
                     .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
+                    .text = getRequiredAttribute<StringValue>(element, "text"),
                     .checked = getRequiredAttribute<BooleanValue>(element, "checked")
             };
 

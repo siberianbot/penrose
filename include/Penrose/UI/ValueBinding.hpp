@@ -2,6 +2,8 @@
 #define PENROSE_UI_VALUE_BINDING_HPP
 
 #include <map>
+#include <memory>
+#include <optional>
 #include <tuple>
 
 #include <Penrose/UI/Value.hpp>
@@ -11,42 +13,43 @@ namespace Penrose {
 
     using ValueBindingKey = std::tuple<const ObjectValueProxy *, const Widget *, std::size_t>;
 
-    struct ValueBinding {
-        ValueSource source;
-        std::optional<ValueProxy *> proxy;
-    };
+    template<typename T, ValueType Type>
+    ValueBindingKey makeValueBindingKey(const ObjectValueProxy *context, const Widget *widget,
+                                        const StrongTypedValue<T, Type> *value) {
+        return std::make_tuple(context, widget, reinterpret_cast<std::size_t>(value));
+    }
 
-    using ValueBindings = std::map<ValueBindingKey, ValueBinding>;
+    template<ValueType Type>
+    ValueBindingKey makeValueBindingKey(const ObjectValueProxy *context, const Widget *widget,
+                                        const BindOnlyValue<Type> *value) {
+        return std::make_tuple(context, widget, reinterpret_cast<std::size_t>(value));
+    }
+
+    using ValueBindings = std::map<ValueBindingKey, std::shared_ptr<ValueProxy>>;
 
     template<typename T, ValueType Type>
     void addStrongTypedBinding(ValueBindings &bindings, const Widget *widget, const ObjectValueProxy *context,
                                const StrongTypedValue<T, Type> *value) {
-        auto address = reinterpret_cast<std::size_t>(value);
+        auto key = makeValueBindingKey(context, widget, value);
+        auto proxy = value->getSource() == ValueSource::Binding
+                     ? context->getPropertyByPath(value->getBinding())
+                     : std::make_shared<StrongTypedValueProxy<T, Type>>(value->getConstant(), true);
 
-        auto key = std::make_tuple(context, widget, address);
-        auto binding = ValueBinding{
-                .source = value->getSource(),
-                .proxy = value->getSource() == ValueSource::Binding
-                         ? std::make_optional(context->getPropertyByPath(value->getBinding()))
-                         : std::nullopt
-        };
-
-        bindings.emplace(key, binding);
+        bindings.emplace(key, proxy);
     }
 
     template<ValueType Type>
-    ValueProxy *addBindOnlyBinding(ValueBindings &bindings, const Widget *widget, const ObjectValueProxy *context,
-                                   const BindOnlyValue<Type> *value) {
-        auto address = reinterpret_cast<std::size_t>(value);
-        auto proxy = context->getPropertyByPath(value->getBinding());
+    std::optional<std::shared_ptr<ValueProxy>> addBindOnlyBinding(ValueBindings &bindings, const Widget *widget,
+                                                                  const ObjectValueProxy *context,
+                                                                  const BindOnlyValue<Type> *value) {
+        if (!value->getBinding().has_value()) {
+            return std::nullopt;
+        }
 
-        auto key = std::make_tuple(context, widget, address);
-        auto binding = ValueBinding{
-                .source = ValueSource::Binding,
-                .proxy = proxy
-        };
+        auto key = makeValueBindingKey(context, widget, value);
+        auto proxy = context->getPropertyByPath(*value->getBinding());
 
-        bindings.emplace(key, binding);
+        bindings.emplace(key, proxy);
 
         return proxy;
     }
