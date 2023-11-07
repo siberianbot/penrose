@@ -1,5 +1,6 @@
 #include "ImGuiUIInstanceVisitor.hpp"
 
+#include <fmt/core.h>
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
@@ -82,25 +83,29 @@ namespace Penrose {
             }
         };
 
-        this->_widgetVisitors[WidgetType::Input] = [](const UIInstance *instance, const ObjectValueProxy *context,
-                                                      const Widget *widget) {
+        this->_widgetVisitors[WidgetType::Input] = [this](const UIInstance *instance, const ObjectValueProxy *context,
+                                                          const Widget *widget) {
             auto input = dynamic_cast<const Input *>(widget);
 
             auto text = resolve(instance, context, input, &input->getText());
             auto textStr = text->getValue();
 
-            if (ImGui::InputText("##input", &textStr)) {
+            auto tag = this->getTag(context, widget);
+
+            if (ImGui::InputText(tag.c_str(), &textStr)) {
                 text->setValue(textStr);
             }
         };
 
-        this->_widgetVisitors[WidgetType::Label] = [](const UIInstance *instance, const ObjectValueProxy *context,
-                                                      const Widget *widget) {
+        this->_widgetVisitors[WidgetType::Label] = [this](const UIInstance *instance, const ObjectValueProxy *context,
+                                                          const Widget *widget) {
             auto label = dynamic_cast<const Label *>(widget);
 
             auto text = resolve(instance, context, label, &label->getText())->getValue();
 
-            ImGui::LabelText("##label", "%s", text.c_str());
+            auto tag = this->getTag(context, widget);
+
+            ImGui::LabelText(tag.c_str(), "%s", text.c_str());
         };
     }
 
@@ -133,5 +138,21 @@ namespace Penrose {
         if (!enabled->getValue()) {
             ImGui::EndDisabled();
         }
+    }
+
+    const std::string &ImGuiUIInstanceVisitor::getTag(const ObjectValueProxy *context, const Widget *widget) {
+        auto tag = Tag(context, widget);
+
+        auto it = this->_tags.find(tag);
+
+        if (it != this->_tags.end()) {
+            return it->second;
+        }
+
+        auto [newIt, _] = this->_tags.emplace(tag, fmt::format("##{}{}",
+                                                               reinterpret_cast<std::size_t>(context),
+                                                               reinterpret_cast<std::size_t>(widget)));
+
+        return newIt->second;
     }
 }

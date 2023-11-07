@@ -34,7 +34,7 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                     .property<ObjectValueProxy>("root", ObjectValueProxy()
                             .property<StringValueProxy>("text", "Same text in label and input")
                             .property<ActionValueProxy>("button_action",
-                                                        [&buttonPressed]() {
+                                                        [buttonPressed]() {
                                                             buttonPressed->setValue(true);
                                                         })
                             .property("button_pressed", buttonPressed)

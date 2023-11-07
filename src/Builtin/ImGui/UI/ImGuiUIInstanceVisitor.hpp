@@ -3,6 +3,8 @@
 
 #include <functional>
 #include <map>
+#include <string>
+#include <tuple>
 
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/UI/UIInstance.hpp>
@@ -20,10 +22,14 @@ namespace Penrose {
 
     private:
         using WidgetVisitor = std::function<void(const UIInstance *, const ObjectValueProxy *, const Widget *)>;
+        using Tag = std::tuple<const ObjectValueProxy *, const Widget *>;
 
         std::map<WidgetType, WidgetVisitor> _widgetVisitors;
+        std::map<Tag, std::string> _tags;
 
         void visit(const UIInstance *instance, const ObjectValueProxy *context, const Widget *widget);
+
+        [[nodiscard]] const std::string &getTag(const ObjectValueProxy *context, const Widget *widget);
     };
 }
 
