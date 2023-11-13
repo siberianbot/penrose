@@ -5,7 +5,6 @@
 #include <typeindex>
 #include <typeinfo>
 
-#include <Penrose/Api.hpp>
 #include <Penrose/Utils/TypeUtils.hpp>
 
 namespace Penrose {
@@ -33,7 +32,7 @@ namespace Penrose {
         std::string name;
     };
 
-    class PENROSE_API ResourceBase {
+    class ResourceBase {
     public:
         virtual ~ResourceBase() = default;
 
@@ -41,7 +40,7 @@ namespace Penrose {
     };
 
     template<typename Self, ResourceGroup Group>
-    class PENROSE_API Resource : public ResourceBase {
+    class Resource : public ResourceBase {
     public:
         Resource() = default;
         Resource(const Resource &) = delete;
@@ -53,11 +52,11 @@ namespace Penrose {
 
         [[nodiscard]] ResourceInfo getType() const final { return type(); }
 
-        [[nodiscard]] constexpr static Self *create() {
-            static_assert(std::is_default_constructible_v<Self>);
-
-            return new Self();
-        }
+        // [[nodiscard]] constexpr static Self *create() {
+        //     static_assert(std::is_default_constructible_v<Self>);
+        //
+        //     return new Self();
+        // }
 
         template<typename ...Args>
         [[nodiscard]] constexpr static Self *create(Args &&...args) {

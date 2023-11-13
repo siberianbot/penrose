@@ -70,6 +70,18 @@ namespace Penrose {
     using FloatValue = StrongTypedValue<float, ValueType::Float>;
     using StringValue = StrongTypedValue<std::string, ValueType::String>;
 
+    template<>
+    BooleanValue BooleanValue::parse(std::string_view &&);
+
+    template<>
+    IntegerValue IntegerValue::parse(std::string_view &&);
+
+    template<>
+    FloatValue FloatValue::parse(std::string_view &&);
+
+    template<>
+    StringValue StringValue::parse(std::string_view &&);
+
     template<ValueType Type>
     class BindOnlyValue {
     public:
@@ -98,6 +110,15 @@ namespace Penrose {
     using ActionValue = BindOnlyValue<ValueType::Action>;
     using ObjectValue = BindOnlyValue<ValueType::Object>;
     using ListValue = BindOnlyValue<ValueType::List>;
+
+    template<>
+    ActionValue ActionValue::parse(std::string_view &&);
+
+    template<>
+    ObjectValue ObjectValue::parse(std::string_view &&);
+
+    template<>
+    ListValue ListValue::parse(std::string_view &&);
 }
 
 #endif // PENROSE_UI_VALUE_HPP

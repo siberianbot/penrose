@@ -1,5 +1,7 @@
 #include <Penrose/Input/InputHandler.hpp>
 
+#include <algorithm>
+
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {

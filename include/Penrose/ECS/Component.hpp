@@ -5,7 +5,6 @@
 #include <typeindex>
 #include <typeinfo>
 
-#include <Penrose/Api.hpp>
 #include <Penrose/Utils/TypeUtils.hpp>
 
 namespace Penrose {
@@ -23,7 +22,7 @@ namespace Penrose {
     };
 
     template<typename Self>
-    class PENROSE_API Component : public ComponentBase {
+    class Component : public ComponentBase {
     public:
         ~Component() override = default;
 

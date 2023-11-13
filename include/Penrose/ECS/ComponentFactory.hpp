@@ -4,13 +4,12 @@
 #include <string>
 #include <type_traits>
 
-#include <Penrose/Api.hpp>
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/Resources/Resource.hpp>
 
 namespace Penrose {
 
-    class PENROSE_API ComponentFactory {
+    class ComponentFactory {
     public:
         virtual ~ComponentFactory() = default;
 
@@ -20,7 +19,7 @@ namespace Penrose {
     };
 
     template<typename C> requires std::is_base_of_v<Component<C>, C> && std::is_default_constructible_v<C>
-    class PENROSE_API GenericComponentFactory
+    class GenericComponentFactory
             : public Resource<GenericComponentFactory<C>, ResourceGroup::ECSComponent>,
               public ComponentFactory {
     public:

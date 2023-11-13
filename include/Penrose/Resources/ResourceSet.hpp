@@ -113,6 +113,11 @@ namespace Penrose {
 
         ResourceSet() = default;
 
+        ResourceSet(const ResourceSet&) = delete;
+        ResourceSet(ResourceSet&&) = delete;
+        ResourceSet& operator=(const ResourceSet&) = delete;
+        ResourceSet& operator=(ResourceSet&&) = delete;
+
         template<typename Target>
         [[nodiscard]] Proxy<Target> get() {
             return Proxy<Target>(this);

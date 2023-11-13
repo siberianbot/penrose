@@ -38,7 +38,7 @@ namespace Penrose {
             [[nodiscard]] virtual Entry fetch() = 0;
         };
 
-        class Query {
+        class PENROSE_API Query {
         public:
             explicit Query(EntityManager *entityManager);
 
