@@ -1,124 +1,146 @@
 #ifndef PENROSE_UI_VALUE_HPP
 #define PENROSE_UI_VALUE_HPP
 
-#include <cstdint>
+#include <functional>
+#include <map>
+#include <memory>
 #include <optional>
 #include <string>
-#include <string_view>
-#include <type_traits>
+#include <vector>
 
-#include <Penrose/Common/EngineError.hpp>
 #include <Penrose/UI/ValueType.hpp>
 
 namespace Penrose {
 
-    enum class ValueSource {
-        Constant,
-        Binding
+    class PENROSE_API Value {
+    public:
+        Value() = default;
+        Value(const Value &) = default;
+        Value(Value &&) = default;
+        Value &operator=(const Value &) = default;
+        Value &operator=(Value &&) = default;
+
+        virtual ~Value() = default;
+
+        [[nodiscard]] virtual ValueType getType() const = 0;
     };
 
-    template<typename T, ValueType Type>
-    class StrongTypedValue {
+    template <ValueType Type, typename T>
+    class PENROSE_API StrongTypedValue final: public Value {
     public:
-        template<typename V>
-        requires std::is_convertible_v<V, T>
-        explicit StrongTypedValue(V constant)
-                : _source(ValueSource::Constant),
-                  _constant(constant) {
+        using Getter = std::function<T()>;
+        using Setter = std::function<void(T)>;
+
+        explicit StrongTypedValue(T value, bool constant = false)
+            : _value({constant, value}),
+              _getter([this]() { return this->_value->value; }),
+              _setter([this](T value) {
+                  if (this->_value->constant) {
+                      return;
+                  }
+
+                  this->_value->value = value;
+              }) {
             //
         }
 
-        StrongTypedValue(ValueSource source, T constant, std::string &&binding)
-                : _source(source),
-                  _constant(constant),
-                  _binding(binding) {
+        StrongTypedValue(Getter &&getter, Setter &&setter)
+            : _value(std::nullopt),
+              _getter(getter),
+              _setter(setter) {
             //
         }
 
-        [[nodiscard]] ValueType getType() const { return Type; }
+        ~StrongTypedValue() override = default;
 
-        [[nodiscard]] ValueSource getSource() const { return this->_source; }
+        [[nodiscard]] ValueType getType() const override { return Type; }
 
-        [[nodiscard]] const T &getConstant() const {
-            if (this->_source != ValueSource::Constant) {
-                throw EngineError("Value is not a constant");
-            }
+        [[nodiscard]] T getValue() { return this->_getter(); }
 
-            return this->_constant;
-        }
-
-        [[nodiscard]] const std::string &getBinding() const {
-            if (this->_source != ValueSource::Binding) {
-                throw EngineError("Value is not a binding");
-            }
-
-            return this->_binding;
-        }
-
-        static StrongTypedValue<T, Type> parse(std::string_view &&) {
-            throw EngineError("Value parsing is not supported");
-        }
+        void setValue(T value) { return this->_setter(value); }
 
     private:
-        ValueSource _source;
-        T _constant;
-        std::string _binding;
+        struct InnerValue {
+            bool constant;
+            T value;
+        };
+
+        std::optional<InnerValue> _value;
+        Getter _getter;
+        Setter _setter;
     };
 
-    using BooleanValue = StrongTypedValue<bool, ValueType::Boolean>;
-    using IntegerValue = StrongTypedValue<int, ValueType::Integer>;
-    using FloatValue = StrongTypedValue<float, ValueType::Float>;
-    using StringValue = StrongTypedValue<std::string, ValueType::String>;
+    using BooleanValue = StrongTypedValue<ValueType::Boolean, bool>;
+    using IntegerValue = StrongTypedValue<ValueType::Integer, int>;
+    using FloatValue = StrongTypedValue<ValueType::Float, float>;
+    using StringValue = StrongTypedValue<ValueType::String, std::string>;
 
-    template<>
-    BooleanValue BooleanValue::parse(std::string_view &&);
-
-    template<>
-    IntegerValue IntegerValue::parse(std::string_view &&);
-
-    template<>
-    FloatValue FloatValue::parse(std::string_view &&);
-
-    template<>
-    StringValue StringValue::parse(std::string_view &&);
-
-    template<ValueType Type>
-    class BindOnlyValue {
+    class PENROSE_API ActionValue final: public Value {
     public:
-        explicit BindOnlyValue()
-                : _binding(std::nullopt) {
-            //
-        }
+        using Delegate = std::function<void()>;
 
-        explicit BindOnlyValue(std::string &&binding)
-                : _binding(binding) {
-            //
-        }
+        explicit ActionValue(Delegate &&delegate);
 
-        [[nodiscard]] ValueType getType() const { return Type; }
+        ~ActionValue() override = default;
 
-        [[nodiscard]] const std::optional<std::string> &getBinding() const { return this->_binding; }
+        [[nodiscard]] ValueType getType() const override { return ValueType::Action; }
 
-        static BindOnlyValue<Type> parse(std::string_view &&) {
-            throw EngineError("Value parsing is not supported");
-        }
+        void invoke() const;
 
     private:
-        std::optional<std::string> _binding;
+        Delegate _delegate;
     };
 
-    using ActionValue = BindOnlyValue<ValueType::Action>;
-    using ObjectValue = BindOnlyValue<ValueType::Object>;
-    using ListValue = BindOnlyValue<ValueType::List>;
+    class PENROSE_API ObjectValue final: public Value {
+    public:
+        using Container = std::map<std::string, std::shared_ptr<Value>>;
 
-    template<>
-    ActionValue ActionValue::parse(std::string_view &&);
+        explicit ObjectValue(Container &&properties = {});
 
-    template<>
-    ObjectValue ObjectValue::parse(std::string_view &&);
+        ~ObjectValue() override = default;
 
-    template<>
-    ListValue ListValue::parse(std::string_view &&);
+        [[nodiscard]] ValueType getType() const override { return ValueType::Object; }
+
+        template <typename T, typename... Args>
+        requires std::is_base_of_v<Value, T> && std::is_constructible_v<T, Args...>
+        [[nodiscard]] ObjectValue &property(std::string_view &&name, Args &&...args) {
+            return this->property(
+                std::forward<decltype(name)>(name),
+                std::make_shared<T>(std::forward<decltype(args)>(args)...)
+            );
+        }
+
+        [[nodiscard]] ObjectValue &property(std::string_view &&name, const std::shared_ptr<Value>& value);
+
+        [[nodiscard]] ObjectValue &property(std::string_view &&name, std::shared_ptr<Value> &&value);
+
+        [[nodiscard]] std::optional<std::shared_ptr<Value>> tryGetProperty(const std::string_view &name) const;
+
+        [[nodiscard]] std::shared_ptr<Value> getPropertyByPath(const std::string_view &path) const;
+
+        [[nodiscard]] const Container &getProperties() const { return this->_properties; }
+
+    private:
+        Container _properties;
+    };
+
+    class PENROSE_API ListValue final: public Value {
+    public:
+        using Container = std::vector<std::shared_ptr<ObjectValue>>;
+
+        explicit ListValue(Container &&items = {});
+
+        ~ListValue() override = default;
+
+        [[nodiscard]] ValueType getType() const override { return ValueType::List; }
+
+        ListValue &push(std::shared_ptr<ObjectValue> &&item);
+
+        [[nodiscard]] const Container &getItems() const { return this->_items; }
+
+    private:
+        Container _items;
+    };
 }
 
 #endif // PENROSE_UI_VALUE_HPP

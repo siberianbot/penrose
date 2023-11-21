@@ -7,25 +7,26 @@
 
 #include <Penrose/Builtin/ImGui/Rendering/ImGuiRenderOperator.hpp>
 
-#include "src/Builtin/Vulkan/VulkanBackend.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
+#include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
-#include "src/Builtin/ImGui/UI/ImGuiUIInstanceVisitor.hpp"
+#include "src/Builtin/ImGui/UI/ImGuiUIContextVisitor.hpp"
 
 namespace Penrose {
 
-    class VkImGuiRenderOperator : public Resource<VkImGuiRenderOperator, ResourceGroup::RenderOperator>,
-                                  public Initializable,
-                                  public ImGuiRenderOperator {
+    class VkImGuiRenderOperator: public Resource<VkImGuiRenderOperator, ResourceGroup::RenderOperator>,
+                                 public Initializable,
+                                 public ImGuiRenderOperator {
     public:
         explicit VkImGuiRenderOperator(ResourceSet *resources);
         ~VkImGuiRenderOperator() override = default;
 
-        void init() override { /* nothing to do */ }
+        void init() override { /* nothing to do */
+        }
 
         void destroy() override;
 
@@ -44,7 +45,7 @@ namespace Penrose {
         ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
         ResourceProxy<VkSwapchainManager> _swapchainManager;
         ResourceProxy<UIManager> _uiManager;
-        ResourceProxy<ImGuiUIInstanceVisitor> _uiInstanceVisitor;
+        ResourceProxy<ImGuiUIContextVisitor> _uiContextVisitor;
 
         std::optional<State> _state;
 

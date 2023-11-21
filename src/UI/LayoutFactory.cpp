@@ -7,19 +7,21 @@
 #include <Penrose/Common/EngineError.hpp>
 #include <Penrose/UI/Widgets/Button.hpp>
 #include <Penrose/UI/Widgets/Checkbox.hpp>
+#include <Penrose/UI/Widgets/Group.hpp>
 #include <Penrose/UI/Widgets/Input.hpp>
 #include <Penrose/UI/Widgets/Label.hpp>
+#include <Penrose/UI/Widgets/List.hpp>
 #include <Penrose/UI/Widgets/Window.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
 namespace Penrose {
 
-    template<typename T>
+    template <typename T>
     concept IsValueParsable = requires(T, std::string_view &&value) {
         { T::parse(std::forward<decltype(value)>(value)) } -> std::same_as<T>;
     };
 
-    template<IsValueParsable T>
+    template <IsValueParsable T>
     std::optional<T> tryGetAttribute(const xmlpp::Element *element, std::string &&name) {
         auto attribute = element->get_attribute(name);
 
@@ -30,13 +32,17 @@ namespace Penrose {
         return T::parse(attribute->get_value());
     }
 
-    template<IsValueParsable T>
-    T getOptionalAttribute(const xmlpp::Element *element, std::string &&name, T &&defaultValue) {
-        return tryGetAttribute<T>(element, std::forward<decltype(name)>(name))
-                .value_or(defaultValue);
+    template <IsValueParsable T>
+    std::optional<T> getOptionalAttribute(const xmlpp::Element *element, std::string &&name) {
+        return tryGetAttribute<T>(element, std::forward<decltype(name)>(name));
     }
 
-    template<IsValueParsable T>
+    template <IsValueParsable T>
+    T getOptionalAttribute(const xmlpp::Element *element, std::string &&name, T &&defaultValue) {
+        return getOptionalAttribute<T>(element, std::forward<decltype(name)>(name)).value_or(defaultValue);
+    }
+
+    template <IsValueParsable T>
     T getRequiredAttribute(const xmlpp::Element *element, std::string &&name) {
         auto value = tryGetAttribute<T>(element, std::string(name));
 
@@ -49,11 +55,11 @@ namespace Penrose {
 
     LayoutFactory::LayoutFactory() {
         this->_factories["window"] = [this](const xmlpp::Element *element) -> Widget * {
-            auto args = Window::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
-                    .title = getRequiredAttribute<StringValue>(element, "title"),
-                    .context = getOptionalAttribute(element, "context", ObjectValue())
+            auto args = Window::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .title = getRequiredAttribute<StringProperty>(element, "title"),
+                .context = getOptionalAttribute<ObjectProperty>(element, "context")
             };
 
             for (const xmlpp::Node *childNode: element->get_children()) {
@@ -78,45 +84,94 @@ namespace Penrose {
         };
 
         this->_factories["label"] = [](const xmlpp::Element *element) -> Widget * {
-            auto args = Label::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
-                    .text = getRequiredAttribute<StringValue>(element, "text")
+            auto args = Label::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .text = getRequiredAttribute<StringProperty>(element, "text")
             };
 
             return new Label(std::move(args));
         };
 
         this->_factories["button"] = [](const xmlpp::Element *element) -> Widget * {
-            auto args = Button::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
-                    .title = getRequiredAttribute<StringValue>(element, "title"),
-                    .action = getRequiredAttribute<ActionValue>(element, "action")
+            auto args = Button::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .title = getRequiredAttribute<StringProperty>(element, "title"),
+                .action = getOptionalAttribute<ActionProperty>(element, "action")
             };
 
             return new Button(std::move(args));
         };
 
         this->_factories["input"] = [](const xmlpp::Element *element) -> Widget * {
-            auto args = Input::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
-                    .text = getRequiredAttribute<StringValue>(element, "text")
+            auto args = Input::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .text = getRequiredAttribute<StringProperty>(element, "text")
             };
 
             return new Input(std::move(args));
         };
 
         this->_factories["checkbox"] = [](const xmlpp::Element *element) -> Widget * {
-            auto args = Checkbox::Args{
-                    .enabled = getOptionalAttribute(element, "enabled", BooleanValue(true)),
-                    .visible = getOptionalAttribute(element, "visible", BooleanValue(true)),
-                    .text = getRequiredAttribute<StringValue>(element, "text"),
-                    .checked = getRequiredAttribute<BooleanValue>(element, "checked")
+            auto args = Checkbox::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .text = getRequiredAttribute<StringProperty>(element, "text"),
+                .checked = getRequiredAttribute<BooleanProperty>(element, "checked")
             };
 
             return new Checkbox(std::move(args));
+        };
+
+        auto groupFactory = [this](const xmlpp::Element *element) -> Widget * {
+            auto args = Group::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .context = getOptionalAttribute<ObjectProperty>(element, "context")
+            };
+
+            for (const xmlpp::Node *childNode: element->get_children()) {
+                auto childElement = dynamic_cast<const xmlpp::Element *>(childNode);
+
+                if (childElement == nullptr) {
+                    continue;
+                }
+
+                Widget *childWidget;
+
+                try {
+                    childWidget = this->makeWidget(childElement);
+                } catch (...) {
+                    std::throw_with_nested(EngineError("Invalid child node {}", childNode->get_path()));
+                }
+
+                args.children.emplace_back(childWidget);
+            }
+
+            return new Group(std::move(args));
+        };
+
+        this->_factories["group"] = groupFactory;
+        this->_factories["list-item"] = groupFactory;
+
+        this->_factories["list"] = [this](const xmlpp::Element *element) -> Widget * {
+            auto args = List::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .items = getRequiredAttribute<ListProperty>(element, "items")
+            };
+
+            auto itemTemplate = dynamic_cast<const xmlpp::Element *>(element->get_first_child("list-item"));
+
+            if (itemTemplate == nullptr) {
+                throw EngineError("List widget requires list-item as item template");
+            }
+
+            args.itemTemplate = std::unique_ptr<Widget>(this->makeWidget(itemTemplate));
+
+            return new List(std::move(args));
         };
     }
 
@@ -142,10 +197,7 @@ namespace Penrose {
     Widget *LayoutFactory::makeWidget(const xmlpp::Element *element) {
         auto name = element->get_name();
 
-        auto factory = orElseThrow(
-                tryGet(this->_factories, name),
-                EngineError("No factory for widget {}", name)
-        );
+        auto factory = orElseThrow(tryGet(this->_factories, name), EngineError("No factory for widget {}", name));
 
         return factory(element);
     }

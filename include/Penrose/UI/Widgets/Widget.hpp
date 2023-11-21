@@ -4,7 +4,7 @@
 #include <list>
 #include <memory>
 
-#include <Penrose/UI/Value.hpp>
+#include <Penrose/UI/Property.hpp>
 
 namespace Penrose {
 
@@ -13,7 +13,9 @@ namespace Penrose {
         Label,
         Button,
         Input,
-        Checkbox
+        Checkbox,
+        List,
+        Group
     };
 
     class Widget {
@@ -22,23 +24,24 @@ namespace Penrose {
 
         [[nodiscard]] virtual WidgetType getType() const = 0;
 
-        [[nodiscard]] const BooleanValue &getEnabled() const { return this->_enabled; }
+        [[nodiscard]] const BooleanProperty &getEnabled() const { return this->_enabled; }
 
-        [[nodiscard]] const BooleanValue &getVisible() const { return this->_visible; }
+        [[nodiscard]] const BooleanProperty &getVisible() const { return this->_visible; }
 
     protected:
-        Widget(BooleanValue &&enabled, BooleanValue &&visible)
-                : _enabled(enabled),
-                  _visible(visible) {
+        Widget(BooleanProperty &&enabled, BooleanProperty &&visible)
+            : _enabled(std::forward<decltype(enabled)>(enabled)),
+              _visible(std::forward<decltype(visible)>(visible)) {
             //
         }
 
     private:
-        BooleanValue _enabled;
-        BooleanValue _visible;
+        BooleanProperty _enabled;
+        BooleanProperty _visible;
     };
 
-    using WidgetList = std::list<std::unique_ptr<Widget>>;
+    using WidgetInstance = std::unique_ptr<Widget>;
+    using WidgetList = std::list<WidgetInstance>;
 }
 
 #endif // PENROSE_UI_WIDGETS_WIDGET_HPP

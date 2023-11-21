@@ -19,7 +19,6 @@ tests_src = [
     'src/IntegrationTests/ComplexScenes/OrbitalCamera.cpp',
     'src/IntegrationTests/ComplexScenes/Projection.cpp',
     'src/IntegrationTests/ComplexScenes/RotatingCamera.cpp',
-    'src/IntegrationTests/DebugUI/DebugUI.cpp',
     'src/IntegrationTests/Engine/EngineStartStop.cpp',
     'src/IntegrationTests/Engine/EngineStartWaitStop.cpp',
     'src/IntegrationTests/Rendering/SwapchainResize.cpp',

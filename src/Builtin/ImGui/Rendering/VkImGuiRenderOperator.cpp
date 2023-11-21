@@ -12,14 +12,14 @@
 namespace Penrose {
 
     VkImGuiRenderOperator::VkImGuiRenderOperator(ResourceSet *resources)
-            : _vulkanBackend(resources->get<VulkanBackend>()),
-              _commandManager(resources->get<VkCommandManager>()),
-              _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
-              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
-              _swapchainManager(resources->get<VkSwapchainManager>()),
-              _uiManager(resources->get<UIManager>()),
-              _uiInstanceVisitor(resources->get<ImGuiUIInstanceVisitor>()) {
+        : _vulkanBackend(resources->get<VulkanBackend>()),
+          _commandManager(resources->get<VkCommandManager>()),
+          _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
+          _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+          _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
+          _swapchainManager(resources->get<VkSwapchainManager>()),
+          _uiManager(resources->get<UIManager>()),
+          _uiContextVisitor(resources->get<ImGuiUIContextVisitor>()) {
         //
     }
 
@@ -35,10 +35,14 @@ namespace Penrose {
 
     void VkImGuiRenderOperator::execute(CommandRecording *commandRecording, const RenderOperator::Context &context) {
 
-        if (this->_state.has_value() && (this->_state->subgraph != context.subgraph ||
-                                         this->_state->subgraphPassIdx != context.subgraphPassIdx)) {
-            throw EngineError("ImGui draw operator was bound to {:#x}/pass {}",
-                              reinterpret_cast<std::size_t>(this->_state->subgraph), this->_state->subgraphPassIdx);
+        if (this->_state.has_value()
+            && (this->_state->subgraph != context.subgraph || this->_state->subgraphPassIdx != context.subgraphPassIdx
+            )) {
+            throw EngineError(
+                "ImGui draw operator was bound to {:#x}/pass {}",
+                reinterpret_cast<std::size_t>(this->_state->subgraph),
+                this->_state->subgraphPassIdx
+            );
         }
 
         if (!this->_state.has_value()) {
@@ -47,9 +51,9 @@ namespace Penrose {
 
         auto commandBuffer = dynamic_cast<VkCommandRecording *>(commandRecording)->getCommandBuffer();
 
-        auto maybeUIInstance = this->_uiManager->tryGetUI(context.param.getString(PARAM_UI_NAME));
+        const auto maybeUiContext = this->_uiManager->tryGetContext(context.param.getString(PARAM_UI_NAME));
 
-        if (!maybeUIInstance.has_value()) {
+        if (!maybeUiContext.has_value()) {
             return;
         }
 
@@ -57,7 +61,7 @@ namespace Penrose {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        this->_uiInstanceVisitor->visit(*maybeUIInstance);
+        this->_uiContextVisitor->visit(*maybeUiContext);
 
         ImGui::Render();
         ImDrawData *drawData = ImGui::GetDrawData();
@@ -67,20 +71,21 @@ namespace Penrose {
     void VkImGuiRenderOperator::initFor(const RenderOperator::Context &context) {
         auto imageCount = this->_swapchainManager->getSwapchain()->getImageCount();
 
-        auto initInfo = ImGui_ImplVulkan_InitInfo{
-                .Instance = this->_vulkanBackend->getInstance(),
-                .PhysicalDevice = this->_physicalDeviceContext->getHandle(),
-                .Device = this->_logicalDeviceContext->getHandle(),
-                .QueueFamily = this->_physicalDeviceContext->getGraphicsFamilyIdx(),
-                .Queue = this->_logicalDeviceContext->getGraphicsQueue(),
-                .PipelineCache = nullptr,
-                .DescriptorPool = this->_descriptorPoolManager->getDescriptorPool(),
-                .Subpass = context.subgraphPassIdx,
-                .MinImageCount = imageCount,
-                .ImageCount = imageCount,
-                .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
-                .Allocator = nullptr,
-                .CheckVkResultFn = [](VkResult result) {
+        auto initInfo = ImGui_ImplVulkan_InitInfo {
+            .Instance = this->_vulkanBackend->getInstance(),
+            .PhysicalDevice = this->_physicalDeviceContext->getHandle(),
+            .Device = this->_logicalDeviceContext->getHandle(),
+            .QueueFamily = this->_physicalDeviceContext->getGraphicsFamilyIdx(),
+            .Queue = this->_logicalDeviceContext->getGraphicsQueue(),
+            .PipelineCache = nullptr,
+            .DescriptorPool = this->_descriptorPoolManager->getDescriptorPool(),
+            .Subpass = context.subgraphPassIdx,
+            .MinImageCount = imageCount,
+            .ImageCount = imageCount,
+            .MSAASamples = VK_SAMPLE_COUNT_1_BIT,
+            .Allocator = nullptr,
+            .CheckVkResultFn =
+                [](VkResult result) {
                     if (result != VK_SUCCESS) {
                         vk::detail::throwResultException((vk::Result) result, "Vulkan assertion failed");
                     }

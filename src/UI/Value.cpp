@@ -1,144 +1,92 @@
 #include <Penrose/UI/Value.hpp>
 
-#include <algorithm>
-#include <cctype>
-#include <charconv>
-#include <optional>
+#include <cstdint>
+#include <vector>
+
+#include <Penrose/Common/EngineError.hpp>
 
 namespace Penrose {
 
-    constexpr static const std::string_view BINDING_START = "${";
-    constexpr static const std::string_view BINDING_END = "}";
+    ActionValue::ActionValue(ActionValue::Delegate &&delegate)
+        : _delegate(delegate) {
+        //
+    }
 
-    constexpr static const std::string_view BOOLEAN_TRUE = "true";
-    constexpr static const std::string_view BOOLEAN_FALSE = "false";
+    void ActionValue::invoke() const {
+        this->_delegate();
+    }
 
-    std::optional<std::string> tryGetBinding(const std::string_view &value) {
-        if (!value.starts_with(BINDING_START) || !value.ends_with(BINDING_END)) {
+    ObjectValue::ObjectValue(ObjectValue::Container &&properties)
+        : _properties(properties) {
+        //
+    }
+
+    ObjectValue &ObjectValue::property(std::string_view &&name, const std::shared_ptr<Value> &value) {
+        this->_properties.emplace(std::forward<decltype(name)>(name), value);
+
+        return *this;
+    }
+
+    ObjectValue &ObjectValue::property(std::string_view &&name, std::shared_ptr<Value> &&value) {
+        this->_properties.emplace(std::forward<decltype(name)>(name), std::forward<decltype(value)>(value));
+
+        return *this;
+    }
+
+    std::optional<std::shared_ptr<Value>> ObjectValue::tryGetProperty(const std::string_view &name) const {
+        auto it = this->_properties.find(std::string(name));
+
+        if (it == this->_properties.end()) {
             return std::nullopt;
         }
 
-        auto length = value.size() - (BINDING_START.size() + BINDING_END.size());
-
-        if (length == 0) {
-            throw EngineError("Value has empty binding");
-        }
-
-        return std::string(value.substr(BINDING_START.size(), length));
+        return it->second;
     }
 
-    bool compare(const std::string_view &lhs, const std::string_view &rhs, bool insensitive = true) {
-        if (lhs.size() != rhs.size()) {
-            return false;
+    std::shared_ptr<Value> ObjectValue::getPropertyByPath(const std::string_view &path) const {
+        std::vector<std::string_view> properties;
+
+        std::string_view remain = path;
+        std::string_view::size_type idx = remain.find('.');
+
+        do {
+            properties.emplace_back(remain.substr(0, idx));
+            remain = remain.substr(idx + 1);
+        } while ((idx = remain.find('.')) && idx != std::string_view::npos);
+
+        auto currentObject = this;
+        std::optional<std::shared_ptr<Value>> value;
+
+        for (std::uint32_t propertyIdx = 0; propertyIdx < properties.size(); ++propertyIdx) {
+            auto property = properties.at(propertyIdx);
+            value = currentObject->tryGetProperty(property);
+
+            if (!value.has_value()) {
+                throw EngineError("No such property {}", property);
+            }
+
+            if (propertyIdx == properties.size() - 1) {
+                return *value;
+            }
+
+            currentObject = dynamic_cast<ObjectValue *>(value->get());
+
+            if (currentObject == nullptr) {
+                throw EngineError("Property {} is not an object", property);
+            }
         }
 
-        return std::equal(lhs.begin(), lhs.end(),
-                          rhs.begin(), rhs.end(),
-                          [insensitive](const char &l, const char &r) {
-                              if (insensitive) {
-                                  return std::toupper(l) == std::toupper(r);
-                              } else {
-                                  return l == r;
-                              }
-                          });
+        throw EngineError("Out of reach");
     }
 
-    template<>
-    BooleanValue BooleanValue::parse(std::string_view &&value) {
-        auto binding = tryGetBinding(value);
-
-        if (binding.has_value()) {
-            return {ValueSource::Binding, false, std::move(*binding)};
-        }
-
-        if (compare(value, BOOLEAN_TRUE)) {
-            return {ValueSource::Constant, true, ""};
-        }
-
-        if (compare(value, BOOLEAN_FALSE)) {
-            return {ValueSource::Constant, false, ""};
-        }
-
-        throw EngineError("Invalid boolean value \"{}\"", value);
+    ListValue::ListValue(ListValue::Container &&items)
+        : _items(std::forward<decltype(items)>(items)) {
+        //
     }
 
-    template<>
-    IntegerValue IntegerValue::parse(std::string_view &&value) {
-        auto binding = tryGetBinding(value);
+    ListValue &ListValue::push(std::shared_ptr<ObjectValue> &&item) {
+        this->_items.push_back(std::forward<decltype(item)>(item));
 
-        if (binding.has_value()) {
-            return {ValueSource::Binding, 0, std::move(*binding)};
-        }
-
-        int integer;
-        auto [_, ec] = std::from_chars(value.data(), value.data() + value.size(), integer);
-
-        if (ec != std::errc()) {
-            throw EngineError("Invalid integer value \"{}\"", value);
-        }
-
-        return {ValueSource::Constant, integer, ""};
-    }
-
-    template<>
-    FloatValue FloatValue::parse(std::string_view &&value) {
-        auto binding = tryGetBinding(value);
-
-        if (binding.has_value()) {
-            return {ValueSource::Binding, 0, std::move(*binding)};
-        }
-
-        float f;
-        auto [_, ec] = std::from_chars(value.data(), value.data() + value.size(), f);
-
-        if (ec != std::errc()) {
-            throw EngineError("Invalid float value \"{}\"", value);
-        }
-
-        return {ValueSource::Constant, f, ""};
-    }
-
-    template<>
-    StringValue StringValue::parse(std::string_view &&value) {
-        auto binding = tryGetBinding(value);
-
-        if (binding.has_value()) {
-            return {ValueSource::Binding, "", std::move(*binding)};
-        }
-
-        return {ValueSource::Constant, std::string(value), ""};
-    }
-
-    template<>
-    ActionValue ActionValue::parse(std::string_view &&value) {
-        auto binding = tryGetBinding(value);
-
-        if (!binding.has_value()) {
-            throw EngineError("Action requires binding");
-        }
-
-        return ActionValue(std::move(*binding));
-    }
-
-    template<>
-    ObjectValue ObjectValue::parse(std::string_view &&value) {
-        auto binding = tryGetBinding(value);
-
-        if (!binding.has_value()) {
-            throw EngineError("Object requires binding");
-        }
-
-        return ObjectValue(std::move(*binding));
-    }
-
-    template<>
-    ListValue ListValue::parse(std::string_view &&value) {
-        auto binding = tryGetBinding(value);
-
-        if (!binding.has_value()) {
-            throw EngineError("List requires binding");
-        }
-
-        return ListValue(std::move(*binding));
+        return *this;
     }
 }

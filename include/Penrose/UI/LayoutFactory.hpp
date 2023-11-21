@@ -12,7 +12,7 @@
 
 namespace Penrose {
 
-    class LayoutFactory : public Resource<LayoutFactory, ResourceGroup::UI> {
+    class LayoutFactory final: public Resource<LayoutFactory, ResourceGroup::UI> {
     public:
         LayoutFactory();
         ~LayoutFactory() override = default;

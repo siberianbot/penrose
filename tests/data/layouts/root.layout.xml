@@ -12,15 +12,26 @@
     <label visible="${button_pressed}" text="Button pressed"/>
 
     <checkbox text="Toggle visibility" checked="${checkbox_visibility}"/>
-    <label text="This label was invisible" visible="${checkbox_visibility}"/>
-    <input text="This input was invisible" visible="${checkbox_visibility}"/>
-    <button title="This button was invisible" visible="${checkbox_visibility}" action="${none_action}"/>
-    <checkbox text="This checkbox was invisible" visible="${checkbox_visibility}" checked="${none_check}"/>
+    <group visible="${checkbox_visibility}">
+        <label text="This label was invisible"/>
+        <input text="This input was invisible"/>
+        <button title="This button was invisible"/>
+        <checkbox text="This checkbox was invisible" checked="${none_check}"/>
+    </group>
 
     <checkbox text="Toggle enablement" checked="${checkbox_enabled}"/>
-    <label text="This label was disabled" enabled="${checkbox_enabled}"/>
-    <input text="This input was disabled" enabled="${checkbox_enabled}"/>
-    <button title="This button was disabled" enabled="${checkbox_enabled}" action="${none_action}"/>
-    <checkbox text="This checkbox was disabled" enabled="${checkbox_enabled}" checked="${none_check}"/>
+    <group enabled="${checkbox_enabled}">
+        <label text="This label was disabled"/>
+        <input text="This input was disabled"/>
+        <button title="This button was disabled"/>
+        <checkbox text="This checkbox was disabled" checked="${none_check}"/>
+    </group>
+
+    <list items="${list_items}">
+        <list-item>
+            <label text="${value}"/>
+        </list-item>
+    </list>
+    <button title="Add item" action="${add_item}"/>
 
 </window>

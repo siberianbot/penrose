@@ -26,6 +26,10 @@ namespace Penrose {
         [[nodiscard]] const char *what() const noexcept override {
             return this->_msg.c_str();
         }
+
+        [[nodiscard]] static EngineError notImplemented() {
+            return EngineError("Not implemented");
+        }
     };
 }
 

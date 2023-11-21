@@ -5,27 +5,29 @@
 
 namespace Penrose {
 
-    class Input : public Widget {
+    class Input final: public Widget {
     public:
         struct Args {
-            BooleanValue enabled;
-            BooleanValue visible;
-            StringValue text;
+            BooleanProperty enabled;
+            BooleanProperty visible;
+            StringProperty text;
         };
 
         explicit Input(Args &&args)
-                : Widget(std::forward<decltype(args.enabled)>(args.enabled),
-                         std::forward<decltype(args.visible)>(args.visible)),
-                  _text(std::forward<decltype(args.text)>(args.text)) {
+            : Widget(
+                  std::forward<decltype(args.enabled)>(args.enabled),
+                  std::forward<decltype(args.visible)>(args.visible)
+              ),
+              _text(std::forward<decltype(args.text)>(args.text)) {
             //
         }
 
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Input; }
 
-        [[nodiscard]] const StringValue &getText() const { return this->_text; }
+        [[nodiscard]] const StringProperty &getText() const { return this->_text; }
 
     private:
-        StringValue _text;
+        StringProperty _text;
     };
 }
 

@@ -4,7 +4,8 @@ project(
     version: '0.1',
     default_options: [
         'warning_level=3',
-        'cpp_std=c++20'
+        'cpp_std=c++20',
+        'default_library=static'
     ])
 
 deps = [
@@ -69,7 +70,7 @@ src = [
     'src/UI/LayoutFactory.cpp',
     'src/UI/UIManager.cpp',
     'src/UI/Value.cpp',
-    'src/UI/ValueProxy.cpp',
+    'src/UI/Property.cpp',
 
     # Builtin / Penrose
     'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',
@@ -85,7 +86,7 @@ src = [
     'src/Builtin/ImGui/ImGui.cpp',
     'src/Builtin/ImGui/ImGuiBackend.cpp',
     'src/Builtin/ImGui/Rendering/VkImGuiRenderOperator.cpp',
-    'src/Builtin/ImGui/UI/ImGuiUIInstanceVisitor.cpp',
+    'src/Builtin/ImGui/UI/ImGuiUIContextVisitor.cpp',
 
     # Builtin / Vulkan
     'src/Builtin/Vulkan/Vulkan.cpp',
