@@ -160,7 +160,8 @@ namespace Penrose {
             auto args = List::Args {
                 .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
                 .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
-                .items = getRequiredAttribute<ListProperty>(element, "items")
+                .items = getRequiredAttribute<ListProperty>(element, "items"),
+                .selection = getOptionalAttribute<IntegerProperty>(element, "selection")
             };
 
             auto itemTemplate = dynamic_cast<const xmlpp::Element *>(element->get_first_child("list-item"));

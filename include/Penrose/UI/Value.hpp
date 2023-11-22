@@ -110,7 +110,7 @@ namespace Penrose {
             );
         }
 
-        [[nodiscard]] ObjectValue &property(std::string_view &&name, const std::shared_ptr<Value>& value);
+        [[nodiscard]] ObjectValue &property(std::string_view &&name, const std::shared_ptr<Value> &value);
 
         [[nodiscard]] ObjectValue &property(std::string_view &&name, std::shared_ptr<Value> &&value);
 
@@ -137,6 +137,8 @@ namespace Penrose {
         ListValue &push(std::shared_ptr<ObjectValue> &&item);
 
         [[nodiscard]] const Container &getItems() const { return this->_items; }
+
+        [[nodiscard]] Container &getItems() { return this->_items; }
 
     private:
         Container _items;

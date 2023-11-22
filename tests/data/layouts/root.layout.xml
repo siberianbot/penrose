@@ -27,11 +27,15 @@
         <checkbox text="This checkbox was disabled" checked="${none_check}"/>
     </group>
 
-    <list items="${list_items}">
+    <list items="${list_items}" selection="${list_selected}">
         <list-item>
             <label text="${value}"/>
         </list-item>
     </list>
+
+    <label text="${list_selected_label}"/>
+
     <button title="Add item" action="${add_item}"/>
+    <button title="Remove item" action="${remove_item}" enabled="${remove_item_enabled}"/>
 
 </window>

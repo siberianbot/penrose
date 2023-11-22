@@ -35,6 +35,8 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                     .push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>("value", "Item 3")))
             );
 
+            auto listSelected = std::make_shared<IntegerValue>(-1);
+
             auto buttonPressed = std::make_shared<BooleanValue>(false);
 
             auto viewModel = ObjectValue().property<ObjectValue>(
@@ -48,6 +50,12 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                     .property<ActionValue>("none_action", []() {})
                     .property<BooleanValue>("none_check", true)
                     .property("list_items", listItems)
+                    .property("list_selected", listSelected)
+                    .property<StringValue>(
+                        "list_selected_label",
+                        [listSelected]() { return fmt::format("Selected item index: {}", listSelected->getValue()); },
+                        [](std::string) {}
+                    )
                     .property<ActionValue>(
                         "add_item",
                         [listItems]() {
@@ -55,6 +63,22 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                                 "value",
                                 fmt::format("Item {}", listItems->getItems().size() + 1)
                             )));
+                        }
+                    )
+                    .property<BooleanValue>(
+                        "remove_item_enabled",
+                        [listSelected, listItems]() {
+                            const auto currentValue = listSelected->getValue();
+                            return currentValue >= 0 && currentValue < listItems->getItems().size();
+                        },
+                        [](bool) {}
+                    )
+                    .property<ActionValue>(
+                        "remove_item",
+                        [listSelected, listItems]() {
+                            const auto currentValue = listSelected->getValue();
+
+                            listItems->getItems().erase(std::next(listItems->getItems().begin(), currentValue));
                         }
                     )
             );

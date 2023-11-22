@@ -113,15 +113,38 @@ namespace Penrose {
                 const auto list = dynamic_cast<const List *>(widget);
 
                 const auto items = uiContext->resolveProperty<ListValue>(valueContext, &list->getItems());
+                const auto selection =
+                    list->getSelection().has_value()
+                        ? std::optional(uiContext->resolveProperty<IntegerValue>(valueContext, &*list->getSelection()))
+                        : std::nullopt;
 
                 const auto tag = this->getTag(valueContext, widget);
 
                 if (ImGui::BeginListBox(tag.c_str())) {
 
-                    // TODO: selection
+                    const auto itemTemplate = list->getItemTemplate().get();
 
-                    for (const auto &item: items->getItems()) {
-                        this->visit(uiContext, item.get(), list->getItemTemplate().get());
+                    for (int idx = 0; idx < items->getItems().size(); ++idx) {
+                        const auto &item = items->getItems().at(idx);
+
+                        this->visit(uiContext, item.get(), itemTemplate);
+
+                        const auto isSelected = selection.has_value() && (*selection)->getValue() == idx;
+
+                        ImGui::SameLine();
+
+                        if (ImGui::Selectable(
+                                this->getTag(item.get(), itemTemplate).c_str(),
+                                isSelected,
+                                ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap
+                            )
+                            && selection.has_value()) {
+                            (*selection)->setValue(idx);
+                        }
+
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
                     }
 
                     ImGui::EndListBox();
@@ -142,7 +165,9 @@ namespace Penrose {
             return;
         }
 
-        if (!enabled->getValue()) {
+        const bool disabled = !enabled->getValue();
+
+        if (disabled) {
             ImGui::BeginDisabled();
         }
 
@@ -154,7 +179,7 @@ namespace Penrose {
 
         it->second(uiContext, valueContext, widget);
 
-        if (!enabled->getValue()) {
+        if (disabled) {
             ImGui::EndDisabled();
         }
     }
