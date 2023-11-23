@@ -30,6 +30,8 @@ namespace Penrose {
             //
         }
 
+        ~Window() override = default;
+
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Window; }
 
         [[nodiscard]] const StringProperty &getTitle() const { return this->_title; }

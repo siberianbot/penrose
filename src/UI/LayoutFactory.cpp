@@ -11,7 +11,11 @@
 #include <Penrose/UI/Widgets/Input.hpp>
 #include <Penrose/UI/Widgets/Label.hpp>
 #include <Penrose/UI/Widgets/List.hpp>
+#include <Penrose/UI/Widgets/MenuBar.hpp>
+#include <Penrose/UI/Widgets/MenuEntry.hpp>
+#include <Penrose/UI/Widgets/MenuSection.hpp>
 #include <Penrose/UI/Widgets/Select.hpp>
+#include <Penrose/UI/Widgets/Separator.hpp>
 #include <Penrose/UI/Widgets/Window.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
@@ -186,6 +190,75 @@ namespace Penrose {
             };
 
             return new Select(std::move(args));
+        };
+
+        this->_factories["separator"] = [](const xmlpp::Element *) -> Widget * { return new Separator(); };
+
+        this->_factories["menu-bar"] = [this](const xmlpp::Element *element) -> Widget * {
+            auto args = MenuBar::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true))
+            };
+
+            for (const xmlpp::Node *childNode: element->get_children()) {
+                auto childElement = dynamic_cast<const xmlpp::Element *>(childNode);
+
+                if (childElement == nullptr) {
+                    continue;
+                }
+
+                Widget *childWidget;
+
+                try {
+                    childWidget = this->makeWidget(childElement);
+                } catch (...) {
+                    std::throw_with_nested(EngineError("Invalid child node {}", childNode->get_path()));
+                }
+
+                args.children.emplace_back(childWidget);
+            }
+
+            return new MenuBar(std::move(args));
+        };
+
+        this->_factories["menu-entry"] = [this](const xmlpp::Element *element) -> Widget * {
+            auto args = MenuEntry::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .title = getRequiredAttribute<StringProperty>(element, "title"),
+                .checked = getOptionalAttribute(element, "checked", BooleanProperty(false)),
+                .action = getOptionalAttribute<ActionProperty>(element, "action")
+            };
+
+            return new MenuEntry(std::move(args));
+        };
+
+        this->_factories["menu-section"] = [this](const xmlpp::Element *element) -> Widget * {
+            auto args = MenuSection::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .title = getRequiredAttribute<StringProperty>(element, "title")
+            };
+
+            for (const xmlpp::Node *childNode: element->get_children()) {
+                auto childElement = dynamic_cast<const xmlpp::Element *>(childNode);
+
+                if (childElement == nullptr) {
+                    continue;
+                }
+
+                Widget *childWidget;
+
+                try {
+                    childWidget = this->makeWidget(childElement);
+                } catch (...) {
+                    std::throw_with_nested(EngineError("Invalid child node {}", childNode->get_path()));
+                }
+
+                args.children.emplace_back(childWidget);
+            }
+
+            return new MenuSection(std::move(args));
         };
     }
 

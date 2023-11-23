@@ -3,6 +3,7 @@
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/ECS/System.hpp>
 #include <Penrose/Engine.hpp>
+#include <Penrose/Events/EngineEvents.hpp>
 #include <Penrose/Events/InputEvents.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
@@ -21,7 +22,8 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                      public Runnable {
     public:
         explicit UIContext(ResourceSet *resources)
-            : _uiManager(resources->get<UIManager>()) {
+            : _uiManager(resources->get<UIManager>()),
+              _engineEventQueue(resources->get<EngineEventQueue>()) {
             //
         }
 
@@ -44,6 +46,12 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                     .property<ObjectValue>(
                         "root",
                         ObjectValue()
+                            .property<BooleanValue>("menu_checked", false)
+                            .property<BooleanValue>("menu_enabled", true)
+                            .property<ActionValue>(
+                                "close",
+                                [this]() { this->_engineEventQueue->push<EngineDestroyRequestedEvent>(); }
+                            )
                             .property<StringValue>("text", "Same text in label and input")
                             .property<ActionValue>(
                                 "button_action",
@@ -105,6 +113,7 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
 
     private:
         ResourceProxy<UIManager> _uiManager;
+        ResourceProxy<EngineEventQueue> _engineEventQueue;
     };
 
     constexpr static std::string_view TEST_LOGIC_SYSTEM_TAG = "InputReceiving";

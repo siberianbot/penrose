@@ -24,6 +24,8 @@ namespace Penrose {
             //
         }
 
+        ~Checkbox() override = default;
+
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Checkbox; }
 
         [[nodiscard]] const StringProperty &getText() const { return this->_text; }

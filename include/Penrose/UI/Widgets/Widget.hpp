@@ -16,7 +16,11 @@ namespace Penrose {
         Checkbox,
         List,
         Group,
-        Select
+        Select,
+        MenuBar,
+        MenuSection,
+        MenuEntry,
+        Separator
     };
 
     class Widget {

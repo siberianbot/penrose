@@ -26,6 +26,8 @@ namespace Penrose {
             //
         }
 
+        ~List() override = default;
+
         [[nodiscard]] WidgetType getType() const override { return WidgetType::List; }
 
         [[nodiscard]] const WidgetInstance &getItemTemplate() const { return this->_itemTemplate; }

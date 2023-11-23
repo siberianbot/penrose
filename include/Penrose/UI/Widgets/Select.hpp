@@ -24,6 +24,8 @@ namespace Penrose {
             //
         }
 
+        ~Select() override = default;
+
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Select; }
 
         [[nodiscard]] const ListProperty &getItems() const { return this->_items; }

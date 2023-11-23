@@ -22,6 +22,8 @@ namespace Penrose {
             //
         }
 
+        ~Input() override = default;
+
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Input; }
 
         [[nodiscard]] const StringProperty &getText() const { return this->_text; }

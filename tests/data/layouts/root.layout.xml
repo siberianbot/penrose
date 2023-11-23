@@ -2,8 +2,33 @@
 
 <window title="Root Window" context="${root}" opened="${root_opened}">
 
+    <menu-bar>
+        <menu-section title="Non-interactive">
+            <menu-entry title="No action"/>
+            <separator/>
+            <menu-entry title="Checked" checked="true"/>
+            <menu-entry title="Disabled" enabled="false"/>
+        </menu-section>
+
+        <menu-section title="Interactive">
+            <menu-entry title="Toggle checked" checked="${menu_checked}"/>
+            <menu-entry title="Toggle enabled for entry below" checked="${menu_enabled}"/>
+            <menu-entry title="Can be disabled" enabled="${menu_enabled}"/>
+        </menu-section>
+
+        <menu-section title="Sub-menu">
+            <menu-section title="Level 1">
+                <menu-section title="Level 2">
+                    <menu-entry title="Hello"/>
+                </menu-section>
+            </menu-section>
+        </menu-section>
+
+        <menu-entry title="Close" action="${close}"/>
+    </menu-bar>
+
     <label text="It's a label"/>
-    <input text="It's an input"/>
+    <input text="It's an input" enabled="false"/>
 
     <label text="${text}"/>
     <input text="${text}"/>

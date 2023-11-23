@@ -22,6 +22,8 @@ namespace Penrose {
             //
         }
 
+        ~Label() override = default;
+
         [[nodiscard]] WidgetType getType() const override { return WidgetType::Label; }
 
         [[nodiscard]] const StringProperty &getText() const { return this->_text; }

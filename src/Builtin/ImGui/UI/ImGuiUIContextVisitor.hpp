@@ -17,16 +17,23 @@ namespace Penrose {
         ImGuiUIContextVisitor();
         ~ImGuiUIContextVisitor() override = default;
 
-        void visit(UIContext *context);
+        void visit(UIContext *uiContext);
 
     private:
-        using WidgetVisitor = std::function<void(UIContext *, const ObjectValue *, const Widget *)>;
+        struct WidgetVisitContext {
+            UIContext *uiContext;
+            const ObjectValue *valueContext;
+            const Widget *widget;
+            bool isTopLevel;
+        };
+
+        using WidgetVisitor = std::function<void(WidgetVisitContext &)>;
         using Tag = std::tuple<const ObjectValue *, const Widget *>;
 
         std::map<WidgetType, WidgetVisitor> _widgetVisitors;
         std::map<Tag, std::string> _tags;
 
-        void visit(UIContext *uiContext, const ObjectValue *valueContext, const Widget *widget);
+        void visit(WidgetVisitContext &context);
 
         [[nodiscard]] const std::string &getTag(const ObjectValue *valueContext, const Widget *widget);
     };
