@@ -11,31 +11,50 @@
 #include <Penrose/UI/Widgets/Input.hpp>
 #include <Penrose/UI/Widgets/Label.hpp>
 #include <Penrose/UI/Widgets/List.hpp>
+#include <Penrose/UI/Widgets/Select.hpp>
 #include <Penrose/UI/Widgets/Window.hpp>
 
 namespace Penrose {
 
     ImGuiUIContextVisitor::ImGuiUIContextVisitor() {
-        this->_widgetVisitors[WidgetType::Window] =
-            [this](UIContext *uiContext, const ObjectValue *valueContext, const Widget *widget) {
-                const auto window = dynamic_cast<const Window *>(widget);
+        this->_widgetVisitors[WidgetType::Window] = [this](
+                                                        UIContext *uiContext,
+                                                        const ObjectValue *valueContext,
+                                                        const Widget *widget
+                                                    ) {
+            const auto window = dynamic_cast<const Window *>(widget);
 
-                const auto title =
-                    uiContext->resolveProperty<StringValue>(valueContext, &window->getTitle())->getValue();
+            const auto title = uiContext->resolveProperty<StringValue>(valueContext, &window->getTitle())->getValue();
 
-                const ObjectValue *nextContext =
-                    window->getContext().has_value()
-                        ? uiContext->resolveProperty<ObjectValue>(valueContext, &(*window->getContext()))
-                        : valueContext;
+            const ObjectValue *nextContext =
+                window->getContext().has_value()
+                    ? uiContext->resolveProperty<ObjectValue>(valueContext, &(*window->getContext()))
+                    : valueContext;
 
-                if (ImGui::Begin(title.c_str() /* TODO: , open/close */)) {
-                    for (const auto &child: window->getChildren()) {
-                        this->visit(uiContext, nextContext, child.get());
-                    }
+            const auto opened =
+                window->getOpened().has_value()
+                    ? std::optional(uiContext->resolveProperty<BooleanValue>(valueContext, &(*window->getOpened())))
+                    : std::nullopt;
 
-                    ImGui::End();
+            bool openedValue = opened.has_value() ? (*opened)->getValue() : true;
+            const bool originalValue = openedValue;
+
+            if (!openedValue) {
+                return;
+            }
+
+            if (ImGui::Begin(title.c_str(), opened.has_value() ? &openedValue : nullptr, ImGuiWindowFlags_NoCollapse)) {
+                for (const auto &child: window->getChildren()) {
+                    this->visit(uiContext, nextContext, child.get());
                 }
-            };
+            }
+
+            ImGui::End();
+
+            if (opened.has_value() && openedValue != originalValue) {
+                (*opened)->setValue(openedValue);
+            }
+        };
 
         this->_widgetVisitors[WidgetType::Button] = [](UIContext *uiContext,
                                                        const ObjectValue *valueContext,
@@ -112,13 +131,11 @@ namespace Penrose {
             [this](UIContext *uiContext, const ObjectValue *valueContext, const Widget *widget) {
                 const auto list = dynamic_cast<const List *>(widget);
 
-                const auto items = uiContext->resolveProperty<ListValue>(valueContext, &list->getItems());
-                const auto selection =
-                    list->getSelection().has_value()
-                        ? std::optional(uiContext->resolveProperty<IntegerValue>(valueContext, &*list->getSelection()))
-                        : std::nullopt;
+                const auto items = uiContext->resolveProperty<ListValue<ObjectValue>>(valueContext, &list->getItems());
+                const auto selection = uiContext->resolveProperty<IntegerValue>(valueContext, &list->getSelection());
 
                 const auto tag = this->getTag(valueContext, widget);
+                const auto selectedIdx = selection->getValue();
 
                 if (ImGui::BeginListBox(tag.c_str())) {
 
@@ -129,7 +146,7 @@ namespace Penrose {
 
                         this->visit(uiContext, item.get(), itemTemplate);
 
-                        const auto isSelected = selection.has_value() && (*selection)->getValue() == idx;
+                        const auto isSelected = idx == selectedIdx;
 
                         ImGui::SameLine();
 
@@ -137,9 +154,8 @@ namespace Penrose {
                                 this->getTag(item.get(), itemTemplate).c_str(),
                                 isSelected,
                                 ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap
-                            )
-                            && selection.has_value()) {
-                            (*selection)->setValue(idx);
+                            )) {
+                            selection->setValue(idx);
                         }
 
                         if (isSelected) {
@@ -148,6 +164,41 @@ namespace Penrose {
                     }
 
                     ImGui::EndListBox();
+                }
+            };
+
+        this->_widgetVisitors[WidgetType::Select] =
+            [this](UIContext *uiContext, const ObjectValue *valueContext, const Widget *widget) {
+                const auto select = dynamic_cast<const Select *>(widget);
+
+                const auto items =
+                    uiContext->resolveProperty<ListValue<StringValue>>(valueContext, &select->getItems());
+                const auto selection = uiContext->resolveProperty<IntegerValue>(valueContext, &select->getSelection());
+
+                const auto selectionIdx = selection->getValue();
+
+                const auto tag = this->getTag(valueContext, widget);
+                const auto previewValue = selectionIdx >= 0 && selectionIdx < items->getItems().size()
+                                              ? items->getItems().at(selectionIdx)->getValue()
+                                              : "None";
+
+                if (ImGui::BeginCombo(tag.c_str(), previewValue.c_str())) {
+
+                    for (int idx = 0; idx < items->getItems().size(); ++idx) {
+                        const auto &item = items->getItems().at(idx);
+
+                        const auto isSelected = selectionIdx == idx;
+
+                        if (ImGui::Selectable(item->getValue().c_str(), isSelected)) {
+                            selection->setValue(idx);
+                        }
+
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+
+                    ImGui::EndCombo();
                 }
             };
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<window title="Root Window" context="${root}">
+<window title="Root Window" context="${root}" opened="${root_opened}">
 
     <label text="It's a label"/>
     <input text="It's an input"/>
@@ -37,5 +37,7 @@
 
     <button title="Add item" action="${add_item}"/>
     <button title="Remove item" action="${remove_item}" enabled="${remove_item_enabled}"/>
+
+    <select items="${select_items}" selection="${select_selected}"/>
 
 </window>

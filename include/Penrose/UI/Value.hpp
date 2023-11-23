@@ -124,17 +124,32 @@ namespace Penrose {
         Container _properties;
     };
 
+    template <typename Item>
+    requires std::is_base_of_v<Value, Item>
     class PENROSE_API ListValue final: public Value {
     public:
-        using Container = std::vector<std::shared_ptr<ObjectValue>>;
+        using Container = std::vector<std::shared_ptr<Item>>;
 
-        explicit ListValue(Container &&items = {});
+        explicit ListValue(Container &&items = {})
+            : _items(std::forward<decltype(items)>(items)) {
+            //
+        }
 
         ~ListValue() override = default;
 
         [[nodiscard]] ValueType getType() const override { return ValueType::List; }
 
-        ListValue &push(std::shared_ptr<ObjectValue> &&item);
+        template <typename... Args>
+        requires std::is_constructible_v<Item, Args...>
+        ListValue &push(Args &&...args) {
+            return this->push(std::make_shared<Item>(std::forward<decltype(args)>(args)...));
+        }
+
+        ListValue &push(std::shared_ptr<Item> &&item) {
+            this->_items.push_back(std::forward<decltype(item)>(item));
+
+            return *this;
+        }
 
         [[nodiscard]] const Container &getItems() const { return this->_items; }
 

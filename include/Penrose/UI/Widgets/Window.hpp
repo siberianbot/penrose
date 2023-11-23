@@ -14,6 +14,7 @@ namespace Penrose {
             BooleanProperty visible;
             StringProperty title;
             std::optional<ObjectProperty> context;
+            std::optional<BooleanProperty> opened;
             WidgetList children;
         };
 
@@ -24,6 +25,7 @@ namespace Penrose {
               ),
               _title(std::forward<decltype(args.title)>(args.title)),
               _context(std::forward<decltype(args.context)>(args.context)),
+              _opened(std::forward<decltype(args.opened)>(args.opened)),
               _children(std::forward<decltype(args.children)>(args.children)) {
             //
         }
@@ -34,11 +36,14 @@ namespace Penrose {
 
         [[nodiscard]] const std::optional<ObjectProperty> &getContext() const { return this->_context; }
 
+        [[nodiscard]] const std::optional<BooleanProperty> &getOpened() const { return this->_opened; }
+
         [[nodiscard]] const WidgetList &getChildren() const { return this->_children; }
 
     private:
         StringProperty _title;
         std::optional<ObjectProperty> _context;
+        std::optional<BooleanProperty> _opened;
         WidgetList _children;
     };
 }

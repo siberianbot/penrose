@@ -78,15 +78,4 @@ namespace Penrose {
 
         throw EngineError("Out of reach");
     }
-
-    ListValue::ListValue(ListValue::Container &&items)
-        : _items(std::forward<decltype(items)>(items)) {
-        //
-    }
-
-    ListValue &ListValue::push(std::shared_ptr<ObjectValue> &&item) {
-        this->_items.push_back(std::forward<decltype(item)>(item));
-
-        return *this;
-    }
 }

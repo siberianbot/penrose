@@ -11,6 +11,7 @@
 #include <Penrose/UI/Widgets/Input.hpp>
 #include <Penrose/UI/Widgets/Label.hpp>
 #include <Penrose/UI/Widgets/List.hpp>
+#include <Penrose/UI/Widgets/Select.hpp>
 #include <Penrose/UI/Widgets/Window.hpp>
 #include <Penrose/Utils/OptionalUtils.hpp>
 
@@ -59,7 +60,8 @@ namespace Penrose {
                 .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
                 .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
                 .title = getRequiredAttribute<StringProperty>(element, "title"),
-                .context = getOptionalAttribute<ObjectProperty>(element, "context")
+                .context = getOptionalAttribute<ObjectProperty>(element, "context"),
+                .opened = getOptionalAttribute<BooleanProperty>(element, "opened")
             };
 
             for (const xmlpp::Node *childNode: element->get_children()) {
@@ -161,7 +163,7 @@ namespace Penrose {
                 .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
                 .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
                 .items = getRequiredAttribute<ListProperty>(element, "items"),
-                .selection = getOptionalAttribute<IntegerProperty>(element, "selection")
+                .selection = getRequiredAttribute<IntegerProperty>(element, "selection")
             };
 
             auto itemTemplate = dynamic_cast<const xmlpp::Element *>(element->get_first_child("list-item"));
@@ -173,6 +175,17 @@ namespace Penrose {
             args.itemTemplate = std::unique_ptr<Widget>(this->makeWidget(itemTemplate));
 
             return new List(std::move(args));
+        };
+
+        this->_factories["select"] = [this](const xmlpp::Element *element) -> Widget * {
+            auto args = Select::Args {
+                .enabled = getOptionalAttribute(element, "enabled", BooleanProperty(true)),
+                .visible = getOptionalAttribute(element, "visible", BooleanProperty(true)),
+                .items = getRequiredAttribute<ListProperty>(element, "items"),
+                .selection = getRequiredAttribute<IntegerProperty>(element, "selection")
+            };
+
+            return new Select(std::move(args));
         };
     }
 

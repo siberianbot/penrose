@@ -15,7 +15,8 @@ namespace Penrose {
         Input,
         Checkbox,
         List,
-        Group
+        Group,
+        Select
     };
 
     class Widget {

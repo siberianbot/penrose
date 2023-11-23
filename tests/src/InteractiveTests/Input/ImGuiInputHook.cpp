@@ -28,8 +28,8 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
         ~UIContext() override = default;
 
         void run() override {
-            auto listItems = std::make_shared<ListValue>(
-                ListValue()
+            auto listItems = std::make_shared<ListValue<ObjectValue>>(
+                ListValue<ObjectValue>()
                     .push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>("value", "Item 1")))
                     .push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>("value", "Item 2")))
                     .push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>("value", "Item 3")))
@@ -39,49 +39,64 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
 
             auto buttonPressed = std::make_shared<BooleanValue>(false);
 
-            auto viewModel = ObjectValue().property<ObjectValue>(
-                "root",
+            auto viewModel =
                 ObjectValue()
-                    .property<StringValue>("text", "Same text in label and input")
-                    .property<ActionValue>("button_action", [buttonPressed]() { buttonPressed->setValue(true); })
-                    .property("button_pressed", buttonPressed)
-                    .property<BooleanValue>("checkbox_visibility", false)
-                    .property<BooleanValue>("checkbox_enabled", false)
-                    .property<ActionValue>("none_action", []() {})
-                    .property<BooleanValue>("none_check", true)
-                    .property("list_items", listItems)
-                    .property("list_selected", listSelected)
-                    .property<StringValue>(
-                        "list_selected_label",
-                        [listSelected]() { return fmt::format("Selected item index: {}", listSelected->getValue()); },
-                        [](std::string) {}
-                    )
-                    .property<ActionValue>(
-                        "add_item",
-                        [listItems]() {
-                            listItems->push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>(
-                                "value",
-                                fmt::format("Item {}", listItems->getItems().size() + 1)
-                            )));
-                        }
-                    )
-                    .property<BooleanValue>(
-                        "remove_item_enabled",
-                        [listSelected, listItems]() {
-                            const auto currentValue = listSelected->getValue();
-                            return currentValue >= 0 && currentValue < listItems->getItems().size();
-                        },
-                        [](bool) {}
-                    )
-                    .property<ActionValue>(
-                        "remove_item",
-                        [listSelected, listItems]() {
-                            const auto currentValue = listSelected->getValue();
+                    .property<ObjectValue>(
+                        "root",
+                        ObjectValue()
+                            .property<StringValue>("text", "Same text in label and input")
+                            .property<ActionValue>(
+                                "button_action",
+                                [buttonPressed]() { buttonPressed->setValue(true); }
+                            )
+                            .property("button_pressed", buttonPressed)
+                            .property<BooleanValue>("checkbox_visibility", false)
+                            .property<BooleanValue>("checkbox_enabled", false)
+                            .property<ActionValue>("none_action", []() {})
+                            .property<BooleanValue>("none_check", true)
+                            .property("list_items", listItems)
+                            .property("list_selected", listSelected)
+                            .property<StringValue>(
+                                "list_selected_label",
+                                [listSelected]() {
+                                    return fmt::format("Selected item index: {}", listSelected->getValue());
+                                },
+                                [](std::string) {}
+                            )
+                            .property<ActionValue>(
+                                "add_item",
+                                [listItems]() {
+                                    listItems->push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>(
+                                        "value",
+                                        fmt::format("Item {}", listItems->getItems().size() + 1)
+                                    )));
+                                }
+                            )
+                            .property<BooleanValue>(
+                                "remove_item_enabled",
+                                [listSelected, listItems]() {
+                                    const auto currentValue = listSelected->getValue();
+                                    return currentValue >= 0 && currentValue < listItems->getItems().size();
+                                },
+                                [](bool) {}
+                            )
+                            .property<ActionValue>(
+                                "remove_item",
+                                [listSelected, listItems]() {
+                                    const auto currentValue = listSelected->getValue();
 
-                            listItems->getItems().erase(std::next(listItems->getItems().begin(), currentValue));
-                        }
+                                    listItems->getItems().erase(std::next(listItems->getItems().begin(), currentValue));
+                                }
+                            )
+                            .property<ListValue<StringValue>>(
+                                "select_items",
+                                ListValue<StringValue>().push("Item 1").push("Item 2").push("Item 3").push(
+                                    "One more thing"
+                                )
+                            )
+                            .property<IntegerValue>("select_selected", -1)
                     )
-            );
+                    .property<BooleanValue>("root_opened", true);
 
             this->_uiManager->createContext("TestUI", "layouts/root.asset", std::make_unique<ObjectValue>(viewModel));
         }
