@@ -30,7 +30,7 @@ namespace Penrose {
         UIContext *createContext(
             std::string_view &&name,
             std::string_view &&layout,
-            std::unique_ptr<ObjectValue> &&rootContext
+            std::shared_ptr<ObjectValue> &&rootContext
         );
 
         void destroyContext(std::string_view &&name);

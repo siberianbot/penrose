@@ -41,7 +41,7 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
 
             auto buttonPressed = std::make_shared<BooleanValue>(false);
 
-            auto viewModel =
+            auto viewModel = std::make_shared<ObjectValue>(
                 ObjectValue()
                     .property<ObjectValue>(
                         "root",
@@ -104,9 +104,10 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                             )
                             .property<IntegerValue>("select_selected", -1)
                     )
-                    .property<BooleanValue>("root_opened", true);
+                    .property<BooleanValue>("root_opened", true)
+            );
 
-            this->_uiManager->createContext("TestUI", "layouts/root.asset", std::make_unique<ObjectValue>(viewModel));
+            this->_uiManager->createContext("TestUI", "layouts/root.asset", std::move(viewModel));
         }
 
         void stop() override { this->_uiManager->destroyContext("TestUI"); }

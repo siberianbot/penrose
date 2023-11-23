@@ -16,7 +16,7 @@ namespace Penrose {
         using PropertyAddress = std::size_t;
         using BindingKey = std::tuple<const ObjectValue *, PropertyAddress>;
 
-        UIContext(std::shared_ptr<UILayoutAsset> &&layoutAsset, std::unique_ptr<ObjectValue> &&rootContext)
+        UIContext(std::shared_ptr<UILayoutAsset> &&layoutAsset, std::shared_ptr<ObjectValue> &&rootContext)
             : _layoutAsset(std::forward<decltype(layoutAsset)>(layoutAsset)),
               _rootContext(std::forward<decltype(rootContext)>(rootContext)) {
             //
@@ -92,7 +92,7 @@ namespace Penrose {
 
     private:
         std::shared_ptr<UILayoutAsset> _layoutAsset;
-        std::unique_ptr<ObjectValue> _rootContext;
+        std::shared_ptr<ObjectValue> _rootContext;
 
         std::map<BindingKey, Value *> _bindings;
     };

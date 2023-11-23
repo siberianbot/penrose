@@ -16,7 +16,7 @@ namespace Penrose {
     UIContext *UIManager::createContext(
         std::string_view &&name,
         std::string_view &&layout,
-        std::unique_ptr<ObjectValue> &&rootContext
+        std::shared_ptr<ObjectValue> &&rootContext
     ) {
         const auto nameStr = std::string(std::forward<decltype(name)>(name));
 
