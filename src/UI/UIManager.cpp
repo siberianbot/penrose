@@ -13,31 +13,38 @@ namespace Penrose {
         this->_contexts.clear();
     }
 
-    UIContext *UIManager::createContext(
-        std::string_view &&name,
-        std::string_view &&layout,
-        std::shared_ptr<ObjectValue> &&rootContext
-    ) {
+    void UIManager::createContext(std::string_view &&name) {
         const auto nameStr = std::string(std::forward<decltype(name)>(name));
 
         if (this->_contexts.contains(nameStr)) {
             throw EngineError("UI context {} already exists", nameStr);
         }
 
-        auto context = new UIContext(
-            this->_assetManager->getAsset<UILayoutAsset>(std::forward<decltype(layout)>(layout)),
-            std::forward<decltype(rootContext)>(rootContext)
-        );
-
-        this->_contexts.emplace(nameStr, context);
-
-        return context;
+        this->_contexts.emplace(nameStr, std::make_unique<UIContext>());
     }
 
     void UIManager::destroyContext(std::string_view &&name) {
         const auto nameStr = std::string(name);
 
         this->_contexts.erase(nameStr);
+    }
+
+    void UIManager::addLayoutToContext(
+        std::string_view &&name,
+        std::string_view &&layout,
+        std::shared_ptr<ObjectValue> &&valueContext
+    ) {
+        const auto nameStr = std::string(name);
+        const auto it = this->_contexts.find(nameStr);
+
+        if (it == this->_contexts.end()) {
+            throw EngineError("UI context {} does not exists", nameStr);
+        }
+
+        auto loadedLayout =
+            this->_assetManager->getAsset<UILayoutAsset>(std::forward<decltype(layout)>(layout))->getLayout();
+
+        it->second->pushLayout(std::move(loadedLayout), std::forward<decltype(valueContext)>(valueContext));
     }
 
     std::optional<UIContext *> UIManager::tryGetContext(std::string_view &&name) const {

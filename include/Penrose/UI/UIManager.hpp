@@ -11,7 +11,6 @@
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/UI/UIContext.hpp>
-#include <Penrose/UI/Value.hpp>
 
 namespace Penrose {
 
@@ -27,13 +26,14 @@ namespace Penrose {
 
         void destroy() override;
 
-        UIContext *createContext(
+        void createContext(std::string_view &&name);
+        void destroyContext(std::string_view &&name);
+
+        void addLayoutToContext(
             std::string_view &&name,
             std::string_view &&layout,
-            std::shared_ptr<ObjectValue> &&rootContext
+            std::shared_ptr<ObjectValue> &&valueContext
         );
-
-        void destroyContext(std::string_view &&name);
 
         [[nodiscard]] std::optional<UIContext *> tryGetContext(std::string_view &&name) const;
 

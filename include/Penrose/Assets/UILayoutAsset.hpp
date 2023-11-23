@@ -8,17 +8,17 @@
 
 namespace Penrose {
 
-    class UILayoutAsset : public Asset {
+    class UILayoutAsset: public Asset {
     public:
         explicit UILayoutAsset(std::unique_ptr<Layout> &&layout);
         ~UILayoutAsset() override = default;
 
         [[nodiscard]] AssetType getType() const override { return AssetType::UILayout; }
 
-        [[nodiscard]] const Layout *getLayout() const { return this->_layout.get(); }
+        [[nodiscard]] const std::shared_ptr<Layout> &getLayout() const { return this->_layout; }
 
     private:
-        std::unique_ptr<Layout> _layout;
+        std::shared_ptr<Layout> _layout;
     };
 }
 

@@ -304,14 +304,16 @@ namespace Penrose {
     }
 
     void ImGuiUIContextVisitor::visit(UIContext *uiContext) {
-        auto context = WidgetVisitContext {
-            .uiContext = uiContext,
-            .valueContext = uiContext->getRootContext(),
-            .widget = uiContext->getLayout()->getRoot(),
-            .isTopLevel = true
-        };
+        for (const auto &[layout, valueContext]: uiContext->getLayouts()) {
+            auto context = WidgetVisitContext {
+                .uiContext = uiContext,
+                .valueContext = valueContext.get(),
+                .widget = layout->getRoot(),
+                .isTopLevel = true
+            };
 
-        this->visit(context);
+            this->visit(context);
+        }
     }
 
     void ImGuiUIContextVisitor::visit(WidgetVisitContext &context) {

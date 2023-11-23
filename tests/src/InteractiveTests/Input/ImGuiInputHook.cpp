@@ -107,7 +107,8 @@ TEST_CASE("ImGuiInputHook", "[engine-interactive-test]") {
                     .property<BooleanValue>("root_opened", true)
             );
 
-            this->_uiManager->createContext("TestUI", "layouts/root.asset", std::move(viewModel));
+            this->_uiManager->createContext("TestUI");
+            this->_uiManager->addLayoutToContext("TestUI", "layouts/root.asset", std::move(viewModel));
         }
 
         void stop() override { this->_uiManager->destroyContext("TestUI"); }

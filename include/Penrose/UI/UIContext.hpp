@@ -1,6 +1,7 @@
 #ifndef PENROSE_UI_UI_CONTEXT_HPP
 #define PENROSE_UI_UI_CONTEXT_HPP
 
+#include <list>
 #include <map>
 #include <memory>
 #include <tuple>
@@ -13,18 +14,18 @@ namespace Penrose {
 
     class PENROSE_API UIContext {
     public:
+        using UILayout = std::tuple<std::shared_ptr<Layout>, std::shared_ptr<ObjectValue>>;
         using PropertyAddress = std::size_t;
         using BindingKey = std::tuple<const ObjectValue *, PropertyAddress>;
 
-        UIContext(std::shared_ptr<UILayoutAsset> &&layoutAsset, std::shared_ptr<ObjectValue> &&rootContext)
-            : _layoutAsset(std::forward<decltype(layoutAsset)>(layoutAsset)),
-              _rootContext(std::forward<decltype(rootContext)>(rootContext)) {
-            //
+        void pushLayout(std::shared_ptr<Layout> &&layout, std::shared_ptr<ObjectValue> &&context) {
+            this->_layouts.emplace_back(
+                std::forward<decltype(layout)>(layout),
+                std::forward<decltype(context)>(context)
+            );
         }
 
-        [[nodiscard]] const Layout *getLayout() const { return this->_layoutAsset->getLayout(); }
-
-        [[nodiscard]] const ObjectValue *getRootContext() const { return this->_rootContext.get(); }
+        [[nodiscard]] const std::list<UILayout> &getLayouts() const { return this->_layouts; }
 
         template <typename V, typename T, ValueType Type>
         requires std::is_base_of_v<Value, V>
@@ -91,9 +92,7 @@ namespace Penrose {
         }
 
     private:
-        std::shared_ptr<UILayoutAsset> _layoutAsset;
-        std::shared_ptr<ObjectValue> _rootContext;
-
+        std::list<UILayout> _layouts;
         std::map<BindingKey, Value *> _bindings;
     };
 }
