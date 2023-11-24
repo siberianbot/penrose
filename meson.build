@@ -1,8 +1,8 @@
 project(
     'penrose',
     'cpp',
-    version: '0.1',
-    default_options: [
+    version : '0.1',
+    default_options : [
         'warning_level=3',
         'cpp_std=c++20',
         'default_library=static'
@@ -130,38 +130,39 @@ base_cpp_args = [
     '-DGLM_FORCE_DEPTH_ZERO_TO_ONE'
 ]
 
-penrose_api_value = '__attribute__ ((visibility ("default")))'
+#    penrose_api_value = '__attribute__ ((visibility ("default")))'
 
-if host_machine.system() == 'windows'
-    penrose_api_value = get_option('default_library') != 'static' ? '__declspec(dllexport)' : ''
-endif
+#    if host_machine.system() == 'windows'
+#        penrose_api_value = get_option('default_library') != 'static' ? '__declspec(dllexport)' : ''
+#    endif
 
 lib_cpp_args = base_cpp_args + [
-    '-DPENROSE_API=@0@'.format(penrose_api_value)
+    '-DPENROSE_API='
 ]
 
-if host_machine.system() == 'windows'
-    penrose_api_value = get_option('default_library') != 'static' ? '__declspec(dllimport)' : ''
-endif
+#    if host_machine.system() == 'windows'
+#        penrose_api_value = get_option('default_library') != 'static' ? '__declspec(dllimport)' : ''
+#    endif
 
 dep_cpp_args = base_cpp_args + [
-    '-DPENROSE_API=@0@'.format(penrose_api_value)
+    '-DPENROSE_API='
 ]
 
 penrose_lib = library(
     'penrose',
     src,
-    dependencies: deps,
-    cpp_args: lib_cpp_args,
-    include_directories: incdir,
-    gnu_symbol_visibility: 'hidden'
+    dependencies : deps,
+    cpp_args : lib_cpp_args,
+    include_directories : incdir,
+    gnu_symbol_visibility : 'hidden'
 )
 
 penrose_dep = declare_dependency(
-    dependencies: deps,
-    compile_args: dep_cpp_args,
-    include_directories: incdir,
-    link_with: penrose_lib
+    dependencies : deps,
+    compile_args : dep_cpp_args,
+    include_directories : incdir,
+    link_with : penrose_lib
 )
 
 subdir('tests')
+subdir('demos')

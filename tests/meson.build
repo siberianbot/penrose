@@ -22,10 +22,6 @@ tests_src = [
     'src/IntegrationTests/Engine/EngineStartStop.cpp',
     'src/IntegrationTests/Engine/EngineStartWaitStop.cpp',
     'src/IntegrationTests/Rendering/SwapchainResize.cpp',
-
-    # Interactive Tests
-    'src/InteractiveTests/Input/ImGuiInputHook.cpp',
-    'src/InteractiveTests/Input/InputReceiving.cpp',
 ]
 
 tests_exe = executable(
