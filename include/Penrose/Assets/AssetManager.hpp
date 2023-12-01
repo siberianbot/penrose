@@ -4,83 +4,94 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
-#include <queue>
-#include <string>
-#include <thread>
-#include <tuple>
 #include <type_traits>
-#include <unordered_map>
 
-#include <Penrose/Api.hpp>
 #include <Penrose/Assets/Asset.hpp>
-#include <Penrose/Assets/AssetDictionary.hpp>
-#include <Penrose/Assets/AssetLoader.hpp>
-#include <Penrose/Common/Log.hpp>
-#include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Resources/Runnable.hpp>
 
 namespace Penrose {
 
-    template<typename T>
-    concept IsAsset = std::is_base_of<Asset, T>::value;
-
-    class PENROSE_API AssetManager : public Resource<AssetManager, ResourceGroup::Assets>,
-                                     public Initializable,
-                                     public Runnable {
+    /**
+     * \brief Asset management interface
+     * \details This interface provides methods for working with assets in Penrose.
+     */
+    class PENROSE_API AssetManager {
     public:
-        explicit AssetManager(ResourceSet *resources);
-        ~AssetManager() override = default;
+        virtual ~AssetManager() = default;
 
-        void init() override { /* nothing to do */ }
+        /**
+         * \brief Add directory to internal asset index
+         * \param rootDir root directory, where index file is located
+         */
+        virtual void addDir(std::filesystem::path &&rootDir) = 0;
 
-        void destroy() override;
+        /**
+         * \brief Try to add directory to internal asset index
+         * \param rootDir root directory, where index file is located
+         */
+        virtual void tryAddDir(std::filesystem::path &&rootDir) = 0;
 
-        void run() override;
-        void stop() override;
+        /**
+         * \brief Enqueue loading of asset
+         * \param asset name of asset
+         */
+        virtual void load(std::string_view &&asset) = 0;
 
-        void enqueue(const std::string &asset);
+        /**
+         * \brief Unload asset immediately
+         * \param asset name of asset
+         */
+        virtual void unload(std::string_view &&asset) = 0;
 
-        [[nodiscard]] bool isLoaded(const std::string &asset) const;
+        /**
+         * \brief Get asset
+         * \details This method implicitly loads and awaits asset. EngineError is thrown on any kind of error.
+         * \param asset name of asset
+         * \return shared pointer to asset instance
+         */
+        [[nodiscard]] virtual std::shared_ptr<Asset> getAsset(std::string_view &&asset) = 0;
 
-        void unload(const std::string &asset);
+        /**
+         * \brief Try to get asset
+         * \details This method only checks for asset existance and returns only loaded assets. Any error is logged and
+         * nothing is returned.
+         * \param asset name of asset
+         * \return shared pointer to asset instance or nothing
+         */
+        [[nodiscard]] virtual std::optional<std::shared_ptr<Asset>> tryGetAsset(std::string_view &&asset) = 0;
 
-        template<IsAsset T>
-        [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetAsset(const std::string &asset, bool wait = false) const;
+        /**
+         * \brief Get asset of concrete type T
+         * \details This method implicitly loads and awaits asset. EngineError is thrown on any kind of error.
+         * \tparam T type of asset
+         * \param asset name of asset
+         * \return shared pointer to asset instance
+         */
+        template <typename T>
+        requires std::is_base_of_v<Asset, T>
+        [[nodiscard]] std::shared_ptr<T> getAsset(std::string_view &&asset) {
+            return std::dynamic_pointer_cast<T>(this->getAsset(std::forward<decltype(asset)>(asset)));
+        }
 
-        template<IsAsset T>
-        [[nodiscard]] std::shared_ptr<T> getAsset(const std::string &asset) const;
+        /**
+         * \brief Try to get asset of concrete type T
+         * \details This method only checks for asset existance and returns only loaded assets. Any error is logged and
+         * nothing is returned.
+         * \tparam T type of asset
+         * \param asset name of asset
+         * \return shared pointer to asset instance or nothing
+         */
+        template <typename T>
+        requires std::is_base_of_v<Asset, T>
+        [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetAsset(std::string_view &&asset) {
+            const auto maybePtr = this->tryGetAsset(std::forward<decltype(asset)>(asset));
 
-        template<IsAsset T>
-        [[nodiscard]] std::shared_ptr<T> getAsset(std::string_view &&asset) const;
+            if (!maybePtr.has_value()) {
+                return std::nullopt;
+            }
 
-    private:
-        enum class LoadingState {
-            Pending,
-            Loaded,
-            Failed
-        };
-
-        struct Entry {
-            LoadingState state;
-            std::shared_ptr<Asset> ptr;
-        };
-
-        ResourceProxy<AssetDictionary> _assetDictionary;
-        ResourceProxy<AssetLoader> _assetLoader;
-        ResourceProxy<Log> _log;
-
-        std::unordered_map<std::string, Entry> _assets;
-
-        std::optional<std::jthread> _loadingThread;
-        std::mutex _loadingMutex;
-        std::queue<std::string> _loadingQueue;
-
-        void tryLoadAsset(const std::string &asset);
-        [[nodiscard]] std::optional<std::shared_ptr<Asset>> tryGetAsset(const std::string &asset, bool wait) const;
+            return std::dynamic_pointer_cast<T>(*maybePtr);
+        }
     };
 }
-
-#include "AssetManager.inl"
 
 #endif // PENROSE_ASSETS_ASSET_MANAGER_HPP

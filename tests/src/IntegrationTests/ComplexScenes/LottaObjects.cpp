@@ -1,10 +1,9 @@
 #include <catch2/catch_all.hpp>
 
-#include <Penrose/Engine.hpp>
-#include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/ECS/EntityManager.hpp>
 #include <Penrose/ECS/System.hpp>
+#include <Penrose/Engine.hpp>
 #include <Penrose/Math/Constants.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
@@ -25,12 +24,12 @@ using namespace Penrose;
 
 TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
 
-    class TestLogicSystem : public Resource<TestLogicSystem, ResourceGroup::ECSSystem>,
-                            public Initializable,
-                            public System {
+    class TestLogicSystem: public Resource<TestLogicSystem, ResourceGroup::ECSSystem>,
+                           public Initializable,
+                           public System {
     public:
         explicit TestLogicSystem(ResourceSet *resources)
-                : _entityManager(resources->get<EntityManager>()) {
+            : _entityManager(resources->get<EntityManager>()) {
             //
         }
 
@@ -40,10 +39,10 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
             this->_passed = 0;
 
             this->_targetEntity = this->_entityManager->query()
-                    .component<TestLogicTargetComponent>()
-                    .front()
-                    .value()
-                    .entity;
+                                      .component<TestLogicTargetComponent>()
+                                      .front()
+                                      .value()
+                                      .entity;
         }
 
         void update(float delta) override {
@@ -57,7 +56,8 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
             transform->getRot().y = PI_F - angle;
         }
 
-        void destroy() override { /* nothing to do */ }
+        void destroy() override { /* nothing to do */
+        }
 
         [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
@@ -70,55 +70,61 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
 
     Engine engine;
 
-    engine.resources().add<TestCountdownSystem, ResourceGroup::ECSSystem>()
-            .implements<Initializable>()
-            .implements<System>()
-            .done();
+    engine.resources()
+        .add<TestCountdownSystem, ResourceGroup::ECSSystem>()
+        .implements<Initializable>()
+        .implements<System>()
+        .done();
 
-    engine.resources().add<TestLogicTargetComponentFactory, ResourceGroup::ECSComponent>()
-            .implements<ComponentFactory>()
-            .done();
+    engine.resources()
+        .add<TestLogicTargetComponentFactory, ResourceGroup::ECSComponent>()
+        .implements<ComponentFactory>()
+        .done();
 
-    engine.resources().add<TestLogicSystem, ResourceGroup::ECSSystem>()
-            .implements<Initializable>()
-            .implements<System>()
-            .done();
-
-    auto assetDictionary = engine.resources().get<AssetDictionary>();
-    assetDictionary->addDir("tests/data");
+    engine.resources()
+        .add<TestLogicSystem, ResourceGroup::ECSSystem>()
+        .implements<Initializable>()
+        .implements<System>()
+        .done();
 
     auto assetManager = engine.resources().get<AssetManager>();
-    assetManager->enqueue("models/cube.asset");
-    assetManager->enqueue("textures/texture-1024.asset");
-    assetManager->enqueue("shaders/default-forward-rendering.frag.asset");
-    assetManager->enqueue("shaders/default-forward-rendering.vert.asset");
+    assetManager->addDir("tests/data");
+    assetManager->load("models/cube.asset");
+    assetManager->load("textures/texture-1024.asset");
+    assetManager->load("shaders/default-forward-rendering.frag.asset");
+    assetManager->load("shaders/default-forward-rendering.vert.asset");
 
     auto graph = RenderGraphInfo()
-            .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
-            .setTarget("depth", RenderTargetInfo(RenderTargetSource::Image,
-                                                 RenderTargetType::DepthStencil,
-                                                 RenderFormat::D32Float,
-                                                 std::nullopt))
-            .setSubgraph("default", RenderSubgraphInfo()
-                    .addAttachment(RenderAttachmentInfo("swapchain")
-                                           .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
-                                           .setLoadOp(RenderAttachmentLoadOp::Clear)
-                                           .setStoreOp(RenderAttachmentStoreOp::Store)
-                                           .setInitialLayout(RenderAttachmentLayout::Undefined)
-                                           .setFinalLayout(RenderAttachmentLayout::Present))
-                    .addAttachment(RenderAttachmentInfo("depth")
-                                           .setFormat(RenderFormat::D32Float)
-                                           .setClearValue(RenderAttachmentClearValueInfo().setDepth(1))
-                                           .setLoadOp(RenderAttachmentLoadOp::Clear)
-                                           .setStoreOp(RenderAttachmentStoreOp::Store)
-                                           .setInitialLayout(RenderAttachmentLayout::Undefined)
-                                           .setFinalLayout(RenderAttachmentLayout::DepthStencilAttachment))
-                    .addPass(RenderSubgraphPassInfo()
-                                     .addColorAttachmentIdx(0)
-                                     .setDepthStencilAttachment(1)
-                                     .setOperatorInfo(RenderOperatorInfo(
-                                             std::string(ForwardSceneDrawRenderOperator::NAME))))
-            );
+                     .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
+                     .setTarget(
+                         "depth", RenderTargetInfo(
+                                      RenderTargetSource::Image, RenderTargetType::DepthStencil, RenderFormat::D32Float,
+                                      std::nullopt
+                                  )
+                     )
+                     .setSubgraph(
+                         "default",
+                         RenderSubgraphInfo()
+                             .addAttachment(RenderAttachmentInfo("swapchain")
+                                                .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
+                                                .setLoadOp(RenderAttachmentLoadOp::Clear)
+                                                .setStoreOp(RenderAttachmentStoreOp::Store)
+                                                .setInitialLayout(RenderAttachmentLayout::Undefined)
+                                                .setFinalLayout(RenderAttachmentLayout::Present))
+                             .addAttachment(RenderAttachmentInfo("depth")
+                                                .setFormat(RenderFormat::D32Float)
+                                                .setClearValue(RenderAttachmentClearValueInfo().setDepth(1))
+                                                .setLoadOp(RenderAttachmentLoadOp::Clear)
+                                                .setStoreOp(RenderAttachmentStoreOp::Store)
+                                                .setInitialLayout(RenderAttachmentLayout::Undefined)
+                                                .setFinalLayout(RenderAttachmentLayout::DepthStencilAttachment))
+                             .addPass(RenderSubgraphPassInfo()
+                                          .addColorAttachmentIdx(0)
+                                          .setDepthStencilAttachment(1)
+                                          .setOperatorInfo(
+                                              RenderOperatorInfo(std::string(ForwardSceneDrawRenderOperator::NAME))
+                                          ))
+                     );
 
     auto renderContext = engine.resources().get<RenderGraphContext>();
     renderContext->setRenderGraph(graph);

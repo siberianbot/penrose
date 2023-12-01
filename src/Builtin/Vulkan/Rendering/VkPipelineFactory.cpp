@@ -109,14 +109,18 @@ namespace Penrose {
                 .createPipelineLayout(pipelineLayoutCreateInfo);
 
         auto stages = std::vector<vk::PipelineShaderStageCreateInfo>(pipelineInfo.getStages().size());
-        std::transform(pipelineInfo.getStages().begin(), pipelineInfo.getStages().end(), stages.begin(),
-                       [this](const PipelineShaderStage &stage) {
-                           auto asset = this->_assetManager->getAsset<ShaderAsset>(stage.getShaderAssetName());
-                           return vk::PipelineShaderStageCreateInfo()
-                                   .setStage(toVkShaderStageFlagBits(stage.getType()))
-                                   .setModule(dynamic_cast<VkShader *>(asset->getShader())->getShaderModule())
-                                   .setPName("main");
-                       });
+        std::transform(
+            pipelineInfo.getStages().begin(), pipelineInfo.getStages().end(), stages.begin(),
+            [this](const PipelineShaderStage &stage) {
+                auto asset = this->_assetManager->getAsset<ShaderAsset>(stage.getShaderAssetName());
+                auto shader = asset->getShader().lock();
+
+                return vk::PipelineShaderStageCreateInfo()
+                    .setStage(toVkShaderStageFlagBits(stage.getType()))
+                    .setModule(dynamic_cast<VkShader *>(shader.get())->getShaderModule())
+                    .setPName("main");
+            }
+        );
 
         std::vector<vk::VertexInputBindingDescription> bindings;
         std::vector<vk::VertexInputAttributeDescription> attributes;

@@ -3,7 +3,7 @@
 
 namespace Penrose {
 
-    class Runnable {
+    class [[deprecated]] Runnable {
     public:
         virtual ~Runnable() = default;
 

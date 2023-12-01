@@ -7,6 +7,7 @@
 #include <Penrose/Rendering/RenderGraphInfo.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
+#include <Penrose/Resources/Runnable.hpp>
 #include <Penrose/UI/UIManager.hpp>
 #include <Penrose/UI/Value.hpp>
 
@@ -45,8 +46,7 @@ public:
                         .property<BooleanValue>("menu_checked", false)
                         .property<BooleanValue>("menu_enabled", true)
                         .property<ActionValue>(
-                            "close",
-                            [this]() { this->_engineEventQueue->push<EngineDestroyRequestedEvent>(); }
+                            "close", [this]() { this->_engineEventQueue->push<EngineDestroyRequestedEvent>(); }
                         )
                         .property<StringValue>("text", "Same text in label and input")
                         .property<ActionValue>("button_action", [buttonPressed]() { buttonPressed->setValue(true); })
@@ -68,8 +68,7 @@ public:
                             "add_item",
                             [listItems]() {
                                 listItems->push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>(
-                                    "value",
-                                    fmt::format("Item {}", listItems->getItems().size() + 1)
+                                    "value", fmt::format("Item {}", listItems->getItems().size() + 1)
                                 )));
                             }
                         )
@@ -99,7 +98,7 @@ public:
         );
 
         this->_uiManager->createContext("TestUI");
-        this->_uiManager->addLayoutToContext("TestUI", "layouts/root.asset", std::move(viewModel));
+        this->_uiManager->addLayoutToContext("TestUI", "layouts/root", std::move(viewModel));
     }
 
     void stop() override { this->_uiManager->destroyContext("TestUI"); }
@@ -126,10 +125,8 @@ public:
     void init() override {
         this->_eventQueue->addHandler<KeyStateUpdatedEvent>([this](const KeyStateUpdatedEvent *event) {
             this->_log->writeDebug(
-                TEST_LOGIC_SYSTEM_TAG,
-                "Key state updated - key {:#x}, state {:#x}",
-                static_cast<std::uint32_t>(event->getKey()),
-                static_cast<std::uint32_t>(event->getState())
+                TEST_LOGIC_SYSTEM_TAG, "Key state updated - key {:#x}, state {:#x}",
+                static_cast<std::uint32_t>(event->getKey()), static_cast<std::uint32_t>(event->getState())
             );
         });
 
@@ -137,8 +134,9 @@ public:
             auto [x, y] = event->getPosition();
             auto [dx, dy] = event->getDelta();
 
-            this->_log
-                ->writeDebug(TEST_LOGIC_SYSTEM_TAG, "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy);
+            this->_log->writeDebug(
+                TEST_LOGIC_SYSTEM_TAG, "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy
+            );
         });
 
         this->_eventQueue->addHandler<MouseScrollEvent>([this](const MouseScrollEvent *event) {
@@ -173,11 +171,8 @@ int main() {
         .implements<System>()
         .done();
 
-    auto assetDictionary = engine.resources().get<AssetDictionary>();
-    assetDictionary->addDir("data");
-
     auto assetManager = engine.resources().get<AssetManager>();
-    assetManager->enqueue("layouts/root.asset");
+    assetManager->addDir("data");
 
     auto uiParams = ParamsCollection();
     uiParams.setString(ImGuiRenderOperator::PARAM_UI_NAME, "TestUI");
@@ -185,17 +180,16 @@ int main() {
     auto graph = RenderGraphInfo()
                      .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
                      .setSubgraph(
-                         "default",
-                         RenderSubgraphInfo()
-                             .addAttachment(RenderAttachmentInfo("swapchain")
-                                                .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
-                                                .setLoadOp(RenderAttachmentLoadOp::Clear)
-                                                .setStoreOp(RenderAttachmentStoreOp::Store)
-                                                .setInitialLayout(RenderAttachmentLayout::Undefined)
-                                                .setFinalLayout(RenderAttachmentLayout::Present))
-                             .addPass(RenderSubgraphPassInfo().addColorAttachmentIdx(0).setOperatorInfo(
-                                 RenderOperatorInfo(ImGuiRenderOperator::name(), std::move(uiParams))
-                             ))
+                         "default", RenderSubgraphInfo()
+                                        .addAttachment(RenderAttachmentInfo("swapchain")
+                                                           .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
+                                                           .setLoadOp(RenderAttachmentLoadOp::Clear)
+                                                           .setStoreOp(RenderAttachmentStoreOp::Store)
+                                                           .setInitialLayout(RenderAttachmentLayout::Undefined)
+                                                           .setFinalLayout(RenderAttachmentLayout::Present))
+                                        .addPass(RenderSubgraphPassInfo().addColorAttachmentIdx(0).setOperatorInfo(
+                                            RenderOperatorInfo(ImGuiRenderOperator::name(), std::move(uiParams))
+                                        ))
                      );
 
     auto renderContext = engine.resources().get<RenderGraphContext>();

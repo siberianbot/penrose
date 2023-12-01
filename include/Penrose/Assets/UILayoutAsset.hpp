@@ -8,14 +8,26 @@
 
 namespace Penrose {
 
-    class UILayoutAsset: public Asset {
+    /**
+     * \brief UI layout asset
+     */
+    class PENROSE_API UILayoutAsset final: public Asset {
     public:
-        explicit UILayoutAsset(std::unique_ptr<Layout> &&layout);
+        explicit UILayoutAsset(std::shared_ptr<Layout> &&layout)
+            : _layout(std::forward<decltype(layout)>(layout)) {
+            //
+        }
+
         ~UILayoutAsset() override = default;
 
+        //! \copydoc Asset::getType
         [[nodiscard]] AssetType getType() const override { return AssetType::UILayout; }
 
-        [[nodiscard]] const std::shared_ptr<Layout> &getLayout() const { return this->_layout; }
+        /**
+         * \brief Get pointer to instance of Layout
+         * \return instance of Layout
+         */
+        [[nodiscard]] std::weak_ptr<Layout> getLayout() const { return this->_layout; }
 
     private:
         std::shared_ptr<Layout> _layout;

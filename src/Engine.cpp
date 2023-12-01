@@ -3,9 +3,6 @@
 #include <chrono>
 #include <ranges>
 
-#include <Penrose/Assets/AssetDictionary.hpp>
-#include <Penrose/Assets/AssetLoader.hpp>
-#include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Common/StdOutLogSink.hpp>
 #include <Penrose/ECS/EntityManager.hpp>
@@ -35,6 +32,15 @@
 #include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
 #include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
+#include "src/Assets/AssetIndex.hpp"
+#include "src/Assets/AssetLoadingJobQueue.hpp"
+#include "src/Assets/AssetLoadingProxy.hpp"
+#include "src/Assets/AssetManagerImpl.hpp"
+#include "src/Assets/Loaders/ImageLoader.hpp"
+#include "src/Assets/Loaders/MeshLoader.hpp"
+#include "src/Assets/Loaders/ShaderLoader.hpp"
+#include "src/Assets/Loaders/UILayoutLoader.hpp"
+
 #include "src/Rendering/DefaultDrawableProvider.hpp"
 #include "src/Rendering/DefaultViewProvider.hpp"
 
@@ -44,70 +50,57 @@ namespace Penrose {
 
         this->_resources.add<InputHandler, ResourceGroup::Engine>().done();
         this->_resources.add<Log, ResourceGroup::Engine>().done();
-        this->_resources.add<StdOutLogSink, ResourceGroup::Engine>()
-                .implements<LogSink>()
-                .done();
+        this->_resources.add<StdOutLogSink, ResourceGroup::Engine>().implements<LogSink>().done();
 
         this->_resources.add<Profiler, ResourceGroup::Performance>().done();
 
-        this->_resources.add<SurfaceManager, ResourceGroup::Windowing>()
-                .implements<Initializable>()
-                .done();
+        this->_resources.add<SurfaceManager, ResourceGroup::Windowing>().implements<Initializable>().done();
 
         this->_resources.add<RenderGraphContext, ResourceGroup::Rendering>().done();
-        this->_resources.add<RenderListBuilder, ResourceGroup::Rendering>()
-                .implements<Initializable>()
-                .done();
+        this->_resources.add<RenderListBuilder, ResourceGroup::Rendering>().implements<Initializable>().done();
         this->_resources.add<RenderManager, ResourceGroup::Rendering>()
-                .implements<Initializable>()
-                .implements<Runnable>()
-                .done();
-        this->_resources.add<DefaultDrawableProvider, ResourceGroup::Rendering>()
-                .implements<DrawableProvider>()
-                .done();
-        this->_resources.add<DefaultViewProvider, ResourceGroup::Rendering>()
-                .implements<ViewProvider>()
-                .done();
+            .implements<Initializable>()
+            .implements<Runnable>()
+            .done();
+        this->_resources.add<DefaultDrawableProvider, ResourceGroup::Rendering>().implements<DrawableProvider>().done();
+        this->_resources.add<DefaultViewProvider, ResourceGroup::Rendering>().implements<ViewProvider>().done();
 
-        this->_resources.add<AssetDictionary, ResourceGroup::Assets>().done();
-        this->_resources.add<AssetLoader, ResourceGroup::Assets>().done();
-        this->_resources.add<AssetManager, ResourceGroup::Assets>()
-                .implements<Initializable>()
-                .implements<Runnable>()
-                .done();
+        this->_resources.add<MeshLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
+        this->_resources.add<ImageLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
+        this->_resources.add<ShaderLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
+        this->_resources.add<UILayoutLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
+        this->_resources.add<AssetIndex, ResourceGroup::Assets>().done();
+        this->_resources.add<AssetLoadingProxy, ResourceGroup::Assets>().done();
+        this->_resources.add<AssetLoadingJobQueue, ResourceGroup::Assets>().implements<Initializable>().done();
+        this->_resources.add<AssetManagerImpl, ResourceGroup::Assets>()
+            .implements<Initializable>()
+            .implements<AssetManager>()
+            .done();
 
-        this->_resources.add<LayoutFactory, ResourceGroup::UI>()
-                .done();
-        this->_resources.add<UIManager, ResourceGroup::UI>()
-                .done();
+        this->_resources.add<LayoutFactory, ResourceGroup::UI>().done();
+        this->_resources.add<UIManager, ResourceGroup::UI>().done();
 
         this->_resources.add<ECSEventQueue, ResourceGroup::Events>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
+            .implements<Initializable>()
+            .implements<Updatable>()
+            .done();
         this->_resources.add<EngineEventQueue, ResourceGroup::Events>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
+            .implements<Initializable>()
+            .implements<Updatable>()
+            .done();
         this->_resources.add<InputEventQueue, ResourceGroup::Events>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
+            .implements<Initializable>()
+            .implements<Updatable>()
+            .done();
         this->_resources.add<SurfaceEventQueue, ResourceGroup::Events>()
-                .implements<Initializable>()
-                .implements<Updatable>()
-                .done();
+            .implements<Initializable>()
+            .implements<Updatable>()
+            .done();
 
-        this->_resources.add<EntityManager, ResourceGroup::ECSManager>()
-                .implements<Initializable>()
-                .done();
-        this->_resources.add<SystemManager, ResourceGroup::ECSManager>()
-                .implements<Updatable>()
-                .done();
+        this->_resources.add<EntityManager, ResourceGroup::ECSManager>().implements<Initializable>().done();
+        this->_resources.add<SystemManager, ResourceGroup::ECSManager>().implements<Updatable>().done();
 
-        this->_resources.add<SceneManager, ResourceGroup::Scene>()
-                .implements<Initializable>()
-                .done();
+        this->_resources.add<SceneManager, ResourceGroup::Scene>().implements<Initializable>().done();
 
         // backends
         addGlfw(this->_resources);
@@ -116,26 +109,24 @@ namespace Penrose {
 
         // builtin
         this->_resources.add<MeshRendererComponentFactory, ResourceGroup::ECSComponent>()
-                .implements<ComponentFactory>()
-                .done();
+            .implements<ComponentFactory>()
+            .done();
         this->_resources.add<OrthographicCameraComponentFactory, ResourceGroup::ECSComponent>()
-                .implements<ComponentFactory>()
-                .done();
+            .implements<ComponentFactory>()
+            .done();
         this->_resources.add<PerspectiveCameraComponentFactory, ResourceGroup::ECSComponent>()
-                .implements<ComponentFactory>()
-                .done();
+            .implements<ComponentFactory>()
+            .done();
         this->_resources.add<TransformComponentFactory, ResourceGroup::ECSComponent>()
-                .implements<ComponentFactory>()
-                .done();
-        this->_resources.add<ViewComponentFactory, ResourceGroup::ECSComponent>()
-                .implements<ComponentFactory>()
-                .done();
+            .implements<ComponentFactory>()
+            .done();
+        this->_resources.add<ViewComponentFactory, ResourceGroup::ECSComponent>().implements<ComponentFactory>().done();
 
         // builtin / rendering operators
         this->_resources.add<ForwardSceneDrawRenderOperator, ResourceGroup::RenderOperator>()
-                .implements<Initializable>()
-                .implements<RenderOperator>()
-                .done();
+            .implements<Initializable>()
+            .implements<RenderOperator>()
+            .done();
     }
 
     void Engine::run() {
@@ -151,15 +142,15 @@ namespace Penrose {
         auto alive = true;
 
         auto engineEventQueue = this->_resources.get<EngineEventQueue>();
-        engineEventQueue->addHandler<EngineDestroyRequestedEvent>(
-                [&alive](const EngineDestroyRequestedEvent *) {
-                    alive = false;
-                });
+        engineEventQueue->addHandler<EngineDestroyRequestedEvent>([&alive](const EngineDestroyRequestedEvent *) {
+            alive = false;
+        });
 
         this->_resources.get<SurfaceEventQueue>()->addHandler<SurfaceCloseRequestedEvent>(
-                [&engineEventQueue](const SurfaceCloseRequestedEvent *) {
-                    engineEventQueue->push<EngineDestroyRequestedEvent>();
-                });
+            [&engineEventQueue](const SurfaceCloseRequestedEvent *) {
+                engineEventQueue->push<EngineDestroyRequestedEvent>();
+            }
+        );
 
         for (auto &runnable: allRunnable) {
             runnable->run();

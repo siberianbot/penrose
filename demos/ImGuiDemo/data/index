@@ -1,1 +1,6 @@
-layouts/root.asset:layouts/root.asset
+{
+  "layouts/root": {
+    "path": "layouts/root.asset",
+    "preload": true
+  }
+}

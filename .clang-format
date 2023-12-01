@@ -32,7 +32,7 @@ AlignOperands: Align
 AlignTrailingComments:
   Kind: Always
 
-AllowAllArgumentsOnNextLine: false
+AllowAllArgumentsOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowBreakBeforeNoexceptSpecifier: OnlyWithParen
 AllowShortBlocksOnASingleLine: Never
@@ -48,8 +48,8 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
 
-BinPackArguments: false
-BinPackParameters: false
+BinPackArguments: true
+BinPackParameters: true
 
 BitFieldColonSpacing: Both
 
@@ -113,7 +113,7 @@ IndentRequiresClause: false
 
 InsertBraces: true
 InsertNewlineAtEOF: true
-InsertTrailingCommas: Wrapped
+InsertTrailingCommas: None
 
 LambdaBodyIndentation: Signature
 MaxEmptyLinesToKeep: 1
@@ -161,4 +161,6 @@ SpacesInLineCommentPrefix:
 SpacesInParens: Never
 
 PenaltyReturnTypeOnItsOwnLine: 9000
+PenaltyExcessCharacter: 9000
+PenaltyBreakAssignment: 9000
 ...

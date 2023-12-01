@@ -8,17 +8,29 @@
 
 namespace Penrose {
 
-    class ImageAsset : public Asset {
+    /**
+     * \brief Image asset
+     */
+    class PENROSE_API ImageAsset final: public Asset {
     public:
-        explicit ImageAsset(std::unique_ptr<Image> image);
+        explicit ImageAsset(std::shared_ptr<Image> &&image)
+            : _image(std::forward<decltype(image)>(image)) {
+            //
+        }
+
         ~ImageAsset() override = default;
 
+        //! \copydoc Asset::getType
         [[nodiscard]] AssetType getType() const override { return AssetType::Image; }
 
-        [[nodiscard]] Image *getImage() const { return this->_image.get(); }
+        /**
+         * \brief Get pointer to instance of Image
+         * \return instance of Image
+         */
+        [[nodiscard]] std::weak_ptr<Image> getImage() const { return this->_image; }
 
     private:
-        std::unique_ptr<Image> _image;
+        std::shared_ptr<Image> _image;
     };
 }
 

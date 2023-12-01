@@ -1,7 +1,6 @@
 #include <catch2/catch_all.hpp>
 
 #include <Penrose/Engine.hpp>
-#include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/ECS/EntityManager.hpp>
 #include <Penrose/ECS/System.hpp>
@@ -84,14 +83,12 @@ TEST_CASE("ComplexScenes_OrbitalCamera", "[engine-int-test]") {
             .implements<System>()
             .done();
 
-    auto assetDictionary = engine.resources().get<AssetDictionary>();
-    assetDictionary->addDir("tests/data");
-
     auto assetManager = engine.resources().get<AssetManager>();
-    assetManager->enqueue("models/cube.asset");
-    assetManager->enqueue("textures/texture-1024.asset");
-    assetManager->enqueue("shaders/default-forward-rendering.frag.asset");
-    assetManager->enqueue("shaders/default-forward-rendering.vert.asset");
+    assetManager->addDir("tests/data");
+    assetManager->load("models/cube.asset");
+    assetManager->load("textures/texture-1024.asset");
+    assetManager->load("shaders/default-forward-rendering.frag.asset");
+    assetManager->load("shaders/default-forward-rendering.vert.asset");
 
     auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))

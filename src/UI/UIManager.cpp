@@ -30,9 +30,7 @@ namespace Penrose {
     }
 
     void UIManager::addLayoutToContext(
-        std::string_view &&name,
-        std::string_view &&layout,
-        std::shared_ptr<ObjectValue> &&valueContext
+        std::string_view &&name, std::string_view &&layout, std::shared_ptr<ObjectValue> &&valueContext
     ) {
         const auto nameStr = std::string(name);
         const auto it = this->_contexts.find(nameStr);
@@ -41,8 +39,9 @@ namespace Penrose {
             throw EngineError("UI context {} does not exists", nameStr);
         }
 
-        auto loadedLayout =
-            this->_assetManager->getAsset<UILayoutAsset>(std::forward<decltype(layout)>(layout))->getLayout();
+        auto loadedLayout = this->_assetManager->getAsset<UILayoutAsset>(std::forward<decltype(layout)>(layout))
+                                ->getLayout()
+                                .lock();
 
         it->second->pushLayout(std::move(loadedLayout), std::forward<decltype(valueContext)>(valueContext));
     }

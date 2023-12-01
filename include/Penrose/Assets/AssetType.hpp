@@ -5,8 +5,10 @@
 
 namespace Penrose {
 
+    /**
+     * \brief Type of asset
+     */
     enum class AssetType : std::uint8_t {
-        Unknown = 0x00,
         Shader = 0x01,
         Mesh = 0x02,
         Image = 0x03,

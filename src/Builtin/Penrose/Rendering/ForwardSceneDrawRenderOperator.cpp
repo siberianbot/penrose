@@ -181,7 +181,7 @@ namespace Penrose {
 
             auto maybeImage = map(this->_assetManager->tryGetAsset<ImageAsset>(texture.asset),
                                   [](const std::shared_ptr<ImageAsset> &asset) {
-                                      return asset->getImage();
+                                      return asset->getImage().lock().get();
                                   });
 
             images.at(idx) = maybeImage.value_or(this->_placeholderTexture->get());
@@ -216,10 +216,13 @@ namespace Penrose {
                 totalInstanceIdx++;
             }
 
-            commandRecording->bindBuffer(1, maybeMesh->get()->getVertexBuffer(), 0);
-            commandRecording->bindIndexBuffer(maybeMesh->get()->getIndexBuffer(), 0);
+            auto vertexBuffer = maybeMesh->get()->getVertexBuffer().lock();
+            auto indexBuffer = maybeMesh->get()->getIndexBuffer().lock();
 
-            commandRecording->draw(maybeMesh->get()->getIndexBuffer()->getCount(), mesh.instances.size());
+            commandRecording->bindBuffer(1, vertexBuffer.get(), 0);
+            commandRecording->bindIndexBuffer(indexBuffer.get(), 0);
+
+            commandRecording->draw(indexBuffer->getCount(), mesh.instances.size());
         }
     }
 

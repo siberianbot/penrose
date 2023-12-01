@@ -15,6 +15,7 @@ deps = [
     dependency('imgui'),
     dependency('libxml-2.0'),
     dependency('libxml++'),
+    dependency('nlohmann_json'),
     dependency('vulkan'),
 ]
 
@@ -25,16 +26,21 @@ src = [
     'src/Engine.cpp',
 
     # Assets
-    'src/Assets/AssetDictionary.cpp',
-    'src/Assets/AssetLoader.cpp',
+    'src/Assets/AssetIndex.cpp',
+    'src/Assets/AssetLoadingJobQueue.cpp',
+    'src/Assets/AssetLoadingProxy.cpp',
+    'src/Assets/AssetManagerImpl.cpp',
     'src/Assets/AssetReader.cpp',
-    'src/Assets/AssetManager.cpp',
-    'src/Assets/ImageAsset.cpp',
-    'src/Assets/MeshAsset.cpp',
-    'src/Assets/ShaderAsset.cpp',
-    'src/Assets/UILayoutAsset.cpp',
+    'src/Assets/Utils.cpp',
+
+    # Assets / Loaders
+    'src/Assets/Loaders/ImageLoader.cpp',
+    'src/Assets/Loaders/MeshLoader.cpp',
+    'src/Assets/Loaders/ShaderLoader.cpp',
+    'src/Assets/Loaders/UILayoutLoader.cpp',
 
     # Common
+    'src/Common/JobQueue.cpp',
     'src/Common/Log.cpp',
     'src/Common/ParamsCollection.cpp',
     'src/Common/StdOutLogSink.cpp',
@@ -74,6 +80,9 @@ src = [
 
     # Builtin / Penrose
     'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',
+
+    # Builtin / Inspector
+    'src/Builtin/Inspector/Inspector.cpp',
 
     # Builtin / GLFW
     'src/Builtin/Glfw/Glfw.cpp',

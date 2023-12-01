@@ -1,6 +1,22 @@
-layouts/root.asset:layouts/root.asset
-models/cube.asset:models/cube.asset
-shaders/default-forward-rendering.frag.asset:shaders/default-forward-rendering.frag.asset
-shaders/default-forward-rendering.vert.asset:shaders/default-forward-rendering.vert.asset
-textures/texture-1024.asset:textures/texture-1024.asset
-textures/white-16.asset:textures/white-16.asset
+{
+  "models/cube.asset": {
+    "path": "models/cube.asset",
+    "preload": false
+  },
+  "shaders/default-forward-rendering.frag.asset": {
+    "path": "shaders/default-forward-rendering.frag.asset",
+    "preload": false
+  },
+  "shaders/default-forward-rendering.vert.asset": {
+    "path": "shaders/default-forward-rendering.vert.asset",
+    "preload": false
+  },
+  "textures/texture-1024.asset": {
+    "path": "textures/texture-1024.asset",
+    "preload": false
+  },
+  "textures/white-16.asset": {
+    "path": "textures/white-16.asset",
+    "preload": false
+  }
+}

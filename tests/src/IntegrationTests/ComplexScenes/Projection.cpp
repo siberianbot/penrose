@@ -5,7 +5,6 @@
 #include <glm/vec3.hpp>
 
 #include <Penrose/Engine.hpp>
-#include <Penrose/Assets/AssetDictionary.hpp>
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/ECS/EntityManager.hpp>
 #include <Penrose/Rendering/RenderGraphContext.hpp>
@@ -76,14 +75,12 @@ TEST_CASE("Projection", "[engine-int-test]") {
             .implements<System>()
             .done();
 
-    auto assetDictionary = engine.resources().get<AssetDictionary>();
-    assetDictionary->addDir("tests/data");
-
     auto assetManager = engine.resources().get<AssetManager>();
-    assetManager->enqueue("models/cube.asset");
-    assetManager->enqueue("textures/white-16.asset");
-    assetManager->enqueue("shaders/default-forward-rendering.frag.asset");
-    assetManager->enqueue("shaders/default-forward-rendering.vert.asset");
+    assetManager->addDir("tests/data");
+    assetManager->load("models/cube.asset");
+    assetManager->load("textures/white-16.asset");
+    assetManager->load("shaders/default-forward-rendering.frag.asset");
+    assetManager->load("shaders/default-forward-rendering.vert.asset");
 
     auto graph = RenderGraphInfo()
             .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))

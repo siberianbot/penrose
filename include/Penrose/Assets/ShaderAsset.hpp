@@ -8,17 +8,29 @@
 
 namespace Penrose {
 
-    class ShaderAsset : public Asset {
+    /**
+     * \brief Shader asset
+     */
+    class PENROSE_API ShaderAsset final: public Asset {
     public:
-        ShaderAsset(std::unique_ptr<Shader> shader);
+        explicit ShaderAsset(std::shared_ptr<Shader> &&shader)
+            : _shader(std::forward<decltype(shader)>(shader)) {
+            //
+        }
+
         ~ShaderAsset() override = default;
 
+        //! \copydoc Asset::getType
         [[nodiscard]] AssetType getType() const override { return AssetType::Shader; }
 
-        [[nodiscard]] Shader *getShader() const { return this->_shader.get(); }
+        /**
+         * \brief Get pointer to instance of Shader
+         * \return instance of Shader
+         */
+        [[nodiscard]] std::weak_ptr<Shader> getShader() const { return this->_shader; }
 
     private:
-        std::unique_ptr<Shader> _shader;
+        std::shared_ptr<Shader> _shader;
     };
 }
 

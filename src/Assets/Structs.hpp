@@ -1,5 +1,5 @@
-#ifndef PENROSE_ASSETS_ASSET_STRUCTS_HPP
-#define PENROSE_ASSETS_ASSET_STRUCTS_HPP
+#ifndef PENROSE_ASSETS_STRUCTS_HPP
+#define PENROSE_ASSETS_STRUCTS_HPP
 
 #include <cstdint>
 
@@ -8,8 +8,8 @@
 
 namespace Penrose {
 
-    constexpr static const char ASSET_MAGIC[4] = {'P', 'n', 'r', 's'};
-    constexpr static const std::uint8_t ASSET_VERSION = 0x01;
+    constexpr char ASSET_MAGIC[4] = {'P', 'n', 'r', 's'};
+    constexpr std::uint8_t ASSET_VERSION = 0x01;
 
 #pragma pack(push, 1)
 
@@ -48,4 +48,4 @@ namespace Penrose {
 #pragma pack(pop)
 }
 
-#endif // PENROSE_ASSETS_ASSET_STRUCTS_HPP
+#endif // PENROSE_ASSETS_STRUCTS_HPP

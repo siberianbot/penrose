@@ -5,10 +5,17 @@
 
 namespace Penrose {
 
-    class Asset {
+    /**
+     * \brief Interface of asset - engine resource (mesh, texture, etc)
+     */
+    class PENROSE_API Asset {
     public:
         virtual ~Asset() = default;
 
+        /**
+         * \brief Returns type of asset
+         * \return type of asset
+         */
         [[nodiscard]] virtual AssetType getType() const = 0;
     };
 }
