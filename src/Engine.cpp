@@ -3,8 +3,6 @@
 #include <chrono>
 #include <ranges>
 
-#include <Penrose/Common/Log.hpp>
-#include <Penrose/Common/StdOutLogSink.hpp>
 #include <Penrose/ECS/EntityManager.hpp>
 #include <Penrose/ECS/SystemManager.hpp>
 #include <Penrose/Events/ECSEvents.hpp>
@@ -41,6 +39,9 @@
 #include "src/Assets/Loaders/ShaderLoader.hpp"
 #include "src/Assets/Loaders/UILayoutLoader.hpp"
 
+#include "src/Common/ConsoleLogSink.hpp"
+#include "src/Common/LogImpl.hpp"
+
 #include "src/Rendering/DefaultDrawableProvider.hpp"
 #include "src/Rendering/DefaultViewProvider.hpp"
 
@@ -49,8 +50,9 @@ namespace Penrose {
     Engine::Engine() {
 
         this->_resources.add<InputHandler, ResourceGroup::Engine>().done();
-        this->_resources.add<Log, ResourceGroup::Engine>().done();
-        this->_resources.add<StdOutLogSink, ResourceGroup::Engine>().implements<LogSink>().done();
+
+        this->_resources.add<LogImpl, ResourceGroup::Engine>().implements<Log>().done();
+        this->_resources.add<ConsoleLogSink, ResourceGroup::Engine>().implements<LogSink>().done();
 
         this->_resources.add<Profiler, ResourceGroup::Performance>().done();
 

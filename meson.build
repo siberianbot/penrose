@@ -40,10 +40,10 @@ src = [
     'src/Assets/Loaders/UILayoutLoader.cpp',
 
     # Common
+    'src/Common/ConsoleLogSink.cpp',
     'src/Common/JobQueue.cpp',
-    'src/Common/Log.cpp',
+    'src/Common/LogImpl.cpp',
     'src/Common/ParamsCollection.cpp',
-    'src/Common/StdOutLogSink.cpp',
 
     # ECS
     'src/ECS/EntityManager.cpp',
