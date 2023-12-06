@@ -7,7 +7,7 @@
 
 namespace Penrose {
 
-    MeshLoader::MeshLoader(ResourceSet *resources)
+    MeshLoader::MeshLoader(const ResourceSet *resources)
         : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
         //
     }

@@ -12,10 +12,10 @@
 
 namespace Penrose {
 
-    class AssetLoadingJobQueue final: public Resource<AssetLoadingJobQueue, ResourceGroup::Assets>,
+    class AssetLoadingJobQueue final: public Resource<AssetLoadingJobQueue>,
                                       public Initializable {
     public:
-        explicit AssetLoadingJobQueue(ResourceSet *resources);
+        explicit AssetLoadingJobQueue(const ResourceSet *resources);
         ~AssetLoadingJobQueue() override = default;
 
         void init() override;

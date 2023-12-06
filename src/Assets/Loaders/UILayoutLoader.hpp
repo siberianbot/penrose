@@ -9,10 +9,10 @@
 
 namespace Penrose {
 
-    class UILayoutLoader final: public Resource<UILayoutLoader, ResourceGroup::Assets>,
+    class UILayoutLoader final: public Resource<UILayoutLoader>,
                                 public TypedAssetLoader {
     public:
-        explicit UILayoutLoader(ResourceSet *resources);
+        explicit UILayoutLoader(const ResourceSet *resources);
         ~UILayoutLoader() override = default;
 
         [[nodiscard]] AssetType getAssetType() const override { return AssetType::UILayout; }

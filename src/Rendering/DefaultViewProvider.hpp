@@ -9,10 +9,10 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class DefaultViewProvider : public Resource<DefaultViewProvider, ResourceGroup::Rendering>,
+    class DefaultViewProvider : public Resource<DefaultViewProvider>,
                                 public ViewProvider {
     public:
-        explicit DefaultViewProvider(ResourceSet *resources);
+        explicit DefaultViewProvider(const ResourceSet *resources);
         ~DefaultViewProvider() override = default;
 
         [[nodiscard]] std::optional<View> tryGetViewFor(const Entity &entity) override;

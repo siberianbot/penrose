@@ -24,10 +24,10 @@ namespace Penrose {
     //    -> receive EntityCreated / ComponentCreated / SceneModified events and handle them properly
     // 2. ...
 
-    class RenderListBuilder : public Resource<RenderListBuilder, ResourceGroup::Rendering>,
+    class RenderListBuilder : public Resource<RenderListBuilder>,
                               public Initializable {
     public:
-        explicit RenderListBuilder(ResourceSet *resources);
+        explicit RenderListBuilder(const ResourceSet *resources);
         ~RenderListBuilder() override = default;
 
         void init() override;

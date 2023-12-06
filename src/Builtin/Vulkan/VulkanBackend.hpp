@@ -13,10 +13,10 @@
 
 namespace Penrose {
 
-    class VulkanBackend : public Resource<VulkanBackend, ResourceGroup::Backend>,
+    class VulkanBackend : public Resource<VulkanBackend>,
                           public Initializable {
     public:
-        explicit VulkanBackend(ResourceSet *resources);
+        explicit VulkanBackend(const ResourceSet *resources);
         ~VulkanBackend() override = default;
 
         void init() override;

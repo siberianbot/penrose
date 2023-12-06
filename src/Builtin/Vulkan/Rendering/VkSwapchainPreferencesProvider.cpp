@@ -8,7 +8,7 @@ namespace Penrose {
 
     constexpr static const std::string_view VK_SWAPCHAIN_PREFERENCES_PROVIDER_TAG = "VkSwapchainManager";
 
-    VkSwapchainPreferencesProvider::VkSwapchainPreferencesProvider(ResourceSet *resources)
+    VkSwapchainPreferencesProvider::VkSwapchainPreferencesProvider(const ResourceSet *resources)
             : _log(resources->get<Log>()),
               _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
         //

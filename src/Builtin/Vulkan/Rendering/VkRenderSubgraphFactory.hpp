@@ -10,9 +10,9 @@
 
 namespace Penrose {
 
-    class VkRenderSubgraphFactory : public Resource<VkRenderSubgraphFactory, ResourceGroup::Rendering> {
+    class VkRenderSubgraphFactory : public Resource<VkRenderSubgraphFactory> {
     public:
-        explicit VkRenderSubgraphFactory(ResourceSet *resources);
+        explicit VkRenderSubgraphFactory(const ResourceSet *resources);
         ~VkRenderSubgraphFactory() override = default;
 
         [[nodiscard]] VkRenderSubgraph *makeRenderSubgraph(RenderSubgraphInfo &&subgraphInfo);

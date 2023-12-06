@@ -10,7 +10,7 @@
 
 namespace Penrose {
 
-    DefaultViewProvider::DefaultViewProvider(ResourceSet *resources)
+    DefaultViewProvider::DefaultViewProvider(const ResourceSet *resources)
             : _entityManager(resources->get<EntityManager>()) {
         //
     }

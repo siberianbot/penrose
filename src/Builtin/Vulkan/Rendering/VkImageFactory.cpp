@@ -5,7 +5,7 @@
 
 namespace Penrose {
 
-    VkImageFactory::VkImageFactory(ResourceSet *resources)
+    VkImageFactory::VkImageFactory(const ResourceSet *resources)
             : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _memoryAllocator(resources->get<VkMemoryAllocator>()) {
         //

@@ -13,10 +13,10 @@
 
 namespace Penrose {
 
-    class VkLogicalDeviceContext : public Resource<VkLogicalDeviceContext, ResourceGroup::Rendering>,
+    class VkLogicalDeviceContext : public Resource<VkLogicalDeviceContext>,
                                    public Initializable {
     public:
-        explicit VkLogicalDeviceContext(ResourceSet *resources);
+        explicit VkLogicalDeviceContext(const ResourceSet *resources);
         ~VkLogicalDeviceContext() override = default;
 
         void init() override;

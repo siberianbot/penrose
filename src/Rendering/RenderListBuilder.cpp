@@ -9,7 +9,7 @@
 
 namespace Penrose {
 
-    RenderListBuilder::RenderListBuilder(ResourceSet *resources)
+    RenderListBuilder::RenderListBuilder(const ResourceSet *resources)
             : _eventQueue(resources->get<ECSEventQueue>()),
               _sceneManager(resources->get<SceneManager>()),
               _drawableProviders(resources->get<DrawableProvider>()),

@@ -9,7 +9,7 @@ namespace Penrose {
 
     constexpr static const std::string_view VK_DESCRIPTOR_POOL_MANAGER_TAG = "VkDescriptorPoolManager";
 
-    VkDescriptorPoolManager::VkDescriptorPoolManager(ResourceSet *resources)
+    VkDescriptorPoolManager::VkDescriptorPoolManager(const ResourceSet *resources)
             : _log(resources->get<Log>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()) {
         //

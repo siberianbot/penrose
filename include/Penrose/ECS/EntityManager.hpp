@@ -21,7 +21,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API EntityManager : public Resource<EntityManager, ResourceGroup::ECSManager>,
+    class PENROSE_API EntityManager : public Resource<EntityManager>,
                                       public Initializable {
     public:
         struct Entry {
@@ -60,7 +60,7 @@ namespace Penrose {
             std::unique_ptr<Iterator> _iterator;
         };
 
-        explicit EntityManager(ResourceSet *resources);
+        explicit EntityManager(const ResourceSet *resources);
         ~EntityManager() override = default;
 
         void init() override { /* nothing to do */ }

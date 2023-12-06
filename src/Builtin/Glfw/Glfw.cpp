@@ -7,13 +7,13 @@ namespace Penrose {
 
     ResourceSet &addGlfw(ResourceSet &resources) {
 
-        resources.add<GlfwBackend, ResourceGroup::Backend>()
+        resources.add<GlfwBackend>().group(ResourceGroup::Backend)
                 .implements<VkInstanceExtensionsProvider>()
                 .implements<Initializable>()
                 .implements<Updatable>()
                 .done();
 
-        resources.add<GlfwSurfaceController, ResourceGroup::Windowing>()
+        resources.add<GlfwSurfaceController>().group(ResourceGroup::Windowing)
                 .implements<SurfaceFactory>()
                 .implements<SurfaceHook>()
                 .implements<VkSurfaceProvider>()

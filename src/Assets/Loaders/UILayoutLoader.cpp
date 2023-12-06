@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    UILayoutLoader::UILayoutLoader(ResourceSet *resources)
+    UILayoutLoader::UILayoutLoader(const ResourceSet *resources)
         : _layoutFactory(resources->get<LayoutFactory>()) {
         //
     }

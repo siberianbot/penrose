@@ -7,7 +7,7 @@
 
 namespace Penrose {
 
-    AssetLoadingProxy::AssetLoadingProxy(ResourceSet *resources)
+    AssetLoadingProxy::AssetLoadingProxy(const ResourceSet *resources)
         : _loaders(resources->get<TypedAssetLoader>()) {
         for (const auto &loader: this->_loaders) {
             this->_loadersMap.emplace(loader->getAssetType(), loader);

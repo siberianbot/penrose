@@ -9,10 +9,10 @@
 
 namespace Penrose {
 
-    class ShaderLoader final: public Resource<ShaderLoader, ResourceGroup::Assets>,
+    class ShaderLoader final: public Resource<ShaderLoader>,
                               public TypedAssetLoader {
     public:
-        explicit ShaderLoader(ResourceSet *resources);
+        explicit ShaderLoader(const ResourceSet *resources);
         ~ShaderLoader() override = default;
 
         [[nodiscard]] AssetType getAssetType() const override { return AssetType::Shader; }

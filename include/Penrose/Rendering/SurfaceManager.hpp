@@ -14,10 +14,10 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class PENROSE_API SurfaceManager : public Resource<SurfaceManager, ResourceGroup::Windowing>,
+    class PENROSE_API SurfaceManager : public Resource<SurfaceManager>,
                                        public Initializable {
     public:
-        explicit SurfaceManager(ResourceSet *resources);
+        explicit SurfaceManager(const ResourceSet *resources);
         ~SurfaceManager() override = default;
 
         void init() override;

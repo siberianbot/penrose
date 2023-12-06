@@ -4,7 +4,7 @@
 
 namespace Penrose {
 
-    VkMemoryAllocator::VkMemoryAllocator(ResourceSet *resources)
+    VkMemoryAllocator::VkMemoryAllocator(const ResourceSet *resources)
             : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
         //

@@ -6,7 +6,7 @@ namespace Penrose {
 
     inline static constexpr std::string_view TAG = "AssetManagerImpl";
 
-    AssetManagerImpl::AssetManagerImpl(ResourceSet *resources)
+    AssetManagerImpl::AssetManagerImpl(const ResourceSet *resources)
         : _log(resources->get<Log>()),
           _assetIndex(resources->get<AssetIndex>()),
           _assetLoadingJobQueue(resources->get<AssetLoadingJobQueue>()) {

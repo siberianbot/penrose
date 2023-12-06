@@ -13,7 +13,7 @@
 
 namespace Penrose {
 
-    class Profiler : public Resource<Profiler, ResourceGroup::Performance> {
+    class Profiler : public Resource<Profiler> {
     public:
         class FunctionCall {
         public:

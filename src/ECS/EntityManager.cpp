@@ -60,7 +60,7 @@ namespace Penrose {
         return result;
     }
 
-    EntityManager::EntityManager(ResourceSet *resources)
+    EntityManager::EntityManager(const ResourceSet *resources)
             : _ecsEventQueue(resources->get<ECSEventQueue>()),
               _log(resources->get<Log>()) {
         //

@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    class ConsoleLogSink final: public Resource<ConsoleLogSink, ResourceGroup::Engine>,
+    class ConsoleLogSink final: public Resource<ConsoleLogSink>,
                                 public LogSink {
     public:
         ~ConsoleLogSink() override = default;

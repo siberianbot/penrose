@@ -4,7 +4,7 @@
 
 namespace Penrose {
 
-    VkRenderGraphContextManager::VkRenderGraphContextManager(ResourceSet *resources)
+    VkRenderGraphContextManager::VkRenderGraphContextManager(const ResourceSet *resources)
             : _framebufferFactory(resources->get<VkFramebufferFactory>()),
               _renderGraphContext(resources->get<RenderGraphContext>()),
               _renderSubgraphFactory(resources->get<VkRenderSubgraphFactory>()),

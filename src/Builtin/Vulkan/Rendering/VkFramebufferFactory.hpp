@@ -16,9 +16,9 @@ namespace Penrose {
     class VkRenderSubgraph;
     class VkRenderTarget;
 
-    class VkFramebufferFactory : public Resource<VkFramebufferFactory, ResourceGroup::Rendering> {
+    class VkFramebufferFactory : public Resource<VkFramebufferFactory> {
     public:
-        explicit VkFramebufferFactory(ResourceSet *resources);
+        explicit VkFramebufferFactory(const ResourceSet *resources);
         ~VkFramebufferFactory() override = default;
 
         [[nodiscard]] VkFramebuffer *makeFramebuffer(const std::map<std::string, VkRenderTarget *> &targets,

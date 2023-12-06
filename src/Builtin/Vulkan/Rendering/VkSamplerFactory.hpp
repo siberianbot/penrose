@@ -8,10 +8,10 @@
 
 namespace Penrose {
 
-    class VkSamplerFactory : public Resource<VkSamplerFactory, ResourceGroup::Rendering>,
+    class VkSamplerFactory : public Resource<VkSamplerFactory>,
                              public SamplerFactory {
     public:
-        explicit VkSamplerFactory(ResourceSet *resources);
+        explicit VkSamplerFactory(const ResourceSet *resources);
         ~VkSamplerFactory() override = default;
 
         [[nodiscard]] Sampler *makeSampler(const SamplerInfo &samplerInfo) override;

@@ -5,7 +5,7 @@
 
 namespace Penrose {
 
-    VkBufferFactory::VkBufferFactory(ResourceSet *resources)
+    VkBufferFactory::VkBufferFactory(const ResourceSet *resources)
             : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _memoryAllocator(resources->get<VkMemoryAllocator>()) {
         //

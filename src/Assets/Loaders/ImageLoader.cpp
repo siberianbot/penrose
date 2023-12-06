@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    ImageLoader::ImageLoader(ResourceSet *resources)
+    ImageLoader::ImageLoader(const ResourceSet *resources)
         : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
         //
     }

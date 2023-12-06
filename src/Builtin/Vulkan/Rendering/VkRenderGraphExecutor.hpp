@@ -17,7 +17,7 @@
 
 namespace Penrose {
 
-    class VkRenderGraphExecutor : public Resource<VkRenderGraphExecutor, ResourceGroup::Rendering>,
+    class VkRenderGraphExecutor : public Resource<VkRenderGraphExecutor>,
                                   public Initializable {
     public:
         struct Submit {
@@ -26,7 +26,7 @@ namespace Penrose {
             std::vector<vk::Semaphore> signalSemaphores;
         };
 
-        explicit VkRenderGraphExecutor(ResourceSet *resources);
+        explicit VkRenderGraphExecutor(const ResourceSet *resources);
         ~VkRenderGraphExecutor() override = default;
 
         void init() override;

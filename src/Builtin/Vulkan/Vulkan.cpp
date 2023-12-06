@@ -28,96 +28,86 @@ namespace Penrose {
 
     ResourceSet &addVulkan(ResourceSet &resources) {
 
-        resources.add<VulkanBackend, ResourceGroup::Backend>()
+        resources.add<VulkanBackend>().group(ResourceGroup::Backend)
                 .implements<Initializable>()
                 .done();
 
-        resources.add<VkPhysicalDeviceContext, ResourceGroup::Rendering>()
+        resources.add<VkPhysicalDeviceContext>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkLogicalDeviceContext, ResourceGroup::Rendering>()
+        resources.add<VkLogicalDeviceContext>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkCommandManager, ResourceGroup::Rendering>()
+        resources.add<VkCommandManager>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkDescriptorPoolManager, ResourceGroup::Rendering>()
+        resources.add<VkDescriptorPoolManager>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkMemoryAllocator, ResourceGroup::Rendering>()
+        resources.add<VkMemoryAllocator>().group(ResourceGroup::Rendering)
                 .done();
 
-        resources.add<VkSwapchainPreferencesProvider, ResourceGroup::Rendering>()
+        resources.add<VkSwapchainPreferencesProvider>().group(ResourceGroup::Rendering)
                 .done();
 
-        resources.add<VkSwapchainFactory, ResourceGroup::Rendering>()
-                .before<RenderManager>()
+        resources.add<VkSwapchainFactory>().group(ResourceGroup::Rendering)
                 .done();
 
-        resources.add<VkSwapchainManager, ResourceGroup::Rendering>()
+        resources.add<VkSwapchainManager>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkBufferFactory, ResourceGroup::Rendering>()
+        resources.add<VkBufferFactory>().group(ResourceGroup::Rendering)
                 .implements<BufferFactory>()
                 .done();
 
-        resources.add<VkImageFactory, ResourceGroup::Rendering>()
+        resources.add<VkImageFactory>().group(ResourceGroup::Rendering)
                 .implements<ImageFactory>()
                 .done();
 
-        resources.add<VkPipelineFactory, ResourceGroup::Rendering>()
+        resources.add<VkPipelineFactory>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
                 .implements<PipelineFactory>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkSamplerFactory, ResourceGroup::Rendering>()
+        resources.add<VkSamplerFactory>().group(ResourceGroup::Rendering)
                 .implements<SamplerFactory>()
                 .done();
 
-        resources.add<VkShaderFactory, ResourceGroup::Rendering>()
+        resources.add<VkShaderFactory>().group(ResourceGroup::Rendering)
                 .implements<ShaderFactory>()
                 .done();
 
-        resources.add<VkRenderingObjectManager, ResourceGroup::Rendering>()
+        resources.add<VkRenderingObjectManager>().group(ResourceGroup::Rendering)
                 .implements<RenderingObjectManager>()
                 .done();
 
-        resources.add<VkRenderSubgraphFactory, ResourceGroup::Rendering>()
+        resources.add<VkRenderSubgraphFactory>().group(ResourceGroup::Rendering)
                 .done();
 
-        resources.add<VkRenderTargetFactory, ResourceGroup::Rendering>()
+        resources.add<VkRenderTargetFactory>().group(ResourceGroup::Rendering)
                 .done();
 
-        resources.add<VkFramebufferFactory, ResourceGroup::Rendering>()
+        resources.add<VkFramebufferFactory>().group(ResourceGroup::Rendering)
                 .done();
 
-        resources.add<VkRenderGraphContextManager, ResourceGroup::Rendering>()
+        resources.add<VkRenderGraphContextManager>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
                 .implements<RenderGraphHook>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkRenderGraphExecutor, ResourceGroup::Rendering>()
+        resources.add<VkRenderGraphExecutor>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
-                .before<RenderManager>()
                 .done();
 
-        resources.add<VkRenderSystem, ResourceGroup::Rendering>()
+        resources.add<VkRenderSystem>().group(ResourceGroup::Rendering)
                 .implements<Initializable>()
                 .implements<Runnable>()
                 .implements<RenderSystem>()
-                .before<RenderManager>()
                 .done();
 
         return resources;

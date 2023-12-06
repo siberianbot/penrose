@@ -11,10 +11,10 @@
 
 namespace Penrose {
 
-    class VkRenderingObjectManager : public Resource<VkRenderingObjectManager, ResourceGroup::Rendering>,
+    class VkRenderingObjectManager : public Resource<VkRenderingObjectManager>,
                                      public RenderingObjectManager {
     public:
-        explicit VkRenderingObjectManager(ResourceSet *resources);
+        explicit VkRenderingObjectManager(const ResourceSet *resources);
         ~VkRenderingObjectManager() override = default;
 
         [[nodiscard]] Buffer *makeBuffer(BufferType type, std::uint64_t size, std::uint32_t count, void *data) override;

@@ -23,7 +23,7 @@ namespace Penrose {
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME
     };
 
-    VulkanBackend::VulkanBackend(ResourceSet *resources)
+    VulkanBackend::VulkanBackend(const ResourceSet *resources)
             : _log(resources->get<Log>()),
               _instanceExtensionsProvider(resources->get<VkInstanceExtensionsProvider>()) {
         //

@@ -18,11 +18,11 @@
 
 namespace Penrose {
 
-    class VkPipelineFactory : public Resource<VkPipelineFactory, ResourceGroup::Rendering>,
+    class VkPipelineFactory : public Resource<VkPipelineFactory>,
                               public Initializable,
                               public PipelineFactory {
     public:
-        explicit VkPipelineFactory(ResourceSet *resources);
+        explicit VkPipelineFactory(const ResourceSet *resources);
         ~VkPipelineFactory() override = default;
 
         void init() override;

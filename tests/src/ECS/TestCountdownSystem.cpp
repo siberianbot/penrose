@@ -4,7 +4,7 @@
 
 #include <Penrose/Common/EngineError.hpp>
 
-TestCountdownSystem::TestCountdownSystem(ResourceSet *resources)
+TestCountdownSystem::TestCountdownSystem(const ResourceSet *resources)
         : _eventQueue(resources->get<EngineEventQueue>()) {
     //
 }

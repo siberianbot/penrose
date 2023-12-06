@@ -10,12 +10,12 @@ using namespace Penrose;
 TEST_CASE("SwapchainResize", "[engine-int-test]") {
     Engine engine;
 
-    engine.resources().add<TestCountdownSystem, ResourceGroup::ECSSystem>()
+    engine.resources().add<TestCountdownSystem>().group(ResourceGroup::ECSSystem)
             .implements<Initializable>()
             .implements<System>()
             .done();
 
-    engine.resources().add<TestSwapchainResizeSystem, ResourceGroup::ECSSystem>()
+    engine.resources().add<TestSwapchainResizeSystem>().group(ResourceGroup::ECSSystem)
             .implements<Initializable>()
             .implements<System>()
             .done();

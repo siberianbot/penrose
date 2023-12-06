@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    InputHandler::InputHandler(ResourceSet *resources)
+    InputHandler::InputHandler(const ResourceSet *resources)
             : _eventQueue(resources->get<InputEventQueue>()),
               _inputHooks(resources->get<InputHook>()) {
         //

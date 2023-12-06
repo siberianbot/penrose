@@ -12,7 +12,7 @@
 
 namespace Penrose {
 
-    class ImGuiUIContextVisitor final: public Resource<ImGuiUIContextVisitor, ResourceGroup::UI> {
+    class ImGuiUIContextVisitor final: public Resource<ImGuiUIContextVisitor> {
     public:
         ImGuiUIContextVisitor();
         ~ImGuiUIContextVisitor() override = default;

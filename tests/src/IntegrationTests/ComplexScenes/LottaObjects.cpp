@@ -24,11 +24,11 @@ using namespace Penrose;
 
 TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
 
-    class TestLogicSystem: public Resource<TestLogicSystem, ResourceGroup::ECSSystem>,
+    class TestLogicSystem: public Resource<TestLogicSystem>,
                            public Initializable,
                            public System {
     public:
-        explicit TestLogicSystem(ResourceSet *resources)
+        explicit TestLogicSystem(const ResourceSet *resources)
             : _entityManager(resources->get<EntityManager>()) {
             //
         }
@@ -71,18 +71,18 @@ TEST_CASE("ComplexScenes_LottaObjects", "[engine-int-test]") {
     Engine engine;
 
     engine.resources()
-        .add<TestCountdownSystem, ResourceGroup::ECSSystem>()
+        .add<TestCountdownSystem>().group(ResourceGroup::ECSSystem)
         .implements<Initializable>()
         .implements<System>()
         .done();
 
     engine.resources()
-        .add<TestLogicTargetComponentFactory, ResourceGroup::ECSComponent>()
+        .add<TestLogicTargetComponentFactory>().group(ResourceGroup::ECSComponent)
         .implements<ComponentFactory>()
         .done();
 
     engine.resources()
-        .add<TestLogicSystem, ResourceGroup::ECSSystem>()
+        .add<TestLogicSystem>().group(ResourceGroup::ECSSystem)
         .implements<Initializable>()
         .implements<System>()
         .done();

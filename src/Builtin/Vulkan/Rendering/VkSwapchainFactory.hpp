@@ -13,9 +13,9 @@
 
 namespace Penrose {
 
-    class VkSwapchainFactory : public Resource<VkSwapchainFactory, ResourceGroup::Rendering> {
+    class VkSwapchainFactory : public Resource<VkSwapchainFactory> {
     public:
-        explicit VkSwapchainFactory(ResourceSet *resources);
+        explicit VkSwapchainFactory(const ResourceSet *resources);
         ~VkSwapchainFactory() override = default;
 
         [[nodiscard]] VkSwapchain *makeSwapchain(std::optional<VkSwapchain *> oldSwapchain = std::nullopt);

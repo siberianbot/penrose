@@ -9,10 +9,10 @@
 
 namespace Penrose {
 
-    class VkBufferFactory : public Resource<VkBufferFactory, ResourceGroup::Rendering>,
+    class VkBufferFactory : public Resource<VkBufferFactory>,
                             public BufferFactory {
     public:
-        explicit VkBufferFactory(ResourceSet *resources);
+        explicit VkBufferFactory(const ResourceSet *resources);
         ~VkBufferFactory() override = default;
 
         [[nodiscard]] Buffer *makeBuffer(BufferType type, std::uint64_t size, std::uint32_t count, bool map) override;

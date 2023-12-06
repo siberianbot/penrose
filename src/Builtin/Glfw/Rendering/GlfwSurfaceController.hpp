@@ -20,12 +20,12 @@ namespace Penrose {
 
     class GlfwSurface;
 
-    class GlfwSurfaceController : public Resource<GlfwSurfaceController, ResourceGroup::Windowing>,
+    class GlfwSurfaceController : public Resource<GlfwSurfaceController>,
                                   public SurfaceFactory,
                                   public SurfaceHook,
                                   public VkSurfaceProvider {
     public:
-        explicit GlfwSurfaceController(ResourceSet *resources);
+        explicit GlfwSurfaceController(const ResourceSet *resources);
         ~GlfwSurfaceController() override = default;
 
         [[nodiscard]] Surface *makeSurface() override;

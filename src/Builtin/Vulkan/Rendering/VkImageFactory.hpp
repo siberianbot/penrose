@@ -9,10 +9,10 @@
 
 namespace Penrose {
 
-    class VkImageFactory : public Resource<VkImageFactory, ResourceGroup::Rendering>,
+    class VkImageFactory : public Resource<VkImageFactory>,
                            public ImageFactory {
     public:
-        explicit VkImageFactory(ResourceSet *resources);
+        explicit VkImageFactory(const ResourceSet *resources);
         ~VkImageFactory() override = default;
 
         [[nodiscard]] Image *makeImage(ImageFormat format, std::uint32_t width, std::uint32_t height) override;

@@ -2,7 +2,7 @@
 
 namespace Penrose {
 
-    SurfaceManager::SurfaceManager(ResourceSet *resources)
+    SurfaceManager::SurfaceManager(const ResourceSet *resources)
             : _surfaceFactory(resources->get<SurfaceFactory>()),
               _surfaceHooks(resources->get<SurfaceHook>()) {
         //

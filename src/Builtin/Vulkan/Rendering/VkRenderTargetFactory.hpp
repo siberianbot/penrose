@@ -11,9 +11,9 @@
 
 namespace Penrose {
 
-    class VkRenderTargetFactory : public Resource<VkRenderTargetFactory, ResourceGroup::Rendering> {
+    class VkRenderTargetFactory : public Resource<VkRenderTargetFactory> {
     public:
-        explicit VkRenderTargetFactory(ResourceSet *resources);
+        explicit VkRenderTargetFactory(const ResourceSet *resources);
         ~VkRenderTargetFactory() override = default;
 
         [[nodiscard]] VkRenderTarget *makeRenderTarget(RenderTargetInfo &&targetInfo);

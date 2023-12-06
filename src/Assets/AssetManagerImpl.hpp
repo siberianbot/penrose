@@ -12,11 +12,11 @@
 
 namespace Penrose {
 
-    class AssetManagerImpl final: public Resource<AssetManagerImpl, ResourceGroup::Assets>,
+    class AssetManagerImpl final: public Resource<AssetManagerImpl>,
                                   public Initializable,
                                   public AssetManager {
     public:
-        explicit AssetManagerImpl(ResourceSet *resources);
+        explicit AssetManagerImpl(const ResourceSet *resources);
         ~AssetManagerImpl() override = default;
 
         void init() override;

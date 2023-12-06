@@ -15,12 +15,12 @@
 
 namespace Penrose {
 
-    class VkDescriptorPoolManager : public Resource<VkDescriptorPoolManager, ResourceGroup::Rendering>,
+    class VkDescriptorPoolManager : public Resource<VkDescriptorPoolManager>,
                                     public Initializable {
     public:
         using DescriptorSets = std::array<vk::DescriptorSet, INFLIGHT_FRAME_COUNT>;
 
-        explicit VkDescriptorPoolManager(ResourceSet *resources);
+        explicit VkDescriptorPoolManager(const ResourceSet *resources);
         ~VkDescriptorPoolManager() override = default;
 
         void init() override;

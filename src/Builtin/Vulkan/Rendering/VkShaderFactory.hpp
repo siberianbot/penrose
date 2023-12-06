@@ -8,10 +8,10 @@
 
 namespace Penrose {
 
-    class VkShaderFactory : public Resource<VkShaderFactory, ResourceGroup::Rendering>,
+    class VkShaderFactory : public Resource<VkShaderFactory>,
                             public ShaderFactory {
     public:
-        explicit VkShaderFactory(ResourceSet *resources);
+        explicit VkShaderFactory(const ResourceSet *resources);
         ~VkShaderFactory() override = default;
 
         Shader *makeShader(const std::uint32_t *data, std::uint32_t size) override;

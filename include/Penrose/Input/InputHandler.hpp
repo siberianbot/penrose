@@ -12,9 +12,9 @@
 
 namespace Penrose {
 
-    class PENROSE_API InputHandler : public Resource<InputHandler, ResourceGroup::Engine> {
+    class PENROSE_API InputHandler : public Resource<InputHandler> {
     public:
-        explicit InputHandler(ResourceSet *resources);
+        explicit InputHandler(const ResourceSet *resources);
         ~InputHandler() override = default;
 
         void pushKeyStateUpdate(InputKey key, InputState state);

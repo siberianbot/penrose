@@ -9,7 +9,7 @@
 
 namespace Penrose {
 
-    VkRenderTargetFactory::VkRenderTargetFactory(ResourceSet *resources)
+    VkRenderTargetFactory::VkRenderTargetFactory(const ResourceSet *resources)
             : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _memoryAllocator(resources->get<VkMemoryAllocator>()),
               _swapchainManager(resources->get<VkSwapchainManager>()) {

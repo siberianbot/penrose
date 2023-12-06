@@ -4,7 +4,7 @@ namespace Penrose {
 
     inline static constexpr std::string_view TAG = "AssetIndex";
 
-    AssetIndex::AssetIndex(ResourceSet *resources)
+    AssetIndex::AssetIndex(const ResourceSet *resources)
         : _log(resources->get<Log>()) {
         //
     }

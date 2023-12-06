@@ -20,7 +20,7 @@ namespace Penrose {
 
     template<typename C> requires std::is_base_of_v<Component<C>, C> && std::is_default_constructible_v<C>
     class GenericComponentFactory
-            : public Resource<GenericComponentFactory<C>, ResourceGroup::ECSComponent>,
+            : public Resource<GenericComponentFactory<C>>,
               public ComponentFactory {
     public:
         ~GenericComponentFactory() override = default;

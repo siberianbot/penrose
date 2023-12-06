@@ -1,48 +1,36 @@
 #ifndef PENROSE_RESOURCES_RESOURCE_HPP
 #define PENROSE_RESOURCES_RESOURCE_HPP
 
-#include <string>
 #include <typeindex>
 #include <typeinfo>
 
-#include <Penrose/Utils/TypeUtils.hpp>
-
 namespace Penrose {
 
-    enum class ResourceGroup {
-        Engine,
-        Performance,
-        Backend,
-        Windowing,
-        Rendering,
-        RenderOperator,
-        Assets,
-        UI,
-        Events,
-        ECSManager,
-        Scene,
-        ECSComponent,
-        ECSSystem,
-        Custom
-    };
-
-    struct ResourceInfo {
-        std::type_index type;
-        ResourceGroup group;
-        std::string name;
-    };
-
+    /**
+     * \brief Base type of Resource<> for pointers
+     */
     class ResourceBase {
     public:
         virtual ~ResourceBase() = default;
 
-        [[nodiscard]] virtual ResourceInfo getType() const = 0;
+        /**
+         * \brief Get type of instanced resource
+         * \return Type index of resource
+         */
+        [[nodiscard]] virtual std::type_index getType() const = 0;
     };
 
-    template<typename Self, ResourceGroup Group>
-    class Resource : public ResourceBase {
+    /**
+     * \brief Base type of engine resource
+     * \details Resources implements some sort of dependency injection pattern. This allows us to make engine more
+     * flexible and modular. Resource instances cannot be copied or movied. They are instanced only once by dependency
+     * container. Any specific behavior which requires resource initialization/deinitialization or update can be
+     * achivied by implementing Initializable or Updatable interfaces by inheritor class.
+     * \tparam Self Type of Resource<> inheritor
+     */
+    template <typename Self>
+    class Resource: public ResourceBase {
     public:
-        Resource() = default;
         Resource(const Resource &) = delete;
         Resource(Resource &&) = delete;
         Resource &operator=(const Resource &) = delete;
@@ -50,34 +38,47 @@ namespace Penrose {
 
         ~Resource() override = default;
 
-        [[nodiscard]] ResourceInfo getType() const final { return type(); }
+        /**
+         * \brief Get type of resource
+         * \return Type index of resource
+         */
+        [[nodiscard]] static std::type_index type() { return typeid(Self); }
 
-        // [[nodiscard]] constexpr static Self *create() {
-        //     static_assert(std::is_default_constructible_v<Self>);
-        //
-        //     return new Self();
-        // }
+        //! \copydoc ResourceBase::getType
+        [[nodiscard]] std::type_index getType() const final { return type(); }
 
-        template<typename ...Args>
+        /**
+         * \brief Create instance of resource through parameterless default constructor
+         * \return Instance of resource
+         */
+        [[nodiscard]] constexpr static Self *create() {
+            static_assert(std::is_default_constructible_v<Self>);
+
+            return new Self();
+        }
+
+        /**
+         * \brief  Create instance of resource through constructor with parameters
+         * \tparam Args Type of constructor parameters
+         * \param args Constructor parameters
+         * \return Instance of resource
+         */
+        template <typename... Args>
         [[nodiscard]] constexpr static Self *create(Args &&...args) {
             static_assert(std::is_constructible_v<Self, Args...>);
 
             return new Self(std::forward<decltype(args)>(args)...);
         }
 
-        [[nodiscard]] /* TODO: constexpr */ static ResourceInfo type() {
-            std::type_index type = typeid(Self);
-
-            return {
-                    .type = type,
-                    .group = Group,
-                    .name = demangle(type.name())
-            };
-        }
+    protected:
+        Resource() = default;
     };
 
-    template<typename Target, ResourceGroup Group>
-    concept IsResource = std::is_base_of_v<Resource<Target, Group>, Target>;
+    /**
+     * \brief Resource concept: ensures that Target implements Resource<>
+     */
+    template <typename Target>
+    concept IsResource = std::is_base_of_v<Resource<Target>, Target>;
 }
 
 #endif // PENROSE_RESOURCES_RESOURCE_HPP

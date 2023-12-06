@@ -2,9 +2,8 @@
 
 namespace Penrose {
 
-    LogImpl::LogImpl(ResourceSet *resources)
-        : _resources(resources),
-          _sinks(resources->get<LogSink>()) {
+    LogImpl::LogImpl(const ResourceSet *resources)
+        : _resources(resources) {
         //
     }
 
@@ -14,7 +13,7 @@ namespace Penrose {
         }
     }
 
-    void LogImpl::addSink(std::type_index &&index) {
-        // TODO: requires resource set reworking
+    void LogImpl::addSink(std::type_index &&type) {
+        this->_sinks.push_back(this->_resources->resolveOne<LogSink>(type));
     }
 }

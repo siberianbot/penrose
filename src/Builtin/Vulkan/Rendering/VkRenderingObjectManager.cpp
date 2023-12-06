@@ -7,7 +7,7 @@
 
 namespace Penrose {
 
-    VkRenderingObjectManager::VkRenderingObjectManager(ResourceSet *resources)
+    VkRenderingObjectManager::VkRenderingObjectManager(const ResourceSet *resources)
             : _bufferFactory(resources->get<VkBufferFactory>()),
               _imageFactory(resources->get<VkImageFactory>()),
               _shaderFactory(resources->get<VkShaderFactory>()),

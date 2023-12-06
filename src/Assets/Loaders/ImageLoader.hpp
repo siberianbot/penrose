@@ -9,10 +9,10 @@
 
 namespace Penrose {
 
-    class ImageLoader final: public Resource<ImageLoader, ResourceGroup::Assets>,
+    class ImageLoader final: public Resource<ImageLoader>,
                              public TypedAssetLoader {
     public:
-        explicit ImageLoader(ResourceSet *resources);
+        explicit ImageLoader(const ResourceSet *resources);
         ~ImageLoader() override = default;
 
         [[nodiscard]] AssetType getAssetType() const override { return AssetType::Image; }

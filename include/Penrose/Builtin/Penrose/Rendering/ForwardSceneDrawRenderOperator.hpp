@@ -31,7 +31,7 @@ namespace Penrose {
     class ResourceSet;
 
     class ForwardSceneDrawRenderOperator
-            : public Resource<ForwardSceneDrawRenderOperator, ResourceGroup::RenderOperator>,
+            : public Resource<ForwardSceneDrawRenderOperator>,
               public Initializable,
               public RenderOperator {
     public:
@@ -51,7 +51,7 @@ namespace Penrose {
             std::uint32_t textureId;
         };
 
-        explicit ForwardSceneDrawRenderOperator(ResourceSet *resources);
+        explicit ForwardSceneDrawRenderOperator(const ResourceSet *resources);
         ~ForwardSceneDrawRenderOperator() override = default;
 
         void init() override;

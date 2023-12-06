@@ -8,11 +8,11 @@
 
 using namespace Penrose;
 
-class TestSwapchainResizeSystem : public Resource<TestSwapchainResizeSystem, ResourceGroup::ECSSystem>,
+class TestSwapchainResizeSystem : public Resource<TestSwapchainResizeSystem>,
                                   public Initializable,
                                   public System {
 public:
-    explicit TestSwapchainResizeSystem(ResourceSet *resources);
+    explicit TestSwapchainResizeSystem(const ResourceSet *resources);
     ~TestSwapchainResizeSystem() override = default;
 
     void init() override;

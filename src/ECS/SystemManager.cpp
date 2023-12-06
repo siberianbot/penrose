@@ -2,7 +2,7 @@
 
 namespace Penrose {
 
-    SystemManager::SystemManager(ResourceSet *resources)
+    SystemManager::SystemManager(const ResourceSet *resources)
             : _systems(resources->get<System>()) {
         //
     }

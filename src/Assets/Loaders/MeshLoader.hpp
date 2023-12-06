@@ -9,10 +9,10 @@
 
 namespace Penrose {
 
-    class MeshLoader final: public Resource<MeshLoader, ResourceGroup::Assets>,
+    class MeshLoader final: public Resource<MeshLoader>,
                             public TypedAssetLoader {
     public:
-        explicit MeshLoader(ResourceSet *resources);
+        explicit MeshLoader(const ResourceSet *resources);
         ~MeshLoader() override = default;
 
         [[nodiscard]] AssetType getAssetType() const override { return AssetType::Mesh; }

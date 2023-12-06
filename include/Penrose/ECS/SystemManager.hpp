@@ -8,10 +8,10 @@
 
 namespace Penrose {
 
-    class PENROSE_API SystemManager : public Resource<SystemManager, ResourceGroup::ECSManager>,
+    class PENROSE_API SystemManager : public Resource<SystemManager>,
                                       public Updatable {
     public:
-        explicit SystemManager(ResourceSet *resources);
+        explicit SystemManager(const ResourceSet *resources);
         ~SystemManager() override = default;
 
         void update(float delta) override;

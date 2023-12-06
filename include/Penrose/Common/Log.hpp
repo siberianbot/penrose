@@ -113,9 +113,9 @@ namespace Penrose {
 
         /**
          * \brief Add log sink
-         * \param index Type index of log sink
+         * \param type Type of log sink
          */
-        virtual void addSink(std::type_index &&index) = 0;
+        virtual void addSink(std::type_index &&type) = 0;
 
         /**
          * \brief Add log sink
@@ -124,7 +124,7 @@ namespace Penrose {
         template <typename T>
         requires std::is_base_of_v<LogSink, T>
         void addSink() {
-            this->addSink(std::type_index(typeid(T)));
+            this->addSink(typeid(T));
         }
     };
 }

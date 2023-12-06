@@ -4,7 +4,7 @@
 
 namespace Penrose {
 
-    VkShaderFactory::VkShaderFactory(ResourceSet *resources)
+    VkShaderFactory::VkShaderFactory(const ResourceSet *resources)
             : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()) {
         //
     }

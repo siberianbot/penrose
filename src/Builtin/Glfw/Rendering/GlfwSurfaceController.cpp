@@ -7,7 +7,7 @@
 
 namespace Penrose {
 
-    GlfwSurfaceController::GlfwSurfaceController(ResourceSet *resources)
+    GlfwSurfaceController::GlfwSurfaceController(const ResourceSet *resources)
             : _eventQueue(resources->get<SurfaceEventQueue>()),
               _inputHandler(resources->get<InputHandler>()),
               _surfaceManager(resources->get<SurfaceManager>()),

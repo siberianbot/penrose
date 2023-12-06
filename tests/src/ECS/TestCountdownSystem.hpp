@@ -11,14 +11,14 @@
 
 using namespace Penrose;
 
-class TestCountdownSystem : public Resource<TestCountdownSystem, ResourceGroup::ECSSystem>,
+class TestCountdownSystem : public Resource<TestCountdownSystem>,
                             public Initializable,
                             public System {
 public:
     constexpr static const float DEFAULT_TEST_TIMEOUT = 3.0f;
     constexpr static const float DEFAULT_FAILURE_TIMEOUT = 3.0f;
 
-    explicit TestCountdownSystem(ResourceSet *resources);
+    explicit TestCountdownSystem(const ResourceSet *resources);
     ~TestCountdownSystem() override;
 
     void init() override;

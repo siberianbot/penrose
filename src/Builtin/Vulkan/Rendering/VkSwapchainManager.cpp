@@ -8,7 +8,7 @@ namespace Penrose {
 
     constexpr static const std::string_view VK_SWAPCHAIN_MANAGER_TAG = "VkSwapchainManager";
 
-    VkSwapchainManager::VkSwapchainManager(ResourceSet *resources)
+    VkSwapchainManager::VkSwapchainManager(const ResourceSet *resources)
             : _log(resources->get<Log>()),
               _swapchainFactory(resources->get<VkSwapchainFactory>()) {
         //

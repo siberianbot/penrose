@@ -12,11 +12,11 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class RenderManager : public Resource<RenderManager, ResourceGroup::Rendering>,
+    class RenderManager : public Resource<RenderManager>,
                           public Initializable,
                           public Runnable {
     public:
-        explicit RenderManager(ResourceSet *resources);
+        explicit RenderManager(const ResourceSet *resources);
         ~RenderManager() override = default;
 
         void init() override { /* nothing to do */ }

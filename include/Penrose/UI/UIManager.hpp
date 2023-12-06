@@ -14,10 +14,10 @@
 
 namespace Penrose {
 
-    class PENROSE_API UIManager final: public Resource<UIManager, ResourceGroup::UI>,
+    class PENROSE_API UIManager final: public Resource<UIManager>,
                                        public Initializable {
     public:
-        explicit UIManager(ResourceSet *resources);
+        explicit UIManager(const ResourceSet *resources);
         ~UIManager() override = default;
 
         void init() override {

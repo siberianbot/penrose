@@ -92,7 +92,7 @@ namespace Penrose {
             .setMagFilter(SamplerFilter::Linear)
             .setBorderColor(SamplerBorderColor::Black);
 
-    ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(ResourceSet *resources)
+    ForwardSceneDrawRenderOperator::ForwardSceneDrawRenderOperator(const ResourceSet *resources)
             : _assetManager(resources->get<AssetManager>()),
               _bufferFactory(resources->get<BufferFactory>()),
               _pipelineFactory(resources->get<PipelineFactory>()),

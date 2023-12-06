@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    ShaderLoader::ShaderLoader(ResourceSet *resources)
+    ShaderLoader::ShaderLoader(const ResourceSet *resources)
         : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
         //
     }

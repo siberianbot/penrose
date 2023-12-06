@@ -6,7 +6,7 @@
 
 namespace Penrose {
 
-    VkRenderGraphExecutor::VkRenderGraphExecutor(ResourceSet *resources)
+    VkRenderGraphExecutor::VkRenderGraphExecutor(const ResourceSet *resources)
             : _renderOperators(resources->get<RenderOperator>()),
               _swapchainManager(resources->get<VkSwapchainManager>()) {
         //

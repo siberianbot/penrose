@@ -18,11 +18,11 @@
 
 namespace Penrose {
 
-    class VkRenderGraphContextManager : public Resource<VkRenderGraphContextManager, ResourceGroup::Rendering>,
+    class VkRenderGraphContextManager : public Resource<VkRenderGraphContextManager>,
                                         public Initializable,
                                         public RenderGraphHook {
     public:
-        explicit VkRenderGraphContextManager(ResourceSet *resources);
+        explicit VkRenderGraphContextManager(const ResourceSet *resources);
         ~VkRenderGraphContextManager() override = default;
 
         void init() override;

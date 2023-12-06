@@ -2,7 +2,7 @@
 
 namespace Penrose {
 
-    RenderManager::RenderManager(ResourceSet *resources)
+    RenderManager::RenderManager(const ResourceSet *resources)
             : _renderSystem(resources->get<RenderSystem>()) {
         //
     }

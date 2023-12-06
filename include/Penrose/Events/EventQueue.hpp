@@ -22,10 +22,11 @@ namespace Penrose {
     template<typename E>
     concept IsEvent = std::is_base_of_v<Event<E>, E>;
 
-    template<typename ...Events> requires All<IsEvent<Events>...>
-    class PENROSE_API EventQueue : public Resource<EventQueue<Events...>, ResourceGroup::Events>,
-                                   public Initializable,
-                                   public Updatable {
+    template <typename... Events>
+    requires All<IsEvent<Events>...>
+    class PENROSE_API EventQueue: public Resource<EventQueue<Events...>>,
+                                  public Initializable,
+                                  public Updatable {
     public:
         ~EventQueue() override = default;
 

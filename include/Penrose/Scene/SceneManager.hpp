@@ -14,7 +14,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API SceneManager : public Resource<SceneManager, ResourceGroup::Scene>,
+    class PENROSE_API SceneManager : public Resource<SceneManager>,
                                      public Initializable {
     public:
         ~SceneManager() override = default;

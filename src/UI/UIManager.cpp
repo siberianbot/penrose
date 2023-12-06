@@ -4,7 +4,7 @@
 
 namespace Penrose {
 
-    UIManager::UIManager(ResourceSet *resources)
+    UIManager::UIManager(const ResourceSet *resources)
         : _assetManager(resources->get<AssetManager>()) {
         //
     }

@@ -8,15 +8,15 @@ namespace Penrose {
 
     ResourceSet &addImGui(ResourceSet &resources) {
 
-        resources.add<ImGuiBackend, ResourceGroup::Backend>()
+        resources.add<ImGuiBackend>().group(ResourceGroup::Backend)
             .implements<Initializable>()
             .implements<SurfaceHook>()
             .implements<InputHook>()
             .done();
 
-        resources.add<ImGuiUIContextVisitor, ResourceGroup::UI>().done();
+        resources.add<ImGuiUIContextVisitor>().group(ResourceGroup::UI).done();
 
-        resources.add<VkImGuiRenderOperator, ResourceGroup::RenderOperator>()
+        resources.add<VkImGuiRenderOperator>().group(ResourceGroup::RenderOperator)
             .implements<Initializable>()
             .implements<RenderOperator>()
             .done();

@@ -7,7 +7,7 @@
 
 namespace Penrose {
 
-    DefaultDrawableProvider::DefaultDrawableProvider(ResourceSet *resources)
+    DefaultDrawableProvider::DefaultDrawableProvider(const ResourceSet *resources)
             : _entityManager(resources->get<EntityManager>()) {
         //
     }

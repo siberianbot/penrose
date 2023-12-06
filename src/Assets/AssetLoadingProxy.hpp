@@ -10,9 +10,9 @@
 
 namespace Penrose {
 
-    class AssetLoadingProxy final: public Resource<AssetLoadingProxy, ResourceGroup::Assets> {
+    class AssetLoadingProxy final: public Resource<AssetLoadingProxy> {
     public:
-        explicit AssetLoadingProxy(ResourceSet *resources);
+        explicit AssetLoadingProxy(const ResourceSet *resources);
         ~AssetLoadingProxy() override = default;
 
         [[nodiscard]] Asset *fromPath(std::filesystem::path &&path);

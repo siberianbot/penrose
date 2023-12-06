@@ -4,7 +4,7 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
-TestSwapchainResizeSystem::TestSwapchainResizeSystem(ResourceSet *resources)
+TestSwapchainResizeSystem::TestSwapchainResizeSystem(const ResourceSet *resources)
         : _surfaceManager(resources->get<SurfaceManager>()) {
     //
 }

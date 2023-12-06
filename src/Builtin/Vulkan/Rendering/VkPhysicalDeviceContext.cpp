@@ -19,7 +19,7 @@ namespace Penrose {
             vk::PhysicalDeviceType::eOther
     };
 
-    VkPhysicalDeviceContext::VkPhysicalDeviceContext(ResourceSet *resources)
+    VkPhysicalDeviceContext::VkPhysicalDeviceContext(const ResourceSet *resources)
             : _log(resources->get<Log>()),
               _surfaceManager(resources->get<SurfaceManager>()),
               _vkSurfaceProvider(resources->get<VkSurfaceProvider>()),

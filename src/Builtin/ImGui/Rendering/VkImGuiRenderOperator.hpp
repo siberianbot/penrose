@@ -18,11 +18,11 @@
 
 namespace Penrose {
 
-    class VkImGuiRenderOperator: public Resource<VkImGuiRenderOperator, ResourceGroup::RenderOperator>,
+    class VkImGuiRenderOperator: public Resource<VkImGuiRenderOperator>,
                                  public Initializable,
                                  public ImGuiRenderOperator {
     public:
-        explicit VkImGuiRenderOperator(ResourceSet *resources);
+        explicit VkImGuiRenderOperator(const ResourceSet *resources);
         ~VkImGuiRenderOperator() override = default;
 
         void init() override { /* nothing to do */

@@ -2,7 +2,7 @@
 
 namespace Penrose {
 
-    RenderGraphContext::RenderGraphContext(ResourceSet *resources)
+    RenderGraphContext::RenderGraphContext(const ResourceSet *resources)
             : _hooks(resources->get<RenderGraphHook>()) {
         //
     }

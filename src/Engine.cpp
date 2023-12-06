@@ -49,83 +49,104 @@ namespace Penrose {
 
     Engine::Engine() {
 
-        this->_resources.add<InputHandler, ResourceGroup::Engine>().done();
+        this->_resources.add<InputHandler>().group(ResourceGroup::Engine).done();
 
-        this->_resources.add<LogImpl, ResourceGroup::Engine>().implements<Log>().done();
-        this->_resources.add<ConsoleLogSink, ResourceGroup::Engine>().implements<LogSink>().done();
+        Log *log = this->_resources.add<LogImpl>().group(ResourceGroup::Engine).implements<Log>().done();
+        this->_resources.add<ConsoleLogSink>().group(ResourceGroup::Engine).implements<LogSink>().done();
 
-        this->_resources.add<Profiler, ResourceGroup::Performance>().done();
+        log->addSink<ConsoleLogSink>();
 
-        this->_resources.add<SurfaceManager, ResourceGroup::Windowing>().implements<Initializable>().done();
+        this->_resources.add<Profiler>().group(ResourceGroup::Performance).done();
 
-        this->_resources.add<RenderGraphContext, ResourceGroup::Rendering>().done();
-        this->_resources.add<RenderListBuilder, ResourceGroup::Rendering>().implements<Initializable>().done();
-        this->_resources.add<RenderManager, ResourceGroup::Rendering>()
-            .implements<Initializable>()
-            .implements<Runnable>()
+        this->_resources.add<SurfaceManager>().group(ResourceGroup::Windowing).implements<Initializable>().done();
+
+        this->_resources.add<RenderGraphContext>().group(ResourceGroup::Rendering).done();
+        this->_resources.add<RenderListBuilder>().group(ResourceGroup::Rendering).implements<Initializable>().done();
+        this->_resources.add<DefaultDrawableProvider>()
+            .group(ResourceGroup::Rendering)
+            .implements<DrawableProvider>()
             .done();
-        this->_resources.add<DefaultDrawableProvider, ResourceGroup::Rendering>().implements<DrawableProvider>().done();
-        this->_resources.add<DefaultViewProvider, ResourceGroup::Rendering>().implements<ViewProvider>().done();
+        this->_resources.add<DefaultViewProvider>().group(ResourceGroup::Rendering).implements<ViewProvider>().done();
 
-        this->_resources.add<MeshLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
-        this->_resources.add<ImageLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
-        this->_resources.add<ShaderLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
-        this->_resources.add<UILayoutLoader, ResourceGroup::Assets>().implements<TypedAssetLoader>().done();
-        this->_resources.add<AssetIndex, ResourceGroup::Assets>().done();
-        this->_resources.add<AssetLoadingProxy, ResourceGroup::Assets>().done();
-        this->_resources.add<AssetLoadingJobQueue, ResourceGroup::Assets>().implements<Initializable>().done();
-        this->_resources.add<AssetManagerImpl, ResourceGroup::Assets>()
+        this->_resources.add<MeshLoader>().group(ResourceGroup::Assets).implements<TypedAssetLoader>().done();
+        this->_resources.add<ImageLoader>().group(ResourceGroup::Assets).implements<TypedAssetLoader>().done();
+        this->_resources.add<ShaderLoader>().group(ResourceGroup::Assets).implements<TypedAssetLoader>().done();
+        this->_resources.add<UILayoutLoader>().group(ResourceGroup::Assets).implements<TypedAssetLoader>().done();
+        this->_resources.add<AssetIndex>().group(ResourceGroup::Assets).done();
+        this->_resources.add<AssetLoadingProxy>().group(ResourceGroup::Assets).done();
+        this->_resources.add<AssetLoadingJobQueue>().group(ResourceGroup::Assets).implements<Initializable>().done();
+        this->_resources.add<AssetManagerImpl>()
+            .group(ResourceGroup::Assets)
             .implements<Initializable>()
             .implements<AssetManager>()
             .done();
 
-        this->_resources.add<LayoutFactory, ResourceGroup::UI>().done();
-        this->_resources.add<UIManager, ResourceGroup::UI>().done();
+        this->_resources.add<LayoutFactory>().group(ResourceGroup::UI).done();
+        this->_resources.add<UIManager>().group(ResourceGroup::UI).done();
 
-        this->_resources.add<ECSEventQueue, ResourceGroup::Events>()
+        this->_resources.add<ECSEventQueue>()
+            .group(ResourceGroup::Events)
             .implements<Initializable>()
             .implements<Updatable>()
             .done();
-        this->_resources.add<EngineEventQueue, ResourceGroup::Events>()
+        this->_resources.add<EngineEventQueue>()
+            .group(ResourceGroup::Events)
             .implements<Initializable>()
             .implements<Updatable>()
             .done();
-        this->_resources.add<InputEventQueue, ResourceGroup::Events>()
+        this->_resources.add<InputEventQueue>()
+            .group(ResourceGroup::Events)
             .implements<Initializable>()
             .implements<Updatable>()
             .done();
-        this->_resources.add<SurfaceEventQueue, ResourceGroup::Events>()
+        this->_resources.add<SurfaceEventQueue>()
+            .group(ResourceGroup::Events)
             .implements<Initializable>()
             .implements<Updatable>()
             .done();
 
-        this->_resources.add<EntityManager, ResourceGroup::ECSManager>().implements<Initializable>().done();
-        this->_resources.add<SystemManager, ResourceGroup::ECSManager>().implements<Updatable>().done();
+        this->_resources.add<EntityManager>().group(ResourceGroup::ECSManager).implements<Initializable>().done();
+        this->_resources.add<SystemManager>().group(ResourceGroup::ECSManager).implements<Updatable>().done();
 
-        this->_resources.add<SceneManager, ResourceGroup::Scene>().implements<Initializable>().done();
+        this->_resources.add<SceneManager>().group(ResourceGroup::Scene).implements<Initializable>().done();
 
         // backends
         addGlfw(this->_resources);
         addVulkan(this->_resources);
         addImGui(this->_resources);
 
+        // TODO: order is still important, need to fix that
+        this->_resources.add<RenderManager>()
+            .group(ResourceGroup::Rendering)
+            .implements<Initializable>()
+            .implements<Runnable>()
+            .done();
+
         // builtin
-        this->_resources.add<MeshRendererComponentFactory, ResourceGroup::ECSComponent>()
+        this->_resources.add<MeshRendererComponentFactory>()
+            .group(ResourceGroup::ECSComponent)
             .implements<ComponentFactory>()
             .done();
-        this->_resources.add<OrthographicCameraComponentFactory, ResourceGroup::ECSComponent>()
+        this->_resources.add<OrthographicCameraComponentFactory>()
+            .group(ResourceGroup::ECSComponent)
             .implements<ComponentFactory>()
             .done();
-        this->_resources.add<PerspectiveCameraComponentFactory, ResourceGroup::ECSComponent>()
+        this->_resources.add<PerspectiveCameraComponentFactory>()
+            .group(ResourceGroup::ECSComponent)
             .implements<ComponentFactory>()
             .done();
-        this->_resources.add<TransformComponentFactory, ResourceGroup::ECSComponent>()
+        this->_resources.add<TransformComponentFactory>()
+            .group(ResourceGroup::ECSComponent)
             .implements<ComponentFactory>()
             .done();
-        this->_resources.add<ViewComponentFactory, ResourceGroup::ECSComponent>().implements<ComponentFactory>().done();
+        this->_resources.add<ViewComponentFactory>()
+            .group(ResourceGroup::ECSComponent)
+            .implements<ComponentFactory>()
+            .done();
 
         // builtin / rendering operators
-        this->_resources.add<ForwardSceneDrawRenderOperator, ResourceGroup::RenderOperator>()
+        this->_resources.add<ForwardSceneDrawRenderOperator>()
+            .group(ResourceGroup::RenderOperator)
             .implements<Initializable>()
             .implements<RenderOperator>()
             .done();

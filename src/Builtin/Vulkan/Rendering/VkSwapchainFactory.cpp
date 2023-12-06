@@ -2,7 +2,7 @@
 
 namespace Penrose {
 
-    VkSwapchainFactory::VkSwapchainFactory(ResourceSet *resources)
+    VkSwapchainFactory::VkSwapchainFactory(const ResourceSet *resources)
             : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _surfaceManager(resources->get<SurfaceManager>()),
               _surfaceProvider(resources->get<VkSurfaceProvider>()),

@@ -9,7 +9,7 @@
 
 namespace Penrose {
 
-    VkFramebufferFactory::VkFramebufferFactory(ResourceSet *resources)
+    VkFramebufferFactory::VkFramebufferFactory(const ResourceSet *resources)
             : _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _swapchainManager(resources->get<VkSwapchainManager>()) {
         //

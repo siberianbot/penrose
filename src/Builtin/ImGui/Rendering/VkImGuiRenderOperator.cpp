@@ -11,7 +11,7 @@
 
 namespace Penrose {
 
-    VkImGuiRenderOperator::VkImGuiRenderOperator(ResourceSet *resources)
+    VkImGuiRenderOperator::VkImGuiRenderOperator(const ResourceSet *resources)
         : _vulkanBackend(resources->get<VulkanBackend>()),
           _commandManager(resources->get<VkCommandManager>()),
           _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),

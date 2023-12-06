@@ -18,12 +18,12 @@
 
 namespace Penrose {
 
-    class VkCommandManager : public Resource<VkCommandManager, ResourceGroup::Rendering>,
+    class VkCommandManager : public Resource<VkCommandManager>,
                              public Initializable {
     public:
         using Command = std::function<void(vk::CommandBuffer &commandBuffer)>;
 
-        explicit VkCommandManager(ResourceSet *resources);
+        explicit VkCommandManager(const ResourceSet *resources);
         ~VkCommandManager() override = default;
 
         void init() override;

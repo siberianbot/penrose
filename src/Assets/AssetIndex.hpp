@@ -14,7 +14,7 @@
 
 namespace Penrose {
 
-    class AssetIndex final: public Resource<AssetIndex, ResourceGroup::Assets> {
+    class AssetIndex final: public Resource<AssetIndex> {
     public:
         enum class State {
             Unloaded,
@@ -29,7 +29,7 @@ namespace Penrose {
             std::weak_ptr<Asset> instance;
         };
 
-        explicit AssetIndex(ResourceSet *resources);
+        explicit AssetIndex(const ResourceSet *resources);
         ~AssetIndex() override = default;
 
         void add(std::string_view &&asset, std::filesystem::path &&path);

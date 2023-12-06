@@ -4,7 +4,7 @@
 #include <string>
 
 #if defined(__GNUC__)
-#include <cxxabi.h>
+#    include <cxxabi.h>
 #endif
 
 namespace Penrose {
@@ -22,6 +22,11 @@ namespace Penrose {
 #else
         return name;
 #endif
+    }
+
+    template <typename T>
+    std::string getTypeName() {
+        return demangle(typeid(T).name());
     }
 }
 

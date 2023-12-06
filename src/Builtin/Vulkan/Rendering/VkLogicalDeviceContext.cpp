@@ -14,7 +14,7 @@ namespace Penrose {
 
     constexpr static const std::string_view VK_LOGICAL_DEVICE_CONTEXT_TAG = "VkLogicalDeviceContext";
 
-    VkLogicalDeviceContext::VkLogicalDeviceContext(ResourceSet *resources)
+    VkLogicalDeviceContext::VkLogicalDeviceContext(const ResourceSet *resources)
             : _log(resources->get<Log>()),
               _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()) {
         //

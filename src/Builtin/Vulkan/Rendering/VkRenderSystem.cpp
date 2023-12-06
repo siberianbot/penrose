@@ -8,7 +8,7 @@ namespace Penrose {
             vk::PipelineStageFlagBits::eColorAttachmentOutput
     };
 
-    VkRenderSystem::VkRenderSystem(ResourceSet *resources)
+    VkRenderSystem::VkRenderSystem(const ResourceSet *resources)
             : _commandManager(resources->get<VkCommandManager>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
               _renderGraphContextManager(resources->get<VkRenderGraphContextManager>()),

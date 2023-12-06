@@ -25,9 +25,9 @@ namespace Penrose {
         vk::PresentModeKHR presentMode;
     };
 
-    class VkSwapchainPreferencesProvider : public Resource<VkSwapchainPreferencesProvider, ResourceGroup::Rendering> {
+    class VkSwapchainPreferencesProvider : public Resource<VkSwapchainPreferencesProvider> {
     public:
-        explicit VkSwapchainPreferencesProvider(ResourceSet *resources);
+        explicit VkSwapchainPreferencesProvider(const ResourceSet *resources);
         ~VkSwapchainPreferencesProvider() override = default;
 
         [[nodiscard]] SwapchainPreference getPreferencesFor(Surface *surface,

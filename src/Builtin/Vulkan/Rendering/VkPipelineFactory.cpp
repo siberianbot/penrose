@@ -13,7 +13,7 @@
 
 namespace Penrose {
 
-    VkPipelineFactory::VkPipelineFactory(ResourceSet *resources)
+    VkPipelineFactory::VkPipelineFactory(const ResourceSet *resources)
             : _assetManager(resources->get<AssetManager>()),
               _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
               _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()) {

@@ -15,10 +15,10 @@
 
 using namespace Penrose;
 
-class DemoUIContext: public Resource<DemoUIContext, ResourceGroup::Custom>,
+class DemoUIContext: public Resource<DemoUIContext>,
                      public Runnable {
 public:
-    explicit DemoUIContext(ResourceSet *resources)
+    explicit DemoUIContext(const ResourceSet *resources)
         : _uiManager(resources->get<UIManager>()),
           _engineEventQueue(resources->get<EngineEventQueue>()) {
         //
@@ -110,11 +110,11 @@ private:
 
 constexpr static std::string_view TEST_LOGIC_SYSTEM_TAG = "InputReceiving";
 
-class TestLogicSystem: public Resource<TestLogicSystem, ResourceGroup::ECSSystem>,
+class TestLogicSystem: public Resource<TestLogicSystem>,
                        public Initializable,
                        public System {
 public:
-    explicit TestLogicSystem(ResourceSet *resources)
+    explicit TestLogicSystem(const ResourceSet *resources)
         : _eventQueue(resources->get<InputEventQueue>()),
           _log(resources->get<Log>()) {
         //
@@ -163,10 +163,10 @@ int main() {
 
     Engine engine;
 
-    engine.resources().add<DemoUIContext, ResourceGroup::Custom>().implements<Runnable>().done();
+    engine.resources().add<DemoUIContext>().group(ResourceGroup::Custom).implements<Runnable>().done();
 
     engine.resources()
-        .add<TestLogicSystem, ResourceGroup::ECSSystem>()
+        .add<TestLogicSystem>().group(ResourceGroup::ECSSystem)
         .implements<Initializable>()
         .implements<System>()
         .done();

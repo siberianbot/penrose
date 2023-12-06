@@ -20,12 +20,12 @@
 
 namespace Penrose {
 
-    class VkRenderSystem : public Resource<VkRenderSystem, ResourceGroup::Rendering>,
+    class VkRenderSystem : public Resource<VkRenderSystem>,
                            public Initializable,
                            public Runnable,
                            public RenderSystem {
     public:
-        explicit VkRenderSystem(ResourceSet *resources);
+        explicit VkRenderSystem(const ResourceSet *resources);
         ~VkRenderSystem() override = default;
 
         void init() override;

@@ -9,10 +9,10 @@ namespace Penrose {
 
     class ResourceSet;
 
-    class DefaultDrawableProvider : public Resource<DefaultDrawableProvider, ResourceGroup::Rendering>,
+    class DefaultDrawableProvider : public Resource<DefaultDrawableProvider>,
                                     public DrawableProvider {
     public:
-        explicit DefaultDrawableProvider(ResourceSet *resources);
+        explicit DefaultDrawableProvider(const ResourceSet *resources);
         ~DefaultDrawableProvider() override = default;
 
         [[nodiscard]] std::vector<Drawable> getDrawablesFor(const Entity &entity) override;

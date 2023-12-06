@@ -4,7 +4,7 @@ namespace Penrose {
 
     inline static constexpr std::string_view TAG = "AssetLoadingJobQueue";
 
-    AssetLoadingJobQueue::AssetLoadingJobQueue(ResourceSet *resources)
+    AssetLoadingJobQueue::AssetLoadingJobQueue(const ResourceSet *resources)
         : _log(resources->get<Log>()),
           _assetIndex(resources->get<AssetIndex>()),
           _assetLoadingProxy(resources->get<AssetLoadingProxy>()) {
