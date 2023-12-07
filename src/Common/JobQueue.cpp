@@ -1,6 +1,7 @@
 #include "JobQueue.hpp"
 
 namespace Penrose {
+
     void JobQueue::start() {
         if (this->_thread.has_value()) {
             this->stop();
@@ -8,16 +9,19 @@ namespace Penrose {
 
         this->_thread = std::jthread([this](const std::stop_token &token) {
             while (!token.stop_requested()) {
+
                 if (this->_jobs.empty()) {
                     std::this_thread::yield();
                     continue;
                 }
 
-                auto &job = this->_jobs.front();
+                const auto &job = this->_jobs.front();
 
-                job();
+                job->exec();
 
-                this->_jobs.pop();
+                if (job->remove()) {
+                    this->_jobs.pop();
+                }
             }
         });
     }
@@ -36,9 +40,15 @@ namespace Penrose {
         this->_thread = std::nullopt;
     }
 
+    void JobQueue::enqueue(std::unique_ptr<Job> &&job) {
+        this->_jobs.push(std::forward<decltype(job)>(job));
+    }
+
+    void JobQueue::enqueue(std::function<void()> &&func) {
+        this->enqueue<FuncJob>(std::forward<decltype(func)>(func));
+    }
+
     void JobQueue::clear() {
-        while (!this->_jobs.empty()) {
-            this->_jobs.pop();
-        }
+        this->_jobs.clear();
     }
 }
