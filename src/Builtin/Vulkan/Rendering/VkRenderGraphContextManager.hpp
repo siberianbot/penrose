@@ -7,8 +7,6 @@
 
 #include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderGraphHook.hpp>
-#include <Penrose/Rendering/RenderGraphInfo.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkFramebufferFactory.hpp"
@@ -18,15 +16,14 @@
 
 namespace Penrose {
 
-    class VkRenderGraphContextManager : public Resource<VkRenderGraphContextManager>,
-                                        public Initializable,
-                                        public RenderGraphHook {
+    class VkRenderGraphContextManager final: public Resource<VkRenderGraphContextManager>,
+                                             public RenderGraphHook {
     public:
         explicit VkRenderGraphContextManager(const ResourceSet *resources);
         ~VkRenderGraphContextManager() override = default;
 
-        void init() override;
-        void destroy() override;
+        void init();
+        void destroy();
 
         void invalidate();
 

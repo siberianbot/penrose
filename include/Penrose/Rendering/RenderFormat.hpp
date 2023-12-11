@@ -3,8 +3,11 @@
 
 namespace Penrose {
 
+    /**
+     * \brief Available rendering formats
+     */
     enum class RenderFormat {
-        None,
+        None, // TODO: remove
         R8UNorm,
         RGBA8UNorm,
         RGBA16Float,

@@ -1,7 +1,7 @@
 #ifndef PENROSE_RENDERING_SURFACE_HPP
 #define PENROSE_RENDERING_SURFACE_HPP
 
-#include <Penrose/Common/Size.hpp>
+#include <Penrose/Types/Size.hpp>
 
 namespace Penrose {
 

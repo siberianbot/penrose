@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include <Penrose/Common/Rect.hpp>
+#include <Penrose/Types/Rect.hpp>
 
 namespace Penrose {
 

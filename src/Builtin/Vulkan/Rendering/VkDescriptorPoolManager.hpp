@@ -7,7 +7,6 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/Log.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
@@ -15,16 +14,15 @@
 
 namespace Penrose {
 
-    class VkDescriptorPoolManager : public Resource<VkDescriptorPoolManager>,
-                                    public Initializable {
+    class VkDescriptorPoolManager final: public Resource<VkDescriptorPoolManager> {
     public:
         using DescriptorSets = std::array<vk::DescriptorSet, INFLIGHT_FRAME_COUNT>;
 
         explicit VkDescriptorPoolManager(const ResourceSet *resources);
         ~VkDescriptorPoolManager() override = default;
 
-        void init() override;
-        void destroy() override;
+        void init();
+        void destroy();
 
         [[nodiscard]] const vk::DescriptorPool &getDescriptorPool() const { return this->_state->descriptorPool; }
 

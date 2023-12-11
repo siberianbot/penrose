@@ -15,13 +15,14 @@
 #include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
+#include <Penrose/Resources/Runnable.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 #include <Penrose/UI/LayoutFactory.hpp>
 #include <Penrose/UI/UIManager.hpp>
 
 #include <Penrose/Builtin/Glfw.hpp>
 #include <Penrose/Builtin/ImGui/ImGui.hpp>
-#include <Penrose/Builtin/Vulkan.hpp>
+#include <Penrose/Builtin/Vulkan/Vulkan.hpp>
 
 #include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/OrthographicCameraComponent.hpp>
@@ -43,7 +44,9 @@
 #include "src/Common/LogImpl.hpp"
 
 #include "src/Rendering/DefaultDrawableProvider.hpp"
+#include "src/Rendering/DefaultRenderer.hpp"
 #include "src/Rendering/DefaultViewProvider.hpp"
+#include "src/Rendering/RenderManagerImpl.hpp"
 
 namespace Penrose {
 
@@ -59,6 +62,15 @@ namespace Penrose {
         this->_resources.add<Profiler>().group(ResourceGroup::Performance).done();
 
         this->_resources.add<SurfaceManager>().group(ResourceGroup::Windowing).implements<Initializable>().done();
+
+        RenderManager *renderManager = this->_resources.add<RenderManagerImpl>()
+                                           .group(ResourceGroup::Rendering)
+                                           .implements<Initializable>()
+                                           .implements<RenderManager>()
+                                           .done();
+        this->_resources.add<DefaultRenderer>().group(ResourceGroup::Rendering).implements<Renderer>().done();
+
+        renderManager->addRenderer<DefaultRenderer>();
 
         this->_resources.add<RenderGraphContext>().group(ResourceGroup::Rendering).done();
         this->_resources.add<RenderListBuilder>().group(ResourceGroup::Rendering).implements<Initializable>().done();
@@ -114,13 +126,6 @@ namespace Penrose {
         addGlfw(this->_resources);
         addVulkan(this->_resources);
         addImGui(this->_resources);
-
-        // TODO: order is still important, need to fix that
-        this->_resources.add<RenderManager>()
-            .group(ResourceGroup::Rendering)
-            .implements<Initializable>()
-            .implements<Runnable>()
-            .done();
 
         // builtin
         this->_resources.add<MeshRendererComponentFactory>()

@@ -13,7 +13,8 @@
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
+#include <Penrose/Builtin/Vulkan/VkSurfaceProvider.hpp>
+
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 namespace Penrose {

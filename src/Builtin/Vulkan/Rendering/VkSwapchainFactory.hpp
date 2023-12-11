@@ -6,7 +6,8 @@
 #include <Penrose/Rendering/SurfaceManager.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
+#include <Penrose/Builtin/Vulkan/VkSurfaceProvider.hpp>
+
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchain.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchainPreferencesProvider.hpp"

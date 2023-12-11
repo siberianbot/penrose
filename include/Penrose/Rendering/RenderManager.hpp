@@ -1,35 +1,52 @@
 #ifndef PENROSE_RENDERING_RENDER_MANAGER_HPP
 #define PENROSE_RENDERING_RENDER_MANAGER_HPP
 
-#include <thread>
+#include <typeindex>
 
+#include <Penrose/Rendering/Renderer.hpp>
 #include <Penrose/Rendering/RenderSystem.hpp>
-#include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Resources/Runnable.hpp>
 
 namespace Penrose {
 
-    class ResourceSet;
-
-    class RenderManager : public Resource<RenderManager>,
-                          public Initializable,
-                          public Runnable {
+    /**
+     * \brief Render manager interface
+     * \details This interface provides methods for working with rendering system.
+     */
+    class RenderManager {
     public:
-        explicit RenderManager(const ResourceSet *resources);
-        ~RenderManager() override = default;
+        virtual ~RenderManager() = default;
 
-        void init() override { /* nothing to do */ }
+        /**
+         * \brief Set current rendering system
+         * \param type Type of rendering system
+         */
+        virtual void setRenderSystem(std::type_index &&type) = 0;
 
-        void destroy() override { /* nothing to do */ }
+        /**
+         * \brief Set current rendering system
+         * \tparam T Type of rendering system
+         */
+        template <typename T>
+        requires std::is_base_of_v<RenderSystem, T>
+        void setRenderSystem() {
+            this->setRenderSystem(typeid(T));
+        }
 
-        void run() override;
-        void stop() override;
+        /**
+         * \brief Add renderer
+         * \param type Type of renderer
+         */
+        virtual void addRenderer(std::type_index &&type) = 0;
 
-    private:
-        ResourceProxy<RenderSystem> _renderSystem;
-
-        std::optional<std::jthread> _thread;
+        /**
+         * \brief Add renderer
+         * \tparam T Type of renderer
+         */
+        template <typename T>
+        requires std::is_base_of_v<Renderer, T>
+        void addRenderer() {
+            this->addRenderer(typeid(T));
+        }
     };
 }
 

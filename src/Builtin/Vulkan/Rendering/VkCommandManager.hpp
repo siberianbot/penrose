@@ -9,7 +9,6 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/Log.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
@@ -18,16 +17,15 @@
 
 namespace Penrose {
 
-    class VkCommandManager : public Resource<VkCommandManager>,
-                             public Initializable {
+    class VkCommandManager final: public Resource<VkCommandManager> {
     public:
         using Command = std::function<void(vk::CommandBuffer &commandBuffer)>;
 
         explicit VkCommandManager(const ResourceSet *resources);
         ~VkCommandManager() override = default;
 
-        void init() override;
-        void destroy() override;
+        void init();
+        void destroy();
 
         [[nodiscard]] vk::CommandBuffer &getGraphicsCommandBuffer(std::uint32_t frameIdx) {
             return this->_state->graphicsCommandBuffers.at(frameIdx);
@@ -52,8 +50,7 @@ namespace Penrose {
 
         [[nodiscard]] State createCommandManagerState();
 
-        void executeOnce(const vk::CommandPool &commandPool, const vk::Queue &queue,
-                         const Command &command);
+        void executeOnce(const vk::CommandPool &commandPool, const vk::Queue &queue, const Command &command);
     };
 }
 

@@ -8,7 +8,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/Log.hpp>
-#include <Penrose/Common/Size.hpp>
+#include <Penrose/Types/Size.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"

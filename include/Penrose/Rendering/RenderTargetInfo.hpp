@@ -5,7 +5,7 @@
 #include <optional>
 #include <utility>
 
-#include <Penrose/Common/Size.hpp>
+#include <Penrose/Types/Size.hpp>
 #include <Penrose/Rendering/RenderFormat.hpp>
 
 namespace Penrose {

@@ -7,7 +7,7 @@
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Updatable.hpp>
 
-#include "src/Builtin/Vulkan/VkInstanceExtensionsProvider.hpp"
+#include <Penrose/Builtin/Vulkan/VkInstanceExtensionsProvider.hpp>
 
 namespace Penrose {
 

@@ -9,7 +9,6 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Rendering/RenderOperator.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkRenderGraphContext.hpp"
@@ -17,8 +16,7 @@
 
 namespace Penrose {
 
-    class VkRenderGraphExecutor : public Resource<VkRenderGraphExecutor>,
-                                  public Initializable {
+    class VkRenderGraphExecutor final: public Resource<VkRenderGraphExecutor> {
     public:
         struct Submit {
             vk::CommandBuffer commandBuffer;
@@ -29,9 +27,8 @@ namespace Penrose {
         explicit VkRenderGraphExecutor(const ResourceSet *resources);
         ~VkRenderGraphExecutor() override = default;
 
-        void init() override;
-
-        void destroy() override;
+        void init();
+        void destroy();
 
         [[nodiscard]] std::vector<Submit> execute(VkRenderGraphContext *graphContext,
                                                   const vk::CommandBuffer &commandBuffer,

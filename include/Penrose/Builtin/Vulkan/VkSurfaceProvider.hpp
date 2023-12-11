@@ -7,10 +7,18 @@ namespace Penrose {
 
     class Surface;
 
+    /**
+     * \brief Interface of Vulkan surface instance provider
+     */
     class VkSurfaceProvider {
     public:
         virtual ~VkSurfaceProvider() = default;
 
+        /**
+         * \brief Get instance of Vulkan surface object from surface
+         * \param surface Instance of surface
+         * \return Instance of Vulkan surface object
+         */
         [[nodiscard]] virtual vk::SurfaceKHR getVkSurfaceFor(Surface *surface) = 0;
     };
 }

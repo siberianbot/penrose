@@ -5,44 +5,65 @@ namespace Penrose {
     constexpr static const std::uint64_t MAX_TIMEOUT = std::numeric_limits<std::uint64_t>::max();
 
     constexpr static const std::array<vk::PipelineStageFlags, 1> WAIT_DST_STAGE_MASK = {
-            vk::PipelineStageFlagBits::eColorAttachmentOutput
+        vk::PipelineStageFlagBits::eColorAttachmentOutput
     };
 
     VkRenderSystem::VkRenderSystem(const ResourceSet *resources)
-            : _commandManager(resources->get<VkCommandManager>()),
-              _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-              _renderGraphContextManager(resources->get<VkRenderGraphContextManager>()),
-              _renderGraphExecutor(resources->get<VkRenderGraphExecutor>()),
-              _swapchainManager(resources->get<VkSwapchainManager>()) {
+        : _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
+          _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
+          _commandManager(resources->get<VkCommandManager>()),
+          _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
+          _swapchainManager(resources->get<VkSwapchainManager>()),
+          _pipelineFactory(resources->get<VkPipelineFactory>()),
+          _renderGraphContextManager(resources->get<VkRenderGraphContextManager>()),
+          _renderGraphExecutor(resources->get<VkRenderGraphExecutor>()) {
         //
     }
 
     void VkRenderSystem::init() {
+        this->_physicalDeviceContext->init();
+        this->_logicalDeviceContext->init();
+        this->_commandManager->init();
+        this->_descriptorPoolManager->init();
+        this->_swapchainManager->init();
+        this->_pipelineFactory->init();
+        this->_renderGraphContextManager->init();
+        this->_renderGraphExecutor->init();
+
         auto fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
         auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
 
         for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
             this->_fences[idx] = this->_logicalDeviceContext->getHandle().createFence(fenceCreateInfo);
-            this->_imageReadySemaphores[idx] = this->_logicalDeviceContext->getHandle()
-                    .createSemaphore(semaphoreCreateInfo);
-            this->_renderFinishedSemaphores[idx] = this->_logicalDeviceContext->getHandle()
-                    .createSemaphore(semaphoreCreateInfo);
+            this->_imageReadySemaphores[idx] = this->_logicalDeviceContext->getHandle().createSemaphore(
+                semaphoreCreateInfo
+            );
+            this->_renderFinishedSemaphores[idx] = this->_logicalDeviceContext->getHandle().createSemaphore(
+                semaphoreCreateInfo
+            );
         }
     }
 
     void VkRenderSystem::destroy() {
+        this->_logicalDeviceContext->getHandle().waitIdle();
+
         for (std::uint32_t frameIdx = 0; frameIdx < INFLIGHT_FRAME_COUNT; frameIdx++) {
             this->_logicalDeviceContext->getHandle().destroy(this->_fences.at(frameIdx));
             this->_logicalDeviceContext->getHandle().destroy(this->_imageReadySemaphores.at(frameIdx));
             this->_logicalDeviceContext->getHandle().destroy(this->_renderFinishedSemaphores.at(frameIdx));
         }
+
+        this->_renderGraphExecutor->destroy();
+        this->_renderGraphContextManager->destroy();
+        this->_pipelineFactory->destroy();
+        this->_swapchainManager->destroy();
+        this->_descriptorPoolManager->destroy();
+        this->_commandManager->destroy();
+        this->_logicalDeviceContext->destroy();
+        this->_physicalDeviceContext->destroy();
     }
 
-    void VkRenderSystem::stop() {
-        this->_logicalDeviceContext->getHandle().waitIdle();
-    }
-
-    void VkRenderSystem::renderFrame() {
+    void VkRenderSystem::render() {
         bool shouldInvalidate;
 
         try {
@@ -59,6 +80,13 @@ namespace Penrose {
         }
 
         this->_frameIdx = (this->_frameIdx + 1) % INFLIGHT_FRAME_COUNT;
+    }
+
+    void VkRenderSystem::resize() {
+        this->_logicalDeviceContext->getHandle().waitIdle();
+
+        this->_swapchainManager->recreate();
+        this->_renderGraphContextManager->invalidate();
     }
 
     bool VkRenderSystem::renderFrame(const uint32_t &frameIdx) {
@@ -78,8 +106,9 @@ namespace Penrose {
 
         logicalDevice.resetFences(fence);
 
-        auto [acquireResult, imageIdx] = logicalDevice.acquireNextImageKHR(swapchain->getHandle(), MAX_TIMEOUT,
-                                                                           imageReadySemaphore);
+        auto [acquireResult, imageIdx] = logicalDevice.acquireNextImageKHR(
+            swapchain->getHandle(), MAX_TIMEOUT, imageReadySemaphore
+        );
 
         if (acquireResult != vk::Result::eSuccess) {
             return true;
@@ -88,33 +117,32 @@ namespace Penrose {
         auto &commandBuffer = this->_commandManager->getGraphicsCommandBuffer(frameIdx);
 
         auto graphContext = this->_renderGraphContextManager->acquireContext();
-        auto submits = this->_renderGraphExecutor->execute(graphContext.get(),
-                                                           commandBuffer,
-                                                           imageReadySemaphore,
-                                                           renderFinishedSemaphore,
-                                                           frameIdx,
-                                                           imageIdx);
+        auto submits = this->_renderGraphExecutor->execute(
+            graphContext.get(), commandBuffer, imageReadySemaphore, renderFinishedSemaphore, frameIdx, imageIdx
+        );
 
         if (submits.empty()) {
             return false;
         }
 
         auto vkSubmits = std::vector<vk::SubmitInfo>(submits.size());
-        std::transform(submits.begin(), submits.end(), vkSubmits.begin(),
-                       [](const VkRenderGraphExecutor::Submit &submit) {
-                           return vk::SubmitInfo()
-                                   .setCommandBuffers(submit.commandBuffer)
-                                   .setWaitDstStageMask(WAIT_DST_STAGE_MASK)
-                                   .setWaitSemaphores(submit.waitSemaphores)
-                                   .setSignalSemaphores(submit.signalSemaphores);
-                       });
+        std::transform(
+            submits.begin(), submits.end(), vkSubmits.begin(),
+            [](const VkRenderGraphExecutor::Submit &submit) {
+                return vk::SubmitInfo()
+                    .setCommandBuffers(submit.commandBuffer)
+                    .setWaitDstStageMask(WAIT_DST_STAGE_MASK)
+                    .setWaitSemaphores(submit.waitSemaphores)
+                    .setSignalSemaphores(submit.signalSemaphores);
+            }
+        );
 
         graphicsQueue.submit(vkSubmits, fence);
 
         auto presentInfo = vk::PresentInfoKHR()
-                .setWaitSemaphores(renderFinishedSemaphore)
-                .setSwapchains(swapchain->getHandle())
-                .setImageIndices(imageIdx);
+                               .setWaitSemaphores(renderFinishedSemaphore)
+                               .setSwapchains(swapchain->getHandle())
+                               .setImageIndices(imageIdx);
 
         auto presentResult = presentQueue.presentKHR(presentInfo);
 

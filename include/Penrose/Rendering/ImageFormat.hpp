@@ -5,6 +5,9 @@
 
 namespace Penrose {
 
+    /**
+     * \brief Available image formats
+     */
     enum class ImageFormat : std::uint8_t {
         Grey = 1,
         GreyAlpha = 2,

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include <Penrose/Common/Size.hpp>
+#include <Penrose/Types/Size.hpp>
 #include <Penrose/Rendering/RenderAttachmentInfo.hpp>
 #include <Penrose/Rendering/RenderSubgraphPassInfo.hpp>
 

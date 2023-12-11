@@ -3,29 +3,28 @@
 
 #include <cstdint>
 #include <optional>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Builtin/Vulkan/VkSurfaceProvider.hpp"
+#include <Penrose/Builtin/Vulkan/VkSurfaceProvider.hpp>
+
 #include "src/Builtin/Vulkan/VulkanBackend.hpp"
 
 namespace Penrose {
 
-    class VkPhysicalDeviceContext : public Resource<VkPhysicalDeviceContext>,
-                                    public Initializable {
+    class VkPhysicalDeviceContext final: public Resource<VkPhysicalDeviceContext> {
     public:
         explicit VkPhysicalDeviceContext(const ResourceSet *resources);
         ~VkPhysicalDeviceContext() override = default;
 
-        void init() override;
-        void destroy() override;
+        void init();
+        void destroy();
 
         [[nodiscard]] const vk::PhysicalDevice &getHandle() const { return this->_device->handle; }
 
@@ -42,7 +41,7 @@ namespace Penrose {
         [[nodiscard]] const std::vector<std::string> &getExtensions() const { return this->_device->extensions; }
 
     private:
-        struct DeviceInfo {
+        struct PhysicalDeviceInfo {
             vk::PhysicalDevice handle;
             vk::PhysicalDeviceFeatures features;
             vk::PhysicalDeviceProperties properties;
@@ -58,11 +57,12 @@ namespace Penrose {
         ResourceProxy<VkSurfaceProvider> _vkSurfaceProvider;
         ResourceProxy<VulkanBackend> _vulkanBackend;
 
-        std::optional<DeviceInfo> _device;
+        std::optional<PhysicalDeviceInfo> _device;
 
-        [[nodiscard]] DeviceInfo selectPhysicalDevice();
-        [[nodiscard]] std::optional<DeviceInfo> makePhysicalDeviceInfo(const vk::PhysicalDevice &device,
-                                                                       const vk::SurfaceKHR &surface);
+        [[nodiscard]] PhysicalDeviceInfo selectPhysicalDevice();
+        [[nodiscard]] std::optional<PhysicalDeviceInfo> makePhysicalDeviceInfo(
+            const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface
+        );
     };
 }
 

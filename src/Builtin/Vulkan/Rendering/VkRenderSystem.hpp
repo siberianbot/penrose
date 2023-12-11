@@ -7,42 +7,43 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Rendering/RenderSystem.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Resources/Runnable.hpp>
 
 #include "src/Builtin/Vulkan/Constants.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderGraphContextManager.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkRenderGraphExecutor.hpp"
 #include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
 
 namespace Penrose {
 
-    class VkRenderSystem : public Resource<VkRenderSystem>,
-                           public Initializable,
-                           public Runnable,
-                           public RenderSystem {
+    class VkRenderSystem final: public Resource<VkRenderSystem>,
+                                public RenderSystem {
     public:
         explicit VkRenderSystem(const ResourceSet *resources);
         ~VkRenderSystem() override = default;
 
+        [[nodiscard]] std::string getName() const override { return "Vulkan"; }
+
         void init() override;
         void destroy() override;
 
-        void run() override { /* nothing to do */ }
-
-        void stop() override;
-
-        void renderFrame() override;
+        void render() override;
+        void resize() override;
 
     private:
-        ResourceProxy<VkCommandManager> _commandManager;
+        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
         ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
+        ResourceProxy<VkCommandManager> _commandManager;
+        ResourceProxy<VkDescriptorPoolManager> _descriptorPoolManager;
+        ResourceProxy<VkSwapchainManager> _swapchainManager;
+        ResourceProxy<VkPipelineFactory> _pipelineFactory;
         ResourceProxy<VkRenderGraphContextManager> _renderGraphContextManager;
         ResourceProxy<VkRenderGraphExecutor> _renderGraphExecutor;
-        ResourceProxy<VkSwapchainManager> _swapchainManager;
 
         std::uint32_t _frameIdx = 0;
         std::array<vk::Fence, INFLIGHT_FRAME_COUNT> _fences;

@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <Penrose/Common/Size.hpp>
+#include <Penrose/Types/Size.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/Surface.hpp>
 

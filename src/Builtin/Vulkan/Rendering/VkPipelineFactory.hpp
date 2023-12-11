@@ -9,7 +9,6 @@
 
 #include <Penrose/Assets/AssetManager.hpp>
 #include <Penrose/Rendering/PipelineFactory.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
@@ -18,15 +17,14 @@
 
 namespace Penrose {
 
-    class VkPipelineFactory : public Resource<VkPipelineFactory>,
-                              public Initializable,
-                              public PipelineFactory {
+    class VkPipelineFactory final: public Resource<VkPipelineFactory>,
+                                   public PipelineFactory {
     public:
         explicit VkPipelineFactory(const ResourceSet *resources);
         ~VkPipelineFactory() override = default;
 
-        void init() override;
-        void destroy() override;
+        void init();
+        void destroy();
 
         void addPipeline(const std::string &pipelineName, const PipelineInfo &pipelineInfo) override;
 

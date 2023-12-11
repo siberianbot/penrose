@@ -9,45 +9,44 @@
 
 namespace Penrose {
 
-    constexpr static const std::string_view VULKAN_BACKEND_TAG = "VulkanBackend";
+    inline static constexpr std::string_view TAG = "VulkanBackend";
 
-    constexpr static const std::array<std::string_view, 0> REQUIRED_LAYERS = {
-            // nothing
+    constexpr static std::array<std::string_view, 0> REQUIRED_LAYERS = {
+        // nothing
     };
 
-    constexpr static const std::array<std::string_view, 1> OPTIONAL_LAYERS = {
-            "VK_LAYER_KHRONOS_validation"
+    constexpr static std::array<std::string_view, 1> OPTIONAL_LAYERS = {
+        "VK_LAYER_KHRONOS_validation",
     };
 
-    constexpr static const std::array<std::string_view, 1> OPTIONAL_EXTENSIONS = {
-            VK_EXT_DEBUG_UTILS_EXTENSION_NAME
+    constexpr static std::array<std::string_view, 1> OPTIONAL_EXTENSIONS = {
+        VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
     };
 
     VulkanBackend::VulkanBackend(const ResourceSet *resources)
-            : _log(resources->get<Log>()),
-              _instanceExtensionsProvider(resources->get<VkInstanceExtensionsProvider>()) {
+        : _log(resources->get<Log>()),
+          _instanceExtensionsProvider(resources->get<VkInstanceExtensionsProvider>()) {
         //
     }
 
     void VulkanBackend::init() {
-
         std::vector<const char *> enabledLayers;
         std::vector<const char *> enabledExtensions;
 
         {
-            auto availableLayers = vk::enumerateInstanceLayerProperties();
+            const auto availableLayers = vk::enumerateInstanceLayerProperties();
 
-            this->_log->writeInfo(VULKAN_BACKEND_TAG, "{} layer(s) available", availableLayers.size());
+            this->_log->writeInfo(TAG, "{} layer(s) available", availableLayers.size());
 
             for (const auto &layer: availableLayers) {
-                this->_log->writeInfo(VULKAN_BACKEND_TAG, "\t{} {}: {}",
-                                      static_cast<const char *>(layer.layerName), layer.implementationVersion,
-                                      static_cast<const char *>(layer.description));
+                this->_log->writeInfo(
+                    TAG, "\t{} {}: {}", static_cast<const char *>(layer.layerName), layer.implementationVersion,
+                    static_cast<const char *>(layer.description)
+                );
             }
 
             for (const auto &requiredLayer: REQUIRED_LAYERS) {
-
-                auto haveLayer = contains(availableLayers, requiredLayer, [](const vk::LayerProperties &layer) {
+                const auto haveLayer = contains(availableLayers, requiredLayer, [](const vk::LayerProperties &layer) {
                     return std::string_view(layer.layerName, std::strlen(layer.layerName));
                 });
 
@@ -59,14 +58,12 @@ namespace Penrose {
             }
 
             for (const auto &optionalLayer: OPTIONAL_LAYERS) {
-
-                auto haveLayer = contains(availableLayers, optionalLayer, [](const vk::LayerProperties &layer) {
+                const auto haveLayer = contains(availableLayers, optionalLayer, [](const vk::LayerProperties &layer) {
                     return std::string_view(layer.layerName, std::strlen(layer.layerName));
                 });
 
                 if (!haveLayer) {
-                    this->_log->writeWarning(VULKAN_BACKEND_TAG, "Optional Vulkan layer {} is not available",
-                                             optionalLayer);
+                    this->_log->writeWarning(TAG, "Optional Vulkan layer {} is not available", optionalLayer);
 
                     continue;
                 }
@@ -76,23 +73,23 @@ namespace Penrose {
         }
 
         {
-            auto availableExtensions = vk::enumerateInstanceExtensionProperties();
+            const auto availableExtensions = vk::enumerateInstanceExtensionProperties();
 
-            this->_log->writeInfo(VULKAN_BACKEND_TAG, "{} extension(s) available", availableExtensions.size());
+            this->_log->writeInfo(TAG, "{} extension(s) available", availableExtensions.size());
 
             for (const auto &extension: availableExtensions) {
-                this->_log->writeInfo(VULKAN_BACKEND_TAG, "\t{}", static_cast<const char *>(extension.extensionName));
+                this->_log->writeInfo(TAG, "\t{}", static_cast<const char *>(extension.extensionName));
             }
 
-            auto requiredExtensions = this->_instanceExtensionsProvider->getRequiredInstanceExtensions();
+            const auto requiredExtensions = this->_instanceExtensionsProvider->getRequiredInstanceExtensions();
 
             for (const auto &requiredExtension: requiredExtensions) {
-
-                auto haveExtension = contains(availableExtensions, requiredExtension,
-                                              [](const vk::ExtensionProperties &extension) {
-                                                  return std::string_view(extension.extensionName,
-                                                                          std::strlen(extension.extensionName));
-                                              });
+                const auto haveExtension = contains(
+                    availableExtensions, requiredExtension,
+                    [](const vk::ExtensionProperties &extension) {
+                        return std::string_view(extension.extensionName, std::strlen(extension.extensionName));
+                    }
+                );
 
                 if (!haveExtension) {
                     throw EngineError("Required instance extension {} is not available", requiredExtension);
@@ -102,16 +99,15 @@ namespace Penrose {
             }
 
             for (const auto &optionalExtension: OPTIONAL_EXTENSIONS) {
-
-                auto haveExtension = contains(availableExtensions, optionalExtension,
-                                              [](const vk::ExtensionProperties &extension) {
-                                                  return std::string_view(extension.extensionName,
-                                                                          std::strlen(extension.extensionName));
-                                              });
+                const auto haveExtension = contains(
+                    availableExtensions, optionalExtension,
+                    [](const vk::ExtensionProperties &extension) {
+                        return std::string_view(extension.extensionName, std::strlen(extension.extensionName));
+                    }
+                );
 
                 if (!haveExtension) {
-                    this->_log->writeWarning(VULKAN_BACKEND_TAG, "Optional instance extension {} is not available",
-                                             optionalExtension);
+                    this->_log->writeWarning(TAG, "Optional instance extension {} is not available", optionalExtension);
 
                     continue;
                 }
@@ -120,31 +116,35 @@ namespace Penrose {
             }
         }
 
-        auto debugMessengerAvailable = contains(enabledExtensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        auto debugMessenger = vk::DebugUtilsMessengerCreateInfoEXT()
-                .setMessageType(vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-                                vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding |
-                                vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-                                vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation)
-                .setMessageSeverity(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
-                                    vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
-                                    vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-                                    vk::DebugUtilsMessageSeverityFlagBitsEXT::eError)
-                .setPfnUserCallback(debugCallback)
-                .setPUserData(this);
+        const auto debugMessengerAvailable = contains(enabledExtensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        const auto debugMessenger = vk::DebugUtilsMessengerCreateInfoEXT()
+                                        .setMessageType(
+                                            vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
+                                            | vk::DebugUtilsMessageTypeFlagBitsEXT::eDeviceAddressBinding
+                                            | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance
+                                            | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
+                                        )
+                                        .setMessageSeverity(
+                                            vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose
+                                            | vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
+                                            | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+                                            | vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
+                                        )
+                                        .setPfnUserCallback(debugCallback)
+                                        .setPUserData(this);
 
-        auto applicationInfo = vk::ApplicationInfo()
-                .setApiVersion(VK_API_VERSION_1_3)
-                .setPEngineName("Penrose")
-                .setEngineVersion(VK_MAKE_VERSION(0, 1, 0))
-                .setPApplicationName("Penrose")
-                .setApplicationVersion(VK_MAKE_VERSION(0, 1, 0));
+        constexpr auto applicationInfo = vk::ApplicationInfo()
+                                             .setApiVersion(VK_API_VERSION_1_3)
+                                             .setPEngineName("Penrose")
+                                             .setEngineVersion(VK_MAKE_VERSION(0, 1, 0))
+                                             .setPApplicationName("Penrose")
+                                             .setApplicationVersion(VK_MAKE_VERSION(0, 1, 0));
 
-        auto createInfo = vk::InstanceCreateInfo()
-                .setPNext(debugMessengerAvailable ? &debugMessenger : nullptr)
-                .setPApplicationInfo(&applicationInfo)
-                .setPEnabledExtensionNames(enabledExtensions)
-                .setPEnabledLayerNames(enabledLayers);
+        const auto createInfo = vk::InstanceCreateInfo()
+                                    .setPNext(debugMessengerAvailable ? &debugMessenger : nullptr)
+                                    .setPApplicationInfo(&applicationInfo)
+                                    .setPEnabledExtensionNames(enabledExtensions)
+                                    .setPEnabledLayerNames(enabledLayers);
 
         try {
             this->_instance = vk::createInstance(createInfo);
@@ -162,27 +162,27 @@ namespace Penrose {
         this->_instance = std::nullopt;
     }
 
-    VkBool32 VulkanBackend::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                          VkDebugUtilsMessageTypeFlagsEXT messageTypes,
-                                          const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                                          void *pUserData) {
-        auto that = reinterpret_cast<VulkanBackend *>(pUserData);
+    VkBool32 VulkanBackend::debugCallback(
+        const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData
+    ) {
+        const auto that = static_cast<VulkanBackend *>(pUserData);
 
         switch (messageSeverity) {
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-                that->_log->writeDebug(VULKAN_BACKEND_TAG, pCallbackData->pMessage);
+                that->_log->writeDebug(TAG, pCallbackData->pMessage);
                 break;
 
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-                that->_log->writeInfo(VULKAN_BACKEND_TAG, pCallbackData->pMessage);
+                that->_log->writeInfo(TAG, pCallbackData->pMessage);
                 break;
 
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-                that->_log->writeWarning(VULKAN_BACKEND_TAG, pCallbackData->pMessage);
+                that->_log->writeWarning(TAG, pCallbackData->pMessage);
                 break;
 
             case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-                that->_log->writeError(VULKAN_BACKEND_TAG, pCallbackData->pMessage);
+                that->_log->writeError(TAG, pCallbackData->pMessage);
                 break;
 
             default:

@@ -1,5 +1,5 @@
-#ifndef PENROSE_COMMON_RECT_HPP
-#define PENROSE_COMMON_RECT_HPP
+#ifndef PENROSE_TYPES_RECT_HPP
+#define PENROSE_TYPES_RECT_HPP
 
 #include <cstdint>
 
@@ -18,4 +18,4 @@ namespace Penrose {
     using FloatRect = Rect<float>;
 }
 
-#endif // PENROSE_COMMON_RECT_HPP
+#endif // PENROSE_TYPES_RECT_HPP

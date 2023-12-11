@@ -6,21 +6,19 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Penrose/Common/Log.hpp>
-#include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
 #include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
 
 namespace Penrose {
 
-    class VkLogicalDeviceContext : public Resource<VkLogicalDeviceContext>,
-                                   public Initializable {
+    class VkLogicalDeviceContext final: public Resource<VkLogicalDeviceContext> {
     public:
         explicit VkLogicalDeviceContext(const ResourceSet *resources);
         ~VkLogicalDeviceContext() override = default;
 
-        void init() override;
-        void destroy() override;
+        void init();
+        void destroy();
 
         [[nodiscard]] const vk::Device &getHandle() const { return this->_state->handle; }
 
@@ -31,7 +29,7 @@ namespace Penrose {
         [[nodiscard]] const vk::Queue &getPresentQueue() const { return this->_state->presentQueue; }
 
     private:
-        struct State {
+        struct LogicalDeviceState {
             vk::Device handle;
             vk::Queue graphicsQueue;
             vk::Queue transferQueue;
@@ -41,9 +39,9 @@ namespace Penrose {
         ResourceProxy<Log> _log;
         ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
 
-        std::optional<State> _state;
+        std::optional<LogicalDeviceState> _state;
 
-        [[nodiscard]] State createLogicalDevice();
+        [[nodiscard]] LogicalDeviceState makeLogicalDevice();
     };
 }
 

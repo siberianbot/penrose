@@ -2,6 +2,7 @@
 #define PENROSE_UTILS_TYPE_UTILS_HPP
 
 #include <string>
+#include <typeindex>
 
 #if defined(__GNUC__)
 #    include <cxxabi.h>
@@ -24,8 +25,12 @@ namespace Penrose {
 #endif
     }
 
+    [[nodiscard]] inline std::string getTypeName(const std::type_index type) {
+        return demangle(type.name());
+    }
+
     template <typename T>
-    std::string getTypeName() {
+    [[nodiscard]] std::string getTypeName() {
         return demangle(typeid(T).name());
     }
 }

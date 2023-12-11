@@ -5,7 +5,7 @@
 #include <string>
 
 #include <Penrose/Common/ParamsCollection.hpp>
-#include <Penrose/Common/Size.hpp>
+#include <Penrose/Types/Size.hpp>
 
 namespace Penrose {
 
