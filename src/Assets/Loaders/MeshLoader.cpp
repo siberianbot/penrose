@@ -8,7 +8,7 @@
 namespace Penrose {
 
     MeshLoader::MeshLoader(const ResourceSet *resources)
-        : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
+        : _bufferFactory(resources->get<BufferFactory>()) {
         //
     }
 
@@ -24,11 +24,11 @@ namespace Penrose {
         reader.read(verticesSize, vertices.data());
         reader.read(indicesSize, indices.data());
 
-        const auto vertexBuffer = this->_renderingObjectManager->makeBuffer(
+        const auto vertexBuffer = this->_bufferFactory->makeBuffer(
             BufferType::Vertex, verticesSize, verticesCount, vertices.data()
         );
 
-        const auto indexBuffer = this->_renderingObjectManager->makeBuffer(
+        const auto indexBuffer = this->_bufferFactory->makeBuffer(
             BufferType::Index, indicesSize, indicesCount, indices.data()
         );
 

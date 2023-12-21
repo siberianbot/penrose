@@ -11,7 +11,6 @@
 #include <Penrose/Events/SurfaceEvents.hpp>
 #include <Penrose/Input/InputHandler.hpp>
 #include <Penrose/Performance/Profiler.hpp>
-#include <Penrose/Rendering/RenderGraphContext.hpp>
 #include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
@@ -29,7 +28,6 @@
 #include <Penrose/Builtin/Penrose/ECS/PerspectiveCameraComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
 #include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
-#include <Penrose/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.hpp>
 
 #include "src/Assets/AssetIndex.hpp"
 #include "src/Assets/AssetLoadingJobQueue.hpp"
@@ -68,11 +66,17 @@ namespace Penrose {
                                            .implements<Initializable>()
                                            .implements<RenderManager>()
                                            .done();
+
         this->_resources.add<DefaultRenderer>().group(ResourceGroup::Rendering).implements<Renderer>().done();
 
         renderManager->addRenderer<DefaultRenderer>();
+        renderManager->setExecutionInfo(RenderExecutionInfo {
+            .renderers =
+                {
+                            RendererExecutionInfo("Default", {}),
+                            }
+        });
 
-        this->_resources.add<RenderGraphContext>().group(ResourceGroup::Rendering).done();
         this->_resources.add<RenderListBuilder>().group(ResourceGroup::Rendering).implements<Initializable>().done();
         this->_resources.add<DefaultDrawableProvider>()
             .group(ResourceGroup::Rendering)
@@ -147,13 +151,6 @@ namespace Penrose {
         this->_resources.add<ViewComponentFactory>()
             .group(ResourceGroup::ECSComponent)
             .implements<ComponentFactory>()
-            .done();
-
-        // builtin / rendering operators
-        this->_resources.add<ForwardSceneDrawRenderOperator>()
-            .group(ResourceGroup::RenderOperator)
-            .implements<Initializable>()
-            .implements<RenderOperator>()
             .done();
     }
 

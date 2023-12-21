@@ -2,9 +2,11 @@
 #define PENROSE_RENDERING_RENDER_MANAGER_IMPL_HPP
 
 #include <map>
+#include <memory>
 #include <optional>
 
 #include <Penrose/Common/Log.hpp>
+#include <Penrose/Events/SurfaceEvents.hpp>
 #include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
@@ -28,6 +30,10 @@ namespace Penrose {
 
         void addRenderer(std::type_index &&type) override;
 
+        void setExecutionInfo(RenderExecutionInfo &&executionInfo) override { this->_executionInfo = executionInfo; }
+
+        [[nodiscard]] RenderExecutionInfo getExecutionInfo() override { return this->_executionInfo; }
+
     private:
         enum class RenderJobType : int {
             SurfaceResize = -1,
@@ -36,7 +42,7 @@ namespace Penrose {
 
         class FrameRenderJob final: public Job {
         public:
-            explicit FrameRenderJob(RenderSystem *renderSystem);
+            explicit FrameRenderJob(Log *log, RenderManagerImpl *renderManager);
             ~FrameRenderJob() override = default;
 
             [[nodiscard]] int order() const override { return static_cast<int>(RenderJobType::FrameRender); }
@@ -46,12 +52,13 @@ namespace Penrose {
             void exec() override;
 
         private:
-            RenderSystem *_renderSystem;
+            Log *_log;
+            RenderManagerImpl *_renderManager;
         };
 
         class SurfaceResizeJob final: public Job {
         public:
-            explicit SurfaceResizeJob(RenderSystem *renderSystem);
+            explicit SurfaceResizeJob(Log *log, RenderContext *renderContext);
             ~SurfaceResizeJob() override = default;
 
             [[nodiscard]] int order() const override { return static_cast<int>(RenderJobType::SurfaceResize); }
@@ -61,17 +68,24 @@ namespace Penrose {
             void exec() override;
 
         private:
-            RenderSystem *_renderSystem;
+            Log *_log;
+            RenderContext *_renderContext;
         };
 
         const ResourceSet *_resources;
         ResourceProxy<Log> _log;
+        ResourceProxy<SurfaceEventQueue> _surfaceEventQueue;
 
         JobQueue _jobQueue;
 
         std::optional<RenderSystem *> _renderSystem;
-        std::map<std::type_index, Renderer *> _renderers;
+        std::map<std::string, Renderer *> _renderers;
+        std::optional<std::unique_ptr<RenderContext>> _renderContext;
         bool _initialized;
+
+        RenderExecutionInfo _executionInfo;
+
+        void render();
     };
 }
 

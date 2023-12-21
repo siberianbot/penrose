@@ -22,13 +22,13 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
-        [[nodiscard]] vk::Instance &getInstance() { return this->_instance.value(); }
+        [[nodiscard]] const vk::Instance &getInstance() const { return this->_instance->get(); }
 
     private:
         ResourceProxy<Log> _log;
         ResourceProxy<VkInstanceExtensionsProvider> _instanceExtensionsProvider;
 
-        std::optional<vk::Instance> _instance;
+        std::optional<vk::UniqueInstance> _instance;
 
         static VkBool32 debugCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageTypes,

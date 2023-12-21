@@ -3,16 +3,18 @@
 
 #include <string>
 
-// TODO: #include <Penrose/Rendering/Graph/GraphInfo.hpp>
+#include <Penrose/Common/Params.hpp>
+#include <Penrose/Rendering/Graph/GraphInfo.hpp>
+#include <Penrose/Rendering/RendererContext.hpp>
 
 namespace Penrose {
 
     /**
      * \brief Renderer interface
-     * \details Renderer is responsible for actual rendering. Renderer must be independent from rendering library. Every
+     * \details Renderer performs  actual rendering logic. Renderer must be independent from rendering library. Every
      * renderer uses render graph for configurable and flexible rendering process.
      */
-    class Renderer {
+    class PENROSE_API Renderer {
     public:
         virtual ~Renderer() = default;
 
@@ -32,13 +34,24 @@ namespace Penrose {
          */
         virtual void destroy() = 0;
 
-        // TODO: invoke renderer
-
         /**
          * \brief Set current render graph
          * \param graphInfo Instance of render graph info
          */
-        // TODO: virtual void setRenderGraph(GraphInfo &&graphInfo) = 0;
+        virtual void setRenderGraph(GraphInfo &&graphInfo) = 0;
+
+        /**
+         * \brief Get current render graph
+         * \return Instance of render graph info in current renderer
+         */
+        [[nodiscard]] virtual const GraphInfo &getRenderGraph() = 0;
+
+        /**
+         * \brief Execute renderer in current render context
+         * \param context Current renderer context
+         * \param params Renderer execution parameters
+         */
+        virtual void execute(RendererContext *context, const Params &params) = 0;
     };
 }
 

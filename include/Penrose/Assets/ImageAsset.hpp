@@ -4,7 +4,7 @@
 #include <memory>
 
 #include <Penrose/Assets/Asset.hpp>
-#include <Penrose/Rendering/Image.hpp>
+#include <Penrose/Rendering/Objects/Image.hpp>
 
 namespace Penrose {
 

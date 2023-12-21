@@ -1,7 +1,6 @@
 #include "RenderManagerImpl.hpp"
 
 #include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Utils/TypeUtils.hpp>
 
 namespace Penrose {
 
@@ -10,6 +9,7 @@ namespace Penrose {
     RenderManagerImpl::RenderManagerImpl(const ResourceSet *resources)
         : _resources(resources),
           _log(resources->get<Log>()),
+          _surfaceEventQueue(resources->get<SurfaceEventQueue>()),
           _initialized(false) {
         //
     }
@@ -41,8 +41,15 @@ namespace Penrose {
             }
         }
 
-        this->_jobQueue.enqueue<FrameRenderJob>(*this->_renderSystem);
+        this->_renderContext = std::unique_ptr<RenderContext>((*this->_renderSystem)->makeRenderContext());
+
+        this->_jobQueue.enqueue<SurfaceResizeJob>(this->_log.get(), this->_renderContext->get());
+        this->_jobQueue.enqueue<FrameRenderJob>(this->_log.get(), this);
         this->_jobQueue.start();
+
+        this->_surfaceEventQueue->addHandler<SurfaceResizedEvent>([this](const SurfaceResizedEvent *) {
+            this->_jobQueue.enqueue<SurfaceResizeJob>(this->_log.get(), this->_renderContext->get());
+        });
 
         this->_initialized = true;
     }
@@ -57,9 +64,11 @@ namespace Penrose {
         this->_jobQueue.stop();
         this->_jobQueue.clear();
 
+        this->_renderContext = std::nullopt;
+
         for (const auto &renderer: this->_renderers | std::views::values) {
             try {
-                renderer->init();
+                renderer->destroy();
             } catch (const std::exception &error) {
                 this->_log->writeError(
                     TAG, "Failed to deinitialize renderer {}: {}", renderer->getName(), error.what()
@@ -91,30 +100,66 @@ namespace Penrose {
             throw EngineError("Rendering manager is initialized");
         }
 
-        if (this->_renderers.contains(type)) {
-            throw EngineError("Renderer of type {} already added into rendering manager", getTypeName(type));
+        const auto renderer = this->_resources->resolveOne<Renderer>(std::forward<decltype(type)>(type));
+
+        if (this->_renderers.contains(renderer->getName())) {
+            throw EngineError("Renderer {} already added into rendering manager", renderer->getName());
         }
 
-        const auto renderer = this->_resources->resolveOne<Renderer>(std::type_index(type));
-
-        this->_renderers.emplace(std::forward<decltype(type)>(type), renderer);
+        this->_renderers.emplace(renderer->getName(), renderer);
     }
 
-    RenderManagerImpl::FrameRenderJob::FrameRenderJob(RenderSystem *renderSystem)
-        : _renderSystem(renderSystem) {
+    RenderManagerImpl::FrameRenderJob::FrameRenderJob(Log *log, RenderManagerImpl *renderManager)
+        : _log(log),
+          _renderManager(renderManager) {
         //
     }
 
     void RenderManagerImpl::FrameRenderJob::exec() {
-        this->_renderSystem->render();
+        try {
+            this->_renderManager->render();
+        } catch (const std::exception &error) {
+            this->_log->writeError("FrameRenderJob", "Caught error: {}", error.what());
+        }
     }
 
-    RenderManagerImpl::SurfaceResizeJob::SurfaceResizeJob(RenderSystem *renderSystem)
-        : _renderSystem(renderSystem) {
+    RenderManagerImpl::SurfaceResizeJob::SurfaceResizeJob(Log *log, RenderContext *renderContext)
+        : _log(log),
+          _renderContext(renderContext) {
         //
     }
 
     void RenderManagerImpl::SurfaceResizeJob::exec() {
-        this->_renderSystem->resize();
+        try {
+            this->_renderContext->invalidate();
+        } catch (const std::exception &error) {
+            this->_log->writeError("SurfaceResizeJob", "Caught error: {}", error.what());
+        }
+    }
+
+    void RenderManagerImpl::render() {
+        const auto renderContext = this->_renderContext->get();
+
+        if (!renderContext->beginRender()) {
+            return;
+        }
+
+        for (const auto &[name, params]: this->_executionInfo.renderers) {
+            const auto it = this->_renderers.find(name);
+
+            if (it == this->_renderers.end()) {
+                this->_log->writeError(TAG, "Render execution info contains invocation of unknown renderer {}", name);
+
+                continue;
+            }
+
+            {
+                const auto rendererContext = std::unique_ptr<RendererContext>(renderContext->makeRendererContext());
+
+                it->second->execute(rendererContext.get(), params);
+            }
+        }
+
+        renderContext->submitRender();
     }
 }

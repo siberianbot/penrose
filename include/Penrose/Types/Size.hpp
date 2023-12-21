@@ -6,6 +6,9 @@
 
 namespace Penrose {
 
+    /**
+     * \brief Tuple for two-dimensional size (width and height)
+     */
     using Size = std::tuple<std::uint32_t, std::uint32_t>;
 }
 

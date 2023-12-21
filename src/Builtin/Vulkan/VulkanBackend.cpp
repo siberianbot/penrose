@@ -147,18 +147,13 @@ namespace Penrose {
                                     .setPEnabledLayerNames(enabledLayers);
 
         try {
-            this->_instance = vk::createInstance(createInfo);
+            this->_instance = vk::createInstanceUnique(createInfo);
         } catch (...) {
             std::throw_with_nested(EngineError("Failed to initialize Vulkan instance"));
         }
     }
 
     void VulkanBackend::destroy() {
-        if (!this->_instance.has_value()) {
-            return;
-        }
-
-        this->_instance->destroy();
         this->_instance = std::nullopt;
     }
 

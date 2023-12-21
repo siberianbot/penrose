@@ -1,155 +1,116 @@
 #include "VkRenderSystem.hpp"
 
+#include "src/Builtin/Vulkan/Rendering/VkRenderContext.hpp"
+
 namespace Penrose {
 
-    constexpr static const std::uint64_t MAX_TIMEOUT = std::numeric_limits<std::uint64_t>::max();
+    inline static constexpr std::string_view TAG = "VkRenderSystem";
 
-    constexpr static const std::array<vk::PipelineStageFlags, 1> WAIT_DST_STAGE_MASK = {
-        vk::PipelineStageFlagBits::eColorAttachmentOutput
-    };
+    inline constexpr std::uint32_t MAX_SET_COUNT = 64 * 1024;
+    inline constexpr std::uint32_t MAX_DESCRIPTOR_COUNT = 1024;
 
     VkRenderSystem::VkRenderSystem(const ResourceSet *resources)
-        : _physicalDeviceContext(resources->get<VkPhysicalDeviceContext>()),
-          _logicalDeviceContext(resources->get<VkLogicalDeviceContext>()),
-          _commandManager(resources->get<VkCommandManager>()),
-          _descriptorPoolManager(resources->get<VkDescriptorPoolManager>()),
-          _swapchainManager(resources->get<VkSwapchainManager>()),
+        : _resources(resources),
+          _log(resources->get<Log>()),
+          _surfaceManager(resources->get<SurfaceManager>()),
+          _physicalDeviceSelector(resources->get<VkPhysicalDeviceSelector>()),
+          _logicalDeviceFactory(resources->get<VkLogicalDeviceFactory>()),
+          _bufferFactory(resources->get<VkBufferFactory>()),
+          _imageFactory(resources->get<VkImageFactory>()),
           _pipelineFactory(resources->get<VkPipelineFactory>()),
-          _renderGraphContextManager(resources->get<VkRenderGraphContextManager>()),
-          _renderGraphExecutor(resources->get<VkRenderGraphExecutor>()) {
+          _swapchainFactory(resources->get<VkSwapchainFactory>()) {
         //
     }
 
     void VkRenderSystem::init() {
-        this->_physicalDeviceContext->init();
-        this->_logicalDeviceContext->init();
-        this->_commandManager->init();
-        this->_descriptorPoolManager->init();
-        this->_swapchainManager->init();
-        this->_pipelineFactory->init();
-        this->_renderGraphContextManager->init();
-        this->_renderGraphExecutor->init();
-
-        auto fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
-        auto semaphoreCreateInfo = vk::SemaphoreCreateInfo();
-
-        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; idx++) {
-            this->_fences[idx] = this->_logicalDeviceContext->getHandle().createFence(fenceCreateInfo);
-            this->_imageReadySemaphores[idx] = this->_logicalDeviceContext->getHandle().createSemaphore(
-                semaphoreCreateInfo
-            );
-            this->_renderFinishedSemaphores[idx] = this->_logicalDeviceContext->getHandle().createSemaphore(
-                semaphoreCreateInfo
-            );
+        try {
+            this->_physicalDevice = this->_physicalDeviceSelector->selectPhysicalDevice();
+        } catch (...) {
+            std::throw_with_nested(EngineError("Failed to select physical device"));
         }
+
+        this->_log->writeInfo(
+            TAG, "Chosen device: device id = {:#x}, device name = {}, driver version = {:#x}",
+            this->_physicalDevice->properties.deviceID,
+            static_cast<char *>(this->_physicalDevice->properties.deviceName),
+            this->_physicalDevice->properties.driverVersion
+        );
+
+        try {
+            this->_logicalDevice = this->_logicalDeviceFactory->makeLogicalDevice(*this->_physicalDevice);
+        } catch (...) {
+            std::throw_with_nested(EngineError("Failed to create logical device"));
+        }
+
+        this->_bufferFactory->init();
+        this->_imageFactory->init();
+        this->_pipelineFactory->init();
     }
 
     void VkRenderSystem::destroy() {
-        this->_logicalDeviceContext->getHandle().waitIdle();
-
-        for (std::uint32_t frameIdx = 0; frameIdx < INFLIGHT_FRAME_COUNT; frameIdx++) {
-            this->_logicalDeviceContext->getHandle().destroy(this->_fences.at(frameIdx));
-            this->_logicalDeviceContext->getHandle().destroy(this->_imageReadySemaphores.at(frameIdx));
-            this->_logicalDeviceContext->getHandle().destroy(this->_renderFinishedSemaphores.at(frameIdx));
-        }
-
-        this->_renderGraphExecutor->destroy();
-        this->_renderGraphContextManager->destroy();
         this->_pipelineFactory->destroy();
-        this->_swapchainManager->destroy();
-        this->_descriptorPoolManager->destroy();
-        this->_commandManager->destroy();
-        this->_logicalDeviceContext->destroy();
-        this->_physicalDeviceContext->destroy();
+        this->_imageFactory->destroy();
+        this->_bufferFactory->destroy();
+
+        this->_logicalDevice = std::nullopt;
     }
 
-    void VkRenderSystem::render() {
-        bool shouldInvalidate;
+    RenderContext *VkRenderSystem::makeRenderContext() {
+        const auto surface = this->_surfaceManager->getSurface();
+        auto swapchain = this->_swapchainFactory->makeSwapchain(surface);
 
-        try {
-            shouldInvalidate = this->renderFrame(this->_frameIdx);
-        } catch (const vk::OutOfDateKHRError &error) {
-            shouldInvalidate = true;
+        const auto commandPoolCreateInfo = vk::CommandPoolCreateInfo()
+                                               .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
+                                               .setQueueFamilyIndex(this->_physicalDevice->graphicsFamilyIdx);
+
+        auto commandPool = this->_logicalDevice->handle->createCommandPoolUnique(commandPoolCreateInfo);
+
+        const auto descriptorPoolSizes = {
+            vk::DescriptorPoolSize(vk::DescriptorType::eSampler, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eSampledImage, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eStorageImage, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eUniformTexelBuffer, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eStorageTexelBuffer, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eStorageBuffer, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eUniformBufferDynamic, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eStorageBufferDynamic, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eInputAttachment, MAX_DESCRIPTOR_COUNT),
+            vk::DescriptorPoolSize(vk::DescriptorType::eInlineUniformBlock, MAX_DESCRIPTOR_COUNT),
+        };
+
+        const auto descriptorPoolCreateInfo = vk::DescriptorPoolCreateInfo()
+                                                  .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet)
+                                                  .setMaxSets(MAX_SET_COUNT)
+                                                  .setPoolSizes(descriptorPoolSizes);
+
+        auto descriptorPool = this->_logicalDevice->handle->createDescriptorPoolUnique(descriptorPoolCreateInfo);
+
+        const auto commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
+                                                   .setLevel(vk::CommandBufferLevel::ePrimary)
+                                                   .setCommandPool(commandPool.get())
+                                                   .setCommandBufferCount(INFLIGHT_FRAME_COUNT);
+
+        auto commandBuffers = this->_logicalDevice->handle->allocateCommandBuffersUnique(commandBufferAllocateInfo);
+
+        std::array<VkRenderContext::FrameData, INFLIGHT_FRAME_COUNT> frameData;
+        for (std::uint32_t idx = 0; idx < INFLIGHT_FRAME_COUNT; ++idx) {
+            frameData[idx] = VkRenderContext::FrameData {
+                .fence = this->_logicalDevice->handle->createFenceUnique(
+                    vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled)
+                ),
+                .commandBuffer = std::move(commandBuffers.at(idx)),
+                .imageReady = this->_logicalDevice->handle->createSemaphoreUnique(vk::SemaphoreCreateInfo()),
+                .renderFinished = this->_logicalDevice->handle->createSemaphoreUnique(vk::SemaphoreCreateInfo())
+            };
         }
 
-        if (shouldInvalidate) {
-            this->_logicalDeviceContext->getHandle().waitIdle();
-
-            this->_swapchainManager->recreate();
-            this->_renderGraphContextManager->invalidate();
-        }
-
-        this->_frameIdx = (this->_frameIdx + 1) % INFLIGHT_FRAME_COUNT;
-    }
-
-    void VkRenderSystem::resize() {
-        this->_logicalDeviceContext->getHandle().waitIdle();
-
-        this->_swapchainManager->recreate();
-        this->_renderGraphContextManager->invalidate();
-    }
-
-    bool VkRenderSystem::renderFrame(const uint32_t &frameIdx) {
-        auto logicalDevice = this->_logicalDeviceContext->getHandle();
-        auto graphicsQueue = this->_logicalDeviceContext->getGraphicsQueue();
-        auto presentQueue = this->_logicalDeviceContext->getPresentQueue();
-        auto swapchain = this->_swapchainManager->getSwapchain();
-
-        auto fence = this->_fences.at(frameIdx);
-        auto imageReadySemaphore = this->_imageReadySemaphores.at(frameIdx);
-        auto renderFinishedSemaphore = this->_renderFinishedSemaphores.at(frameIdx);
-
-        auto fenceResult = logicalDevice.waitForFences(fence, true, MAX_TIMEOUT);
-        if (fenceResult == vk::Result::eTimeout) {
-            vk::detail::throwResultException(fenceResult, "Fence timeout");
-        }
-
-        logicalDevice.resetFences(fence);
-
-        auto [acquireResult, imageIdx] = logicalDevice.acquireNextImageKHR(
-            swapchain->getHandle(), MAX_TIMEOUT, imageReadySemaphore
+        return new VkRenderContext(
+            this->_log, this->_resources->get<VkLogicalDeviceProvider>(),
+            this->_resources->get<VkInternalObjectFactory>(), this->_imageFactory, this->_pipelineFactory,
+            this->_swapchainFactory, std::move(swapchain), std::move(commandPool), std::move(descriptorPool),
+            std::move(frameData)
         );
-
-        if (acquireResult != vk::Result::eSuccess) {
-            return true;
-        }
-
-        auto &commandBuffer = this->_commandManager->getGraphicsCommandBuffer(frameIdx);
-
-        auto graphContext = this->_renderGraphContextManager->acquireContext();
-        auto submits = this->_renderGraphExecutor->execute(
-            graphContext.get(), commandBuffer, imageReadySemaphore, renderFinishedSemaphore, frameIdx, imageIdx
-        );
-
-        if (submits.empty()) {
-            return false;
-        }
-
-        auto vkSubmits = std::vector<vk::SubmitInfo>(submits.size());
-        std::transform(
-            submits.begin(), submits.end(), vkSubmits.begin(),
-            [](const VkRenderGraphExecutor::Submit &submit) {
-                return vk::SubmitInfo()
-                    .setCommandBuffers(submit.commandBuffer)
-                    .setWaitDstStageMask(WAIT_DST_STAGE_MASK)
-                    .setWaitSemaphores(submit.waitSemaphores)
-                    .setSignalSemaphores(submit.signalSemaphores);
-            }
-        );
-
-        graphicsQueue.submit(vkSubmits, fence);
-
-        auto presentInfo = vk::PresentInfoKHR()
-                               .setWaitSemaphores(renderFinishedSemaphore)
-                               .setSwapchains(swapchain->getHandle())
-                               .setImageIndices(imageIdx);
-
-        auto presentResult = presentQueue.presentKHR(presentInfo);
-
-        if (presentResult != vk::Result::eSuccess) {
-            return true;
-        }
-
-        return false;
     }
 }

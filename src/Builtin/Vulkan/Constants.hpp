@@ -7,9 +7,9 @@
 
 namespace Penrose {
 
-    constexpr static std::uint32_t INFLIGHT_FRAME_COUNT = 2;
+    static constexpr std::uint32_t INFLIGHT_FRAME_COUNT = 2;
 
-    constexpr static std::array<std::string_view, 2> REQUIRED_DEVICE_EXTENSIONS = {
+    static constexpr std::array<std::string_view, 2> REQUIRED_DEVICE_EXTENSIONS = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME
     };
 }

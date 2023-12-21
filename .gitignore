@@ -11,3 +11,4 @@ x64/
 
 **/**.spv
 imgui.ini
+.vk-pipeline-cache

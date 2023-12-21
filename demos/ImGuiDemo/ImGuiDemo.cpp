@@ -3,15 +3,14 @@
 #include <Penrose/Engine.hpp>
 #include <Penrose/Events/EngineEvents.hpp>
 #include <Penrose/Events/InputEvents.hpp>
-#include <Penrose/Rendering/RenderGraphContext.hpp>
-#include <Penrose/Rendering/RenderGraphInfo.hpp>
+#include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 #include <Penrose/Resources/Runnable.hpp>
 #include <Penrose/UI/UIManager.hpp>
 #include <Penrose/UI/Value.hpp>
 
-#include <Penrose/Builtin/ImGui/Rendering/ImGuiRenderOperator.hpp>
+#include <Penrose/Builtin/ImGui/Rendering/ImGuiRenderer.hpp>
 
 using namespace Penrose;
 
@@ -166,7 +165,8 @@ int main() {
     engine.resources().add<DemoUIContext>().group(ResourceGroup::Custom).implements<Runnable>().done();
 
     engine.resources()
-        .add<TestLogicSystem>().group(ResourceGroup::ECSSystem)
+        .add<TestLogicSystem>()
+        .group(ResourceGroup::ECSSystem)
         .implements<Initializable>()
         .implements<System>()
         .done();
@@ -174,26 +174,14 @@ int main() {
     auto assetManager = engine.resources().get<AssetManager>();
     assetManager->addDir("data");
 
-    auto uiParams = ParamsCollection();
-    uiParams.setString(ImGuiRenderOperator::PARAM_UI_NAME, "TestUI");
-
-    auto graph = RenderGraphInfo()
-                     .setTarget("swapchain", RenderTargetInfo(RenderTargetSource::Swapchain))
-                     .setSubgraph(
-                         "default", RenderSubgraphInfo()
-                                        .addAttachment(RenderAttachmentInfo("swapchain")
-                                                           .setClearValue(RenderAttachmentClearValueInfo({0, 0, 0, 1}))
-                                                           .setLoadOp(RenderAttachmentLoadOp::Clear)
-                                                           .setStoreOp(RenderAttachmentStoreOp::Store)
-                                                           .setInitialLayout(RenderAttachmentLayout::Undefined)
-                                                           .setFinalLayout(RenderAttachmentLayout::Present))
-                                        .addPass(RenderSubgraphPassInfo().addColorAttachmentIdx(0).setOperatorInfo(
-                                            RenderOperatorInfo(ImGuiRenderOperator::name(), std::move(uiParams))
-                                        ))
-                     );
-
-    auto renderContext = engine.resources().get<RenderGraphContext>();
-    renderContext->setRenderGraph(graph);
+    auto renderManager = engine.resources().get<RenderManager>();
+    renderManager->addRenderer<ImGuiRenderer>();
+    renderManager->setExecutionInfo(RenderExecutionInfo {
+        .renderers =
+            {
+                        RendererExecutionInfo(ImGuiRenderer::name(), Params().add("Context", "TestUI")),
+                        }
+    });
 
     engine.run();
 }

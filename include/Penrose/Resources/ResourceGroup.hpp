@@ -13,7 +13,6 @@ namespace Penrose {
         Backend,
         Windowing,
         Rendering,
-        RenderOperator,
         Assets,
         UI,
         Events,

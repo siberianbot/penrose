@@ -7,7 +7,7 @@
 namespace Penrose {
 
     ShaderLoader::ShaderLoader(const ResourceSet *resources)
-        : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
+        : _shaderFactory(resources->get<ShaderFactory>()) {
         //
     }
 
@@ -17,7 +17,7 @@ namespace Penrose {
         auto rawData = std::vector<std::byte>(size);
         reader.read(size, rawData.data());
 
-        const auto shader = this->_renderingObjectManager->makeShader(std::forward<decltype(rawData)>(rawData));
+        const auto shader = this->_shaderFactory->makeShader(std::forward<decltype(rawData)>(rawData));
 
         return new ShaderAsset(std::shared_ptr<Shader>(shader));
     }

@@ -1,28 +1,31 @@
 #ifndef PENROSE_BUILTIN_VULKAN_RENDERING_VK_RENDER_SYSTEM_HPP
 #define PENROSE_BUILTIN_VULKAN_RENDERING_VK_RENDER_SYSTEM_HPP
 
-#include <array>
-#include <cstdint>
+#include <optional>
 
-#include <vulkan/vulkan.hpp>
-
+#include <Penrose/Common/Log.hpp>
 #include <Penrose/Rendering/RenderSystem.hpp>
+#include <Penrose/Rendering/SurfaceManager.hpp>
+#include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Builtin/Vulkan/Constants.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkCommandManager.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkPipelineFactory.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkRenderGraphContextManager.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkRenderGraphExecutor.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkSwapchainManager.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkBufferFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkImageFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkLogicalDevice.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkLogicalDeviceFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkLogicalDeviceProvider.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkPhysicalDevice.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkPhysicalDeviceProvider.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkPhysicalDeviceSelector.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkPipelineFactory.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkSwapchainFactory.hpp"
 
 namespace Penrose {
 
     class VkRenderSystem final: public Resource<VkRenderSystem>,
-                                public RenderSystem {
+                                public RenderSystem,
+                                public VkLogicalDeviceProvider,
+                                public VkPhysicalDeviceProvider {
     public:
         explicit VkRenderSystem(const ResourceSet *resources);
         ~VkRenderSystem() override = default;
@@ -32,25 +35,26 @@ namespace Penrose {
         void init() override;
         void destroy() override;
 
-        void render() override;
-        void resize() override;
+        [[nodiscard]] RenderContext *makeRenderContext() override;
+
+        [[nodiscard]] const VkPhysicalDevice &getPhysicalDevice() const override { return *this->_physicalDevice; }
+
+        [[nodiscard]] const VkLogicalDevice &getLogicalDevice() const override { return *this->_logicalDevice; }
 
     private:
-        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
-        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
-        ResourceProxy<VkCommandManager> _commandManager;
-        ResourceProxy<VkDescriptorPoolManager> _descriptorPoolManager;
-        ResourceProxy<VkSwapchainManager> _swapchainManager;
+        const ResourceSet *_resources;
+
+        ResourceProxy<Log> _log;
+        ResourceProxy<SurfaceManager> _surfaceManager;
+        ResourceProxy<VkPhysicalDeviceSelector> _physicalDeviceSelector;
+        ResourceProxy<VkLogicalDeviceFactory> _logicalDeviceFactory;
+        ResourceProxy<VkBufferFactory> _bufferFactory;
+        ResourceProxy<VkImageFactory> _imageFactory;
         ResourceProxy<VkPipelineFactory> _pipelineFactory;
-        ResourceProxy<VkRenderGraphContextManager> _renderGraphContextManager;
-        ResourceProxy<VkRenderGraphExecutor> _renderGraphExecutor;
+        ResourceProxy<VkSwapchainFactory> _swapchainFactory;
 
-        std::uint32_t _frameIdx = 0;
-        std::array<vk::Fence, INFLIGHT_FRAME_COUNT> _fences;
-        std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _imageReadySemaphores;
-        std::array<vk::Semaphore, INFLIGHT_FRAME_COUNT> _renderFinishedSemaphores;
-
-        [[nodiscard]] bool renderFrame(const std::uint32_t &frameIdx);
+        std::optional<VkPhysicalDevice> _physicalDevice;
+        std::optional<VkLogicalDevice> _logicalDevice;
     };
 }
 

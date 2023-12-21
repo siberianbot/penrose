@@ -5,24 +5,24 @@
 
 #include <Penrose/Resources/ResourceSet.hpp>
 
-#include "src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.hpp"
-#include "src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkLogicalDeviceProvider.hpp"
+#include "src/Builtin/Vulkan/Rendering/Objects/VkPhysicalDeviceProvider.hpp"
 
 namespace Penrose {
 
-    class VkMemoryAllocator : public Resource<VkMemoryAllocator> {
+    class VkMemoryAllocator final: public Resource<VkMemoryAllocator> {
     public:
         explicit VkMemoryAllocator(const ResourceSet *resources);
         ~VkMemoryAllocator() override = default;
 
-        [[nodiscard]] vk::DeviceMemory allocate(const vk::Buffer &buffer, bool local = true);
-        [[nodiscard]] vk::DeviceMemory allocate(const vk::Image &image, bool local = true);
+        [[nodiscard]] vk::UniqueDeviceMemory allocateBuffer(const vk::Buffer &buffer, bool local);
+        [[nodiscard]] vk::UniqueDeviceMemory allocateImage(const vk::Image &image);
 
     private:
-        ResourceProxy<VkLogicalDeviceContext> _logicalDeviceContext;
-        ResourceProxy<VkPhysicalDeviceContext> _physicalDeviceContext;
+        ResourceProxy<VkLogicalDeviceProvider> _logicalDeviceProvider;
+        ResourceProxy<VkPhysicalDeviceProvider> _physicalDeviceProvider;
 
-        [[nodiscard]] vk::DeviceMemory allocate(const vk::MemoryRequirements &requirements, bool local);
+        [[nodiscard]] vk::UniqueDeviceMemory allocate(const vk::MemoryRequirements &requirements, bool local);
     };
 }
 

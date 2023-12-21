@@ -1,7 +1,7 @@
 #ifndef PENROSE_ASSETS_LOADERS_IMAGE_LOADER_HPP
 #define PENROSE_ASSETS_LOADERS_IMAGE_LOADER_HPP
 
-#include <Penrose/Rendering/RenderingObjectManager.hpp>
+#include <Penrose/Rendering/Objects/ImageFactory.hpp>
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
 
@@ -20,7 +20,7 @@ namespace Penrose {
         [[nodiscard]] Asset *fromReader(AssetReader &reader) override;
 
     private:
-        ResourceProxy<RenderingObjectManager> _renderingObjectManager;
+        ResourceProxy<ImageFactory> _imageFactory;
     };
 }
 

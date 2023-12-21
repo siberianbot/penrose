@@ -216,7 +216,8 @@ namespace Penrose {
         template <typename Target>
         [[nodiscard]] std::optional<Target *> tryResolveOne(std::optional<std::type_index> &&type = std::nullopt)
             const noexcept {
-            const auto map = this->tryResolveByType(typeid(Target));
+            const auto targetType = type.value_or(typeid(Target));
+            const auto map = this->tryResolveByType(targetType);
 
             if (!map.has_value() || (*map)->empty()) {
                 return std::nullopt;
@@ -228,21 +229,9 @@ namespace Penrose {
                 return std::nullopt;
             }
 
-            auto it = list.begin();
+            const auto it = list.begin();
 
-            if (!type.has_value()) {
-                return dynamic_cast<Target *>((*it)->get());
-            }
-
-            while (it != list.end()) {
-                if ((*it)->get()->getType() == *type) {
-                    return dynamic_cast<Target *>((*it)->get());
-                }
-
-                ++it;
-            }
-
-            return std::nullopt;
+            return dynamic_cast<Target *>((*it)->get());
         }
 
         /**

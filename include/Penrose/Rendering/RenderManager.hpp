@@ -4,6 +4,7 @@
 #include <typeindex>
 
 #include <Penrose/Rendering/Renderer.hpp>
+#include <Penrose/Rendering/RenderExecutionInfo.hpp>
 #include <Penrose/Rendering/RenderSystem.hpp>
 
 namespace Penrose {
@@ -12,7 +13,7 @@ namespace Penrose {
      * \brief Render manager interface
      * \details This interface provides methods for working with rendering system.
      */
-    class RenderManager {
+    class PENROSE_API RenderManager {
     public:
         virtual ~RenderManager() = default;
 
@@ -47,6 +48,18 @@ namespace Penrose {
         void addRenderer() {
             this->addRenderer(typeid(T));
         }
+
+        /**
+         * \brief Set information about rendering execution
+         * \param executionInfo Execution info
+         */
+        virtual void setExecutionInfo(RenderExecutionInfo &&executionInfo) = 0;
+
+        /**
+         * \brief Get current information about rendering execution
+         * \return Current execution information
+         */
+        [[nodiscard]] virtual RenderExecutionInfo getExecutionInfo() = 0;
     };
 }
 

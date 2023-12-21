@@ -43,7 +43,6 @@ src = [
     'src/Common/ConsoleLogSink.cpp',
     'src/Common/JobQueue.cpp',
     'src/Common/LogImpl.cpp',
-    'src/Common/ParamsCollection.cpp',
 
     # ECS
     'src/ECS/EntityManager.cpp',
@@ -60,7 +59,6 @@ src = [
     'src/Rendering/DefaultDrawableProvider.cpp',
     'src/Rendering/DefaultRenderer.cpp',
     'src/Rendering/DefaultViewProvider.cpp',
-    'src/Rendering/RenderGraphContext.cpp',
     'src/Rendering/RenderListBuilder.cpp',
     'src/Rendering/RenderManagerImpl.cpp',
     'src/Rendering/SurfaceManager.cpp',
@@ -79,9 +77,6 @@ src = [
     'src/UI/Value.cpp',
     'src/UI/Property.cpp',
 
-    # Builtin / Penrose
-    'src/Builtin/Penrose/Rendering/ForwardSceneDrawRenderOperator.cpp',
-
     # Builtin / Inspector
     'src/Builtin/Inspector/Inspector.cpp',
 
@@ -95,45 +90,28 @@ src = [
     # Builtin / ImGui
     'src/Builtin/ImGui/ImGui.cpp',
     'src/Builtin/ImGui/ImGuiBackend.cpp',
-    'src/Builtin/ImGui/Rendering/VkImGuiRenderOperator.cpp',
+    'src/Builtin/ImGui/Rendering/VkImGuiRenderer.cpp',
     'src/Builtin/ImGui/UI/ImGuiUIContextVisitor.cpp',
 
     # Builtin / Vulkan
     'src/Builtin/Vulkan/Vulkan.cpp',
+
     'src/Builtin/Vulkan/VulkanBackend.cpp',
-    'src/Builtin/Vulkan/Rendering/VkBuffer.cpp',
-    'src/Builtin/Vulkan/Rendering/VkBufferFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkCommandManager.cpp',
-    'src/Builtin/Vulkan/Rendering/VkCommandRecording.cpp',
-    'src/Builtin/Vulkan/Rendering/VkDescriptor.cpp',
-    'src/Builtin/Vulkan/Rendering/VkDescriptorPoolManager.cpp',
-    'src/Builtin/Vulkan/Rendering/VkFramebuffer.cpp',
-    'src/Builtin/Vulkan/Rendering/VkFramebufferFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkImage.cpp',
-    'src/Builtin/Vulkan/Rendering/VkImageFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkLogicalDeviceContext.cpp',
+    'src/Builtin/Vulkan/Rendering/VkCommandRecorder.cpp',
     'src/Builtin/Vulkan/Rendering/VkMemoryAllocator.cpp',
-    'src/Builtin/Vulkan/Rendering/VkPhysicalDeviceContext.cpp',
-    'src/Builtin/Vulkan/Rendering/VkPipeline.cpp',
-    'src/Builtin/Vulkan/Rendering/VkPipelineFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderGraphContext.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderGraphContextManager.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderGraphExecutor.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderingObjectManager.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderSubgraph.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderSubgraphFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRenderContext.cpp',
+    'src/Builtin/Vulkan/Rendering/VkRendererContext.cpp',
     'src/Builtin/Vulkan/Rendering/VkRenderSystem.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderTarget.cpp',
-    'src/Builtin/Vulkan/Rendering/VkRenderTargetFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkSampler.cpp',
-    'src/Builtin/Vulkan/Rendering/VkSamplerFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkShader.cpp',
-    'src/Builtin/Vulkan/Rendering/VkShaderFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkSwapchain.cpp',
-    'src/Builtin/Vulkan/Rendering/VkSwapchainFactory.cpp',
-    'src/Builtin/Vulkan/Rendering/VkSwapchainManager.cpp',
-    'src/Builtin/Vulkan/Rendering/VkSwapchainPreferencesProvider.cpp',
-    'src/Builtin/Vulkan/Rendering/VkUtils.cpp',
+    'src/Builtin/Vulkan/Rendering/VkSurfacePreferencesProvider.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkBufferFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkImageFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkInternalObjectFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkLogicalDeviceFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkPipelineFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkPhysicalDeviceSelector.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkSamplerFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkShaderFactory.cpp',
+    'src/Builtin/Vulkan/Rendering/Objects/VkSwapchainFactory.cpp',
 ]
 
 base_cpp_args = [

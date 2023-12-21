@@ -7,7 +7,7 @@
 namespace Penrose {
 
     ImageLoader::ImageLoader(const ResourceSet *resources)
-        : _renderingObjectManager(resources->get<RenderingObjectManager>()) {
+        : _imageFactory(resources->get<ImageFactory>()) {
         //
     }
 
@@ -17,7 +17,7 @@ namespace Penrose {
         auto rawData = std::vector<std::byte>(size);
         reader.read(size, rawData.data());
 
-        const auto image = this->_renderingObjectManager->makeImage(
+        const auto image = this->_imageFactory->makeImage(
             format, width, height, std::forward<decltype(rawData)>(rawData)
         );
 
