@@ -14,7 +14,6 @@
 #include <Penrose/Rendering/RenderListBuilder.hpp>
 #include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Rendering/SurfaceManager.hpp>
-#include <Penrose/Resources/Runnable.hpp>
 #include <Penrose/Scene/SceneManager.hpp>
 #include <Penrose/UI/LayoutFactory.hpp>
 #include <Penrose/UI/UIManager.hpp>
@@ -156,7 +155,6 @@ namespace Penrose {
 
     void Engine::run() {
         auto allInitializable = this->_resources.get<Initializable>();
-        auto allRunnable = this->_resources.get<Runnable>();
         auto allUpdatable = this->_resources.get<Updatable>();
         auto profiler = this->_resources.get<Profiler>();
 
@@ -177,10 +175,6 @@ namespace Penrose {
             }
         );
 
-        for (auto &runnable: allRunnable) {
-            runnable->run();
-        }
-
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
         float delta;
 
@@ -193,10 +187,6 @@ namespace Penrose {
             for (auto &updatable: allUpdatable) {
                 updatable->update(delta);
             }
-        }
-
-        for (auto &runnable: std::views::reverse(allRunnable)) {
-            runnable->stop();
         }
 
         for (auto &initializable: std::views::reverse(allInitializable)) {

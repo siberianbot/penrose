@@ -6,7 +6,6 @@
 #include <Penrose/Rendering/RenderManager.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Resources/Runnable.hpp>
 #include <Penrose/UI/UIManager.hpp>
 #include <Penrose/UI/Value.hpp>
 
@@ -15,7 +14,7 @@
 using namespace Penrose;
 
 class DemoUIContext: public Resource<DemoUIContext>,
-                     public Runnable {
+                     public Initializable {
 public:
     explicit DemoUIContext(const ResourceSet *resources)
         : _uiManager(resources->get<UIManager>()),
@@ -25,7 +24,7 @@ public:
 
     ~DemoUIContext() override = default;
 
-    void run() override {
+    void init() override {
         auto listItems = std::make_shared<ListValue<ObjectValue>>(
             ListValue<ObjectValue>()
                 .push(std::make_shared<ObjectValue>(ObjectValue().property<StringValue>("value", "Item 1")))
@@ -100,7 +99,7 @@ public:
         this->_uiManager->addLayoutToContext("TestUI", "layouts/root", std::move(viewModel));
     }
 
-    void stop() override { this->_uiManager->destroyContext("TestUI"); }
+    void destroy() override { this->_uiManager->destroyContext("TestUI"); }
 
 private:
     ResourceProxy<UIManager> _uiManager;
@@ -162,7 +161,7 @@ int main() {
 
     Engine engine;
 
-    engine.resources().add<DemoUIContext>().group(ResourceGroup::Custom).implements<Runnable>().done();
+    engine.resources().add<DemoUIContext>().group(ResourceGroup::Custom).implements<Initializable>().done();
 
     engine.resources()
         .add<TestLogicSystem>()
