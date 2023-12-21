@@ -6,6 +6,9 @@ namespace Penrose {
 
     inline static constexpr std::string_view TAG = "RenderManagerImpl";
 
+    inline constexpr int INVALIDATE_JOB_ORDER = -1;
+    inline constexpr int RENDER_JOB_ORDER = 0;
+
     RenderManagerImpl::RenderManagerImpl(const ResourceSet *resources)
         : _resources(resources),
           _log(resources->get<Log>()),
@@ -43,12 +46,27 @@ namespace Penrose {
 
         this->_renderContext = std::unique_ptr<RenderContext>((*this->_renderSystem)->makeRenderContext());
 
-        this->_jobQueue.enqueue<SurfaceResizeJob>(this->_log.get(), this->_renderContext->get());
-        this->_jobQueue.enqueue<FrameRenderJob>(this->_log.get(), this);
+        this->invalidate();
+
+        this->_jobQueue.enqueue(
+            [this] {
+                try {
+                    this->render();
+                } catch (const std::exception &error) {
+                    this->_log->writeError(TAG, "Rendering error: {}", error.what());
+                }
+            },
+            JobQueue::Params {
+                .order = RENDER_JOB_ORDER,
+                .remove = false,
+                .override = false,
+            }
+        );
+
         this->_jobQueue.start();
 
         this->_surfaceEventQueue->addHandler<SurfaceResizedEvent>([this](const SurfaceResizedEvent *) {
-            this->_jobQueue.enqueue<SurfaceResizeJob>(this->_log.get(), this->_renderContext->get());
+            this->invalidate();
         });
 
         this->_initialized = true;
@@ -109,34 +127,6 @@ namespace Penrose {
         this->_renderers.emplace(renderer->getName(), renderer);
     }
 
-    RenderManagerImpl::FrameRenderJob::FrameRenderJob(Log *log, RenderManagerImpl *renderManager)
-        : _log(log),
-          _renderManager(renderManager) {
-        //
-    }
-
-    void RenderManagerImpl::FrameRenderJob::exec() {
-        try {
-            this->_renderManager->render();
-        } catch (const std::exception &error) {
-            this->_log->writeError("FrameRenderJob", "Caught error: {}", error.what());
-        }
-    }
-
-    RenderManagerImpl::SurfaceResizeJob::SurfaceResizeJob(Log *log, RenderContext *renderContext)
-        : _log(log),
-          _renderContext(renderContext) {
-        //
-    }
-
-    void RenderManagerImpl::SurfaceResizeJob::exec() {
-        try {
-            this->_renderContext->invalidate();
-        } catch (const std::exception &error) {
-            this->_log->writeError("SurfaceResizeJob", "Caught error: {}", error.what());
-        }
-    }
-
     void RenderManagerImpl::render() {
         const auto renderContext = this->_renderContext->get();
 
@@ -161,5 +151,22 @@ namespace Penrose {
         }
 
         renderContext->submitRender();
+    }
+
+    void RenderManagerImpl::invalidate() {
+        this->_jobQueue.enqueue(
+            [this] {
+                try {
+                    this->_renderContext->get()->invalidate();
+                } catch (const std::exception &error) {
+                    this->_log->writeError("SurfaceResizeJob", "Caught error: {}", error.what());
+                }
+            },
+            JobQueue::Params {
+                .order = INVALIDATE_JOB_ORDER,
+                .remove = true,
+                .override = true,
+            }
+        );
     }
 }

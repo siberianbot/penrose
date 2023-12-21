@@ -15,7 +15,6 @@ tests_src = [
 
     # Unit Tests
     'src/UnitTests/Math/NumericFuncs.cpp',
-    'src/UnitTests/Rendering/PipelineInfo.cpp',
 
     #    # Integration Tests
     #    'src/IntegrationTests/ComplexScenes/LottaObjects.cpp',

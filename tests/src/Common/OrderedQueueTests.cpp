@@ -30,6 +30,17 @@ TEST_CASE("Common / OrdererQueue<int>", "[Common][OrderedQueue]") {
     }
 
     REQUIRE(queue.empty());
+
+    queue.push(4, true);
+    queue.push(4, true);
+
+    REQUIRE_FALSE(queue.empty());
+
+    REQUIRE(queue.front() == 4);
+
+    queue.pop();
+
+    REQUIRE(queue.empty());
 }
 
 TEST_CASE("Common / OrdererQueue<Custom, CustomEqualTo, CustomLess>", "[Common][OrderedQueue]") {
@@ -64,6 +75,17 @@ TEST_CASE("Common / OrdererQueue<Custom, CustomEqualTo, CustomLess>", "[Common][
 
         queue.pop();
     }
+
+    REQUIRE(queue.empty());
+
+    queue.push({42, "a"}, true);
+    queue.push({42, "b"}, true);
+
+    REQUIRE_FALSE(queue.empty());
+
+    REQUIRE(queue.front().value == "b");
+
+    queue.pop();
 
     REQUIRE(queue.empty());
 }

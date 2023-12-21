@@ -35,43 +35,6 @@ namespace Penrose {
         [[nodiscard]] RenderExecutionInfo getExecutionInfo() override { return this->_executionInfo; }
 
     private:
-        enum class RenderJobType : int {
-            SurfaceResize = -1,
-            FrameRender = 0
-        };
-
-        class FrameRenderJob final: public Job {
-        public:
-            explicit FrameRenderJob(Log *log, RenderManagerImpl *renderManager);
-            ~FrameRenderJob() override = default;
-
-            [[nodiscard]] int order() const override { return static_cast<int>(RenderJobType::FrameRender); }
-
-            [[nodiscard]] bool remove() const override { return false; }
-
-            void exec() override;
-
-        private:
-            Log *_log;
-            RenderManagerImpl *_renderManager;
-        };
-
-        class SurfaceResizeJob final: public Job {
-        public:
-            explicit SurfaceResizeJob(Log *log, RenderContext *renderContext);
-            ~SurfaceResizeJob() override = default;
-
-            [[nodiscard]] int order() const override { return static_cast<int>(RenderJobType::SurfaceResize); }
-
-            [[nodiscard]] bool remove() const override { return true; }
-
-            void exec() override;
-
-        private:
-            Log *_log;
-            RenderContext *_renderContext;
-        };
-
         const ResourceSet *_resources;
         ResourceProxy<Log> _log;
         ResourceProxy<SurfaceEventQueue> _surfaceEventQueue;
@@ -86,6 +49,7 @@ namespace Penrose {
         RenderExecutionInfo _executionInfo;
 
         void render();
+        void invalidate();
     };
 }
 

@@ -9,7 +9,9 @@ namespace Penrose {
     template <typename T, typename EqualTo = std::equal_to<T>, typename Less = std::less<T>>
     class OrderedQueue {
     public:
-        void push(T &&value) { this->insert(std::weak_ptr<Node>(), this->_root, std::forward<decltype(value)>(value)); }
+        void push(T &&value, const bool override = false) {
+            this->insert(std::weak_ptr<Node>(), this->_root, std::forward<decltype(value)>(value), override);
+        }
 
         void pop() {
             auto node = visit(this->_root);
@@ -56,17 +58,21 @@ namespace Penrose {
 
         std::shared_ptr<Node> _root;
 
-        static void insert(std::weak_ptr<Node> &&parent, std::shared_ptr<Node> &node, T &&value) {
+        static void insert(std::weak_ptr<Node> &&parent, std::shared_ptr<Node> &node, T &&value, const bool override) {
             if (node == nullptr) {
                 node = std::make_shared<Node>();
                 node->parent = parent;
                 node->values.push_back(std::forward<decltype(value)>(value));
             } else if (EqualTo {}(node->values.front(), value)) {
+                if (override) {
+                    node->values.clear();
+                }
+
                 node->values.push_back(std::forward<decltype(value)>(value));
             } else {
                 auto &target = Less {}(value, node->values.front()) ? node->left : node->right;
 
-                insert(std::weak_ptr<Node>(node), target, std::forward<decltype(value)>(value));
+                insert(std::weak_ptr<Node>(node), target, std::forward<decltype(value)>(value), override);
             }
         }
 
