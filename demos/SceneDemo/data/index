@@ -1,0 +1,18 @@
+{
+  "models/cube": {
+    "path": "models/cube.asset",
+    "preload": true
+  },
+  "textures/texture-1024": {
+    "path": "textures/texture-1024.asset",
+    "preload": true
+  },
+  "shaders/default/frag": {
+    "path": "shaders/default.frag.asset",
+    "preload": true
+  },
+  "shaders/default/vert": {
+    "path": "shaders/default.vert.asset",
+    "preload": true
+  }
+}
