@@ -3,10 +3,16 @@
 
 namespace Penrose {
 
-    template<bool ...Values>
+    /**
+     * \brief Ensures all values are true
+     */
+    template <bool... Values>
     concept All = (Values && ...);
 
-    template<bool ...Values>
+    /**
+     * \brief Ensures any value is true
+     */
+    template <bool... Values>
     concept Any = (Values || ...);
 }
 

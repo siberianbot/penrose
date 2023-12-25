@@ -1,77 +1,61 @@
 #ifndef PENROSE_EVENTS_INPUT_EVENTS_HPP
 #define PENROSE_EVENTS_INPUT_EVENTS_HPP
 
-#include <tuple>
-
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Input/Input.hpp>
 
 namespace Penrose {
 
-    template<typename Self>
-    class InputEvent : public Event<Self> {
-    public:
-        ~InputEvent() override = default;
+    /**
+     * \brief Key state updated event
+     * \details Fired on any key state update.
+     */
+    struct PENROSE_API KeyStateUpdatedEvent {
+
+        /**
+         * \brief Input key
+         */
+        InputKey key;
+
+        /**
+         * \brief New input state
+         */
+        InputState state;
     };
 
-    class KeyStateUpdatedEvent : public InputEvent<KeyStateUpdatedEvent> {
-    public:
-        KeyStateUpdatedEvent(InputKey key, InputState state)
-                : _key(key),
-                  _state(state) {
-            //
-        }
+    /**
+     * \brief Mouse movement event
+     * \details Fired on any mouse movement.
+     */
+    struct PENROSE_API MouseMovementEvent {
 
-        ~KeyStateUpdatedEvent() override = default;
+        /**
+         * \brief Mouse position
+         */
+        InputMousePosition position;
 
-        [[nodiscard]] const InputKey &getKey() const { return this->_key; }
-
-        [[nodiscard]] const InputState &getState() const { return this->_state; }
-
-    private:
-        InputKey _key;
-        InputState _state;
+        /**
+         * \brief Mouse movement
+         */
+        InputMouseMovement movement;
     };
 
-    class MouseMovementEvent : public InputEvent<MouseMovementEvent> {
-    public:
-        MouseMovementEvent(std::tuple<float, float> &&position,
-                           std::tuple<float, float> &&delta)
-                : _position(position),
-                  _delta(delta) {
-            //
-        }
+    /**
+     * \brief Mouse wheel scroll event
+     * \details Fired on any mouse wheel scroll
+     */
+    struct PENROSE_API MouseScrollEvent {
 
-        ~MouseMovementEvent() override = default;
-
-        [[nodiscard]] const std::tuple<float, float> &getPosition() const { return this->_position; }
-
-        [[nodiscard]] const std::tuple<float, float> &getDelta() const { return this->_delta; }
-
-    private:
-        std::tuple<float, float> _position;
-        std::tuple<float, float> _delta;
+        /**
+         * \brief Mouse wheel scroll
+         */
+        InputMouseScroll scroll;
     };
 
-    class MouseScrollEvent : public InputEvent<MouseScrollEvent> {
-    public:
-        MouseScrollEvent(float dx, float dy)
-                : _offset(dx, dy) {
-            //
-        }
-
-        ~MouseScrollEvent() override = default;
-
-        [[nodiscard]] const std::tuple<float, float> &getOffset() const { return this->_offset; }
-
-    private:
-        std::tuple<float, float> _offset;
-    };
-
-    using InputEventQueue = EventQueue<
-            KeyStateUpdatedEvent,
-            MouseMovementEvent,
-            MouseScrollEvent>;
+    /**
+     * \brief Input event queue
+     */
+    using InputEventQueue = EventQueue<KeyStateUpdatedEvent, MouseMovementEvent, MouseScrollEvent>;
 }
 
 #endif // PENROSE_EVENTS_INPUT_EVENTS_HPP

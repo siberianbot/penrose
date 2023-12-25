@@ -12,7 +12,7 @@
 
 namespace Penrose {
 
-    class PENROSE_API InputHandler : public Resource<InputHandler> {
+    class PENROSE_API InputHandler: public Resource<InputHandler> {
     public:
         explicit InputHandler(const ResourceSet *resources);
         ~InputHandler() override = default;
@@ -30,7 +30,7 @@ namespace Penrose {
         ResourceProxy<InputHook> _inputHooks;
 
         std::map<InputKey, InputState> _states;
-        std::tuple<float, float> _mousePos;
+        InputMousePosition _mousePos;
     };
 }
 

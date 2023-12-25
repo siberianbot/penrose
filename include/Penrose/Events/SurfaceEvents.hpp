@@ -3,55 +3,45 @@
 
 #include <memory>
 
-#include <Penrose/Types/Size.hpp>
 #include <Penrose/Events/EventQueue.hpp>
 #include <Penrose/Rendering/Surface.hpp>
+#include <Penrose/Types/Size.hpp>
 
 namespace Penrose {
 
-    template<typename Self>
-    class SurfaceEvent : public Event<Self> {
-    public:
-        ~SurfaceEvent() override = default;
+    /**
+     * \brief Surface closed event
+     * \details Fired when surface is closed
+     */
+    struct PENROSE_API SurfaceClosedEvent {
 
-        [[nodiscard]] const std::shared_ptr<Surface> &getSurface() const { return this->_surface; }
-
-    protected:
-        explicit SurfaceEvent(std::shared_ptr<Surface> &&surface)
-                : _surface(surface) {
-            //
-        }
-
-    private:
-        std::shared_ptr<Surface> _surface;
+        /**
+         * \brief Target surface
+         */
+        std::shared_ptr<Surface> surface;
     };
 
-    class SurfaceCloseRequestedEvent : public SurfaceEvent<SurfaceCloseRequestedEvent> {
-    public:
-        explicit SurfaceCloseRequestedEvent(std::shared_ptr<Surface> &&surface)
-                : SurfaceEvent<SurfaceCloseRequestedEvent>(std::forward<decltype(surface)>(surface)) {
-            //
-        }
+    /**
+     * \brief Surface resized event
+     * \details Fired when surface is resized
+     */
+    struct PENROSE_API SurfaceResizedEvent {
+
+        /**
+         * \brief Target surface
+         */
+        std::shared_ptr<Surface> surface;
+
+        /**
+         * \brief New size of surface
+         */
+        Size size;
     };
 
-    class SurfaceResizedEvent : public SurfaceEvent<SurfaceResizedEvent> {
-    public:
-        explicit SurfaceResizedEvent(std::shared_ptr<Surface> &&surface,
-                                     Size &&size)
-                : SurfaceEvent<SurfaceResizedEvent>(std::forward<decltype(surface)>(surface)),
-                  _size(size) {
-            //
-        }
-
-        [[nodiscard]] const Size &getSize() const { return this->_size; }
-
-    private:
-        Size _size;
-    };
-
-    using SurfaceEventQueue = EventQueue<
-            SurfaceCloseRequestedEvent,
-            SurfaceResizedEvent>;
+    /**
+     * \brief Surface event queue
+     */
+    using SurfaceEventQueue = EventQueue<SurfaceClosedEvent, SurfaceResizedEvent>;
 }
 
 #endif // PENROSE_EVENTS_SURFACE_EVENTS_HPP

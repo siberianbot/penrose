@@ -10,10 +10,10 @@
 namespace Penrose {
 
     RenderListBuilder::RenderListBuilder(const ResourceSet *resources)
-            : _eventQueue(resources->get<ECSEventQueue>()),
-              _sceneManager(resources->get<SceneManager>()),
-              _drawableProviders(resources->get<DrawableProvider>()),
-              _viewProviders(resources->get<ViewProvider>()) {
+        : _eventQueue(resources->get<ECSEventQueue>()),
+          _sceneManager(resources->get<SceneManager>()),
+          _drawableProviders(resources->get<DrawableProvider>()),
+          _viewProviders(resources->get<ViewProvider>()) {
         //
     }
 
@@ -28,7 +28,7 @@ namespace Penrose {
     }
 
     void RenderListBuilder::destroy() {
-        //this->_eventQueue->removeHandler(this->_eventHandlerIdx);
+        // this->_eventQueue->removeHandler(this->_eventHandlerIdx);
     }
 
     std::optional<RenderList> RenderListBuilder::tryBuildRenderList(const std::string &name) {
@@ -61,12 +61,7 @@ namespace Penrose {
             return std::nullopt;
         }
 
-        auto renderList = RenderList{
-                .view = *view,
-                .textureCount = 0,
-                .textures = {},
-                .meshes = {}
-        };
+        auto renderList = RenderList {.view = *view, .textureCount = 0, .textures = {}, .meshes = {}};
 
         auto getTextureIdOf = [](RenderList &list, const std::string &asset) -> std::uint32_t {
             for (std::uint32_t id = 0; id < list.textureCount; ++id) {
@@ -102,11 +97,11 @@ namespace Penrose {
                 for (const auto &drawable: drawableProvider->getDrawablesFor(entity)) {
                     auto mesh = getMeshOf(renderList, drawable.meshAsset);
 
-                    mesh->instances.emplace_back(MeshInstance{
-                            .model = drawable.model,
-                            .modelRot = drawable.modelRot,
-                            .color = drawable.color,
-                            .albedoTextureId = getTextureIdOf(renderList, drawable.albedoTextureAsset)
+                    mesh->instances.emplace_back(MeshInstance {
+                        .model = drawable.model,
+                        .modelRot = drawable.modelRot,
+                        .color = drawable.color,
+                        .albedoTextureId = getTextureIdOf(renderList, drawable.albedoTextureAsset)
                     });
                 }
             }
@@ -116,24 +111,24 @@ namespace Penrose {
     }
 
     void RenderListBuilder::handleComponentCreate(const ComponentCreatedEvent *event) {
-        if (event->getComponentType().type != ViewComponent::type().type) {
+        if (event->componentType.type != ViewComponent::type().type) {
             return;
         }
 
-        auto view = std::dynamic_pointer_cast<ViewComponent>(event->getComponent());
-        this->_renderListViewMap.insert_or_assign(view->getRenderList(), event->getEntity());
+        auto view = std::dynamic_pointer_cast<ViewComponent>(event->component);
+        this->_renderListViewMap.insert_or_assign(view->getRenderList(), event->entity);
     }
 
     void RenderListBuilder::handleComponentDestroy(const ComponentDestroyedEvent *event) {
-        if (event->getComponentType().type != ViewComponent::type().type) {
+        if (event->componentType.type != ViewComponent::type().type) {
             return;
         }
 
-        auto entity = event->getEntity();
-        auto it = std::find_if(this->_renderListViewMap.begin(), this->_renderListViewMap.end(),
-                               [&entity](const auto &entry) {
-                                   return entry.second == entity;
-                               });
+        auto entity = event->entity;
+        auto it = std::find_if(
+            this->_renderListViewMap.begin(), this->_renderListViewMap.end(),
+            [&entity](const auto &entry) { return entry.second == entity; }
+        );
 
         if (it != this->_renderListViewMap.end()) {
             this->_renderListViewMap.erase(it);

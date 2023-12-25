@@ -1,16 +1,41 @@
 #ifndef PENROSE_INPUT_INPUT_HPP
 #define PENROSE_INPUT_INPUT_HPP
 
+#include <tuple>
+
 namespace Penrose {
 
+    /**
+     * \brief Relative mouse position
+     * \details Both axis are limited within [-1.0, 1.0]. Position is calculated from top left corner of surface.
+     */
+    using InputMousePosition = std::tuple<float, float>;
+
+    /**
+     * \brief Mouse movement: difference from previous and current position
+     */
+    using InputMouseMovement = std::tuple<float, float>;
+
+    /**
+     * \brief Mouse wheel scroll
+     */
+    using InputMouseScroll = std::tuple<float, float>;
+
+    /**
+     * \brief Input key state
+     */
     enum class InputState {
         Pressed,
         Released
     };
 
+    /**
+     * \brief Input key (keyboard, mouse, gamepad, etc)
+     */
     enum class InputKey {
         Unknown,
 
+        // clang-format off
         // numbers
         _0, _1, _2, _3, _4,
         _5, _6, _7, _8, _9,
@@ -62,9 +87,21 @@ namespace Penrose {
         // mouse
         MB0, MB1, MB2,
         MB3, MB4, MB5, MB6, MB7
+        // clang-format on
     };
 
+    /**
+     * \brief Checks key is keyboard key
+     * \param key Key
+     * \return True if key is keyboard key
+     */
     [[nodiscard]] bool isKeyboardKey(InputKey key);
+
+    /**
+     * \brief Checks key is mouse key
+     * \param key Key
+     * \return True if key is mouse key
+     */
     [[nodiscard]] bool isMouseKey(InputKey key);
 }
 

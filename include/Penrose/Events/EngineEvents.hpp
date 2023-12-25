@@ -5,12 +5,18 @@
 
 namespace Penrose {
 
-    class EngineDestroyRequestedEvent : public Event<EngineDestroyRequestedEvent> {
-    public:
-        ~EngineDestroyRequestedEvent() override = default;
+    /**
+     * \brief Engine destroy request event
+     * \details This event is used to stop engine. Always handled by engine.
+     */
+    struct PENROSE_API EngineDestroyRequestEvent {
+        //
     };
 
-    using EngineEventQueue = EventQueue<EngineDestroyRequestedEvent>;
+    /**
+     * \brief Engine event queue
+     */
+    using EngineEventQueue = EventQueue<EngineDestroyRequestEvent>;
 }
 
 #endif // PENROSE_EVENTS_ENGINE_EVENTS_HPP

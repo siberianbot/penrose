@@ -1,17 +1,14 @@
 #ifndef PENROSE_EVENTS_EVENT_QUEUE_HPP
 #define PENROSE_EVENTS_EVENT_QUEUE_HPP
 
-#include <atomic>
 #include <array>
-#include <cstdint>
+#include <atomic>
 #include <functional>
 #include <list>
 #include <type_traits>
 #include <variant>
 #include <vector>
 
-#include <Penrose/Api.hpp>
-#include <Penrose/Events/Event.hpp>
 #include <Penrose/Resources/Initializable.hpp>
 #include <Penrose/Resources/Resource.hpp>
 #include <Penrose/Resources/Updatable.hpp>
@@ -19,19 +16,25 @@
 
 namespace Penrose {
 
-    template<typename E>
-    concept IsEvent = std::is_base_of_v<Event<E>, E>;
-
+    /**
+     * \brief Event queue
+     * \details Event queue allows to push event and dispatch them to corresponding handlers. All added handlers are
+     * removed on queue deinitialization. Event queue is double buffered.
+     * \tparam Events Type of events that are processable by this queue
+     */
     template <typename... Events>
-    requires All<IsEvent<Events>...>
-    class PENROSE_API EventQueue: public Resource<EventQueue<Events...>>,
-                                  public Initializable,
-                                  public Updatable {
+    class PENROSE_API EventQueue final: public Resource<EventQueue<Events...>>,
+                                        public Initializable,
+                                        public Updatable {
     public:
         ~EventQueue() override = default;
 
-        void init() override { /* nothing to do */ }
+        //! \copydoc Initializable::init
+        void init() override {
+            // nothing to do
+        }
 
+        //! \copydoc Initializable::destroy
         void destroy() override {
             this->_handlers.clear();
 
@@ -40,6 +43,7 @@ namespace Penrose {
             }
         }
 
+        //! \copydoc Updatable::update
         void update(float) override {
             this->swap();
 
@@ -52,27 +56,37 @@ namespace Penrose {
             this->back().clear();
         }
 
-        template<typename E>
-        requires Any<std::is_same_v<E, Events>...> && IsEvent<E> && std::is_default_constructible_v<E>
+        /**
+         * \brief Construct and push event
+         * \tparam E Type of event
+         */
+        template <typename E>
+        requires Any<std::is_same_v<E, Events>...> && std::is_default_constructible_v<E>
         void push() {
-            auto event = E::create();
-
-            this->current().emplace_back(event);
+            this->current().emplace_back(E());
         }
 
-        template<typename E, typename ...Args>
-        requires Any<std::is_same_v<E, Events>...> && IsEvent<E> && std::is_constructible_v<E, Args...>
-        void push(Args &&...args) {
-            auto event = E::create(std::forward<decltype(args)>(args)...);
-
-            this->current().emplace_back(event);
+        /**
+         * \brief Push event
+         * \tparam E Type of event
+         * \param event Instance of new event
+         */
+        template <typename E>
+        requires Any<std::is_same_v<E, Events>...>
+        void push(E &&event) {
+            this->current().emplace_back(std::forward<decltype(event)>(event));
         }
 
-        template<typename E, typename H>
-        requires Any<std::is_same_v<E, Events>...> && IsEvent<E> && std::is_invocable_v<H, const E *>
-        void addHandler(H handler) {
+        /**
+         * \brief Add event handler function
+         * \tparam E Type of event
+         * \param handler Event handler function
+         */
+        template <typename E>
+        requires Any<std::is_same_v<E, Events>...>
+        void addHandler(std::function<void(const E *)> &&handler) {
             this->_handlers.emplace_back([handler](const EventVariant *event) {
-                auto targetEvent = std::get_if<E>(event);
+                const auto targetEvent = std::get_if<E>(event);
 
                 if (targetEvent == nullptr) {
                     return;
@@ -83,7 +97,7 @@ namespace Penrose {
         }
 
     private:
-        constexpr static const std::size_t QUEUE_COUNT = 2;
+        static constexpr std::size_t QUEUE_COUNT = 2;
 
         using EventVariant = std::variant<Events...>;
         using Queue = std::vector<EventVariant>;
@@ -93,17 +107,11 @@ namespace Penrose {
         std::array<Queue, QUEUE_COUNT> _eventQueues;
         std::atomic_size_t _currentEventQueueIdx = 0;
 
-        [[nodiscard]] Queue &current() {
-            return this->_eventQueues.at(this->_currentEventQueueIdx % QUEUE_COUNT);
-        }
+        [[nodiscard]] Queue &current() { return this->_eventQueues.at(this->_currentEventQueueIdx % QUEUE_COUNT); }
 
-        [[nodiscard]] Queue &back() {
-            return this->_eventQueues.at((this->_currentEventQueueIdx - 1) % QUEUE_COUNT);
-        }
+        [[nodiscard]] Queue &back() { return this->_eventQueues.at((this->_currentEventQueueIdx - 1) % QUEUE_COUNT); }
 
-        void swap() {
-            this->_currentEventQueueIdx++;
-        }
+        void swap() { ++this->_currentEventQueueIdx; }
     };
 }
 

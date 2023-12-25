@@ -7,8 +7,8 @@ namespace Penrose {
     constexpr static const std::string_view ENTITY_MANAGER_TAG = "EntityManager";
 
     EntityManager::Query::Query(EntityManager *entityManager)
-            : _entityManager(entityManager),
-              _iterator(std::make_unique<AllIterator>(&this->_entityManager->_entities)) {
+        : _entityManager(entityManager),
+          _iterator(std::make_unique<AllIterator>(&this->_entityManager->_entities)) {
         //
     }
 
@@ -61,8 +61,8 @@ namespace Penrose {
     }
 
     EntityManager::EntityManager(const ResourceSet *resources)
-            : _ecsEventQueue(resources->get<ECSEventQueue>()),
-              _log(resources->get<Log>()) {
+        : _ecsEventQueue(resources->get<ECSEventQueue>()),
+          _log(resources->get<Log>()) {
         //
     }
 
@@ -78,7 +78,9 @@ namespace Penrose {
             throw EngineError("Entity allocation failed");
         }
 
-        this->_ecsEventQueue->push<EntityCreatedEvent>(*maybeEntity);
+        this->_ecsEventQueue->push(EntityCreatedEvent {
+            .entity = *maybeEntity,
+        });
 
         return *maybeEntity;
     }
@@ -93,7 +95,10 @@ namespace Penrose {
         }
 
         for (const auto &[_, component]: (*maybeData)->components) {
-            this->_ecsEventQueue->push<ComponentDestroyedEvent>(entity, component->getType());
+            this->_ecsEventQueue->push(ComponentDestroyedEvent {
+                .entity = entity,
+                .componentType = component->getType(),
+            });
         }
 
         (*maybeData)->acquired = false;
@@ -101,7 +106,9 @@ namespace Penrose {
 
         this->_entitiesAcquiredCount--;
 
-        this->_ecsEventQueue->push<EntityDestroyedEvent>(entity);
+        this->_ecsEventQueue->push(EntityDestroyedEvent {
+            .entity = entity,
+        });
     }
 
     void EntityManager::addComponent(Entity entity, std::shared_ptr<ComponentBase> &&component) {
@@ -119,7 +126,11 @@ namespace Penrose {
 
         (*maybeData)->components.emplace(type.type, std::shared_ptr(component));
 
-        this->_ecsEventQueue->push<ComponentCreatedEvent>(entity, std::shared_ptr(component));
+        this->_ecsEventQueue->push(ComponentCreatedEvent {
+            .entity = entity,
+            .componentType = component->getType(),
+            .component = std::shared_ptr(component),
+        });
     }
 
     void EntityManager::removeComponent(Entity entity, ComponentInfo &&componentType) {
@@ -134,16 +145,18 @@ namespace Penrose {
         auto it = (*maybeData)->components.find(componentType.type);
 
         if (it == (*maybeData)->components.end()) {
-            this->_log->writeError(ENTITY_MANAGER_TAG, "Entity {:#x} does not have component {}", entity,
-                                   componentType.name);
+            this->_log->writeError(
+                ENTITY_MANAGER_TAG, "Entity {:#x} does not have component {}", entity, componentType.name
+            );
             return;
         }
 
         (*maybeData)->components.erase(it);
     }
 
-    std::optional<std::shared_ptr<ComponentBase>> EntityManager::tryGetComponent(Entity entity,
-                                                                                 ComponentInfo &&componentType) {
+    std::optional<std::shared_ptr<ComponentBase>> EntityManager::tryGetComponent(
+        Entity entity, ComponentInfo &&componentType
+    ) {
         auto maybeData = this->tryGetEntityData(entity);
 
         if (!maybeData.has_value()) {
@@ -160,19 +173,14 @@ namespace Penrose {
     }
 
     void EntityManager::resize(std::uint32_t size) {
-        auto emptyData = EntityData{
-                .acquired = false,
-                .components = {}
-        };
+        auto emptyData = EntityData {.acquired = false, .components = {}};
 
         this->_entities.resize(size, emptyData);
     }
 
     std::optional<Entity> EntityManager::tryAcquireEntity() {
         if (this->_entitiesAcquiredCount == this->_entities.size()) {
-            this->resize(
-                    std::max<std::uint32_t>(2 * this->_entities.size(), 64 * 1024)
-            );
+            this->resize(std::max<std::uint32_t>(2 * this->_entities.size(), 64 * 1024));
         }
 
         std::optional<Entity> entity;
@@ -210,9 +218,9 @@ namespace Penrose {
     }
 
     EntityManager::AllIterator::AllIterator(EntityCollection *entities)
-            : _entities(entities),
-              _entity(std::nullopt),
-              _componentIterator(std::nullopt) {
+        : _entities(entities),
+          _entity(std::nullopt),
+          _componentIterator(std::nullopt) {
         //
     }
 
@@ -230,12 +238,9 @@ namespace Penrose {
             (*this->_entity)++;
         }
 
-        while (
-                this->_entity < this->_entities->size() &&
-                (
-                        !this->_entities->at(*this->_entity).acquired ||
-                        this->_entities->at(*this->_entity).components.empty()
-                )) {
+        while (this->_entity < this->_entities->size()
+               && (!this->_entities->at(*this->_entity).acquired
+                   || this->_entities->at(*this->_entity).components.empty())) {
             (*this->_entity)++;
         }
 
@@ -251,15 +256,11 @@ namespace Penrose {
     EntityManager::Entry EntityManager::AllIterator::fetch() {
         auto [_, component] = (**this->_componentIterator);
 
-        return Entry{
-                .entity = (*this->_entity),
-                .type = component->getType(),
-                .component = component
-        };
+        return Entry {.entity = (*this->_entity), .type = component->getType(), .component = component};
     }
 
     EntityManager::EntityIterator::EntityIterator(std::unique_ptr<Iterator> &&next)
-            : _next(std::forward<decltype(next)>(next)) {
+        : _next(std::forward<decltype(next)>(next)) {
         //
     }
 
@@ -284,7 +285,7 @@ namespace Penrose {
     }
 
     EntityManager::ComponentIterator::ComponentIterator(std::unique_ptr<Iterator> &&next)
-            : _next(std::forward<decltype(next)>(next)) {
+        : _next(std::forward<decltype(next)>(next)) {
         //
     }
 

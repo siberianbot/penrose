@@ -44,7 +44,7 @@ public:
                         .property<BooleanValue>("menu_checked", false)
                         .property<BooleanValue>("menu_enabled", true)
                         .property<ActionValue>(
-                            "close", [this]() { this->_engineEventQueue->push<EngineDestroyRequestedEvent>(); }
+                            "close", [this]() { this->_engineEventQueue->push<EngineDestroyRequestEvent>(); }
                         )
                         .property<StringValue>("text", "Same text in label and input")
                         .property<ActionValue>("button_action", [buttonPressed]() { buttonPressed->setValue(true); })
@@ -124,13 +124,13 @@ public:
         this->_eventQueue->addHandler<KeyStateUpdatedEvent>([this](const KeyStateUpdatedEvent *event) {
             this->_log->writeDebug(
                 TEST_LOGIC_SYSTEM_TAG, "Key state updated - key {:#x}, state {:#x}",
-                static_cast<std::uint32_t>(event->getKey()), static_cast<std::uint32_t>(event->getState())
+                static_cast<std::uint32_t>(event->key), static_cast<std::uint32_t>(event->state)
             );
         });
 
         this->_eventQueue->addHandler<MouseMovementEvent>([this](const MouseMovementEvent *event) {
-            auto [x, y] = event->getPosition();
-            auto [dx, dy] = event->getDelta();
+            auto [x, y] = event->position;
+            auto [dx, dy] = event->movement;
 
             this->_log->writeDebug(
                 TEST_LOGIC_SYSTEM_TAG, "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy
@@ -138,7 +138,7 @@ public:
         });
 
         this->_eventQueue->addHandler<MouseScrollEvent>([this](const MouseScrollEvent *event) {
-            auto [dx, dy] = event->getOffset();
+            auto [dx, dy] = event->scroll;
 
             this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG, "Scroll - dx = {}, dy = {}", dx, dy);
         });

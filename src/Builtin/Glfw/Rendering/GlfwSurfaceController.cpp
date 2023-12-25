@@ -8,10 +8,10 @@
 namespace Penrose {
 
     GlfwSurfaceController::GlfwSurfaceController(const ResourceSet *resources)
-            : _eventQueue(resources->get<SurfaceEventQueue>()),
-              _inputHandler(resources->get<InputHandler>()),
-              _surfaceManager(resources->get<SurfaceManager>()),
-              _vulkanBackend(resources->get<VulkanBackend>()) {
+        : _eventQueue(resources->get<SurfaceEventQueue>()),
+          _inputHandler(resources->get<InputHandler>()),
+          _surfaceManager(resources->get<SurfaceManager>()),
+          _vulkanBackend(resources->get<VulkanBackend>()) {
         //
     }
 
@@ -59,10 +59,9 @@ namespace Penrose {
         }
 
         VkSurfaceKHR vkSurface;
-        auto result = glfwCreateWindowSurface(this->_vulkanBackend->getInstance(),
-                                              glfwSurface->getHandle(),
-                                              nullptr,
-                                              &vkSurface);
+        auto result = glfwCreateWindowSurface(
+            this->_vulkanBackend->getInstance(), glfwSurface->getHandle(), nullptr, &vkSurface
+        );
 
         if (result != VkResult::VK_SUCCESS) {
             throw EngineError("Failed to create VK surface for surface instance");
@@ -76,9 +75,9 @@ namespace Penrose {
     void GlfwSurfaceController::windowCloseCallback(GLFWwindow *handle) {
         auto that = reinterpret_cast<GlfwSurfaceController *>(glfwGetWindowUserPointer(handle));
 
-        auto surface = that->_surfaceManager->getSurface();
-
-        that->_eventQueue->push<SurfaceCloseRequestedEvent>(std::move(surface));
+        that->_eventQueue->push(SurfaceClosedEvent {
+            .surface = that->_surfaceManager->getSurface(),
+        });
     }
 
     void GlfwSurfaceController::framebufferSizeCallback(GLFWwindow *handle, int w, int h) {
@@ -86,9 +85,10 @@ namespace Penrose {
 
         that->_surfaceManager->invalidate(); // TODO: remove
 
-        auto surface = that->_surfaceManager->getSurface();
-
-        that->_eventQueue->push<SurfaceResizedEvent>(std::move(surface), Size(w, h));
+        that->_eventQueue->push(SurfaceResizedEvent {
+            .surface = that->_surfaceManager->getSurface(),
+            .size = {w, h},
+        });
     }
 
     void GlfwSurfaceController::keyCallback(GLFWwindow *handle, int key, int, int action, int) {
@@ -115,8 +115,8 @@ namespace Penrose {
         int w, h;
         glfwGetWindowSize(handle, &w, &h);
 
-        auto ndcX = static_cast<float>(x) / (static_cast<float >(w) / 2) - 1;
-        auto ndcY = 1 - static_cast<float>(y) / (static_cast<float >(h) / 2);
+        auto ndcX = static_cast<float>(x) / (static_cast<float>(w) / 2) - 1;
+        auto ndcY = 1 - static_cast<float>(y) / (static_cast<float>(h) / 2);
 
         that->_inputHandler->pushMouseMove(ndcX, ndcY);
 
@@ -124,9 +124,7 @@ namespace Penrose {
             return;
         }
 
-        glfwSetCursorPos(handle,
-                         std::clamp(x, 0., static_cast<double>(w)),
-                         std::clamp(y, 0., static_cast<double>(h)));
+        glfwSetCursorPos(handle, std::clamp(x, 0., static_cast<double>(w)), std::clamp(y, 0., static_cast<double>(h)));
     }
 
     void GlfwSurfaceController::scrollCallback(GLFWwindow *handle, double dx, double dy) {

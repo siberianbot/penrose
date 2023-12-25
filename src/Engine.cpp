@@ -165,14 +165,12 @@ namespace Penrose {
         auto alive = true;
 
         auto engineEventQueue = this->_resources.get<EngineEventQueue>();
-        engineEventQueue->addHandler<EngineDestroyRequestedEvent>([&alive](const EngineDestroyRequestedEvent *) {
+        engineEventQueue->addHandler<EngineDestroyRequestEvent>([&alive](const EngineDestroyRequestEvent *) {
             alive = false;
         });
 
-        this->_resources.get<SurfaceEventQueue>()->addHandler<SurfaceCloseRequestedEvent>(
-            [&engineEventQueue](const SurfaceCloseRequestedEvent *) {
-                engineEventQueue->push<EngineDestroyRequestedEvent>();
-            }
+        this->_resources.get<SurfaceEventQueue>()->addHandler<SurfaceClosedEvent>(
+            [&engineEventQueue](const SurfaceClosedEvent *) { engineEventQueue->push<EngineDestroyRequestEvent>(); }
         );
 
         std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();

@@ -2,7 +2,6 @@
 #define PENROSE_EVENTS_ECS_EVENTS_HPP
 
 #include <memory>
-#include <string>
 
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/Entity.hpp>
@@ -10,93 +9,74 @@
 
 namespace Penrose {
 
-    template<typename Self>
-    class EntityEvent : public Event<Self> {
-    public:
-        ~EntityEvent() override = default;
+    /**
+     * \brief Entity created event
+     * \details Fired after entity creation
+     */
+    struct PENROSE_API EntityCreatedEvent final {
 
-        [[nodiscard]] const Entity &getEntity() const { return this->_entity; }
-
-    protected:
-        explicit EntityEvent(Entity entity)
-                : _entity(entity) {
-            //
-        }
-
-    private:
-        Entity _entity;
+        /**
+         * \brief Target entity
+         */
+        Entity entity;
     };
 
-    template<typename Self>
-    class ComponentEvent : public EntityEvent<Self> {
-    public:
-        ~ComponentEvent() override = default;
+    /**
+     * \brief Entity destroyed event
+     * \details Fired after entity destruction
+     */
+    struct PENROSE_API EntityDestroyedEvent final {
 
-        [[nodiscard]] const ComponentInfo &getComponentType() const { return this->_componentType; }
-
-    protected:
-        explicit ComponentEvent(Entity entity, ComponentInfo &&componentType)
-                : EntityEvent<Self>(entity),
-                  _componentType(componentType) {
-            //
-        }
-
-    private:
-        ComponentInfo _componentType;
+        /**
+         * \brief Target entity
+         */
+        Entity entity;
     };
 
-    class EntityCreatedEvent : public EntityEvent<EntityCreatedEvent> {
-    public:
-        explicit EntityCreatedEvent(Entity entity)
-                : EntityEvent<EntityCreatedEvent>(entity) {
-            //
-        }
+    /**
+     * \brief Component created event
+     * \details Fired after component creation
+     */
+    struct PENROSE_API ComponentCreatedEvent final {
 
-        ~EntityCreatedEvent() override = default;
+        /**
+         * \brief Target entity
+         */
+        Entity entity;
+
+        /**
+         * \brief Type of component
+         */
+        ComponentInfo componentType;
+
+        /**
+         * \brief Component instance
+         */
+        std::shared_ptr<ComponentBase> component;
     };
 
-    class EntityDestroyedEvent : public EntityEvent<EntityDestroyedEvent> {
-    public:
-        explicit EntityDestroyedEvent(Entity entity)
-                : EntityEvent<EntityDestroyedEvent>(entity) {
-            //
-        }
+    /**
+     * \brief Component destruction event
+     * \details Fired after component destruction
+     */
+    struct PENROSE_API ComponentDestroyedEvent final {
 
-        ~EntityDestroyedEvent() override = default;
+        /**
+         * \brief Target entity
+         */
+        Entity entity;
+
+        /**
+         * \brief Type of component
+         */
+        ComponentInfo componentType;
     };
 
-    class ComponentCreatedEvent : public ComponentEvent<ComponentCreatedEvent> {
-    public:
-        explicit ComponentCreatedEvent(Entity entity, std::shared_ptr<ComponentBase> &&component)
-                : ComponentEvent<ComponentCreatedEvent>(entity, component->getType()),
-                  _component(component) {
-            //
-        }
-
-        ~ComponentCreatedEvent() override = default;
-
-        [[nodiscard]] const std::shared_ptr<ComponentBase> &getComponent() const { return this->_component; }
-
-    private:
-        std::shared_ptr<ComponentBase> _component;
-    };
-
-    class ComponentDestroyedEvent : public ComponentEvent<ComponentDestroyedEvent> {
-    public:
-        explicit ComponentDestroyedEvent(Entity entity, ComponentInfo &&componentType)
-                : ComponentEvent<ComponentDestroyedEvent>(entity,
-                                                          std::forward<decltype(componentType)>(componentType)) {
-            //
-        }
-
-        ~ComponentDestroyedEvent() override = default;
-    };
-
+    /**
+     * \brief ECS event queue
+     */
     using ECSEventQueue = EventQueue<
-            EntityCreatedEvent,
-            EntityDestroyedEvent,
-            ComponentCreatedEvent,
-            ComponentDestroyedEvent>;
+        EntityCreatedEvent, EntityDestroyedEvent, ComponentCreatedEvent, ComponentDestroyedEvent>;
 }
 
 #endif // PENROSE_EVENTS_ECS_EVENTS_HPP
