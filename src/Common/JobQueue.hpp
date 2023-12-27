@@ -33,6 +33,8 @@ namespace Penrose {
 
         void clear();
 
+        [[nodiscard]] bool running() const { return this->_running; }
+
     private:
         struct Job {
             Func func;
@@ -49,6 +51,7 @@ namespace Penrose {
         };
 
         std::optional<std::jthread> _thread;
+        std::atomic_bool _running;
         std::binary_semaphore _semaphore;
         OrderedQueue<Job, JobEqualTo, JobLess> _jobs;
 

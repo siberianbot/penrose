@@ -12,13 +12,12 @@ namespace Penrose {
     RenderManagerImpl::RenderManagerImpl(const ResourceSet *resources)
         : _resources(resources),
           _log(resources->get<Log>()),
-          _surfaceEventQueue(resources->get<SurfaceEventQueue>()),
-          _initialized(false) {
+          _surfaceEventQueue(resources->get<SurfaceEventQueue>()) {
         //
     }
 
     void RenderManagerImpl::init() {
-        if (this->_initialized) {
+        if (this->_jobQueue.running()) {
             return;
         }
 
@@ -68,12 +67,10 @@ namespace Penrose {
         this->_surfaceEventQueue->addHandler<SurfaceResizedEvent>([this](const SurfaceResizedEvent *) {
             this->invalidate();
         });
-
-        this->_initialized = true;
     }
 
     void RenderManagerImpl::destroy() {
-        if (!this->_initialized) {
+        if (!this->_jobQueue.running()) {
             return;
         }
 
@@ -101,21 +98,19 @@ namespace Penrose {
                 TAG, "Failed to deinitialize rendering system {}: {}", (*this->_renderSystem)->getName(), error.what()
             );
         }
-
-        this->_initialized = false;
     }
 
     void RenderManagerImpl::setRenderSystem(std::type_index &&type) {
-        if (this->_initialized) {
-            throw EngineError("Rendering manager is initialized");
+        if (this->_jobQueue.running()) {
+            throw EngineError("Rendering manager is running");
         }
 
         this->_renderSystem = this->_resources->resolveOne<RenderSystem>(std::forward<decltype(type)>(type));
     }
 
     void RenderManagerImpl::addRenderer(std::type_index &&type) {
-        if (this->_initialized) {
-            throw EngineError("Rendering manager is initialized");
+        if (this->_jobQueue.running()) {
+            throw EngineError("Rendering manager is running");
         }
 
         const auto renderer = this->_resources->resolveOne<Renderer>(std::forward<decltype(type)>(type));

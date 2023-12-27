@@ -5,7 +5,8 @@
 namespace Penrose {
 
     JobQueue::JobQueue()
-        : _semaphore(1),
+        : _running(false),
+          _semaphore(1),
           _jobs({}) {
         //
     }
@@ -16,6 +17,8 @@ namespace Penrose {
         }
 
         this->_thread = std::jthread([this](const std::stop_token &token) {
+            this->_running = true;
+
             while (!token.stop_requested()) {
                 if (this->_jobs.empty()) {
                     std::this_thread::yield();
@@ -32,6 +35,8 @@ namespace Penrose {
                     this->_jobs.pop();
                 }
             }
+
+            this->_running = false;
         });
     }
 

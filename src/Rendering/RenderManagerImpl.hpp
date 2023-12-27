@@ -44,7 +44,6 @@ namespace Penrose {
         std::optional<RenderSystem *> _renderSystem;
         std::map<std::string, Renderer *> _renderers;
         std::optional<std::unique_ptr<RenderContext>> _renderContext;
-        bool _initialized;
 
         RenderExecutionInfo _executionInfo;
 
