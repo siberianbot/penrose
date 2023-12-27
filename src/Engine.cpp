@@ -35,6 +35,7 @@
 #include "src/Common/LogImpl.hpp"
 
 #include "src/ECS/EntityManagerImpl.hpp"
+#include "src/ECS/SystemManagerImpl.hpp"
 
 #include "src/Rendering/DefaultDrawableProvider.hpp"
 #include "src/Rendering/DefaultRenderer.hpp"
@@ -117,12 +118,16 @@ namespace Penrose {
             .done();
 
         this->_resources.add<EntityManagerImpl>()
-            .group(ResourceGroup::ECSManager)
+            .group(ResourceGroup::ECS)
             .implements<Initializable>()
             .implements<EntityManager>()
             .done();
 
-        this->_resources.add<SystemManager>().group(ResourceGroup::ECSManager).implements<Updatable>().done();
+        this->_resources.add<SystemManagerImpl>()
+            .group(ResourceGroup::ECS)
+            .implements<Initializable>()
+            .implements<SystemManager>()
+            .done();
 
         this->_resources.add<SceneManager>().group(ResourceGroup::Scene).implements<Initializable>().done();
 

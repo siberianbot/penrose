@@ -16,9 +16,8 @@ namespace Penrose {
         Assets,
         UI,
         Events,
-        ECSManager,
+        ECS,
         Scene,
-        ECSSystem,
         Custom
     };
 }

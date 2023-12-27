@@ -50,7 +50,7 @@ src = [
     'src/ECS/EntityManagerImpl.cpp',
     'src/ECS/EntityQuery.cpp',
     'src/ECS/EntityStore.cpp',
-    'src/ECS/SystemManager.cpp',
+    'src/ECS/SystemManagerImpl.cpp',
 
     # Input
     'src/Input/Input.cpp',

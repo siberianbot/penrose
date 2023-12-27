@@ -1,5 +1,4 @@
 #include <Penrose/Common/Log.hpp>
-#include <Penrose/ECS/System.hpp>
 #include <Penrose/Engine.hpp>
 #include <Penrose/Events/EngineEvents.hpp>
 #include <Penrose/Events/InputEvents.hpp>
@@ -13,8 +12,8 @@
 
 using namespace Penrose;
 
-class DemoUIContext: public Resource<DemoUIContext>,
-                     public Initializable {
+class DemoUIContext final: public Resource<DemoUIContext>,
+                           public Initializable {
 public:
     explicit DemoUIContext(const ResourceSet *resources)
         : _uiManager(resources->get<UIManager>()),
@@ -106,25 +105,24 @@ private:
     ResourceProxy<EngineEventQueue> _engineEventQueue;
 };
 
-constexpr static std::string_view TEST_LOGIC_SYSTEM_TAG = "InputReceiving";
-
-class TestLogicSystem: public Resource<TestLogicSystem>,
-                       public Initializable,
-                       public System {
+class TestLogic final: public Resource<TestLogic>,
+                       public Initializable {
 public:
-    explicit TestLogicSystem(const ResourceSet *resources)
+    inline constexpr static std::string_view TEST_LOGIC_TAG = "InputReceiving";
+
+    explicit TestLogic(const ResourceSet *resources)
         : _eventQueue(resources->get<InputEventQueue>()),
           _log(resources->get<Log>()) {
         //
     }
 
-    ~TestLogicSystem() override = default;
+    ~TestLogic() override = default;
 
     void init() override {
         this->_eventQueue->addHandler<KeyStateUpdatedEvent>([this](const KeyStateUpdatedEvent *event) {
             this->_log->writeDebug(
-                TEST_LOGIC_SYSTEM_TAG, "Key state updated - key {:#x}, state {:#x}",
-                static_cast<std::uint32_t>(event->key), static_cast<std::uint32_t>(event->state)
+                TEST_LOGIC_TAG, "Key state updated - key {:#x}, state {:#x}", static_cast<std::uint32_t>(event->key),
+                static_cast<std::uint32_t>(event->state)
             );
         });
 
@@ -132,25 +130,19 @@ public:
             auto [x, y] = event->position;
             auto [dx, dy] = event->movement;
 
-            this->_log->writeDebug(
-                TEST_LOGIC_SYSTEM_TAG, "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy
-            );
+            this->_log->writeDebug(TEST_LOGIC_TAG, "Mouse moved - x = {}, y = {}, dx = {}, dy = {}", x, y, dx, dy);
         });
 
         this->_eventQueue->addHandler<MouseScrollEvent>([this](const MouseScrollEvent *event) {
             auto [dx, dy] = event->scroll;
 
-            this->_log->writeDebug(TEST_LOGIC_SYSTEM_TAG, "Scroll - dx = {}, dy = {}", dx, dy);
+            this->_log->writeDebug(TEST_LOGIC_TAG, "Scroll - dx = {}, dy = {}", dx, dy);
         });
     }
 
-    void update(float) override { /* nothing to do */
+    void destroy() override {
+        // nothing to do
     }
-
-    void destroy() override { /* nothing to do */
-    }
-
-    [[nodiscard]] std::string getName() const override { return "TestLogic"; }
 
 private:
     ResourceProxy<InputEventQueue> _eventQueue;
@@ -161,14 +153,8 @@ int main() {
 
     Engine engine;
 
-    engine.resources().add<DemoUIContext>().group(ResourceGroup::Custom).implements<Initializable>().done();
-
-    engine.resources()
-        .add<TestLogicSystem>()
-        .group(ResourceGroup::ECSSystem)
-        .implements<Initializable>()
-        .implements<System>()
-        .done();
+    engine.resources().add<DemoUIContext>().implements<Initializable>().done();
+    engine.resources().add<TestLogic>().implements<Initializable>().done();
 
     auto assetManager = engine.resources().get<AssetManager>();
     assetManager->addDir("data");
