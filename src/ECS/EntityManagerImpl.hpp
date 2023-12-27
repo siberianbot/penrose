@@ -5,7 +5,6 @@
 #include <map>
 #include <memory>
 #include <semaphore>
-#include <vector>
 
 #include <Penrose/Common/Log.hpp>
 #include <Penrose/ECS/EntityIterator.hpp>
@@ -75,13 +74,13 @@ namespace Penrose {
 
         std::map<std::string, EntityArchetype *> _archetypes;
 
-        std::binary_semaphore _iterationSemaphore;
-        std::atomic_uint32_t _iterationRefCount;
+        std::binary_semaphore _semaphore;
+        std::atomic_uint32_t _refCount;
 
         EntityStore _entities;
 
-        void acquireIterationLock();
-        void releaseIterationLock();
+        void acquireLock();
+        void releaseLock();
     };
 }
 

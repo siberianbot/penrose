@@ -11,8 +11,8 @@ namespace Penrose {
         : _resources(resources),
           _log(resources->get<Log>()),
           _eventQueue(resources->get<ECSEventQueue>()),
-          _iterationSemaphore(1),
-          _iterationRefCount(0) {
+          _semaphore(1),
+          _refCount(0) {
         //
     }
 
@@ -25,30 +25,41 @@ namespace Penrose {
     }
 
     Entity EntityManagerImpl::createEntity() {
-        // TODO: lock
+        const auto guard = SemaphoreGuard(this->_semaphore);
+
         return this->_entities.acquire();
     }
 
     Entity EntityManagerImpl::createEntity(std::string_view &&archetype, const Params &params) {
-        const auto archetypeStr = std::string(archetype);
-
-        const auto it = this->_archetypes.find(archetypeStr);
+        const auto it = this->_archetypes.find(std::string(archetype));
 
         if (it == this->_archetypes.end()) {
-            throw EngineError("Entity archetype {} not found");
+            throw EngineError("Entity archetype {} not found", archetype);
         }
 
-        // TODO: lock
-        return it->second->construct(params);
+        const auto newComponents = it->second->construct(params);
+
+        const auto guard = SemaphoreGuard(this->_semaphore);
+
+        const auto entity = this->_entities.acquire();
+        auto &components = this->_entities.get(entity);
+
+        for (const auto &componentPtr: newComponents) {
+            components.insert_or_assign(componentPtr->getType(), componentPtr);
+        }
+
+        return entity;
     }
 
     void EntityManagerImpl::destroyEntity(const Entity entity) {
-        // TODO: lock
+        const auto guard = SemaphoreGuard(this->_semaphore);
+
         this->_entities.release(entity);
     }
 
     void EntityManagerImpl::addComponent(const Entity entity, std::shared_ptr<ComponentPtr> &&component) {
-        // TODO: lock
+        const auto guard = SemaphoreGuard(this->_semaphore);
+
         auto &components = this->_entities.get(entity);
 
         if (components.contains(component->getType())) {
@@ -59,7 +70,8 @@ namespace Penrose {
     }
 
     void EntityManagerImpl::removeComponent(const Entity entity, ComponentType &&componentType) {
-        // TODO: lock
+        const auto guard = SemaphoreGuard(this->_semaphore);
+
         auto &components = this->_entities.get(entity);
 
         if (!components.contains(componentType)) {
@@ -72,8 +84,9 @@ namespace Penrose {
     std::optional<std::shared_ptr<ComponentPtr>> EntityManagerImpl::tryGetComponent(
         const Entity entity, ComponentType &&componentType
     ) {
-        auto &components = this->_entities.get(entity);
+        const auto guard = SemaphoreGuard(this->_semaphore);
 
+        const auto &components = this->_entities.get(entity);
         const auto it = components.find(componentType);
 
         if (it == components.end()) {
@@ -84,6 +97,7 @@ namespace Penrose {
     }
 
     std::shared_ptr<ComponentPtr> EntityManagerImpl::getComponent(const Entity entity, ComponentType &&componentType) {
+        const auto guard = SemaphoreGuard(this->_semaphore);
         const auto component = this->tryGetComponent(entity, ComponentType(componentType));
 
         if (!component.has_value()) {
@@ -113,11 +127,11 @@ namespace Penrose {
 
     EntityManagerImpl::AllIterator::AllIterator(EntityManagerImpl *entityManager)
         : _entityManager(entityManager) {
-        this->_entityManager->acquireIterationLock();
+        this->_entityManager->acquireLock();
     }
 
     EntityManagerImpl::AllIterator::~AllIterator() {
-        this->_entityManager->releaseIterationLock();
+        this->_entityManager->releaseLock();
     }
 
     bool EntityManagerImpl::AllIterator::move() {
@@ -176,19 +190,19 @@ namespace Penrose {
         return false;
     }
 
-    void EntityManagerImpl::acquireIterationLock() {
-        if (this->_iterationRefCount == 0) {
-            this->_iterationSemaphore.acquire();
+    void EntityManagerImpl::acquireLock() {
+        if (this->_refCount == 0) {
+            this->_semaphore.acquire();
         }
 
-        ++this->_iterationRefCount;
+        ++this->_refCount;
     }
 
-    void EntityManagerImpl::releaseIterationLock() {
-        --this->_iterationRefCount;
+    void EntityManagerImpl::releaseLock() {
+        --this->_refCount;
 
-        if (this->_iterationRefCount == 0) {
-            this->_iterationSemaphore.release();
+        if (this->_refCount == 0) {
+            this->_semaphore.release();
         }
     }
 }

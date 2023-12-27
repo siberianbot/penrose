@@ -1,10 +1,12 @@
 #ifndef PENROSE_ECS_ENTITY_ARCHETYPE_HPP
 #define PENROSE_ECS_ENTITY_ARCHETYPE_HPP
 
+#include <memory>
 #include <string>
+#include <vector>
 
 #include <Penrose/Common/Params.hpp>
-#include <Penrose/ECS/Entity.hpp>
+#include <Penrose/ECS/Component.hpp>
 
 namespace Penrose {
 
@@ -24,11 +26,11 @@ namespace Penrose {
         [[nodiscard]] virtual std::string getName() const = 0;
 
         /**
-         * \brief Construct entity
+         * \brief Construct components for new entity
          * \param params Construction parameters
-         * \return Entity
+         * \return Collection of components
          */
-        [[nodiscard]] virtual Entity construct(const Params &params) = 0;
+        [[nodiscard]] virtual std::vector<std::shared_ptr<ComponentPtr>> construct(const Params &params) = 0;
     };
 }
 
