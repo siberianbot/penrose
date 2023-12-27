@@ -3,22 +3,34 @@
 
 #include <string>
 
+#include <glm/trigonometric.hpp>
+
 #include <Penrose/ECS/Component.hpp>
-#include <Penrose/ECS/ComponentFactory.hpp>
+#include <Penrose/Types/Projection.hpp>
 
 namespace Penrose {
 
-    class ViewComponent : public Component<ViewComponent> {
-    public:
+    /**
+     * \brief View component
+     * \details Entities with view components are treated as camera.
+     */
+    struct ViewComponent final: Component<ViewComponent> {
         ~ViewComponent() override = default;
 
-        [[nodiscard]] std::string &getRenderList() { return this->_renderList; }
+        /**
+         * \brief Name of view
+         */
+        std::string name = "Default";
 
-    private:
-        std::string _renderList = "Default";
+        /**
+         * \brief Projection parameters
+         */
+        Projection projection = PerspectiveProjection {
+            .fov = glm::radians(90.0f),
+            .near = 0.001f,
+            .far = 100.000f,
+        };
     };
-
-    using ViewComponentFactory = GenericComponentFactory<ViewComponent>;
 }
 
 #endif // PENROSE_BUILTIN_PENROSE_ECS_VIEW_COMPONENT_HPP

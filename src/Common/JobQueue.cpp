@@ -1,19 +1,8 @@
 #include "JobQueue.hpp"
 
+#include "src/Utils/SyncUtils.hpp"
+
 namespace Penrose {
-
-    class SemaphoreGuard {
-    public:
-        explicit SemaphoreGuard(std::binary_semaphore &semaphore)
-            : _semaphore(semaphore) {
-            this->_semaphore.acquire();
-        }
-
-        ~SemaphoreGuard() { this->_semaphore.release(); }
-
-    private:
-        std::binary_semaphore &_semaphore;
-    };
 
     JobQueue::JobQueue()
         : _semaphore(1),

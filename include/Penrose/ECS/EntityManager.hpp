@@ -1,177 +1,194 @@
 #ifndef PENROSE_ECS_ENTITY_MANAGER_HPP
 #define PENROSE_ECS_ENTITY_MANAGER_HPP
 
-#include <atomic>
-#include <map>
 #include <memory>
 #include <optional>
-#include <set>
 #include <typeindex>
-#include <vector>
 
-#include <Penrose/Api.hpp>
-#include <Penrose/Common/EngineError.hpp>
-#include <Penrose/Common/Log.hpp>
+#include <Penrose/Common/Params.hpp>
 #include <Penrose/ECS/Component.hpp>
 #include <Penrose/ECS/Entity.hpp>
-#include <Penrose/Events/ECSEvents.hpp>
-#include <Penrose/Resources/Initializable.hpp>
-#include <Penrose/Resources/ResourceSet.hpp>
-#include <Penrose/Utils/OptionalUtils.hpp>
+#include <Penrose/ECS/EntityArchetype.hpp>
+#include <Penrose/ECS/EntityIterator.hpp>
+#include <Penrose/ECS/EntityQuery.hpp>
 
 namespace Penrose {
 
-    class PENROSE_API EntityManager : public Resource<EntityManager>,
-                                      public Initializable {
+    /**
+     * \brief Entity manager interface
+     * \details This interface provides methods for working with entities and their components.
+     */
+    class PENROSE_API EntityManager {
     public:
-        struct Entry {
-            Entity entity;
-            ComponentInfo type;
-            std::shared_ptr<ComponentBase> component;
-        };
+        virtual ~EntityManager() = default;
 
-        class Iterator {
-        public:
-            virtual ~Iterator() = default;
+        /**
+         * \brief Create entity without components
+         * \return New entity
+         */
+        [[nodiscard]] virtual Entity createEntity() = 0;
 
-            [[nodiscard]] virtual bool move() = 0;
-            [[nodiscard]] virtual Entry fetch() = 0;
-        };
+        /**
+         * \brief Create entity using entity archetype
+         * \param archetype Name of entity archetype
+         * \param params Archetype construction parameters
+         * \return New entity
+         */
+        [[nodiscard]] virtual Entity createEntity(std::string_view &&archetype, const Params &params) = 0;
 
-        class PENROSE_API Query {
-        public:
-            explicit Query(EntityManager *entityManager);
+        /**
+         * \brief Destroy entity and all its components
+         * \param entity Entity
+         */
+        virtual void destroyEntity(Entity entity) = 0;
 
-            [[nodiscard]] Query &entity(Entity entity);
-            [[nodiscard]] Query &component(ComponentInfo &&componentType);
+        /**
+         * \brief Add component to entity
+         * \param entity Entity
+         * \param component Component
+         */
+        virtual void addComponent(Entity entity, std::shared_ptr<ComponentPtr> &&component) = 0;
 
-            template<typename C>
-            requires std::is_base_of_v<Component<C>, C>
-            [[nodiscard]] Query &component() {
-                return this->component(C::type());
+        /**
+         * \brief Construct component through default constructor and add to entity
+         * \tparam T Type of component
+         * \param entity Entity
+         */
+        template <typename T>
+        requires std::is_base_of_v<Component<T>, T> && std::is_default_constructible_v<T>
+        void addComponent(const Entity entity) {
+            this->addComponent(entity, std::make_shared<T>());
+        }
+
+        /**
+         * \brief Construct component through copy constructor and add to entity
+         * \tparam T Type of component
+         * \param entity Entity
+         * \param component Component
+         */
+        template <typename T>
+        requires std::is_base_of_v<Component<T>, T> && std::is_move_constructible_v<T>
+        void addComponent(const Entity entity, T &&component) {
+            this->addComponent(entity, std::make_shared<T>(std::forward<decltype(component)>(component)));
+        }
+
+        /**
+         * \brief Remove component from entity
+         * \param entity Entity
+         * \param componentType Type of component
+         */
+        virtual void removeComponent(Entity entity, ComponentType &&componentType) = 0;
+
+        /**
+         * \brief Remove component from entity
+         * \tparam T Type of component
+         * \param entity Entity
+         */
+        template <typename T>
+        requires std::is_base_of_v<Component<T>, T>
+        void removeComponent(const Entity entity) {
+            this->removeComponent(entity, T::type());
+        }
+
+        /**
+         * \brief Try get instance of component
+         * \param entity Entity
+         * \param componentType Type of component
+         * \return Component instance or nothing
+         */
+        [[nodiscard]] virtual std::optional<std::shared_ptr<ComponentPtr>> tryGetComponent(
+            Entity entity, ComponentType &&componentType
+        ) = 0;
+
+        /**
+         * \brief Try get instance of component
+         * \tparam T Type of component
+         * \param entity Entity
+         * \return Component instance or nothing
+         */
+        template <typename T>
+        requires std::is_base_of_v<Component<T>, T>
+        [[nodiscard]] std::optional<std::shared_ptr<T>> tryGetComponent(const Entity entity) {
+            const auto component = this->tryGetComponent(entity, T::type());
+
+            if (!component.has_value()) {
+                return std::nullopt;
             }
 
-            [[nodiscard]] std::optional<Entry> front();
-            [[nodiscard]] std::list<Entry> all();
-
-        private:
-            EntityManager *_entityManager;
-
-            std::unique_ptr<Iterator> _iterator;
-        };
-
-        explicit EntityManager(const ResourceSet *resources);
-        ~EntityManager() override = default;
-
-        void init() override { /* nothing to do */ }
-
-        void destroy() override;
-
-        [[nodiscard]] Entity createEntity();
-        void destroyEntity(Entity entity);
-
-        void addComponent(Entity entity, std::shared_ptr<ComponentBase> &&component);
-        void removeComponent(Entity entity, ComponentInfo &&componentType);
-
-        [[nodiscard]] std::optional<std::shared_ptr<ComponentBase>> tryGetComponent(Entity entity,
-                                                                                    ComponentInfo &&componentType);
-
-        template<typename C>
-        requires std::is_base_of_v<Component<C>, C>
-        void removeComponent(Entity entity) {
-            this->removeComponent(entity, C::type());
+            return std::dynamic_pointer_cast<T>(*component);
         }
 
-        template<typename C>
-        requires std::is_base_of_v<Component<C>, C>
-        [[nodiscard]] bool hasComponent(Entity entity) {
-            return this->tryGetComponent(entity, C::type()).has_value();
+        /**
+         * \brief Get instance of component
+         * \param entity Entity
+         * \param componentType Type of component
+         * \return Component instance
+         */
+        [[nodiscard]] virtual std::shared_ptr<ComponentPtr> getComponent(
+            Entity entity, ComponentType &&componentType
+        ) = 0;
+
+        /**
+         * \brief Get instance of component
+         * \tparam T Type of component
+         * \param entity Entity
+         * \return Component instance
+         */
+        template <typename T>
+        requires std::is_base_of_v<Component<T>, T>
+        [[nodiscard]] std::shared_ptr<T> getComponent(const Entity entity) {
+            return std::dynamic_pointer_cast<T>(this->getComponent(entity, T::type()));
         }
 
-        template<typename C>
-        requires std::is_base_of_v<Component<C>, C>
-        [[nodiscard]] std::optional<std::shared_ptr<C>> tryGetComponent(Entity entity) {
-            return map(
-                    this->tryGetComponent(entity, C::type()),
-                    [](const std::shared_ptr<ComponentBase> &component) {
-                        return std::dynamic_pointer_cast<C>(component);
-                    });
+        /**
+         * \brief Check for component presence for target entity
+         * \param entity Entity
+         * \param componentType Type of component
+         * \return Component presence
+         */
+        [[nodiscard]] bool hasComponent(const Entity entity, std::type_index &&componentType) {
+            return this->tryGetComponent(entity, std::forward<decltype(componentType)>(componentType)).has_value();
         }
 
-        template<typename C>
-        requires std::is_base_of_v<Component<C>, C>
-        [[nodiscard]] std::shared_ptr<C> getComponent(Entity entity) {
-            return orElseThrow(
-                    this->tryGetComponent<C>(entity),
-                    EngineError("Entity {} does not have component {}", entity, C::type().name));
+        /**
+         * \brief Check for component presence for target entity
+         * \tparam T Type of component
+         * \param entity Entity
+         * \return Component presence
+         */
+        template <typename T>
+        requires std::is_base_of_v<Component<T>, T>
+        [[nodiscard]] bool hasComponent(const Entity entity) {
+            return this->hasComponent(entity, T::type());
         }
 
-        [[nodiscard]] Query query();
+        /**
+         * \brief Get iterator over all available entities
+         * \return Iterator over all available entities, wrapped in std::unique_ptr
+         */
+        [[nodiscard]] virtual std::unique_ptr<EntityIterator> iterate() = 0;
 
-    private:
-        using ComponentCollection = std::map<std::type_index, std::shared_ptr<ComponentBase>>;
+        /**
+         * \brief Get new instance of entity query
+         * \return Instance of entity query
+         */
+        [[nodiscard]] virtual EntityQuery query() = 0;
 
-        struct EntityData {
-            bool acquired;
-            ComponentCollection components;
-        };
+        /**
+         * \brief Add entity archetype
+         * \param type Type of entity archetype
+         */
+        virtual void addArchetype(std::type_index &&type) = 0;
 
-        using EntityCollection = std::vector<EntityData>;
-
-        class AllIterator : public Iterator {
-        public:
-            explicit AllIterator(EntityCollection *entities);
-            ~AllIterator() override = default;
-
-            [[nodiscard]] bool move() override;
-            [[nodiscard]] Entry fetch() override;
-
-        private:
-            EntityCollection *_entities;
-            std::optional<Entity> _entity;
-            std::optional<ComponentCollection::const_iterator> _componentIterator;
-        };
-
-        class EntityIterator : public Iterator {
-        public:
-            explicit EntityIterator(std::unique_ptr<Iterator> &&next);
-            ~EntityIterator() override = default;
-
-            void entity(Entity entity);
-
-            [[nodiscard]] bool move() override;
-            [[nodiscard]] Entry fetch() override;
-
-        private:
-            std::unique_ptr<Iterator> _next;
-            std::set<Entity> _entities;
-        };
-
-        class ComponentIterator : public Iterator {
-        public:
-            explicit ComponentIterator(std::unique_ptr<Iterator> &&next);
-            ~ComponentIterator() override = default;
-
-            void component(std::type_index type);
-
-            [[nodiscard]] bool move() override;
-            [[nodiscard]] Entry fetch() override;
-
-        private:
-            std::unique_ptr<Iterator> _next;
-            std::set<std::type_index> _types;
-        };
-
-        ResourceProxy<ECSEventQueue> _ecsEventQueue;
-        ResourceProxy<Log> _log;
-
-        std::atomic_uint32_t _entitiesAcquiredCount;
-        EntityCollection _entities;
-
-        void resize(std::uint32_t size);
-
-        [[nodiscard]] std::optional<Entity> tryAcquireEntity();
-        [[nodiscard]] std::optional<EntityData *> tryGetEntityData(Entity entity);
+        /**
+         * \brief Add entity archetype
+         * \tparam T Type of entity archetype
+         */
+        template <typename T>
+        requires std::is_base_of_v<EntityArchetype, T>
+        void addArchetype() {
+            this->addArchetype(typeid(T));
+        }
     };
 }
 

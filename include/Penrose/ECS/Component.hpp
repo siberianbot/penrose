@@ -1,54 +1,51 @@
 #ifndef PENROSE_ECS_COMPONENT_HPP
 #define PENROSE_ECS_COMPONENT_HPP
 
-#include <string>
 #include <typeindex>
 #include <typeinfo>
 
-#include <Penrose/Utils/TypeUtils.hpp>
-
 namespace Penrose {
 
-    struct ComponentInfo {
-        std::type_index type;
-        std::string name;
+    /**
+     * \brief Component type
+     */
+    using ComponentType = std::type_index;
+
+    /**
+     * \brief Pointer type of Component<>
+     */
+    struct PENROSE_API ComponentPtr {
+        virtual ~ComponentPtr() = default;
+
+        /**
+         * \brief Get type of component
+         * \return Type of component
+         */
+        [[nodiscard]] virtual ComponentType getType() const = 0;
     };
 
-    class ComponentBase {
-    public:
-        virtual ~ComponentBase() = default;
+    /**
+     * \brief Base type of entity' component
+     * \details Components gives entities some traits, like transform, mesh, etc. Components are data oriented.
+     * \tparam Self Type of Component<> inheritor
+     */
+    template <typename Self>
+    struct PENROSE_API Component: ComponentPtr {
+        Component(const Component &) = default;
+        Component(Component &&) = default;
+        Component &operator=(const Component &) = default;
+        Component &operator=(Component &&) = default;
 
-        [[nodiscard]] virtual ComponentInfo getType() const = 0;
-    };
-
-    template<typename Self>
-    class Component : public ComponentBase {
-    public:
         ~Component() override = default;
 
-        [[nodiscard]] ComponentInfo getType() const final { return type(); }
+        /**
+         * \brief Get type of component
+         * \return Type of component
+         */
+        [[nodiscard]] static ComponentType type() { return typeid(Self); }
 
-        [[nodiscard]] constexpr static Self *create() {
-            static_assert(std::is_default_constructible_v<Self>);
-
-            return new Self();
-        }
-
-        template<typename ...Args>
-        [[nodiscard]] constexpr static Self *create(Args &&...args) {
-            static_assert(std::is_constructible_v<Self, Args...>);
-
-            return new Self(std::forward<decltype(args)>(args)...);
-        }
-
-        [[nodiscard]] /* TODO: constexpr */ static ComponentInfo type() {
-            std::type_index type = typeid(Self);
-
-            return {
-                    .type = type,
-                    .name = demangle(type.name())
-            };
-        }
+        //! \copydoc ComponentPtr::getType
+        [[nodiscard]] ComponentType getType() const final { return type(); }
     };
 }
 

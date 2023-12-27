@@ -9,7 +9,7 @@ namespace Penrose {
     /**
      * \brief Base type of Resource<> for pointers
      */
-    class ResourceBase {
+    class PENROSE_API ResourceBase {
     public:
         virtual ~ResourceBase() = default;
 
@@ -29,7 +29,7 @@ namespace Penrose {
      * \tparam Self Type of Resource<> inheritor
      */
     template <typename Self>
-    class Resource: public ResourceBase {
+    class PENROSE_API Resource: public ResourceBase {
     public:
         Resource(const Resource &) = delete;
         Resource(Resource &&) = delete;

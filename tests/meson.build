@@ -7,6 +7,7 @@ tests_src = [
     'src/Main.cpp',
 
     # Common
+    'src/Common/BitSetTests.cpp',
     'src/Common/OrderedQueueTests.cpp',
 
     #    # ECS

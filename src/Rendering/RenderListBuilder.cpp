@@ -111,16 +111,16 @@ namespace Penrose {
     }
 
     void RenderListBuilder::handleComponentCreate(const ComponentCreatedEvent *event) {
-        if (event->componentType.type != ViewComponent::type().type) {
+        if (event->componentType != ViewComponent::type()) {
             return;
         }
 
         auto view = std::dynamic_pointer_cast<ViewComponent>(event->component);
-        this->_renderListViewMap.insert_or_assign(view->getRenderList(), event->entity);
+        this->_renderListViewMap.insert_or_assign(view->name, event->entity);
     }
 
     void RenderListBuilder::handleComponentDestroy(const ComponentDestroyedEvent *event) {
-        if (event->componentType.type != ViewComponent::type().type) {
+        if (event->componentType != ViewComponent::type()) {
             return;
         }
 

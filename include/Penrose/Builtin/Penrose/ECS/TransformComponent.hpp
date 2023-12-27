@@ -4,27 +4,31 @@
 #include <glm/vec3.hpp>
 
 #include <Penrose/ECS/Component.hpp>
-#include <Penrose/ECS/ComponentFactory.hpp>
 
 namespace Penrose {
 
-    class TransformComponent : public Component<TransformComponent> {
-    public:
+    /**
+     * \brief Transform component
+     * \details Transform defines position, rotation and scale of entity in 3D world.
+     */
+    struct TransformComponent final: Component<TransformComponent> {
         ~TransformComponent() override = default;
 
-        [[nodiscard]] glm::vec3 &getPos() { return this->_pos; }
+        /**
+         * \brief Position
+         */
+        glm::vec3 pos = glm::vec3(0);
 
-        [[nodiscard]] glm::vec3 &getRot() { return this->_rot; }
+        /**
+         * \brief Rotation in radians
+         */
+        glm::vec3 rot = glm::vec3(0);
 
-        [[nodiscard]] glm::vec3 &getScale() { return this->_scale; }
-
-    private:
-        glm::vec3 _pos = glm::vec3(0);
-        glm::vec3 _rot = glm::vec3(0);
-        glm::vec3 _scale = glm::vec3(1);
+        /**
+         * \brief Scale
+         */
+        glm::vec3 scale = glm::vec3(1);
     };
-
-    using TransformComponentFactory = GenericComponentFactory<TransformComponent>;
 }
 
 #endif // PENROSE_BUILTIN_PENROSE_ECS_TRANSFORM_COMPONENT_HPP

@@ -47,12 +47,12 @@ namespace Penrose {
         /**
          * \brief Type of component
          */
-        ComponentInfo componentType;
+        ComponentType componentType;
 
         /**
          * \brief Component instance
          */
-        std::shared_ptr<ComponentBase> component;
+        std::shared_ptr<ComponentPtr> component;
     };
 
     /**
@@ -69,7 +69,7 @@ namespace Penrose {
         /**
          * \brief Type of component
          */
-        ComponentInfo componentType;
+        ComponentType componentType;
     };
 
     /**

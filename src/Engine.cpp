@@ -22,12 +22,6 @@
 #include <Penrose/Builtin/ImGui/ImGui.hpp>
 #include <Penrose/Builtin/Vulkan/Vulkan.hpp>
 
-#include <Penrose/Builtin/Penrose/ECS/MeshRendererComponent.hpp>
-#include <Penrose/Builtin/Penrose/ECS/OrthographicCameraComponent.hpp>
-#include <Penrose/Builtin/Penrose/ECS/PerspectiveCameraComponent.hpp>
-#include <Penrose/Builtin/Penrose/ECS/TransformComponent.hpp>
-#include <Penrose/Builtin/Penrose/ECS/ViewComponent.hpp>
-
 #include "src/Assets/AssetIndex.hpp"
 #include "src/Assets/AssetLoadingJobQueue.hpp"
 #include "src/Assets/AssetLoadingProxy.hpp"
@@ -39,6 +33,8 @@
 
 #include "src/Common/ConsoleLogSink.hpp"
 #include "src/Common/LogImpl.hpp"
+
+#include "src/ECS/EntityManagerImpl.hpp"
 
 #include "src/Rendering/DefaultDrawableProvider.hpp"
 #include "src/Rendering/DefaultRenderer.hpp"
@@ -120,7 +116,12 @@ namespace Penrose {
             .implements<Updatable>()
             .done();
 
-        this->_resources.add<EntityManager>().group(ResourceGroup::ECSManager).implements<Initializable>().done();
+        this->_resources.add<EntityManagerImpl>()
+            .group(ResourceGroup::ECSManager)
+            .implements<Initializable>()
+            .implements<EntityManager>()
+            .done();
+
         this->_resources.add<SystemManager>().group(ResourceGroup::ECSManager).implements<Updatable>().done();
 
         this->_resources.add<SceneManager>().group(ResourceGroup::Scene).implements<Initializable>().done();
@@ -129,28 +130,6 @@ namespace Penrose {
         addGlfw(this->_resources);
         addVulkan(this->_resources);
         addImGui(this->_resources);
-
-        // builtin
-        this->_resources.add<MeshRendererComponentFactory>()
-            .group(ResourceGroup::ECSComponent)
-            .implements<ComponentFactory>()
-            .done();
-        this->_resources.add<OrthographicCameraComponentFactory>()
-            .group(ResourceGroup::ECSComponent)
-            .implements<ComponentFactory>()
-            .done();
-        this->_resources.add<PerspectiveCameraComponentFactory>()
-            .group(ResourceGroup::ECSComponent)
-            .implements<ComponentFactory>()
-            .done();
-        this->_resources.add<TransformComponentFactory>()
-            .group(ResourceGroup::ECSComponent)
-            .implements<ComponentFactory>()
-            .done();
-        this->_resources.add<ViewComponentFactory>()
-            .group(ResourceGroup::ECSComponent)
-            .implements<ComponentFactory>()
-            .done();
     }
 
     void Engine::run() {

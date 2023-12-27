@@ -5,22 +5,9 @@
 
 #include <glm/mat4x4.hpp>
 
+#include <Penrose/Types/Projection.hpp>
+
 namespace Penrose {
-
-    struct PerspectiveProjection {
-        float fov;
-        float near;
-        float far;
-    };
-
-    struct OrthographicProjection {
-        float top;
-        float bottom;
-        float left;
-        float right;
-        float near;
-        float far;
-    };
 
     struct View {
         std::variant<PerspectiveProjection, OrthographicProjection> projection;

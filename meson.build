@@ -45,7 +45,11 @@ src = [
     'src/Common/LogImpl.cpp',
 
     # ECS
-    'src/ECS/EntityManager.cpp',
+    'src/ECS/ComponentFilterIterator.cpp',
+    'src/ECS/EntityFilterIterator.cpp',
+    'src/ECS/EntityManagerImpl.cpp',
+    'src/ECS/EntityQuery.cpp',
+    'src/ECS/EntityStore.cpp',
     'src/ECS/SystemManager.cpp',
 
     # Input
