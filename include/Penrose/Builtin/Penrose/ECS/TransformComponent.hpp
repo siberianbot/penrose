@@ -11,7 +11,7 @@ namespace Penrose {
      * \brief Transform component
      * \details Transform defines position, rotation and scale of entity in 3D world.
      */
-    struct TransformComponent final: Component<TransformComponent> {
+    struct PENROSE_API TransformComponent final: Component<TransformComponent> {
         ~TransformComponent() override = default;
 
         /**

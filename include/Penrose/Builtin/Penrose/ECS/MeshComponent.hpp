@@ -14,7 +14,7 @@ namespace Penrose {
      * \brief Mesh component
      * \details Defines mesh and textures for entity to rendered.
      */
-    struct MeshComponent final: Component<MeshComponent> {
+    struct PENROSE_API MeshComponent final: Component<MeshComponent> {
         ~MeshComponent() override = default;
 
         /**

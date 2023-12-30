@@ -14,7 +14,7 @@ namespace Penrose {
      * \brief View component
      * \details Entities with view components are treated as camera.
      */
-    struct ViewComponent final: Component<ViewComponent> {
+    struct PENROSE_API ViewComponent final: Component<ViewComponent> {
         ~ViewComponent() override = default;
 
         /**
